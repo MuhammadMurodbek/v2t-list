@@ -65,8 +65,16 @@ export default class Editor extends Component {
               </code>
             </pre>
           </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup>
           <EuiFlexItem grow={false}>
-            <EuiButton fill>Submit</EuiButton>
+            <EuiButton fill color="secondary">Finalize</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton color="secondary">Save Changes</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="danger">Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiText>
