@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
 import Diff from 'text-diff'
 
-import {
-  EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor, EuiButton
-} from '@elastic/eui'
+import { EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor, EuiButton } from '@elastic/eui'
 
 export default class Editor extends Component {
+
   static defaultProps = {
     diffInstance: new Diff(),
     transcript: []
@@ -15,19 +14,19 @@ export default class Editor extends Component {
     diff: null
   };
 
-  onChange = (e) => {
+  onChange = e => {
     const content = this.getContent(e)
     const diff = this.getDiff(content)
     this.setState({ diff })
   }
 
-  getContent = (e) => {
+  getContent = e => {
     const { target } = e
     if (target.textContent.length > 0) return target.textContent
     return [...target.querySelectorAll('span')].map(span => span.textContent).join(' ')
   }
 
-  getDiff = (content) => {
+  getDiff = content => {
     const { diffInstance, transcript } = this.props
     const original = transcript.map(span => span.props.children[0]).join(' ')
     const diff = diffInstance.main(original, content).filter(d => d[0] !== 1 || d[1] !== ' ')
@@ -36,27 +35,11 @@ export default class Editor extends Component {
   }
 
   parseDiff = (i, thisDiff, diff) => {
-    const prevDiff = diff.slice(0, i).reverse().find(d => d[0] === 0) || [1, ' ']
-    const nextDiff = diff.slice(i).find(d => d[0] === 0) || [1, ' ']
-    if (thisDiff[0] === -1) {
-      return <RemovedLine key={i} diff={thisDiff} prevDiff={prevDiff} nextDiff={nextDiff} />
-    }
-    if (thisDiff[0] === 1) {
-      return <AddedLine key={i} diff={thisDiff} prevDiff={prevDiff} nextDiff={nextDiff} />
-    }
+    const prevDiff = diff.slice(0, i).reverse().find(d => d[0] === 0) || [1,' ']
+    const nextDiff = diff.slice(i).find(d => d[0] === 0) || [1,' ']
+    if (thisDiff[0] === -1) return <RemovedLine key={i} diff={thisDiff} prevDiff={prevDiff} nextDiff={nextDiff} />
+    if (thisDiff[0] === 1) return <AddedLine key={i} diff={thisDiff} prevDiff={prevDiff} nextDiff={nextDiff} />
     return ''
-  }
-
-  finalize = () => {
-    // empty blocks
-  }
-
-  save = () => {
-    // empty blocks
-  }
-
-  cancel = () => {
-    // empty blocks
   }
 
   render() {
@@ -77,20 +60,12 @@ export default class Editor extends Component {
               </code>
             </pre>
           </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiFlexGroup>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="secondary" onClick={this.finalize}>Finalize</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
+            <EuiButton fill>Submit</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiText>
-    )
+    );
   }
 }
 
