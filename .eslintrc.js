@@ -22,6 +22,8 @@ module.exports = {
         "react/forbid-prop-types": 0,
         "import/no-extraneous-dependencies": 0,
         "no-underscore-dangle": [2, { "allowAfterThis": true }],
-        "react/no-multi-comp": [false, { "ignoreStateless": true }]
+        "react/no-multi-comp": [false, { "ignoreStateless": true }],
+        "semi": [2, "never"],
+        "comma-dangle": [2, "never"]
     }
 }
