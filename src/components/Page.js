@@ -1,6 +1,8 @@
 import React from 'react'
-import { EuiPageBody, EuiPageContent, EuiPageContentHeader,
-  EuiPageContentHeaderSection, EuiTitle, EuiPageContentBody } from '@elastic/eui'
+import {
+  EuiPageBody, EuiPageContent, EuiPageContentHeader,
+  EuiPageContentHeaderSection, EuiTitle, EuiPageContentBody
+} from '@elastic/eui'
 
 const Start = ({ title, children }) => (
   <EuiPageBody style={{ minHeight: '100vh', margin: '-16px', paddingLeft: '16px' }}>
