@@ -33,7 +33,7 @@ export default class EditPage extends Component {
             key={i}
             style={{ fontWeight: 'bold', color: '#0079A5' }}
           >
-            {d.text}
+            {d.text}&nbsp;
           </span>
         )
       }
