@@ -1,12 +1,16 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { EuiI18n } from '@elastic/eui'
+
 import Page from '../components/Page'
 import TranscriptionList from '../components/TranscriptionList'
 
-const StartPage = () => (
-  <Page title={<EuiI18n token="startTitle" default="Active Back Log" />}>
-    <TranscriptionList />
-  </Page>
-)
+export default class StartPage extends Component {
 
-export default StartPage
+  render() {
+    return (
+      <Page title={<EuiI18n token="startTitle" default="Active Back Log" />}>
+        <TranscriptionList />
+      </Page>
+    )
+  }
+}
