@@ -4,12 +4,11 @@ import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
 import Page from '../components/Page'
 import Editor from '../components/Editor'
 
-import Audio from '../audio/audiodesc.mp3';
-import Transcript from '../audio/audiodesc.json';
-import TranscriptSub from '../audio/audiodesc.vtt';
+import Audio from '../audio/audiodesc.mp3'
+import Transcript from '../audio/audiodesc.json'
+import TranscriptSub from '../audio/audiodesc.vtt'
 
 export default class EditPage extends Component {
-
   state = {
     transcript: null
   }
@@ -26,11 +25,22 @@ export default class EditPage extends Component {
 
   getSubtitles = () => {
     const currentTime = this.ref.current ? this.ref.current.currentTime : null
+
     return Transcript.map((d, i) => {
-      if (currentTime > d.start && currentTime < d.end)
-        return <span key={i} style={{ fontWeight: 'bold', color: "#0079A5" }}>{d.text} </span>
-      else
-        return <span key={i}>{d.text} </span>
+      if (currentTime > d.start && currentTime < d.end) {
+        return (
+          <span
+            key={i}
+            style={{ fontWeight: 'bold', color: '#0079A5' }}
+          >
+            {d.text}&nbsp;
+          </span>
+        )
+      }
+      return (
+        <span key={i}>
+          {d.text} </span>
+      )
     })
   }
 
@@ -46,7 +56,7 @@ export default class EditPage extends Component {
                 src={Audio}
                 ref={this.ref}
                 onTimeUpdate={this.updateSubtitles}
-                style={{width: '100%'}}
+                style={{ width: '100%' }}
               >
                 <track
                   default
