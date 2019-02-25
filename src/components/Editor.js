@@ -47,6 +47,18 @@ export default class Editor extends Component {
     return ''
   }
 
+  finalize = () => {
+    // empty blocks
+  }
+
+  save = () => {
+    // empty blocks
+  }
+
+  cancel = () => {
+    // empty blocks
+  }
+
   render() {
     const { transcript } = this.props
     const { diff } = this.state
@@ -68,13 +80,13 @@ export default class Editor extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="secondary">Finalize</EuiButton>
+            <EuiButton fill color="secondary" onClick={this.finalize}>Finalize</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton color="secondary">Save Changes</EuiButton>
+            <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger">Cancel</EuiButton>
+            <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiText>
