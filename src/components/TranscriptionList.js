@@ -7,6 +7,7 @@ export default class TransactionList extends Component {
   static columns = [
     { field: 'createdAt', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')},
     { field: 'updatedAt', name: 'Last updated', sortable: true, render: updated => moment(updated).format('YYYY-MM-DD HH:mm:ss')},
+    { name: 'Type', render: () => 'voice' },
     { field: 'text', name: 'Text', sortable: true },
     { field: 'url', name: 'File', sortable: true, render: (url, item) => {
       const fileName = url.replace('http://localhost:9000/minio/transcriptions/', '')

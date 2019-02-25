@@ -8,7 +8,7 @@ export default class StartPage extends Component {
 
   render() {
     return (
-      <Page title={<EuiI18n token="startTitle" default="Work load" />}>
+      <Page title={<EuiI18n token="startTitle" default="Active Back Log" />}>
         <TranscriptionList />
       </Page>
     )
