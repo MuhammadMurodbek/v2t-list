@@ -71,7 +71,7 @@ export default class Editor extends Component {
         </pre>
         <EuiFlexGroup>
           <EuiFlexItem>
-            <pre>
+            <pre style={(diff === null || diff.length === 1) ? { display: 'none' } : { display: 'block' }}>
               <code>
                 {diff}
               </code>
