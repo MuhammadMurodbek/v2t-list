@@ -56,7 +56,7 @@ export default class Editor extends Component {
   }
 
   cancel = () => {
-    // empty blocks
+    this.setState({ diff: null })
   }
 
   render() {
