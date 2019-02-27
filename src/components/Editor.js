@@ -12,8 +12,26 @@ export default class Editor extends Component {
   }
 
   state = {
-    diff: null
+    diff: null,
+    original: null
   };
+
+
+  componentDidMount = () => {
+    this.loadTranscript()
+  }
+
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.transcript !== this.props.transcript) {
+      this.loadTranscript()
+    }
+  }
+
+  loadTranscript = () => {
+    const { transcript } = this.props
+    this.setState({ original: transcript })
+  }
 
   onChange = (e) => {
     const content = this.getContent(e)
@@ -57,16 +75,22 @@ export default class Editor extends Component {
 
   cancel = () => {
     this.setState({ diff: null })
+    const { transcript } = this.props
+    const original = transcript.map(span => span.props.children[0]).join(' ')
+    this.setState({ original })
+    this.setState(this.state)
   }
 
   render() {
-    const { transcript } = this.props
     const { diff } = this.state
+    const { original } = this.state
+    const { transcript } = this.props
     return (
       <EuiText>
         <pre>
           <code onInput={this.onChange} contentEditable suppressContentEditableWarning>
-            {transcript}
+            {original}
+            {/* {transcript} */}
           </code>
         </pre>
         <EuiFlexGroup>
