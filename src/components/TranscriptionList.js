@@ -1,17 +1,18 @@
 import React, { Component } from 'react'
 import moment from 'moment'
+import axios from 'axios'
 import { EuiInMemoryTable, EuiButtonEmpty } from '@elastic/eui'
 
 export default class TransactionList extends Component {
+
+  
+
   static columns = [
     {
-      field: 'createdAt', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
-    },
-    {
-      field: 'updatedAt', name: 'Last updated', sortable: true, render: updated => moment(updated).format('YYYY-MM-DD HH:mm:ss')
+       field: 'createdAt', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
     },
     { name: 'Type', render: () => 'voice' },
-    { field: 'text', name: 'Text', sortable: true },
+    { field: 'callId', name: 'Call Id', sortable: true },
     {
       field: 'url',
       name: 'File',
@@ -20,8 +21,7 @@ export default class TransactionList extends Component {
         const fileName = url.replace('http://localhost:9000/minio/transcriptions/', '')
         return <EuiButtonEmpty iconType="play" href={`/#edit/${item.id}`}>{fileName}</EuiButtonEmpty>
       }
-    },
-    { field: 'status', name: 'Status', sortable: true }
+    }
   ]
 
   static randomContent = [
@@ -43,15 +43,46 @@ export default class TransactionList extends Component {
     }
   ]
 
+  state = {
+    transcripts : []
+  }
+
+  componentDidMount = () => {
+    this.loadData()
+  }
+
+
+  loadData = () => {
+    const { transcripts } = this.state
+    axios
+      .get('/api/v1/v2t-storage/')
+      .then((response) => {
+        console.log(response.data[0])
+        let url = `http://localhost:6102/api/v1/v2t-storage/audio/${response.data[0].callId}`
+        let processedData = {
+          id: response.data[0].callId,
+          callId: response.data[0].callId,
+          url,
+          createdAt: response.data[0].timestamp,
+          updatedAt: response.data[0].timestamp
+        }
+        this.setState({ transcripts: [...transcripts, processedData] })
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+
   render() {
-    const items = TransactionList.randomContent
+    const { transcripts } = this.state
     const { columns } = TransactionList
     return (
       <EuiInMemoryTable
         pagination
         sorting={{ sort: { field: 'createdAt', direction: 'asc' } }}
         columns={columns}
-        items={items}
+        items={transcripts}
       />
     )
   }
