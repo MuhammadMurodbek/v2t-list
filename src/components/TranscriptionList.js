@@ -5,11 +5,9 @@ import { EuiInMemoryTable, EuiButtonEmpty } from '@elastic/eui'
 
 export default class TransactionList extends Component {
 
-  
-
   static columns = [
     {
-       field: 'createdAt', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
+      field: 'createdAt', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
     },
     { name: 'Type', render: () => 'voice' },
     { field: 'callId', name: 'Call Id', sortable: true },
@@ -44,7 +42,7 @@ export default class TransactionList extends Component {
   ]
 
   state = {
-    transcripts : []
+    transcripts: []
   }
 
   componentDidMount = () => {
@@ -57,7 +55,6 @@ export default class TransactionList extends Component {
     axios
       .get('/api/v1/v2t-storage/')
       .then((response) => {
-        console.log(response.data[0])
         let url = `http://localhost:6102/api/v1/v2t-storage/audio/${response.data[0].callId}`
         let processedData = {
           id: response.data[0].callId,
@@ -67,9 +64,6 @@ export default class TransactionList extends Component {
           updatedAt: response.data[0].timestamp
         }
         this.setState({ transcripts: [...transcripts, processedData] })
-      })
-      .catch((error) => {
-        console.log(error)
       })
   }
 
