@@ -22,25 +22,6 @@ export default class TransactionList extends Component {
     }
   ]
 
-  static randomContent = [
-    {
-      id: 1,
-      text: 'some random text',
-      status: 'this status',
-      url: 'http://localhost:9000/minio/transcriptions/858048.wav',
-      createdAt: '2019-02-06T09:04:39.041+0000',
-      updatedAt: '2019-02-06T09:04:39.041+0000'
-    },
-    {
-      id: 2,
-      text: 'some text2',
-      status: 'some status',
-      url: 'http://localhost:9000/minio/transcriptions/858058.wav',
-      createdAt: '2019-02-06T09:05:39.041+0000',
-      updatedAt: '2019-02-06T09:05:39.041+0000'
-    }
-  ]
-
   state = {
     transcripts: []
   }
@@ -55,13 +36,17 @@ export default class TransactionList extends Component {
     axios
       .get('/api/v1/v2t-storage/')
       .then((response) => {
-        let url = `http://localhost:6102/api/v1/v2t-storage/audio/${response.data[0].callId}`
-        let processedData = {
-          id: response.data[0].callId,
-          callId: response.data[0].callId,
-          url,
-          createdAt: response.data[0].timestamp,
-          updatedAt: response.data[0].timestamp
+        const url = `http://localhost:6102/api/v1/v2t-storage/`
+        const processedData = []
+        for (let i = 0; i < response.data.length; i += 1) {
+          const temp = {
+            id: response.data[i].callId,
+            callId: response.data[i].callId,
+            url,
+            createdAt: response.data[i].timestamp,
+            updatedAt: response.data[i].timestamp
+          }
+          processedData.push(temp)
         }
         this.setState({ transcripts: [...transcripts, processedData] })
       })
@@ -76,7 +61,7 @@ export default class TransactionList extends Component {
         pagination
         sorting={{ sort: { field: 'createdAt', direction: 'asc' } }}
         columns={columns}
-        items={transcripts}
+        items={transcripts[0]}
       />
     )
   }
