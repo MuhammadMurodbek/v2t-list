@@ -30,6 +30,7 @@ export default class TransactionList extends Component {
     this.loadData()
   }
 
+  onQueryChange = callId => callId
 
   loadData = () => {
     const { transcripts } = this.state
@@ -56,11 +57,16 @@ export default class TransactionList extends Component {
   render() {
     const { transcripts } = this.state
     const { columns } = TransactionList
+    const search = {
+      onChange: this.onQueryChange,
+    }
+
     return (
       <EuiInMemoryTable
         pagination
         sorting={{ sort: { field: 'createdAt', direction: 'asc' } }}
         columns={columns}
+        search={search}
         items={transcripts[0]}
       />
     )
