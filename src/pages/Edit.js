@@ -22,13 +22,19 @@ export default class EditPage extends Component {
       .get('/api/v1/v2t-storage/')
       .then((response) => {
         const temporaryScript = []
-        for (let i = 0; i < response.data[0].words.length; i += 1) {
-          temporaryScript.push({
-            start: response.data[0].startTimes[i],
-            end: response.data[0].endTimes[i],
-            text: response.data[0].words[i]
-          })
+
+        for (let j = 0; j < response.data.length; j += 1) {
+          if (response.data[j].callId === window.location.href.split('/').filter(s => !!s).pop()) {
+            for (let i = 0; i < response.data[j].words.length; i += 1) {
+              temporaryScript.push({
+                start: response.data[j].startTimes[i],
+                end: response.data[j].endTimes[i],
+                text: response.data[j].words[i]
+              })
+            }
+          }
         }
+
         const scripture = this.getScripture(temporaryScript)
         this.setState({ parsedTranscript: temporaryScript })
         this.setState({ transcript: scripture })
