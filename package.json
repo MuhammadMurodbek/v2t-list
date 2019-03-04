@@ -1,6 +1,7 @@
 {
   "name": "v2t-list",
   "version": "0.1.0",
+  "license": "UNLICENSED",
   "private": true,
   "dependencies": {
     "@elastic/datemath": "^5.0.2",
