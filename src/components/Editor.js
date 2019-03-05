@@ -80,9 +80,11 @@ export default class Editor extends Component {
   render() {
     const { diff } = this.state
     const { original } = this.state
+    const label = (<h2>Transcript</h2>)
 
     return (
-      <EuiText>
+      <EuiText size="xs">
+        {label}
         <pre>
           <code onInput={this.onChange} contentEditable suppressContentEditableWarning>
             {original}

@@ -4,12 +4,30 @@ import axios from 'axios'
 
 import Page from '../components/Page'
 import Editor from '../components/Editor'
+import Tags from '../components/Tags'
 import TranscriptSub from '../audio/audiodesc.vtt'
 
 export default class EditPage extends Component {
   state = {
     transcript: null,
-    parsedTranscript: null
+    parsedTranscript: null,
+    tags: [
+      {
+        code: 1111,
+        info: 'genetic disorder'
+      },
+      {
+        code: 2222,
+        info: 'Fever'
+      },
+      {
+        code: 3333,
+        info: 'Cold'
+      },
+      {
+        code: 4444,
+        info: 'Noob disorder'
+      }]
   }
 
   componentDidMount() {
@@ -71,39 +89,50 @@ export default class EditPage extends Component {
 
 
   render() {
-    const { transcript } = this.state
+    const { transcript, tags } = this.state
     const baseUrl = '/api/v1/v2t-storage/audio/'
     const callId = window.location.href.split('/').filter(s => !!s).pop()
     const url = `${baseUrl}${callId}`
     return (
       <Page title="Editor">
         {
-          <EuiFlexGroup direction="column">
-            <EuiFlexItem grow={false}>
-              <figure>
-                <audio
-                  controls
-                  src={url}
-                  ref={this.ref}
-                  onTimeUpdate={this.updateSubtitle}
-                  style={{ width: '100%' }}
-                >
-                  <track
-                    default
-                    kind="captions"
-                    srcLang="en"
-                    src={TranscriptSub}
-                  />
-                  Your browser does not support the
-                  <code>audio</code>
-                  element.
-                </audio>
-              </figure>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <Editor transcript={transcript} />
-            </EuiFlexItem>
-          </EuiFlexGroup>}
+          <div>
+            <EuiFlexGroup direction="column">
+              <EuiFlexItem grow={false}>
+                <figure>
+                  <audio
+                    controls
+                    src={url}
+                    ref={this.ref}
+                    onTimeUpdate={this.updateSubtitle}
+                    style={{ width: '100%' }}
+                  >
+                    <track
+                      default
+                      kind="captions"
+                      srcLang="en"
+                      src={TranscriptSub}
+                    />
+                    Your browser does not support the
+                    <code>audio</code>
+                    element.
+                  </audio>
+                </figure>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <br />
+            <br />
+            <br />
+            <EuiFlexGroup wrap>
+              <EuiFlexItem>
+                <Editor transcript={transcript} />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <Tags values={tags} />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </div>
+        }
       </Page>
     )
   }
