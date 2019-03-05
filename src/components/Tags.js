@@ -34,6 +34,7 @@ export default class Tags extends Component {
           {label}
         </EuiText>
         <EuiBasicTable
+          className="transcript"
           items={values}
           columns={columns}
         />
