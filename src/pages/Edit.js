@@ -13,20 +13,12 @@ export default class EditPage extends Component {
     parsedTranscript: null,
     tags: [
       {
-        code: 1111,
-        info: 'genetic disorder'
+        code: 955,
+        info: 'Multiple Significant Trauma'
       },
       {
-        code: 2222,
-        info: 'Fever'
-      },
-      {
-        code: 3333,
-        info: 'Cold'
-      },
-      {
-        code: 4444,
-        info: 'Noob disorder'
+        code: 887,
+        info: 'Mental Diseases and Disorders'
       }]
   }
 

@@ -20,12 +20,12 @@ export default class Tags extends Component {
 
     const columns = [{
       field: 'code',
-      name: 'Code',
+      name: 'DRG Code',
       sortable: true,
-      width: '40px'
+      width: '70px'
     }, {
       field: 'info',
-      name: 'Details',
+      name: 'Description',
       width: '200px'
     }]
     return (
