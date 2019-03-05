@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import {
-  EuiListGroup, EuiListGroupItem, EuiText
+  EuiText, EuiBasicTable
 } from '@elastic/eui'
+import '../styles/tags.css'
 
 export default class Tags extends Component {
   static defaultProps = {
@@ -16,14 +17,26 @@ export default class Tags extends Component {
     const label = (<h2>Tags</h2>)
     const { values } = this.props
     const { borderStatus } = this.state
+
+    const columns = [{
+      field: 'code',
+      name: 'Code',
+      sortable: true,
+      width: '40px'
+    }, {
+      field: 'info',
+      name: 'Details',
+      width: '200px'
+    }]
     return (
       <React.Fragment>
         <EuiText size="xs">
           {label}
         </EuiText>
-        <EuiListGroup bordered={borderStatus}>
-          {values.map(value => <EuiListGroupItem key={value.code} label={value.info} isActive/>) }
-        </EuiListGroup>
+        <EuiBasicTable
+          items={values}
+          columns={columns}
+        />
       </React.Fragment>
     )
   }
