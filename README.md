@@ -12,4 +12,4 @@ In the project directory, you can run:
 # To run it using Docker
 
 
-### `docker run -it ${PWD}:/usr/src/app -v /usr/src/app/node_modules -p 3000:3000 --rm v2t-ui`
+### `docker run -it -v ${PWD}:/usr/src/app -v /usr/src/app/node_modules -p 3000:3000 --rm v2t-ui`
