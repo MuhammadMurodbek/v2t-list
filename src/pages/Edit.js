@@ -66,7 +66,7 @@ export default class EditPage extends Component {
         return (
           <span
             key={i}
-            style={{ fontWeight: 'bold', color: '#0079A5' }}
+            style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}
           >
             {d.text}&nbsp;
           </span>
