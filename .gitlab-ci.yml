@@ -1,0 +1,98 @@
+stages:
+  - docker
+
+### stage: build
+##################################################
+docker:
+  image: docker:git
+  stage: docker
+  script:
+    - init_docker
+    - init_external_docker_build
+    - docker_build_tool
+  only:
+    - master
+
+### Scripts
+##################################################
+.scripts: &scripts |
+  if [[ -n "${DEBUG_CI+x}" ]] ; then
+    set -x
+  fi
+
+  function init_docker() {
+    mkdir -p ~/.docker && echo "$DOCKER_AUTH_CONFIG" > ~/.docker/config.json
+  }
+
+  function init_external_docker_build() {
+    if [[ -n "${EXTERNAL_DOCKER_REPO+x}" ]] ; then
+
+      git clone --depth 1 --single-branch --branch ${EXTERNAL_DOCKER_REPO_BRANCH-master} $EXTERNAL_DOCKER_REPO repo
+
+      dir="repo/${EXTERNAL_DOCKER_REPO_DIR-}"
+      if [[ -f versions.json ]] ; then
+        cp versions.json "$dir/"
+      fi
+
+      cd "$dir/"
+    fi
+  }
+
+  function docker_add_jq() {
+    apk update
+    apk add jq
+  }
+
+  function docker_build_all_versions() {
+    for idx in $(seq 0 $(($(jq '. | length' versions.json) - 1))); do
+      first_tag=$(jq -r ".[$idx].tags[0]" versions.json)
+      other_tags=$(jq -r ".[$idx].tags[1:] | .[]" versions.json)
+      build_args=$(jq -r ".[$idx].args[] | to_entries | map(\"--build-arg \" + .key + \"=\" + .value) | .[]" versions.json)
+
+      image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME"
+      docker build --pull $build_args -t "$image_name:$first_tag" .
+      docker push "$image_name:$first_tag"
+
+      for tag in $other_tags; do
+        docker tag "$image_name:$first_tag" "$image_name:$tag"
+        docker push "$image_name:$tag"
+      done
+    done
+  }
+
+  function get_other_image_tags() {
+    latest_branch_tag="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:latest-$CI_COMMIT_REF_NAME"
+    if is_snapshot ; then
+      echo -n "$latest_branch_tag"
+    else
+      echo -n "$latest_branch_tag" "$DOCKER_RELEASE_REGISTRY/$IMAGE_NAME:$VERSION"
+    fi
+  }
+
+  function docker_build_tool() {
+    if [[ -f versions.json ]] ; then
+      docker_add_jq
+      docker_build_all_versions
+    else
+      image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:latest"
+      docker build --pull -t "$image_name" .
+      docker push "$image_name"
+    fi
+  }
+
+  function docker_build() {
+    commit_image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:$CI_COMMIT_SHA"
+    docker build --pull --build-arg version="$VERSION" -t "$commit_image_name" .
+    docker push "$commit_image_name"
+
+    for tag in $(get_other_image_tags); do \
+      docker tag "$commit_image_name" "$tag"
+      docker push "$tag"
+    done
+  }
+
+  export IMAGE_NAME="${IMAGE_NAME-$CI_PROJECT_NAMESPACE/${CI_PROJECT_NAME#docker-}}"
+
+
+before_script:
+  - *scripts
