@@ -127,7 +127,7 @@ export default class EditPage extends Component {
               <EuiFlexItem>
                 <Editor transcript={transcript} />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
+              <EuiFlexItem grow={false} style={(tags.length === 0) ? { display: 'none' } : { display: 'block' }}>
                 <Tags values={tags} />
               </EuiFlexItem>
             </EuiFlexGroup>
