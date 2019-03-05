@@ -10,8 +10,6 @@ docker:
     - init_docker
     - init_external_docker_build
     - docker_build_tool
-  only:
-    - master
 
 ### Scripts
 ##################################################
