@@ -6,32 +6,45 @@ import {
   HashRouter, Switch, Route, Link
 } from 'react-router-dom'
 import { EuiPage, EuiPageSideBar, EuiImage } from '@elastic/eui'
+import axios from 'axios'
 
 import logo from './logo.png'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 
 export default class App extends Component {
-  static randomContent = [
-    {
-      id: 1,
-      text: 'some random text',
-      status: 'this status',
-      url: 'http://localhost:9000/minio/transcriptions/858048.wav',
-      createdAt: '2019-02-06T09:04:39.041+0000',
-      updatedAt: '2019-02-06T09:04:39.041+0000'
-    },
-    {
-      id: 2,
-      text: 'some text',
-      status: 'some status',
-      url: 'http://localhost:9000/minio/transcriptions/858058.wav',
-      createdAt: '2019-02-06T09:05:39.041+0000',
-      updatedAt: '2019-02-06T09:05:39.041+0000'
-    }
-  ]
+
+  state = {
+    transcripts: []
+  }
+
+  componentDidMount() {
+    this.fetchTranscripts()
+  }
+
+  fetchTranscripts = () => {
+    axios.get('/api/v1/v2t-storage/')
+      .then(({ data }) => {
+        const transcripts = this.parseTranscripts(data)
+        console.log(transcripts)
+        this.setState({ transcripts })
+      })
+  }
+
+  parseTranscripts = (data) => {
+    return data.map(data => {
+      data.transcript = data.transcript.map((transcript, i) => ({
+        id: data.callId,
+        text: transcript,
+        start: data.startTimes[i],
+        end: data.endTimes[i]
+      }))
+      return data
+    })
+  }
 
   render() {
+    const { transcripts } = this.state
     return (
       <HashRouter>
         <EuiPage>
@@ -47,8 +60,11 @@ export default class App extends Component {
             </Link>
           </EuiPageSideBar>
           <Switch>
-            <Route exact path="/" component={StartPage} />
-            <Route path="/edit/:id" component={EditPage} />
+            <Route exact path="/" render={props => <StartPage {...{...props, transcripts}} /> } />
+            <Route path="/edit/:id" render={props => {
+              const transcript = transcripts.find(transcript => transcript.callId === props.match.params.id)
+              return <EditPage {...{...props, transcript}} />
+            }} />
           </Switch>
         </EuiPage>
       </HashRouter>
