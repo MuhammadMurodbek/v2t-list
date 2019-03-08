@@ -3,8 +3,7 @@ import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
 
 import Page from '../components/Page'
 import Editor from '../components/Editor'
-
-import TranscriptSub from '../audio/audiodesc.vtt'
+import Tags from '../components/Tags'
 
 export default class EditPage extends Component {
 
@@ -37,35 +36,41 @@ export default class EditPage extends Component {
   render() {
     const { transcript } = this.props
     const { subtitles } = this.state
-    if(!subtitles) return null
+    if (!transcript) return null
     return (
       <Page title="Editor">
-        <EuiFlexGroup direction="column">
-          <EuiFlexItem grow={false}>
-            <figure>
-              <audio
-                controls
-                src={`/api/v1/v2t-storage/audio/${transcript.callId}`}
-                ref={this.ref}
-                onTimeUpdate={this.updateSubtitles}
-                style={{ width: '100%' }}
-              >
-                <track
-                  default
-                  kind="captions"
-                  srcLang="en"
-                  src={TranscriptSub}
-                />
-                Your browser does not support the
-                <code>audio</code>
-                element.
-              </audio>
-            </figure>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <Editor transcript={subtitles} />
-          </EuiFlexItem>
-        </EuiFlexGroup>
+        {
+          <div>
+            <EuiFlexGroup direction="column">
+              <EuiFlexItem grow={false}>
+                <figure>
+                  <audio
+                    controls
+                    src={`/api/v1/v2t-storage/audio/${transcript.callId}`}
+                    ref={this.ref}
+                    onTimeUpdate={this.updateSubtitles}
+                    style={{ width: '100%' }}
+                  >
+                    Your browser does not support the
+                    <code>audio</code>
+                    element.
+                  </audio>
+                </figure>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <br />
+            <br />
+            <br />
+            <EuiFlexGroup wrap>
+              <EuiFlexItem>
+                <Editor transcript={subtitles} />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <Tags values={transcript.tags} />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </div>
+        }
       </Page>
     )
   }
@@ -75,7 +80,7 @@ const Subtitle = ({ text, start, end, currentTime }) => {
   const isCurrent = currentTime <= start || currentTime > end
   if (isCurrent) return <span>{text}</span>
   return (
-    <span style={{ fontWeight: 'bold', color: '#0079A5' }}>
+    <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
       {text}
     </span>
   )

@@ -64,7 +64,8 @@ export default class Editor extends Component {
     const { diff } = this.state
     if (!transcript) return null
     return (
-      <EuiText>
+      <EuiText size="s">
+        <h2>Transcript</h2>
         <pre>
           <code onInput={this.onChange} contentEditable suppressContentEditableWarning>
             {transcript}

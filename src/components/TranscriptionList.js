@@ -28,12 +28,14 @@ export default class TransactionList extends Component {
   render() {
     const { transcripts } = this.props
     const { columns } = TransactionList
+
     return (
       <EuiInMemoryTable
         pagination
         sorting={{ sort: { field: 'createdAt', direction: 'asc' } }}
         columns={columns}
         items={transcripts}
+        search={{ onChange: () => {} }}
       />
     )
   }
