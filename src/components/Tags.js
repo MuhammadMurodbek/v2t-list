@@ -5,29 +5,30 @@ import {
 import '../styles/tags.css'
 
 export default class Tags extends Component {
+
   static defaultProps = {
     values: []
   }
 
-  state = {
-    borderStatus: true
-  };
-
-  render() {
-    const label = (<h2>Tags</h2>)
-    const { values } = this.props
-    const { borderStatus } = this.state
-
-    const columns = [{
+  static COLUMNS = [
+    {
       field: 'code',
       name: 'DRG Code',
       sortable: true,
       width: '70px'
-    }, {
+    },
+    {
       field: 'info',
       name: 'Description',
       width: '200px'
-    }]
+    }
+  ]
+
+  render() {
+    const label = (<h2>Tags</h2>)
+    const { values } = this.props
+
+    if (!values) return null
     return (
       <React.Fragment>
         <EuiText size="xs">
@@ -36,7 +37,7 @@ export default class Tags extends Component {
         <EuiBasicTable
           className="transcript"
           items={values}
-          columns={columns}
+          columns={Tags.COLUMNS}
         />
       </React.Fragment>
     )

@@ -8,29 +8,11 @@ import {
 export default class Editor extends Component {
   static defaultProps = {
     diffInstance: new Diff(),
-    transcript: []
+    transcript: null
   }
 
   state = {
     diff: null,
-    original: null
-  };
-
-
-  componentDidMount = () => {
-    this.loadTranscript()
-  }
-
-
-  componentDidUpdate = (prevProps) => {
-    if (prevProps.transcript !== this.props.transcript) {
-      this.loadTranscript()
-    }
-  }
-
-  loadTranscript = () => {
-    const { transcript } = this.props
-    this.setState({ original: transcript })
   }
 
   onChange = (e) => {
@@ -47,8 +29,8 @@ export default class Editor extends Component {
 
   getDiff = (content) => {
     const { diffInstance, transcript } = this.props
-    const original = transcript.map(span => span.props.children[0]).join(' ')
-    const diff = diffInstance.main(original, content).filter(d => d[0] !== 1 || d[1] !== ' ')
+    const original = transcript.map(component => component.props.text).join(' ')
+    const diff = diffInstance.main(original, content).filter(d => d[1] !== ' ')
     diffInstance.cleanupSemantic(diff)
     return diff.map((d, i) => this.parseDiff(i, d, diff))
   }
@@ -78,16 +60,15 @@ export default class Editor extends Component {
   }
 
   render() {
+    const { transcript } = this.props
     const { diff } = this.state
-    const { original } = this.state
-    const label = (<h2>Transcript</h2>)
-
+    if (!transcript) return null
     return (
       <EuiText size="s">
-        {label}
+        <h2>Transcript</h2>
         <pre>
           <code onInput={this.onChange} contentEditable suppressContentEditableWarning>
-            {original}
+            {transcript}
           </code>
         </pre>
         <EuiFlexGroup>

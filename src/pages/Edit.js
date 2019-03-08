@@ -1,90 +1,42 @@
 import React, { Component } from 'react'
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
-import axios from 'axios'
 
 import Page from '../components/Page'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
-import TranscriptSub from '../audio/audiodesc.vtt'
 
 export default class EditPage extends Component {
+
+  static defaultProps = {
+    transcript: null
+  }
+
   state = {
-    transcript: null,
-    parsedTranscript: null,
-    tags: [
-      {
-        code: 955,
-        info: 'Multiple Significant Trauma'
-      },
-      {
-        code: 887,
-        info: 'Mental Diseases and Disorders'
-      }]
+    subtitles: null
   }
 
   componentDidMount() {
     this.ref = React.createRef()
-    this.getSubtitles()
+    this.updateSubtitles()
   }
 
-  getSubtitles = () => {
-    axios
-      .get('/api/v1/v2t-storage/')
-      .then((response) => {
-        const temporaryScript = []
-
-        for (let j = 0; j < response.data.length; j += 1) {
-          if (response.data[j].callId === window.location.href.split('/').filter(s => !!s).pop()) {
-            for (let i = 0; i < response.data[j].words.length; i += 1) {
-              temporaryScript.push({
-                start: response.data[j].startTimes[i],
-                end: response.data[j].endTimes[i],
-                text: response.data[j].words[i]
-              })
-            }
-          }
-        }
-
-        const scripture = this.getScripture(temporaryScript)
-        this.setState({ parsedTranscript: temporaryScript })
-        this.setState({ transcript: scripture })
-      })
+  componentDidUpdate(prevProps) {
+    if (this.props.transcript !== prevProps.transcript)
+      this.updateSubtitles()
   }
 
-
-  updateSubtitle = () => {
-    const { parsedTranscript } = this.state
-    const scripture = this.getScripture(parsedTranscript)
-    this.setState({ transcript: scripture })
+  updateSubtitles = () => {
+    const { transcript } = this.props
+    if (!transcript) return null
+    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+    const subtitles = transcript.transcript.map((subtitle, i) => <Subtitle key={i} {...{...subtitle, currentTime}} />)
+    this.setState({ subtitles })
   }
-
-  getScripture = (scripture) => {
-    const currentTime = this.ref.current ? this.ref.current.currentTime : null
-
-    return scripture.map((d, i) => {
-      if (currentTime >= d.start && currentTime <= d.end) {
-        return (
-          <span
-            key={i}
-            style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}
-          >
-            {d.text}&nbsp;
-          </span>
-        )
-      }
-      return (
-        <span key={i}>
-          {d.text} </span>
-      )
-    })
-  }
-
 
   render() {
-    const { transcript, tags } = this.state
-    const baseUrl = '/api/v1/v2t-storage/audio/'
-    const callId = window.location.href.split('/').filter(s => !!s).pop()
-    const url = `${baseUrl}${callId}`
+    const { transcript } = this.props
+    const { subtitles } = this.state
+    if (!transcript) return null
     return (
       <Page title="Editor">
         {
@@ -94,17 +46,11 @@ export default class EditPage extends Component {
                 <figure>
                   <audio
                     controls
-                    src={url}
+                    src={`/api/v1/v2t-storage/audio/${transcript.callId}`}
                     ref={this.ref}
-                    onTimeUpdate={this.updateSubtitle}
+                    onTimeUpdate={this.updateSubtitles}
                     style={{ width: '100%' }}
                   >
-                    <track
-                      default
-                      kind="captions"
-                      srcLang="en"
-                      src={TranscriptSub}
-                    />
                     Your browser does not support the
                     <code>audio</code>
                     element.
@@ -117,10 +63,10 @@ export default class EditPage extends Component {
             <br />
             <EuiFlexGroup wrap>
               <EuiFlexItem>
-                <Editor transcript={transcript} />
+                <Editor transcript={subtitles} />
               </EuiFlexItem>
-              <EuiFlexItem grow={false} style={(tags.length === 0) ? { display: 'none' } : { display: 'block' }}>
-                <Tags values={tags} />
+              <EuiFlexItem grow={false}>
+                <Tags values={transcript.tags} />
               </EuiFlexItem>
             </EuiFlexGroup>
           </div>
@@ -128,4 +74,14 @@ export default class EditPage extends Component {
       </Page>
     )
   }
+}
+
+const Subtitle = ({ text, start, end, currentTime }) => {
+  const isCurrent = currentTime <= start || currentTime > end
+  if (isCurrent) return <span>{text}</span>
+  return (
+    <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
+      {text}
+    </span>
+  )
 }
