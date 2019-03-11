@@ -26,16 +26,15 @@ export default class App extends Component {
     axios.get('/api/v1/v2t-storage/')
       .then(({ data }) => {
         const transcripts = this.parseTranscripts(data)
-        console.log(transcripts)
         this.setState({ transcripts })
       })
   }
 
   parseTranscripts = (data) => {
     return data.map(data => {
-      data.transcript = data.transcript.map((transcript, i) => ({
+      data.transcript = data.words.map((word, i) => ({
         id: data.callId,
-        text: transcript,
+        text: `${word} `,
         start: data.startTimes[i],
         end: data.endTimes[i]
       }))
