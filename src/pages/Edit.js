@@ -27,6 +27,8 @@ export default class EditPage extends Component {
 
   updateSubtitles = () => {
     const { transcript } = this.props
+    console.log('transcript .. ö')
+    console.log(transcript)
     if (!transcript) return null
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
     const subtitles = transcript.transcript.map((subtitle, i) => <Subtitle key={i} {...{...subtitle, currentTime}} />)

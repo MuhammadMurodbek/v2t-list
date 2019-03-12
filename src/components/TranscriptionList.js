@@ -10,17 +10,17 @@ export default class TransactionList extends Component {
 
   static columns = [
     {
-      field: 'createdAt', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
+      field: 'created', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
     },
     { name: 'Type', render: () => 'voice' },
-    { field: 'callId', name: 'Call Id', sortable: true },
+    { field: 'id', name: 'Id', sortable: true },
     {
-      field: 'audioUri',
+      field: 'id',
       name: 'File',
-      sortable: true,
-      render: (url, item) => {
-        const fileName = url.replace('http://localhost:9000/minio/transcriptions/', '')
-        return <EuiButtonEmpty iconType="play" href={`/#edit/${item.callId}`}>{fileName}</EuiButtonEmpty>
+      // sortable: true,
+      render: (id) => {
+        const fileName = `http://localhost:6106/api/v1/transcription/${id}`
+        return <EuiButtonEmpty iconType="play" href={`/#edit/${id}`}>{fileName}</EuiButtonEmpty>
       }
     }
   ]
@@ -32,7 +32,7 @@ export default class TransactionList extends Component {
     return (
       <EuiInMemoryTable
         pagination
-        sorting={{ sort: { field: 'createdAt', direction: 'asc' } }}
+        sorting={{ sort: { field: 'created', direction: 'asc' } }}
         columns={columns}
         items={transcripts}
         search={{ onChange: () => {} }}

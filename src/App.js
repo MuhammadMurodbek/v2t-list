@@ -23,24 +23,31 @@ export default class App extends Component {
   }
 
   fetchTranscripts = () => {
-    axios.get('/api/v1/v2t-storage/')
-      .then(({ data }) => {
-        const transcripts = this.parseTranscripts(data)
-        this.setState({ transcripts })
+    axios.get('/api/v1/workflow', {
+      params: {
+        pageStart: 1,
+        pageEnd: 10
+      }
+    })
+      .then((data) => {
+        // const transcripts = data
+        // const transcripts = this.parseTranscripts(data)
+        this.setState({ transcripts: data.data })
+      })
+      .catch((error) => {
+        console.log(error)
       })
   }
 
-  parseTranscripts = (data) => {
-    return data.map(data => {
-      data.transcript = data.words.map((word, i) => ({
-        id: data.callId,
-        text: `${word} `,
-        start: data.startTimes[i],
-        end: data.endTimes[i]
-      }))
-      return data
-    })
-  }
+  parseTranscripts = data => data.map((d) => {
+    d.transcript = d.words.map((word, i) => ({
+      id: d.callId,
+      text: `${word} `,
+      start: d.startTimes[i],
+      end: d.endTimes[i]
+    }))
+    return d
+  })
 
   render() {
     const { transcripts } = this.state
@@ -61,7 +68,7 @@ export default class App extends Component {
           <Switch>
             <Route exact path="/" render={props => <StartPage {...{...props, transcripts}} /> } />
             <Route path="/edit/:id" render={props => {
-              const transcript = transcripts.find(transcript => transcript.callId === props.match.params.id)
+              const transcript = transcripts.find(transcript => transcript.id === props.match.params.id)
               return <EditPage {...{...props, transcript}} />
             }} />
           </Switch>
