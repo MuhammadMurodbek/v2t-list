@@ -19,7 +19,7 @@ export default class Tags extends Component {
     },
     {
       field: 'info',
-      name: 'Description',
+      name: 'Probability',
       width: '200px'
     }
   ]
