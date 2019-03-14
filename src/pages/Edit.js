@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
+import {
+  EuiFlexGroup, EuiFlexItem, EuiSelect,
+  EuiText, EuiSpacer
+} from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
 import Editor from '../components/Editor'
@@ -10,9 +13,17 @@ export default class EditPage extends Component {
     transcript: null
   }
 
+  options = [
+    { value: '3', text: '3' },
+    { value: '4', text: '4' },
+    { value: '5', text: '5' }
+  ]
+
   state = {
     subtitles: null,
-    track: null
+    track: null,
+    keywords: null,
+    numberOfWords: this.options[0].value
   }
 
   componentDidMount() {
@@ -21,23 +32,24 @@ export default class EditPage extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.transcript !== prevProps.transcript)
+    if (this.props.transcript !== prevProps.transcript) {
       this.loadSubtitles()
     }
+  }
 
   loadSubtitles = () => {
     const { transcript } = this.props
+    const { numberOfWords } = this.state
     let id
+
     if (transcript) {
       id = transcript.id
       if (id) { this.setState({ track: id })}
     }
 
     if (!id) return null
-
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-
-    const queryString = `/api/v1/transcription/${id}`
+    const queryString = `/api/v1/transcription/${id}?segmentLength=${numberOfWords}`
     axios.get(queryString)
       .then((response) => {
         const subtitles = response.data.transcriptions[0]
@@ -51,19 +63,16 @@ export default class EditPage extends Component {
             />
           ))
         this.setState({ subtitles })
+        this.setState({ keywords: response.data.transcriptions[0].keywords})
       })
       .catch((error) => {
         // handle error
-        console.log(error)
+        this.setState({ subtitles: null })
       })
   }
 
   updateSubtitles = () => {
     const { subtitles } = this.state
-    // console.log('updating')
-    console.log('subtitles start')
-    console.log(subtitles)
-    console.log('subtitles end')
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
 
     if (subtitles) {
@@ -80,15 +89,31 @@ export default class EditPage extends Component {
     }
   }
 
+  changeNumberOfWords = (e) => {
+    this.setState({ numberOfWords: e.target.value }, () => {
+      this.loadSubtitles()
+    })
+  }
+
   render() {
     const { transcript } = this.props
-    const { subtitles, track } = this.state
+    const { subtitles, track, keywords } = this.state
     if (!transcript) return null
     return (
       <Page title="Editor">
         {
           <div>
             <EuiFlexGroup direction="column">
+              <EuiFlexItem grow={false} style={{width: '150px'}}>
+                <EuiText><h4>Number of words</h4></EuiText>
+                <EuiSelect
+                  options={this.options}
+                  value={this.state.numberOfWords}
+                  onChange={this.changeNumberOfWords}
+                  aria-label="Use aria labels when no actual label is in use"
+                />
+                <EuiSpacer size="m" />
+              </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <figure>
                   <audio
@@ -110,10 +135,10 @@ export default class EditPage extends Component {
             <br />
             <EuiFlexGroup wrap>
               <EuiFlexItem>
-                <Editor transcript={subtitles} />
+                <Editor transcript={subtitles} id={transcript.id} />
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <Tags values={transcript.tags} />
+                <Tags values={keywords} />
               </EuiFlexItem>
             </EuiFlexGroup>
           </div>

@@ -15,12 +15,17 @@ export default class Tags extends Component {
       field: 'code',
       name: 'DRG Code',
       sortable: true,
-      width: '70px'
+      width: '100px'
     },
     {
-      field: 'info',
-      name: 'Probability',
+      field: 'description',
+      name: 'Description',
       width: '200px'
+    },
+    {
+      field: 'probability',
+      name: 'Probability',
+      width: '100px'
     }
   ]
 
