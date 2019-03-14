@@ -1,43 +1,88 @@
 import React, { Component } from 'react'
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
-
+import axios from 'axios'
 import Page from '../components/Page'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 
 export default class EditPage extends Component {
-
   static defaultProps = {
     transcript: null
   }
 
   state = {
-    subtitles: null
+    subtitles: null,
+    track: null
   }
 
   componentDidMount() {
     this.ref = React.createRef()
-    this.updateSubtitles()
+    this.loadSubtitles()
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.transcript !== prevProps.transcript)
-      this.updateSubtitles()
+      this.loadSubtitles()
+    }
+
+  loadSubtitles = () => {
+    const { transcript } = this.props
+    let id
+    if (transcript) {
+      id = transcript.id
+      if (id) { this.setState({ track: id })}
+    }
+
+    if (!id) return null
+
+    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+
+    const queryString = `/api/v1/transcription/${id}`
+    axios.get(queryString)
+      .then((response) => {
+        const subtitles = response.data.transcriptions[0]
+          .segments.map((subtitle, i) => (
+            <Subtitle
+              key={i} 
+              words={subtitle.words}
+              startTime={subtitle.startTime}
+              endTime={subtitle.endTime}
+              currentTime={currentTime}
+            />
+          ))
+        this.setState({ subtitles })
+      })
+      .catch((error) => {
+        // handle error
+        console.log(error)
+      })
   }
 
   updateSubtitles = () => {
-    const { transcript } = this.props
-    console.log('transcript .. ö')
-    console.log(transcript)
-    if (!transcript) return null
+    const { subtitles } = this.state
+    // console.log('updating')
+    console.log('subtitles start')
+    console.log(subtitles)
+    console.log('subtitles end')
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-    const subtitles = transcript.transcript.map((subtitle, i) => <Subtitle key={i} {...{...subtitle, currentTime}} />)
-    this.setState({ subtitles })
+
+    if (subtitles) {
+      const tempSubtitles = subtitles.map((subtitle, i) => (
+        <Subtitle
+          key={i}
+          words={subtitle.props.words}
+          startTime={subtitle.props.startTime}
+          endTime={subtitle.props.endTime}
+          currentTime={currentTime}
+        />
+      ))
+      this.setState({ subtitles: tempSubtitles })
+    }
   }
 
   render() {
     const { transcript } = this.props
-    const { subtitles } = this.state
+    const { subtitles, track } = this.state
     if (!transcript) return null
     return (
       <Page title="Editor">
@@ -48,7 +93,7 @@ export default class EditPage extends Component {
                 <figure>
                   <audio
                     controls
-                    src={`/api/v1/v2t-storage/audio/${transcript.callId}`}
+                    src={`/api/v1/transcription/${track}/audio`}
                     ref={this.ref}
                     onTimeUpdate={this.updateSubtitles}
                     style={{ width: '100%' }}
@@ -78,12 +123,13 @@ export default class EditPage extends Component {
   }
 }
 
-const Subtitle = ({ text, start, end, currentTime }) => {
-  const isCurrent = currentTime <= start || currentTime > end
-  if (isCurrent) return <span>{text}</span>
+const Subtitle = ({words, startTime, endTime, currentTime}) => {
+  const isCurrent = currentTime <= startTime || currentTime > endTime
+  if (isCurrent) return <span>{words}&nbsp;</span>
   return (
     <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
-      {text}
+      {words}
+      &nbsp;
     </span>
   )
 }
