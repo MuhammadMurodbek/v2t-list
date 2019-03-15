@@ -183,24 +183,24 @@ export default class EditPage extends Component {
         >
           <EuiFlyoutHeader hasBorder>
             <EuiTitle size="m">
-              <h2 id="flyoutTitle">
-                Select Preferred Columns
-              </h2>
+              <h4 id="flyoutTitle">
+                Preferences
+              </h4>
             </EuiTitle>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
+            
             <Fragment>
+              <h5 id="flyoutTitle">
+                Highlighted Number of Words
+              </h5>
+              <EuiSpacer size="m" />
               <EuiRadioGroup
                 options={this.radios}
                 idSelected={this.state.radioIdSelected}
                 onChange={this.changeNumberOfWords}
               />
             </Fragment>
-            {/* {<EuiCheckboxGroup
-              options={this.state.columnObjects}
-              idToSelectedMap={this.state.checkboxIdToSelectedMap}
-              onChange={this.selectPreferredColumns}
-            />} */}
           </EuiFlyoutBody>
         </EuiFlyout>
       )
