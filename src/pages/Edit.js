@@ -39,7 +39,7 @@ export default class EditPage extends Component {
     keywords: null,
     numberOfWords: this.options[0].value,
     isFlyoutVisible: false,
-    radioIdSelected: '1'
+    radioIdSelected: '3'
   }
 
   componentDidMount() {
@@ -169,6 +169,8 @@ export default class EditPage extends Component {
 
   render() {
     const { transcript } = this.props
+    let id
+    if(transcript){ id  = transcript.id}
     const { subtitles, track, keywords } = this.state
     if (!transcript) return null
 
@@ -256,7 +258,7 @@ export default class EditPage extends Component {
             </EuiFlexGroup>
             <EuiFlexGroup wrap >
               <EuiFlexItem >
-                <Editor transcript={subtitles} />
+                <Editor transcript={subtitles} id={id}/>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <Tags values={keywords} />
