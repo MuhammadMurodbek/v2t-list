@@ -16,6 +16,11 @@ export default class Editor extends Component {
     diff: null,
   }
 
+  componentDidMount() {
+    this.ref = React.createRef()
+  }
+
+
   onChange = (e) => {
     const content = this.getContent(e)
     const diff = this.getDiff(content)
@@ -50,6 +55,35 @@ export default class Editor extends Component {
 
   finalize = () => {
     // empty blocks
+    const { transcript } = this.props.words 
+    console.log('updated')
+    console.log(transcript)
+
+    // const {id} = this.props
+    // const queryString = `/api/v1/transcription/${id}`
+    // console.log(id)
+    // axios.put(queryString,
+    //   {
+    //     tags: null,
+    //     transcriptions: [
+    //       {
+    //         keyword: "test",
+    //         segments: [
+    //           {
+    //             words: "ett två tre fyra",
+    //             startTime: null,
+    //             endTime: null
+    //           }
+    //         ]
+    //       }
+    //     ]
+    //   })
+    //   .then((response) => {
+    //     console.log(response)
+    //   })
+    //   .catch((error) => {
+    //     console.log(error)
+    //   })
   }
 
   save = () => {

@@ -1,7 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem, EuiSelect,
-  EuiText, EuiSpacer
+  EuiText, EuiSpacer, EuiButton,
+  EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
+  EuiTitle, EuiCodeBlock, EuiIcon, EuiCheckboxGroup,
+  EuiRadioGroup
 } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
@@ -19,11 +22,24 @@ export default class EditPage extends Component {
     { value: '5', text: '5' }
   ]
 
+  radios = [{
+    id: `1`,
+    label: '1'
+  }, {
+    id: `3`,
+    label: '3'
+  }, {
+    id: `5`,
+    label: '5'
+  }];
+
   state = {
     subtitles: null,
     track: null,
     keywords: null,
-    numberOfWords: this.options[0].value
+    numberOfWords: this.options[0].value,
+    isFlyoutVisible: false,
+    radioIdSelected: '1'
   }
 
   componentDidMount() {
@@ -35,6 +51,14 @@ export default class EditPage extends Component {
     if (this.props.transcript !== prevProps.transcript) {
       this.loadSubtitles()
     }
+  }
+
+  closeFlyout = () => {
+    this.setState({ isFlyoutVisible: false })
+  }
+
+  showFlyout = () => {
+    this.setState({ isFlyoutVisible: true })
   }
 
   loadSubtitles = () => {
@@ -89,32 +113,131 @@ export default class EditPage extends Component {
     }
   }
 
-  changeNumberOfWords = (e) => {
-    this.setState({ numberOfWords: e.target.value }, () => {
-      this.loadSubtitles()
+  // changeNumberOfWords = (e) => {
+  //   this.setState({ numberOfWords: e.target.value }, () => {
+  //     this.loadSubtitles()
+  //   })
+  // }
+  changeNumberOfWords = (optionId) => {
+    this.setState({
+      radioIdSelected: optionId
+    }, () => {
+      this.setState({ numberOfWords: optionId }, () => {
+        this.loadSubtitles()
+      })
     })
   }
+
+  // finalize = () => {
+  //   const { transcript } = this.props
+  //   const { id } = transcript
+  //   const queryString = `/api/v1/transcription/${id}`
+  //   console.log(queryString)
+
+  //   // axios.put(queryString,
+  //   //   {
+  //   //     tags: null,
+  //   //     transcriptions: [
+  //   //       {
+  //   //         keyword: "test",
+  //   //         segments: [
+  //   //           {
+  //   //             words: "ett två tre fyra",
+  //   //             startTime: null,
+  //   //             endTime: null
+  //   //           }
+  //   //         ]
+  //   //       }
+  //   //     ]
+  //   //   })
+  //   //   .then((response) => {
+  //   //     console.log(response)
+  //   //   })
+  //   //   .catch((error) => {
+  //   //     console.log(error)
+  //   //   })
+
+  // }
+
+  // save = () => {
+  //   console.log('save')
+  // }
+
+  // cancel = () => {
+  //   console.log('cancel')
+  // }
 
   render() {
     const { transcript } = this.props
     const { subtitles, track, keywords } = this.state
     if (!transcript) return null
+
+    let flyout
+    if (this.state.isFlyoutVisible) {
+      flyout = (
+        <EuiFlyout
+          onClose={this.closeFlyout}
+          aria-labelledby="flyoutTitle"
+        >
+          <EuiFlyoutHeader hasBorder>
+            <EuiTitle size="m">
+              <h2 id="flyoutTitle">
+                Select Preferred Columns
+              </h2>
+            </EuiTitle>
+          </EuiFlyoutHeader>
+          <EuiFlyoutBody>
+            <Fragment>
+              <EuiRadioGroup
+                options={this.radios}
+                idSelected={this.state.radioIdSelected}
+                onChange={this.changeNumberOfWords}
+              />
+            </Fragment>
+            {/* {<EuiCheckboxGroup
+              options={this.state.columnObjects}
+              idToSelectedMap={this.state.checkboxIdToSelectedMap}
+              onChange={this.selectPreferredColumns}
+            />} */}
+          </EuiFlyoutBody>
+        </EuiFlyout>
+      )
+    }
+
     return (
       <Page title="Editor">
         {
           <div>
-            <EuiFlexGroup direction="column">
-              <EuiFlexItem grow={false} style={{width: '150px'}}>
-                <EuiText><h4>Number of words</h4></EuiText>
-                <EuiSelect
-                  options={this.options}
-                  value={this.state.numberOfWords}
-                  onChange={this.changeNumberOfWords}
-                  aria-label="Use aria labels when no actual label is in use"
-                />
-                <EuiSpacer size="m" />
+            <EuiFlexGroup direction="column" alignItems="flexEnd">
+              <EuiFlexItem grow={true} style={{width: '150px'}}>
+                    <Fragment>
+                      <EuiIcon
+                        type="gear"
+                        size="xl"
+                        className="gear"
+                        onClick={this.showFlyout}
+                      />
+                      {flyout}
+                    </Fragment>
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
+                  {/* <EuiText><h4>Number of words</h4></EuiText>
+                  <EuiSelect
+                    options={this.options}
+                    value={this.state.numberOfWords}
+                    onChange={this.changeNumberOfWords}
+                    aria-label="Use aria labels when no actual label is in use"
+                  />
+                  <EuiSpacer size="m" /> */}
+                
+               
+                   
+            </EuiFlexGroup >
+            
+            <br />
+            <br />
+            <br />
+            <EuiFlexGroup wrap>
+              <EuiFlexItem grow={true}>
                 <figure>
                   <audio
                     controls
@@ -129,13 +252,11 @@ export default class EditPage extends Component {
                   </audio>
                 </figure>
               </EuiFlexItem>
+
             </EuiFlexGroup>
-            <br />
-            <br />
-            <br />
-            <EuiFlexGroup wrap>
-              <EuiFlexItem>
-                <Editor transcript={subtitles} id={transcript.id} />
+            <EuiFlexGroup wrap >
+              <EuiFlexItem >
+                <Editor transcript={subtitles} />
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <Tags values={keywords} />
