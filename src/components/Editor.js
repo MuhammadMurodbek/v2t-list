@@ -29,14 +29,13 @@ export default class Editor extends Component {
 
   getContent = (e) => {
     const { target } = e
-    if (target.textContent.length > 0) return target.textContent
-    return [...target.querySelectorAll('span')].map(span => span.textContent).join(' ')
+    return target.textContent.replace(/\u00a0/g, ' ').trim()
   }
 
   getDiff = (content) => {
     const { diffInstance, transcript } = this.props
-    const original = transcript.map(component => component.props.text).join(' ')
-    const diff = diffInstance.main(original, content).filter(d => d[1] !== ' ')
+    const original = transcript.map(component => component.props.words).join(' ')
+    const diff = diffInstance.main(original, content)
     diffInstance.cleanupSemantic(diff)
     return diff.map((d, i) => this.parseDiff(i, d, diff))
   }
@@ -87,9 +86,9 @@ export default class Editor extends Component {
         console.log(error)
       })
     }
-    
-    
-  
+
+
+
   save = () => {
     // empty blocks
   }
@@ -139,7 +138,7 @@ const RemovedLine = ({ diff, prevDiff, nextDiff }) => (
   <div>
     <EuiTextColor color="danger">- </EuiTextColor>
     {prevDiff[1].split(' ').slice(-3).join(' ')}
-    <EuiTextColor color="danger">{diff[1].replace(/  */, ' ')}</EuiTextColor>
+    <EuiTextColor color="danger" style={{ background: '#BD271E30' }}>{diff[1]}</EuiTextColor>
     {nextDiff[1].split(' ').slice(0, 3).join(' ')}
   </div>
 )
@@ -148,7 +147,7 @@ const AddedLine = ({ diff, prevDiff, nextDiff }) => (
   <div>
     <EuiTextColor color="secondary">+ </EuiTextColor>
     {prevDiff[1].split(' ').slice(-3).join(' ')}
-    <EuiTextColor color="secondary">{diff[1].replace(/  */, ' ')}</EuiTextColor>
+    <EuiTextColor color="secondary" style={{ background: '#017D7330' }}>{diff[1]}</EuiTextColor>
     {nextDiff[1].split(' ').slice(0, 3).join(' ')}
   </div>
 )

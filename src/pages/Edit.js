@@ -79,7 +79,7 @@ export default class EditPage extends Component {
         const subtitles = response.data.transcriptions[0]
           .segments.map((subtitle, i) => (
             <Subtitle
-              key={i} 
+              key={i}
               words={subtitle.words}
               startTime={subtitle.startTime}
               endTime={subtitle.endTime}
@@ -230,11 +230,11 @@ export default class EditPage extends Component {
                     aria-label="Use aria labels when no actual label is in use"
                   />
                   <EuiSpacer size="m" /> */}
-                
-               
-                   
+
+
+
             </EuiFlexGroup >
-            
+
             <br />
             <br />
             <br />
@@ -272,12 +272,11 @@ export default class EditPage extends Component {
 }
 
 const Subtitle = ({words, startTime, endTime, currentTime}) => {
-  const isCurrent = currentTime <= startTime || currentTime > endTime
-  if (isCurrent) return <span>{words}&nbsp;</span>
+  const notCurrent = currentTime <= startTime || currentTime > endTime
+  if (notCurrent) return <span>{words}&nbsp;</span>
   return (
     <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
-      {words}
-      &nbsp;
+      {words}&nbsp;
     </span>
   )
 }
