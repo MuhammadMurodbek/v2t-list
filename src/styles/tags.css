@@ -1,3 +1,11 @@
 .transcript{
     width: 400px;
 }
+
+.euiListGroupItem.euiListGroupItem-isActive, .euiListGroupItem.euiListGroupItem-isClickable:hover, .euiListGroupItem.euiListGroupItem-isClickable:focus {
+    background-color: #d3d9e2;
+}
+
+.euiListGroupItem:hover {
+       background-color: #d3d9e2;
+}

@@ -173,6 +173,18 @@ export default class EditPage extends Component {
     if(transcript){ id  = transcript.id}
     const { subtitles, track, keywords } = this.state
     if (!transcript) return null
+    const dummyCode = [
+      {
+        code: 'L001',
+        description: 'Fever',
+        probability: '0.10'
+      },
+      {
+        code: 'M005',
+        description: 'Eye sore',
+        probability: '0.50'
+      }
+    ]
 
     let flyout
     if (this.state.isFlyoutVisible) {
@@ -246,7 +258,7 @@ export default class EditPage extends Component {
                     src={`/api/v1/transcription/${track}/audio`}
                     ref={this.ref}
                     onTimeUpdate={this.updateSubtitles}
-                    style={{ width: '100%' }}
+                    style={{ width: '75.5%' }}
                   >
                     Your browser does not support the
                     <code>audio</code>
@@ -256,12 +268,13 @@ export default class EditPage extends Component {
               </EuiFlexItem>
 
             </EuiFlexGroup>
-            <EuiFlexGroup wrap >
+            <EuiFlexGroup>
               <EuiFlexItem >
-                <Editor transcript={subtitles} id={id}/>
+                <Editor transcript={subtitles} id={id} />
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                <Tags values={keywords} />
+              <EuiFlexItem grow={true}>
+                {/* <Tags values={keywords} /> */}
+                <Tags values={dummyCode} />
               </EuiFlexItem>
             </EuiFlexGroup>
           </div>
