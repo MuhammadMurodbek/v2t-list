@@ -137,7 +137,7 @@ export default class EditPage extends Component {
             </EuiTitle>
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
-            
+
             <Fragment>
               <h5 id="flyoutTitle">
                 Highlighted Number of Words
@@ -209,10 +209,10 @@ export default class EditPage extends Component {
 
 const Subtitle = ({ words, startTime, endTime, currentTime }) => {
   const notCurrent = currentTime <= startTime || currentTime > endTime
-  if (notCurrent) return <span>{words}&nbsp;</span>
+  if (notCurrent) return <span>{`${words} `}</span>
   return (
     <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
-      {words}&nbsp;
+      {`${words} `}
     </span>
   )
 }

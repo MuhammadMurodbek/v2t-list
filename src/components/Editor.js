@@ -29,7 +29,7 @@ export default class Editor extends Component {
 
   getContent = (e) => {
     const { target } = e
-    return target.textContent.replace(/\u00a0/g, ' ').trim()
+    return target.textContent.trim()
   }
 
   getDiff = (content) => {
@@ -97,7 +97,7 @@ export default class Editor extends Component {
       <EuiText size="s">
         <h2>Transcript</h2>
         <pre>
-          <code 
+          <code
             onInput={this.onChange}
             contentEditable
             suppressContentEditableWarning ref={this.ref}
