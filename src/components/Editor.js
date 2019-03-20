@@ -29,7 +29,7 @@ export default class Editor extends Component {
 
   getContent = (e) => {
     const { target } = e
-    return target.textContent.replace(/\u00a0/g, ' ').trim()
+    return target.textContent.trim()
   }
 
   getDiff = (content) => {
@@ -54,14 +54,9 @@ export default class Editor extends Component {
 
   finalize = () => {
     // empty blocks
-    console.log('updated')
     const updatedTranscript = this.ref.current.innerText
-    console.log(updatedTranscript)
-
     const {id} = this.props
     const queryString = `/api/v1/transcription/${id}`
-    console.log(id)
-    console.log(queryString)
     axios.put(queryString,
       {
         tags: null,
@@ -79,15 +74,12 @@ export default class Editor extends Component {
         ]
       })
       .then((response) => {
-        console.log(response)
         alert('Transcript is updated')
       })
       .catch((error) => {
         console.log(error)
       })
-    }
-
-
+  }
 
   save = () => {
     // empty blocks
@@ -105,7 +97,11 @@ export default class Editor extends Component {
       <EuiText size="s">
         <h2>Transcript</h2>
         <pre>
-          <code onInput={this.onChange} contentEditable suppressContentEditableWarning ref={this.ref}>
+          <code
+            onInput={this.onChange}
+            contentEditable
+            suppressContentEditableWarning ref={this.ref}
+          >
             {transcript}
           </code>
         </pre>
