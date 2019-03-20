@@ -1,10 +1,8 @@
 import React, { Component, Fragment } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSelect,
-  EuiText, EuiSpacer, EuiButton,
-  EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
-  EuiTitle, EuiCodeBlock, EuiIcon, EuiCheckboxGroup,
-  EuiRadioGroup
+  EuiFlexGroup, EuiFlexItem,
+  EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
+  EuiTitle, EuiIcon, EuiRadioGroup
 } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
@@ -128,45 +126,6 @@ export default class EditPage extends Component {
     })
   }
 
-  // finalize = () => {
-  //   const { transcript } = this.props
-  //   const { id } = transcript
-  //   const queryString = `/api/v1/transcription/${id}`
-  //   console.log(queryString)
-
-  //   // axios.put(queryString,
-  //   //   {
-  //   //     tags: null,
-  //   //     transcriptions: [
-  //   //       {
-  //   //         keyword: "test",
-  //   //         segments: [
-  //   //           {
-  //   //             words: "ett två tre fyra",
-  //   //             startTime: null,
-  //   //             endTime: null
-  //   //           }
-  //   //         ]
-  //   //       }
-  //   //     ]
-  //   //   })
-  //   //   .then((response) => {
-  //   //     console.log(response)
-  //   //   })
-  //   //   .catch((error) => {
-  //   //     console.log(error)
-  //   //   })
-
-  // }
-
-  // save = () => {
-  //   console.log('save')
-  // }
-
-  // cancel = () => {
-  //   console.log('cancel')
-  // }
-
   render() {
     const { transcript } = this.props
     let id
@@ -212,34 +171,22 @@ export default class EditPage extends Component {
           <div>
             <EuiFlexGroup direction="column" alignItems="flexEnd">
               <EuiFlexItem grow={true} style={{width: '150px'}}>
-                    <Fragment>
-                      <EuiIcon
-                        type="gear"
-                        size="xl"
-                        className="gear"
-                        onClick={this.showFlyout}
-                      />
-                      {flyout}
-                    </Fragment>
-              </EuiFlexItem>
-                  {/* <EuiText><h4>Number of words</h4></EuiText>
-                  <EuiSelect
-                    options={this.options}
-                    value={this.state.numberOfWords}
-                    onChange={this.changeNumberOfWords}
-                    aria-label="Use aria labels when no actual label is in use"
+                <Fragment>
+                  <EuiIcon
+                    type="gear"
+                    size="xl"
+                    className="gear"
+                    onClick={this.showFlyout}
                   />
-                  <EuiSpacer size="m" /> */}
-
-
-
-            </EuiFlexGroup >
-
+                  {flyout}
+                </Fragment>
+              </EuiFlexItem>
+            </EuiFlexGroup>
             <br />
             <br />
             <br />
             <EuiFlexGroup wrap>
-              <EuiFlexItem grow={true}>
+              <EuiFlexItem>
                 <figure>
                   <audio
                     controls
@@ -256,9 +203,9 @@ export default class EditPage extends Component {
               </EuiFlexItem>
 
             </EuiFlexGroup>
-            <EuiFlexGroup wrap >
-              <EuiFlexItem >
-                <Editor transcript={subtitles} id={id}/>
+            <EuiFlexGroup wrap>
+              <EuiFlexItem>
+                <Editor transcript={subtitles} id={id} />
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <Tags values={keywords} />
@@ -271,7 +218,7 @@ export default class EditPage extends Component {
   }
 }
 
-const Subtitle = ({words, startTime, endTime, currentTime}) => {
+const Subtitle = ({ words, startTime, endTime, currentTime }) => {
   const notCurrent = currentTime <= startTime || currentTime > endTime
   if (notCurrent) return <span>{words}&nbsp;</span>
   return (
