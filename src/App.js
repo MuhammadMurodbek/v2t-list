@@ -55,7 +55,7 @@ export default class App extends Component {
       <HashRouter>
         <EuiPage>
           <EuiPageSideBar>
-            <Link to="/">
+            {/* <Link to="/">
               <EuiImage
                 className="logo"
                 size="m"
@@ -63,7 +63,7 @@ export default class App extends Component {
                 url={logo}
                 allowFullScreen
               />
-            </Link>
+            </Link> */}
           </EuiPageSideBar>
           <Switch>
             <Route exact path="/" render={props => <StartPage {...{...props, transcripts}} /> } />
