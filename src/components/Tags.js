@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
 import {
-  EuiSpacer, EuiText, EuiBasicTable, EuiFieldSearch,
-  EuiListGroup,
-  EuiListGroupItem, EuiComboBox
+  EuiSpacer, EuiText, EuiBasicTable, EuiComboBox
 } from '@elastic/eui'
 import '../styles/tags.css'
 
 export default class Tags extends Component {
-
   static defaultProps = {
     values: []
   }
@@ -33,26 +30,13 @@ export default class Tags extends Component {
 
   static allOptions = [
     {
-      label: 'Titan',
-      'data-test-subj': 'titanOption'
+      label: 'L007: Fever'
     }, {
-      label: 'Enceladus'
+      label: 'L008: Mild Fever'
     }, {
-      label: 'Mimas'
+      label: 'L009: Throat sore'
     }, {
-      label: 'Dione'
-    }, {
-      label: 'Iapetus'
-    }, {
-      label: 'Phoebe'
-    }, {
-      label: 'Rhea'
-    }, {
-      label: 'Pandora is one of Saturn\'s moons, named for a Titaness of Greek mythology'
-    }, {
-      label: 'Tethys'
-    }, {
-      label: 'Hyperion'
+      label: 'L011: Nose bleeding'
     }]
 
   state = {
@@ -181,28 +165,10 @@ export default class Tags extends Component {
     }))
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   render() {
     const label = (<h2>Tags</h2>)
     const { values } = this.props
-    const { value, drgs } = this.state
-    const drgList = drgs.map(drg => (
-      <ListOfCodes item={drg.label} active={drg.active} />
-    ))
+    const { options, isLoading, selectedOptions } = this.state
 
     if (!values) return null
     return (
@@ -211,56 +177,25 @@ export default class Tags extends Component {
           {label}
         </EuiText>
         <EuiSpacer size="m" />
-        <EuiFieldSearch
+        <EuiComboBox
           placeholder="Search DRG Codes"
-          onChange={this.showSuggestion}
-          onKeyDown={this.navigateMenu}
-          onSearch={this.searchTag}
-          aria-label="Use aria labels when no actual label is in use"
+          async
+          rowHeight={55}
+          options={options}
+          selectedOptions={selectedOptions}
+          singleSelection
+          isLoading={isLoading}
+          onChange={this.onChange}
+          onSearchChange={this.onSearchChange}
+          onCreateOption={this.onCreateOption}
         />
-
-        <div style={(value === null || value.length === 0) ? { display: 'block' } : { display: 'none' }}>
-          <EuiSpacer size="m" />
-          <EuiBasicTable
-            className="transcript"
-            items={values}
-            columns={Tags.COLUMNS}
-          />
-        </div>
-        <div style={(value === null || value.length === 0) ? { display: 'none' } : { display: 'block' }}>
-          <EuiListGroup bordered={true}>
-            {drgList}
-          </EuiListGroup>
-        </div>
-        <div>
-          <EuiComboBox
-            placeholder="Search asynchronously"
-            async
-            options={Tags.options}
-            selectedOptions={Tags.selectedOptions}
-            isLoading={Tags.isLoading}
-            onChange={this.onChange}
-            onSearchChange={this.onSearchChange}
-            onCreateOption={this.onCreateOption}
-          />
-        </div>
+        <EuiSpacer size="m" />
+        <EuiBasicTable
+          className="transcript"
+          items={values}
+          columns={Tags.COLUMNS}
+        />
       </React.Fragment>
     )
   }
-}
-
-const ListOfCodes = ({ item, active }) => {
-  if (active) {
-    return (
-      <EuiListGroupItem
-        label={item}
-        isActive
-      />
-    )
-  }
-  return (
-    <EuiListGroupItem
-      label={item}
-    />
-  )
 }
