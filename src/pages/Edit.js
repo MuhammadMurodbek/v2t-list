@@ -14,13 +14,7 @@ export default class EditPage extends Component {
     transcript: null
   }
 
-  options = [
-    { value: '3', text: '3' },
-    { value: '4', text: '4' },
-    { value: '5', text: '5' }
-  ]
-
-  radios = [{
+  selectedNumberOfWords = [{
     id: `1`,
     label: '1'
   }, {
@@ -35,7 +29,7 @@ export default class EditPage extends Component {
     subtitles: null,
     track: null,
     keywords: null,
-    numberOfWords: this.options[0].value,
+    numberOfWords: this.selectedNumberOfWords[1].label,
     isFlyoutVisible: false,
     radioIdSelected: '3'
   }
@@ -111,11 +105,6 @@ export default class EditPage extends Component {
     }
   }
 
-  // changeNumberOfWords = (e) => {
-  //   this.setState({ numberOfWords: e.target.value }, () => {
-  //     this.loadSubtitles()
-  //   })
-  // }
   changeNumberOfWords = (optionId) => {
     this.setState({
       radioIdSelected: optionId
@@ -155,7 +144,7 @@ export default class EditPage extends Component {
               </h5>
               <EuiSpacer size="m" />
               <EuiRadioGroup
-                options={this.radios}
+                options={this.selectedNumberOfWords}
                 idSelected={this.state.radioIdSelected}
                 onChange={this.changeNumberOfWords}
               />
