@@ -204,13 +204,8 @@ export default class EditPage extends Component {
               </EuiFlexItem>
 
             </EuiFlexGroup>
-<<<<<<< HEAD
             <EuiFlexGroup>
               <EuiFlexItem >
-=======
-            <EuiFlexGroup wrap>
-              <EuiFlexItem>
->>>>>>> line-brake
                 <Editor transcript={subtitles} id={id} />
               </EuiFlexItem>
               <EuiFlexItem grow={true}>
