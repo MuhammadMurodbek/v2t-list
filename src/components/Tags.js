@@ -55,8 +55,14 @@ export default class Tags extends Component {
     activeDrgIndex: 0
   };
 
-  searchTag =(e) => {
+  showSuggestion =(e) => {
     this.setState({ value: e.target.value })
+  }
+
+  searchTag = () => {
+    console.log('llllll')
+    const { drgs, cursor } = this.state
+    this.setState({ value: drgs[cursor].label })
   }
 
   navigateMenu = (e) => {
@@ -88,10 +94,7 @@ export default class Tags extends Component {
       }
     })
     this.setState({ drgs: newDrgs })
-    if (e.keyCode === 13 && drgs[cursor]) {
-      e.target.value = drgs[cursor].label
-      this.setState({ value: drgs[cursor].label })
-    }
+    
   }
 
   render() {
@@ -111,8 +114,9 @@ export default class Tags extends Component {
         <EuiSpacer size="m" />
         <EuiFieldSearch
           placeholder="Search DRG Codes"
-          onChange={this.searchTag}
+          onChange={this.showSuggestion}
           onKeyDown={this.navigateMenu}
+          onSearch={this.searchTag}
           aria-label="Use aria labels when no actual label is in use"
         />
 
