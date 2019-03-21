@@ -90,7 +90,6 @@ export default class EditPage extends Component {
   updateSubtitles = () => {
     const { subtitles } = this.state
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-
     if (subtitles) {
       const tempSubtitles = subtitles.map((subtitle, i) => (
         <Subtitle
