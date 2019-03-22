@@ -20,11 +20,6 @@ export default class Tags extends Component {
       field: 'description',
       name: 'Description',
       width: '200px'
-    },
-    {
-      field: 'probability',
-      name: 'Probability',
-      width: '100px'
     }
   ]
 
