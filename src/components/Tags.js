@@ -9,25 +9,6 @@ export default class Tags extends Component {
     values: []
   }
 
-  static COLUMNS = [
-    {
-      field: 'code',
-      name: 'DRG Code',
-      sortable: true,
-      width: '100px'
-    },
-    {
-      field: 'description',
-      name: 'Description',
-      width: '200px'
-    },
-    {
-      field: 'delete',
-      name: '',
-      width: '40px'
-    }
-  ]
-
   static allOptions = [
     {
       label: 'L007: Fever'
@@ -50,25 +31,6 @@ export default class Tags extends Component {
 
   state = {
     tableOfCodes: this.props.values,
-    cursor: 0,
-    drgs: [
-      {
-        label: 'L007: Fever',
-        active: true
-      },
-      {
-        label: 'L008: Mild Fever',
-        active: false
-      },
-      {
-        label: 'L009: Throat sore',
-        active: false
-      },
-      {
-        label: 'L011: Nose bleeding',
-        active: false
-      }
-    ],
     isLoading: false,
     selectedOption: [],
     options: []
@@ -80,21 +42,30 @@ export default class Tags extends Component {
     this.onSearchChange('')
   }
 
+  deleteRow = (item) => {
+    const { tableOfCodes } = this.state
+    const remainingCodes = tableOfCodes.filter(el => el.code !== item.code)
+    this.setState({ tableOfCodes: remainingCodes })
+  }
+
   addCode = () => {
     const { selectedOption, tableOfCodes } = this.state
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(':')
       this.setState({ selectedOption: [] }, () => {
-        const temp = tableOfCodes
-        temp.push(
-          {
-            code: data[0],
-            description: data[1],
-            delete: '🗑'
-          }
-        )
-        this.setState({ tableOfCodes: temp })
+        const newCode = {
+          code: data[0],
+          description: data[1]
+        }
+
+        if (tableOfCodes.some(e => e.code === data[0])) {
+          alert("Item already exists on the list")
+        } else {
+          const temp = tableOfCodes
+          temp.push(newCode)
+          this.setState({ tableOfCodes: temp })
+        }
       })
     }
   }
@@ -133,7 +104,7 @@ export default class Tags extends Component {
 
     const newOption = {
       label: searchValue
-    };
+    }
 
     // Create the option if it doesn't exist.
     if (flattenedOptions.findIndex(option => option.value.trim().toLowerCase() 
@@ -149,13 +120,44 @@ export default class Tags extends Component {
     this.setState(prevState => ({
       selectedOption: prevState.selectedOption.concat(newOption)
     }))
-  };
+  }
 
   render() {
     const label = (<h2>Tags</h2>)
     const {
       options, isLoading, selectedOption, tableOfCodes
     } = this.state
+
+    const COLUMNS = [
+      {
+        field: 'code',
+        name: 'DRG Code',
+        sortable: true,
+        width: '100px'
+      },
+      {
+        field: 'description',
+        name: 'Description',
+        width: '200px'
+      },
+      {
+        name: '',
+        actions: [{
+          render: (item) => {
+            return (
+              <EuiButtonIcon
+                style={{ display: 'contents' }}
+                iconSize="l"
+                color="danger"
+                onClick={() => this.deleteRow(item)}
+                iconType="trash"
+                aria-label="Next"
+              />
+            )
+          }
+        }]
+      }]
+
     return (
       <Fragment>
         <EuiText size="xs">
@@ -184,7 +186,8 @@ export default class Tags extends Component {
           <EuiBasicTable
             className="transcript"
             items={tableOfCodes}
-            columns={Tags.COLUMNS}
+            columns={COLUMNS}
+            hasActions
           />
         </EuiFlexItem>
       </Fragment>

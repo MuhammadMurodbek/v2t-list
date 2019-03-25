@@ -123,14 +123,12 @@ export default class EditPage extends Component {
     if (!transcript) return null
     const dummyCode = [
       {
-        code: 'L001',
-        description: 'Fever',
-        delete: '🗑'
+        code: 'L007',
+        description: 'Fever'
       },
       {
         code: 'M005',
-        description: 'Eye sore',
-        delete: '🗑'
+        description: 'Eye sore'
       }
     ]
 
