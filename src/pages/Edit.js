@@ -124,11 +124,13 @@ export default class EditPage extends Component {
     const dummyCode = [
       {
         code: 'L001',
-        description: 'Fever'
+        description: 'Fever',
+        delete: '🗑'
       },
       {
         code: 'M005',
-        description: 'Eye sore'
+        description: 'Eye sore',
+        delete: '🗑'
       }
     ]
 

@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import {
-  EuiSpacer, EuiText, EuiBasicTable, EuiComboBox
+  EuiSpacer, EuiText, EuiBasicTable, EuiComboBox, EuiButtonIcon, EuiFlexItem
 } from '@elastic/eui'
 import '../styles/tags.css'
 
@@ -20,6 +20,11 @@ export default class Tags extends Component {
       field: 'description',
       name: 'Description',
       width: '200px'
+    },
+    {
+      field: 'delete',
+      name: '',
+      width: '40px'
     }
   ]
 
@@ -32,10 +37,19 @@ export default class Tags extends Component {
       label: 'L009: Throat sore'
     }, {
       label: 'L011: Nose bleeding'
+    },
+    {
+      label: 'L023: Knee Osterarthritis'
+    }, {
+      label: 'L035: Elbow Osterarthritis'
+    }, {
+      label: 'L036: Back Osterarthritis'
+    }, {
+      label: 'L040: Neck Osterarthritis'
     }]
 
   state = {
-    value: '',
+    tableOfCodes: this.props.values,
     cursor: 0,
     drgs: [
       {
@@ -55,10 +69,8 @@ export default class Tags extends Component {
         active: false
       }
     ],
-    activeDrgIndex: 0,
     isLoading: false,
-    isPopoverOpen: false,
-    selectedOptions: [],
+    selectedOption: [],
     options: []
   };
 
@@ -68,50 +80,28 @@ export default class Tags extends Component {
     this.onSearchChange('')
   }
 
-  showSuggestion =(e) => {
-    this.setState({ value: e.target.value })
-  }
-
-  searchTag = () => {
-    console.log('llllll')
-    const { drgs, cursor } = this.state
-    this.setState({ value: drgs[cursor].label })
-  }
-
-  navigateMenu = (e) => {
-    const { cursor, drgs } = this.state
-    const { values } = this.props
-
-    if (e.keyCode === 38 && cursor > 0) {
-      this.setState({
-        cursor: cursor - 1
+  addCode = () => {
+    const { selectedOption, tableOfCodes } = this.state
+    if (selectedOption.length > 0) {
+      let data = selectedOption[0]
+      data = data.label.split(':')
+      this.setState({ selectedOption: [] }, () => {
+        const temp = tableOfCodes
+        temp.push(
+          {
+            code: data[0],
+            description: data[1],
+            delete: '🗑'
+          }
+        )
+        this.setState({ tableOfCodes: temp })
       })
     }
-
-    if (e.keyCode === 40 && cursor < drgs.length - 1) {
-      this.setState({ cursor: cursor + 1 })
-    }
-
-
-    let newDrgs = []
-    drgs.map((drg, i) => {
-      const tempDrg = {}
-      if (i === cursor) {
-        tempDrg.label = drg.label
-        tempDrg.active = true
-        newDrgs.push(tempDrg)
-      } else {
-        tempDrg.label = drg.label
-        tempDrg.active = false
-        newDrgs.push(tempDrg)
-      }
-    })
-    this.setState({ drgs: newDrgs })
   }
 
-  onChange = (selectedOptions) => {
+  onChange = (selectedOption) => {
     this.setState({
-      selectedOptions
+      selectedOption
     })
   }
 
@@ -127,7 +117,9 @@ export default class Tags extends Component {
       // Simulate a remotely-executed search.
       this.setState({
         isLoading: false,
-        options: Tags.allOptions.filter(option => option.label.toLowerCase().includes(searchValue.toLowerCase()))
+        options: Tags.allOptions.filter(
+          option => option.label.toLowerCase().includes(searchValue.toLowerCase())
+        )
       })
     }, 1200)
   }
@@ -144,53 +136,71 @@ export default class Tags extends Component {
     };
 
     // Create the option if it doesn't exist.
-    if (flattenedOptions.findIndex(option =>
-      option.value.trim().toLowerCase() === normalizedSearchValue
-    ) === -1) {
+    if (flattenedOptions.findIndex(option => option.value.trim().toLowerCase() 
+      === normalizedSearchValue) === -1) {
       // Simulate creating this option on the server.
-      Tags.allOptions.push(newOption);
+      Tags.allOptions.push(newOption)
       this.setState(prevState => ({
         options: prevState.options.concat(newOption)
-      }));
+      }))
     }
 
     // Select the option.
     this.setState(prevState => ({
-      selectedOptions: prevState.selectedOptions.concat(newOption)
+      selectedOption: prevState.selectedOption.concat(newOption)
     }))
   };
 
   render() {
     const label = (<h2>Tags</h2>)
-    const { values } = this.props
-    const { options, isLoading, selectedOptions } = this.state
-
-    if (!values) return null
+    const {
+      options, isLoading, selectedOption, tableOfCodes
+    } = this.state
     return (
-      <React.Fragment>
+      <Fragment>
         <EuiText size="xs">
           {label}
         </EuiText>
         <EuiSpacer size="m" />
-        <EuiComboBox
-          placeholder="Search DRG Codes"
-          async
-          rowHeight={55}
-          options={options}
-          selectedOptions={selectedOptions}
-          singleSelection
-          isLoading={isLoading}
-          onChange={this.onChange}
-          onSearchChange={this.onSearchChange}
-          onCreateOption={this.onCreateOption}
-        />
-        <EuiSpacer size="m" />
-        <EuiBasicTable
-          className="transcript"
-          items={values}
-          columns={Tags.COLUMNS}
-        />
-      </React.Fragment>
+        <div className="searchKoder" style={{ display: 'flex' }}>
+          <span style={{ width: 344, marginRight: 20, marginBottom: 25 }}>
+            <EuiComboBox
+              placeholder="Search DRG Codes"
+              async
+              options={options}
+              selectedOptions={selectedOption}
+              singleSelection
+              isLoading={isLoading}
+              onChange={this.onChange}
+              onSearchChange={this.onSearchChange}
+              onCreateOption={this.onCreateOption}
+            />
+          </span>
+          <span>
+            <AddButton onClick={this.addCode} />
+          </span>
+        </div>
+        <EuiFlexItem grow={false} style={{ width: 400 }}>
+          <EuiBasicTable
+            className="transcript"
+            items={tableOfCodes}
+            columns={Tags.COLUMNS}
+          />
+        </EuiFlexItem>
+      </Fragment>
     )
   }
 }
+
+const AddButton = props => (
+  <Fragment>
+    <EuiButtonIcon
+      style={{ display: 'contents' }}
+      iconSize="xxl"
+      color="subdued"
+      onClick={props.onClick}
+      iconType="listAdd"
+      aria-label="Next"
+    />
+  </Fragment>
+)
