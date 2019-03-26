@@ -95,33 +95,6 @@ export default class Tags extends Component {
     }, 1200)
   }
 
-  onCreateOption = (searchValue, flattenedOptions) => {
-    const normalizedSearchValue = searchValue.trim().toLowerCase()
-
-    if (!normalizedSearchValue) {
-      return
-    }
-
-    const newOption = {
-      label: searchValue
-    }
-
-    // Create the option if it doesn't exist.
-    if (flattenedOptions.findIndex(option => option.value.trim().toLowerCase() 
-      === normalizedSearchValue) === -1) {
-      // Simulate creating this option on the server.
-      Tags.allOptions.push(newOption)
-      this.setState(prevState => ({
-        options: prevState.options.concat(newOption)
-      }))
-    }
-
-    // Select the option.
-    this.setState(prevState => ({
-      selectedOption: prevState.selectedOption.concat(newOption)
-    }))
-  }
-
   render() {
     const label = (<h2>Tags</h2>)
     const {
@@ -175,7 +148,6 @@ export default class Tags extends Component {
               isLoading={isLoading}
               onChange={this.onChange}
               onSearchChange={this.onSearchChange}
-              onCreateOption={this.onCreateOption}
             />
           </span>
           <span>
