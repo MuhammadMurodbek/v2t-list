@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import Diff from 'text-diff'
 
@@ -16,10 +16,14 @@ export default class Editor extends Component {
     diff: null,
   }
 
-  componentDidMount() {
-    this.ref = React.createRef()
+  assignRefsOnce = () => {
+    const { transcript } = this.props
+    if (!transcript) return
+    this.inputRefs = Object.keys(transcript).reduce((refs, keyword) => {
+      refs[keyword] = React.createRef()
+      return refs
+    }, {})
   }
-
 
   onChange = (e) => {
     const content = this.getContent(e)
@@ -29,12 +33,13 @@ export default class Editor extends Component {
 
   getContent = (e) => {
     const { target } = e
-    return target.textContent.trim()
+    return Object.values(this.inputRefs).map(ref => ref.current.innerText.trim()).join(' ')
   }
 
   getDiff = (content) => {
     const { diffInstance, transcript } = this.props
-    const original = transcript.map(component => component.props.words).join(' ')
+    const original = Object.values(transcript)
+      .flatMap(subtitles => subtitles.map(subtitle => subtitle.props.words)).join(' ')
     const diff = diffInstance.main(original, content)
     diffInstance.cleanupSemantic(diff)
     return diff.map((d, i) => this.parseDiff(i, d, diff))
@@ -54,7 +59,7 @@ export default class Editor extends Component {
 
   finalize = () => {
     // empty blocks
-    const updatedTranscript = this.ref.current.innerText
+    const updatedTranscript = Object.values(this.inputRefs).map(ref => ref.current.innerText).join('')
     const {id} = this.props
     const queryString = `/api/v1/transcription/${id}`
     axios.put(queryString,
@@ -93,25 +98,17 @@ export default class Editor extends Component {
     const { transcript } = this.props
     const { diff } = this.state
     if (!transcript) return null
+    this.assignRefsOnce()
     return (
       <EuiText size="s">
-        <h2>Transcript</h2>
-        <pre>
-          <code
-            onInput={this.onChange}
-            contentEditable
-            suppressContentEditableWarning ref={this.ref}
-          >
-            {transcript}
-          </code>
-        </pre>
+        <EditableChapters
+          transcripts={transcript}
+          inputRefs={this.inputRefs}
+          onChange={this.onChange}
+        />
         <EuiFlexGroup>
           <EuiFlexItem>
-            <pre style={(diff === null || diff.length === 1) ? { display: 'none' } : { display: 'block' }}>
-              <code>
-                {diff}
-              </code>
-            </pre>
+            <FullDiff diff={diff} />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup>
@@ -128,6 +125,40 @@ export default class Editor extends Component {
       </EuiText>
     )
   }
+}
+
+const EditableChapters = ({ transcripts, inputRefs, onChange }) => {
+  if (!inputRefs) return null
+  return Object.keys(transcripts).map((keyword, i) => (
+    <EditableChapter
+      key={i}
+      keyword={keyword}
+      subtitles={transcripts[keyword]}
+      inputRefs={inputRefs}
+      onChange={onChange}
+    />
+  ))
+}
+
+const EditableChapter = ({ keyword, subtitles, inputRefs, onChange }) => (
+  <Fragment>
+    <h2>{keyword}</h2>
+    <pre>
+      <code
+        onInput={onChange}
+        contentEditable
+        suppressContentEditableWarning
+        ref={inputRefs[keyword]}
+      >
+        {subtitles}
+      </code>
+    </pre>
+  </Fragment>
+)
+
+const FullDiff = ({ diff }) => {
+  if (diff === null || diff.length === 0) return null
+  return <pre><code>{diff}</code></pre>
 }
 
 const RemovedLine = ({ diff, prevDiff, nextDiff }) => (

@@ -14,24 +14,11 @@ export default class EditPage extends Component {
     transcript: null
   }
 
-  selectedNumberOfWords = [{
-    id: `1`,
-    label: '1'
-  }, {
-    id: `3`,
-    label: '3'
-  }, {
-    id: `5`,
-    label: '5'
-  }];
-
   state = {
     subtitles: null,
-    track: null,
-    keywords: null,
-    numberOfWords: this.selectedNumberOfWords[1].label,
-    isFlyoutVisible: false,
-    radioIdSelected: '3'
+    tags: null,
+    numberOfWords: '3',
+    isFlyoutVisible: false
   }
 
   componentDidMount() {
@@ -53,170 +40,135 @@ export default class EditPage extends Component {
     this.setState({ isFlyoutVisible: true })
   }
 
-  loadSubtitles = () => {
+  loadSubtitles = async () => {
     const { transcript } = this.props
     const { numberOfWords } = this.state
-    let id
-
-    if (transcript) {
-      id = transcript.id
-      if (id) { this.setState({ track: id })}
-    }
-
-    if (!id) return null
-    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+    if (!transcript) return null
     const queryString = `/api/v1/transcription/${id}?segmentLength=${numberOfWords}`
-    axios.get(queryString)
-      .then((response) => {
-        const subtitles = response.data.transcriptions[0]
-          .segments.map((subtitle, i) => (
-            <Subtitle
-              key={i}
-              words={subtitle.words}
-              startTime={subtitle.startTime}
-              endTime={subtitle.endTime}
-              currentTime={currentTime}
-            />
-          ))
-        this.setState({ subtitles })
-        this.setState({ keywords: response.data.transcriptions[0].keywords})
-      })
-      .catch((error) => {
-        // handle error
-        this.setState({ subtitles: null })
-      })
+    const response = axios.get(queryString)
+    const subtitles = this.parseSubtitles(response.data.transcriptions)
+    const tags = response.data.tags
+    this.setState({ subtitles, tags })
+  }
+
+  parseSubtitles = transcripts => {
+    return transcripts.reduce((subtitles, transcript) => {
+      subtitles[transcript.keyword] = this.parseSubtitle(transcript)
+      return subtitles
+    }, {})
+  }
+
+  parseSubtitle = transcript => {
+    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+    return transcript.segments.map((subtitle, i) => (
+      <Subtitle
+        key={i}
+        words={subtitle.words}
+        startTime={subtitle.startTime}
+        endTime={subtitle.endTime}
+        currentTime={currentTime}
+      />
+    ))
   }
 
   updateSubtitles = () => {
-    const { subtitles } = this.state
+    if (!this.state.subtitles) return
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-    if (subtitles) {
-      const tempSubtitles = subtitles.map((subtitle, i) => (
-        <Subtitle
-          key={i}
-          words={subtitle.props.words}
-          startTime={subtitle.props.startTime}
-          endTime={subtitle.props.endTime}
-          currentTime={currentTime}
-        />
-      ))
-      this.setState({ subtitles: tempSubtitles })
-    }
+    const subtitles = this.state.subtitles.map(subtitle => (
+      <Subtitle {...{...subtitle.props, currentTime}} />
+    ))
+    this.setState({ subtitles })
   }
 
-  changeNumberOfWords = (optionId) => {
-    this.setState({
-      radioIdSelected: optionId
-    }, () => {
-      this.setState({ numberOfWords: optionId }, () => {
-        this.loadSubtitles()
-      })
-    })
+  changeNumberOfWords = (numberOfWords) => {
+    this.setState({ numberOfWords }, this.loadSubtitles)
   }
 
   render() {
     const { transcript } = this.props
-    let id
-    if(transcript){ id  = transcript.id}
-    const { subtitles, track, keywords } = this.state
+    const { subtitles, track, tags, isFlyoutVisible, numberOfWords } = this.state
     if (!transcript) return null
-    const dummyCode = [
-      {
-        code: 'L001',
-        description: 'Fever',
-        probability: '0.10'
-      },
-      {
-        code: 'M005',
-        description: 'Eye sore',
-        probability: '0.50'
-      }
-    ]
-
-    let flyout
-    if (this.state.isFlyoutVisible) {
-      flyout = (
-        <EuiFlyout
-          onClose={this.closeFlyout}
-          aria-labelledby="flyoutTitle"
-        >
-          <EuiFlyoutHeader hasBorder>
-            <EuiTitle size="m">
-              <h4 id="flyoutTitle">
-                Preferences
-              </h4>
-            </EuiTitle>
-          </EuiFlyoutHeader>
-          <EuiFlyoutBody>
-
-            <Fragment>
-              <h5 id="flyoutTitle">
-                Highlighted Number of Words
-              </h5>
-              <EuiSpacer size="m" />
-              <EuiRadioGroup
-                options={this.selectedNumberOfWords}
-                idSelected={this.state.radioIdSelected}
-                onChange={this.changeNumberOfWords}
-              />
-            </Fragment>
-          </EuiFlyoutBody>
-        </EuiFlyout>
-      )
-    }
-
     return (
       <Page title="Editor">
-        {
-          <div>
-            <EuiFlexGroup direction="column" alignItems="flexEnd">
-              <EuiFlexItem grow={true} style={{width: '150px'}}>
-                <Fragment>
-                  <EuiIcon
-                    type="gear"
-                    size="xl"
-                    className="gear"
-                    onClick={this.showFlyout}
-                  />
-                  {flyout}
-                </Fragment>
-              </EuiFlexItem>
-            </EuiFlexGroup>
-            <br />
-            <br />
-            <br />
-            <EuiFlexGroup wrap>
-              <EuiFlexItem>
-                <figure>
-                  <audio
-                    controls
-                    src={`/api/v1/transcription/${track}/audio`}
-                    ref={this.ref}
-                    onTimeUpdate={this.updateSubtitles}
-                    style={{ width: '75.5%' }}
-                  >
-                    Your browser does not support the
-                    <code>audio</code>
-                    element.
-                  </audio>
-                </figure>
-              </EuiFlexItem>
-
-            </EuiFlexGroup>
-            <EuiFlexGroup>
-              <EuiFlexItem >
-                <Editor transcript={subtitles} id={id} />
-              </EuiFlexItem>
-              <EuiFlexItem grow={true}>
-                {/* <Tags values={keywords} /> */}
-                <Tags values={dummyCode} />
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </div>
-        }
+        <div>
+          <EuiFlexGroup direction="column" alignItems="flexEnd">
+            <EuiFlexItem grow={true} style={{width: '150px'}}>
+              <Fragment>
+                <EuiIcon
+                  type="gear"
+                  size="xl"
+                  className="gear"
+                  onClick={this.showFlyout}
+                />
+                <Preferences
+                  visible={isFlyoutVisible}
+                  words={numberOfWords}
+                  onChange={this.changeNumberOfWords}
+                />
+              </Fragment>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <br />
+          <br />
+          <br />
+          <EuiFlexGroup wrap>
+            <EuiFlexItem>
+              <figure>
+                <audio
+                  controls
+                  src={`/api/v1/transcription/${transcript.id}/audio`}
+                  ref={this.ref}
+                  onTimeUpdate={this.updateSubtitles}
+                  style={{ width: '100%' }}
+                >
+                  Your browser does not support the
+                  <code>audio</code>
+                  element.
+                </audio>
+              </figure>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <EuiFlexGroup wrap>
+            <EuiFlexItem>
+              <Editor transcript={subtitles} id={transcript.id} />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <Tags values={tags} />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </div>
       </Page>
     )
   }
+}
+
+const Preferences = ({ visible, words, onChange }) => {
+  if (!visible) return null
+  const options = [
+    { id: `1`, label: '1' },
+    { id: `3`, label: '3' },
+    { id: `5`, label: '5'}
+  ]
+  return (
+    <EuiFlyout onClose={this.closeFlyout} aria-labelledby="flyoutTitle" >
+      <EuiFlyoutHeader hasBorder>
+        <EuiTitle size="m">
+          <h4 id="flyoutTitle">
+            Preferences
+          </h4>
+        </EuiTitle>
+      </EuiFlyoutHeader>
+      <EuiFlyoutBody>
+        <Fragment>
+          <h5 id="flyoutTitle">
+            Highlighted Number of Words
+          </h5>
+          <EuiSpacer size="m" />
+          <EuiRadioGroup options={options} idSelected={words} onChange={onChange} />
+        </Fragment>
+      </EuiFlyoutBody>
+    </EuiFlyout>
+  )
 }
 
 const Subtitle = ({ words, startTime, endTime, currentTime }) => {

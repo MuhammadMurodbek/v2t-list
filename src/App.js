@@ -2,17 +2,27 @@ import './App.css'
 import '@elastic/eui/dist/eui_theme_light.css'
 
 import React, { Component } from 'react'
-import {
-  HashRouter, Switch, Route, Link
-} from 'react-router-dom'
-import { EuiPage, EuiPageSideBar, EuiImage } from '@elastic/eui'
+import { HashRouter, Switch, Route, Link } from 'react-router-dom'
+import { EuiPage, EuiPageSideBar, EuiImage, EuiSideNav } from '@elastic/eui'
 import axios from 'axios'
 
 import logo from './logo.png'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
+import UploadPage from './pages/Upload'
 
 export default class App extends Component {
+
+  static MENU_ITEMS = [
+    {
+      id: 0,
+      name: '',
+      items: [
+        { id: 1, name: 'Start', href: '/#/' },
+        { id: 2, name: 'Upload', href: '/#/upload' }
+      ]
+    }
+  ]
 
   state = {
     transcripts: []
@@ -64,6 +74,7 @@ export default class App extends Component {
                 allowFullScreen
               />
             </Link>
+            <EuiSideNav items={App.MENU_ITEMS} />
           </EuiPageSideBar>
           <Switch>
             <Route exact path="/" render={props => <StartPage {...{...props, transcripts}} /> } />
@@ -71,6 +82,7 @@ export default class App extends Component {
               const transcript = transcripts.find(transcript => transcript.id === props.match.params.id)
               return <EditPage {...{...props, transcript}} />
             }} />
+          <Route path="/upload/" component={UploadPage} />
           </Switch>
         </EuiPage>
       </HashRouter>
