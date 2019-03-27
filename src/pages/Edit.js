@@ -44,8 +44,8 @@ export default class EditPage extends Component {
     const { transcript } = this.props
     const { numberOfWords } = this.state
     if (!transcript) return null
-    const queryString = `/api/v1/transcription/${id}?segmentLength=${numberOfWords}`
-    const response = axios.get(queryString)
+    const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
+    const response = await axios.get(queryString)
     const subtitles = this.parseSubtitles(response.data.transcriptions)
     const tags = response.data.tags
     this.setState({ subtitles, tags })
@@ -74,11 +74,16 @@ export default class EditPage extends Component {
   updateSubtitles = () => {
     if (!this.state.subtitles) return
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-    const subtitles = this.state.subtitles.map(subtitle => (
-      <Subtitle {...{...subtitle.props, currentTime}} />
-    ))
+    const subtitles = Object.assign(...Object.entries(this.state.subtitles)
+      .map(entry => this.updateSubtitle(entry, currentTime)))
     this.setState({ subtitles })
   }
+
+  updateSubtitle = ([key, subtitles], currentTime) => (
+    {
+      [key]: subtitles.map(subtitle => <Subtitle {...{...subtitle.props, currentTime}} />)
+    }
+  )
 
   changeNumberOfWords = (numberOfWords) => {
     this.setState({ numberOfWords }, this.loadSubtitles)
@@ -103,6 +108,7 @@ export default class EditPage extends Component {
                 <Preferences
                   visible={isFlyoutVisible}
                   words={numberOfWords}
+                  onClose={this.closeFlyout}
                   onChange={this.changeNumberOfWords}
                 />
               </Fragment>
@@ -142,7 +148,7 @@ export default class EditPage extends Component {
   }
 }
 
-const Preferences = ({ visible, words, onChange }) => {
+const Preferences = ({ visible, words, onClose, onChange }) => {
   if (!visible) return null
   const options = [
     { id: `1`, label: '1' },
@@ -150,7 +156,7 @@ const Preferences = ({ visible, words, onChange }) => {
     { id: `5`, label: '5'}
   ]
   return (
-    <EuiFlyout onClose={this.closeFlyout} aria-labelledby="flyoutTitle" >
+    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" >
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
           <h4 id="flyoutTitle">
