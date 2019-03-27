@@ -92,6 +92,18 @@ export default class EditPage extends Component {
   render() {
     const { transcript } = this.props
     const { subtitles, track, tags, isFlyoutVisible, numberOfWords } = this.state
+    const dummyCode = [
+      {
+        code: 'L007',
+        description: 'Fever'
+      },
+      {
+        code: 'M005',
+        description: 'Eye sore'
+      }
+    ]
+
+    
     if (!transcript) return null
     return (
       <Page title="Editor">
@@ -139,7 +151,7 @@ export default class EditPage extends Component {
               <Editor transcript={subtitles} id={transcript.id} />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <Tags values={tags} />
+              <Tags values={dummyCode} />
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>
