@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react'
 import {
   EuiSpacer, EuiText, EuiBasicTable, EuiComboBox, EuiButtonIcon, EuiFlexItem
 } from '@elastic/eui'
+import axios from 'axios'
+
 import '../styles/tags.css'
 
 export default class Tags extends Component {
@@ -9,42 +11,40 @@ export default class Tags extends Component {
     values: []
   }
 
-  static allOptions = [
-    {
-      label: 'L007: Fever'
-    }, {
-      label: 'L008: Mild Fever'
-    }, {
-      label: 'L009: Throat sore'
-    }, {
-      label: 'L011: Nose bleeding'
-    },
-    {
-      label: 'L023: Knee Osterarthritis'
-    }, {
-      label: 'L035: Elbow Osterarthritis'
-    }, {
-      label: 'L036: Back Osterarthritis'
-    }, {
-      label: 'L040: Neck Osterarthritis'
-    }]
-
   state = {
     tableOfCodes: this.props.values,
     isLoading: false,
     selectedOption: [],
-    options: []
+    options: [],
+    icdCodes: [],
+    allOptions: []
   };
 
 
   componentDidMount() {
     // Simulate initial load.
     this.onSearchChange('')
+    this.loadIcdCodes()
+  }
+
+  loadIcdCodes = async () => {
+    const codeData = await axios.post('/api/v1/code-service/search', {
+      text: 'N905A postmenopausal blödning hos icke hormonbehandlad kvinna'
+    })
+
+    let convertedCodes = []
+    // Purpose of doing this is to use free text search
+    codeData.data.map((code) => {
+      code.label =  `${code._source.Code}: ${code._source.CodeText}`
+      convertedCodes.push(code)
+    })
+
+    this.setState({ allOptions: convertedCodes })
   }
 
   deleteRow = (item) => {
     const { tableOfCodes } = this.state
-    const remainingCodes = tableOfCodes.filter(el => el.code !== item.code)
+    const remainingCodes = tableOfCodes.filter(el => el._source.Code !== item._source.Code)
     this.setState({ tableOfCodes: remainingCodes })
   }
 
@@ -53,21 +53,29 @@ export default class Tags extends Component {
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(':')
-      this.setState({ selectedOption: [] }, () => {
-        const newCode = {
-          code: data[0],
-          description: data[1]
+      
+      const newCode = {
+        _source: {
+          Code: data[0],
+          CodeText: data[1]
         }
-
-        if (tableOfCodes.some(e => e.code === data[0])) {
-          alert("Item already exists on the list")
-        } else {
-          const temp = tableOfCodes
-          temp.push(newCode)
-          this.setState({ tableOfCodes: temp })
-        }
-      })
+      }
+      
+      if (tableOfCodes.some(e => e._source.Code === data[0])) {
+        alert("Item already exists on the list")
+        this.emptySelectedOption()
+      } else {
+        const temp = tableOfCodes
+        temp.push(newCode)
+        this.setState({ tableOfCodes: temp }, ()=> {
+          this.emptySelectedOption()
+        })
+      }
     }
+  }
+
+  emptySelectedOption = () => {
+    this.setState({ selectedOption: [] })
   }
 
   onChange = (selectedOption) => {
@@ -88,7 +96,7 @@ export default class Tags extends Component {
       // Simulate a remotely-executed search.
       this.setState({
         isLoading: false,
-        options: Tags.allOptions.filter(
+        options: this.state.allOptions.filter(
           option => option.label.toLowerCase().includes(searchValue.toLowerCase())
         )
       })
@@ -103,15 +111,15 @@ export default class Tags extends Component {
 
     const COLUMNS = [
       {
-        field: 'code',
-        name: 'DRG Code',
+        field: '_source.Code',
+        name: 'Code',
         sortable: true,
-        width: '100px'
+        width: '80px'
       },
       {
-        field: 'description',
+        field: '_source.CodeText',
         name: 'Description',
-        width: '200px'
+        width: '300px'
       },
       {
         name: '',
@@ -154,7 +162,7 @@ export default class Tags extends Component {
             <AddButton onClick={this.addCode} />
           </span>
         </div>
-        <EuiFlexItem grow={false} style={{ width: 400 }}>
+        <EuiFlexItem grow={false} style={{ width: 380 }}>
           <EuiBasicTable
             className="transcript"
             items={tableOfCodes}

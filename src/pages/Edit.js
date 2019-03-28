@@ -18,8 +18,7 @@ export default class EditPage extends Component {
     subtitles: null,
     tags: null,
     numberOfWords: '3',
-    isFlyoutVisible: false,
-    codes: null
+    isFlyoutVisible: false
   }
 
   componentDidMount() {
@@ -101,16 +100,39 @@ export default class EditPage extends Component {
     const { transcript } = this.props
     const { subtitles, track, tags, isFlyoutVisible, numberOfWords } = this.state
     const dummyCode = [
+      // {
+      //   code: 'L007',
+      //   description: 'Fever'
+      // },
+      // {
+      //   code: 'M005',
+      //   description: 'Eye sore'
+      // },
       {
-        code: 'L007',
-        description: 'Fever'
+        _index: 'icd.codes',
+        _type: '_doc',
+        _id: 'N950A',
+        _score: 95.074844,
+        _source: {
+          CodeText: 'Postmenopausal blödning hos icke hormonbehandlad kvinna',
+          CategoryCode: 'N95',
+          CategoryName: 'Sjukliga tillstånd i samband med klimakteriet',
+          Code: 'N950A'
+        }
       },
       {
-        code: 'M005',
-        description: 'Eye sore'
+        _index: 'icd.codes',
+        _type: '_doc',
+        _id: 'N734',
+        _score: 33.49643,
+        _source: {
+          CodeText: 'Kronisk bäckenperitonit hos kvinna',
+          CategoryCode: 'N73',
+          CategoryName: 'Andra inflammatoriska sjukdomar i det kvinnliga bäckenet',
+          Code: 'N734'
+        }
       }
     ]
-
 
     if (!transcript) return null
     return (
