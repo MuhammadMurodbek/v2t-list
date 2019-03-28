@@ -18,18 +18,26 @@ export default class EditPage extends Component {
     subtitles: null,
     tags: null,
     numberOfWords: '3',
-    isFlyoutVisible: false
+    isFlyoutVisible: false,
+    codes: null
   }
 
   componentDidMount() {
     this.ref = React.createRef()
     this.loadSubtitles()
+    this.loadIcdCodes()
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.transcript !== prevProps.transcript) {
       this.loadSubtitles()
     }
+  }
+
+  loadIcdCodes = async() => {
+    const codeData = await axios.post('/api/v1/code-service/search', {
+      text: 'N905A postmenopausal blödning hos icke hormonbehandlad kvinna'
+    })
   }
 
   closeFlyout = () => {
@@ -103,7 +111,7 @@ export default class EditPage extends Component {
       }
     ]
 
-    
+
     if (!transcript) return null
     return (
       <Page title="Editor">
