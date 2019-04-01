@@ -15,31 +15,23 @@ export default class Tags extends Component {
     tableOfCodes: this.props.values,
     isLoading: false,
     selectedOption: [],
-    options: [],
-    icdCodes: [],
-    allOptions: []
+    options: []
   };
 
-
-  componentDidMount() {
-    // Simulate initial load.
-    this.onSearchChange('')
-    this.loadIcdCodes()
-  }
-
-  loadIcdCodes = async () => {
+  loadIcdCodes = async (searchTerm) => {
     const codeData = await axios.post('/api/v1/code-service/search', {
-      text: 'N905A postmenopausal blödning hos icke hormonbehandlad kvinna'
+      text: searchTerm
     })
 
-    let convertedCodes = []
+    const convertedCodes = []
     // Purpose of doing this is to use free text search
-    codeData.data.map((code) => {
-      code.label =  `${code._source.Code}: ${code._source.CodeText}`
-      convertedCodes.push(code)
-    })
-
-    this.setState({ allOptions: convertedCodes })
+    if (codeData.data !== null) {
+      codeData.data.map((code) => {
+        code.label = `${code._source.Code}: ${code._source.CodeText}`
+        convertedCodes.push(code)
+      })
+      this.setState({ options: convertedCodes })
+    }
   }
 
   deleteRow = (item) => {
@@ -53,21 +45,20 @@ export default class Tags extends Component {
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(':')
-      
       const newCode = {
         _source: {
           Code: data[0],
           CodeText: data[1]
         }
       }
-      
+
       if (tableOfCodes.some(e => e._source.Code === data[0])) {
         alert("Item already exists on the list")
         this.emptySelectedOption()
       } else {
         const temp = tableOfCodes
         temp.push(newCode)
-        this.setState({ tableOfCodes: temp }, ()=> {
+        this.setState({ tableOfCodes: temp }, () => {
           this.emptySelectedOption()
         })
       }
@@ -80,34 +71,20 @@ export default class Tags extends Component {
 
   onChange = (selectedOption) => {
     this.setState({
-      selectedOption
+      selectedOption,
+      options: []
     })
   }
 
-  onSearchChange = (searchValue) => {
+  onSearchChange = async (searchValue) => {
     this.setState({
-      isLoading: true,
-      options: []
+      isLoading: true
     })
 
-    clearTimeout(this.searchTimeout)
-
-    this.searchTimeout = setTimeout(() => {
-      // Simulate a remotely-executed search.
-      this.setState({ isLoading: false }, () => {
-        if (searchValue !== '') {
-          this.setState({
-            options: this.state.allOptions.filter(
-              option => option.label.toLowerCase().includes(searchValue.toLowerCase())
-            )
-          })
-        } else {
-          this.setState({
-            options: []
-          })
-        }
-      })
-    }, 1200)
+    await this.loadIcdCodes(searchValue)
+    this.setState({
+      isLoading: false
+    })
   }
 
   render() {
