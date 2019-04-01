@@ -94,17 +94,24 @@ export default class Tags extends Component {
 
     this.searchTimeout = setTimeout(() => {
       // Simulate a remotely-executed search.
-      this.setState({
-        isLoading: false,
-        options: this.state.allOptions.filter(
-          option => option.label.toLowerCase().includes(searchValue.toLowerCase())
-        )
+      this.setState({ isLoading: false }, () => {
+        if (searchValue !== '') {
+          this.setState({
+            options: this.state.allOptions.filter(
+              option => option.label.toLowerCase().includes(searchValue.toLowerCase())
+            )
+          })
+        } else {
+          this.setState({
+            options: []
+          })
+        }
       })
     }, 1200)
   }
 
   render() {
-    const label = (<h2>Tags</h2>)
+    const label = (<h2>Codes</h2>)
     const {
       options, isLoading, selectedOption, tableOfCodes
     } = this.state
@@ -148,7 +155,7 @@ export default class Tags extends Component {
         <div className="searchKoder" style={{ display: 'flex' }}>
           <span style={{ width: 344, marginRight: 20, marginBottom: 25 }}>
             <EuiComboBox
-              placeholder="Search DRG Codes"
+              placeholder="Search ICD-10 Codes"
               async
               options={options}
               selectedOptions={selectedOption}
