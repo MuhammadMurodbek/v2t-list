@@ -2,36 +2,65 @@ import './App.css'
 import '@elastic/eui/dist/eui_theme_light.css'
 
 import React, { Component } from 'react'
-import {
-  HashRouter, Switch, Route, Link
-} from 'react-router-dom'
-import { EuiPage, EuiPageSideBar, EuiImage } from '@elastic/eui'
+import { HashRouter, Switch, Route, Link } from 'react-router-dom'
+import { EuiPage, EuiPageSideBar, EuiImage, EuiSideNav } from '@elastic/eui'
+import axios from 'axios'
 
 import logo from './logo.png'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
+import UploadPage from './pages/Upload'
 
 export default class App extends Component {
-  static randomContent = [
+
+  static MENU_ITEMS = [
     {
-      id: 1,
-      text: 'some random text',
-      status: 'this status',
-      url: 'http://localhost:9000/minio/transcriptions/858048.wav',
-      createdAt: '2019-02-06T09:04:39.041+0000',
-      updatedAt: '2019-02-06T09:04:39.041+0000'
-    },
-    {
-      id: 2,
-      text: 'some text',
-      status: 'some status',
-      url: 'http://localhost:9000/minio/transcriptions/858058.wav',
-      createdAt: '2019-02-06T09:05:39.041+0000',
-      updatedAt: '2019-02-06T09:05:39.041+0000'
+      id: 0,
+      name: '',
+      items: [
+        { id: 1, name: 'Start', href: '/#/' },
+        { id: 2, name: 'Upload', href: '/#/upload' }
+      ]
     }
   ]
 
+  state = {
+    transcripts: []
+  }
+
+  componentDidMount() {
+    this.fetchTranscripts()
+  }
+
+  fetchTranscripts = () => {
+    axios.get('/api/v1/workflow', {
+      params: {
+        pageStart: 1,
+        pageEnd: 10
+      }
+    })
+      .then((data) => {
+        // const transcripts = data
+        // const transcripts = this.parseTranscripts(data)
+        this.setState({ transcripts: data.data })
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  parseTranscripts = data => data.map((d) => {
+    d.transcript = d.words.map((word, i) => ({
+      id: d.callId,
+      text: `${word} `,
+      start: d.startTimes[i],
+      end: d.endTimes[i]
+    }))
+    return d
+  })
+
   render() {
+    const { transcripts } = this.state
     return (
       <HashRouter>
         <EuiPage>
@@ -45,10 +74,15 @@ export default class App extends Component {
                 allowFullScreen
               />
             </Link>
+            <EuiSideNav items={App.MENU_ITEMS} />
           </EuiPageSideBar>
           <Switch>
-            <Route exact path="/" component={StartPage} />
-            <Route path="/edit/:id" component={EditPage} />
+            <Route exact path="/" render={props => <StartPage {...{...props, transcripts}} /> } />
+            <Route path="/edit/:id" render={props => {
+              const transcript = transcripts.find(transcript => transcript.id === props.match.params.id)
+              return <EditPage {...{...props, transcript}} />
+            }} />
+          <Route path="/upload/" component={UploadPage} />
           </Switch>
         </EuiPage>
       </HashRouter>
