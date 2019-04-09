@@ -8,6 +8,7 @@ import axios from 'axios'
 import Page from '../components/Page'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
+import Player from '../components/Player'
 
 export default class EditPage extends Component {
   static defaultProps = {
@@ -18,7 +19,10 @@ export default class EditPage extends Component {
     subtitles: null,
     tags: null,
     numberOfWords: '3',
-    isFlyoutVisible: false
+    isFlyoutVisible: false, 
+    originalTranscript: {
+      segments: []
+    }
   }
 
   componentDidMount() {
@@ -53,9 +57,12 @@ export default class EditPage extends Component {
     if (!transcript) return null
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
     const response = await axios.get(queryString)
+    const queryStringForAudio = `/api/v1/transcription/${transcript.id}`
+    let  originalTranscript = await axios.get(queryStringForAudio)
+    originalTranscript = originalTranscript.data.transcriptions[0]
     const subtitles = this.parseSubtitles(response.data.transcriptions)
     const tags = response.data.tags
-    this.setState({ subtitles, tags })
+    this.setState({ subtitles, tags, originalTranscript })
   }
 
   parseSubtitles = transcripts => {
@@ -98,7 +105,11 @@ export default class EditPage extends Component {
 
   render() {
     const { transcript } = this.props
-    const { subtitles, track, tags, isFlyoutVisible, numberOfWords } = this.state
+    const { subtitles, track, tags, isFlyoutVisible, numberOfWords, originalTranscript } = this.state
+    console.log('hola')
+    console.log(originalTranscript)
+    console.log('hola2')
+    console.log(originalTranscript)
     const dummyCode = [
       // {
       //   code: 'L007',
@@ -162,6 +173,10 @@ export default class EditPage extends Component {
           <EuiFlexGroup wrap>
             <EuiFlexItem>
               <figure>
+                <Player audioTranscript={originalTranscript} trackId={transcript.id} onTimeUpdate={this.updateSubtitles}/>
+                <EuiSpacer size="m" />
+                <EuiSpacer size="m" />
+                <EuiSpacer size="m" />
                 <audio
                   controls
                   src={`/api/v1/transcription/${transcript.id}/audio`}

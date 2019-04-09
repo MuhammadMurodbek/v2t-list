@@ -77,6 +77,7 @@ class Player extends Component {
   getAudioData = (e) => {
     const { duration } = e.target
     const { audioTranscript } = this.props
+    
     const minutes = Math.floor(duration / 60)
     const seconds = Math.floor(duration - minutes * 60)
     const trackDuration = `${minutes}:${seconds}`
@@ -102,9 +103,14 @@ class Player extends Component {
   }
 
   render() {
-    const { isPlaying, trackDuration, trackDurationNumeric, currentTime, startTimes } = this.state
+    const {
+      isPlaying, trackDuration, trackDurationNumeric, currentTime, startTimes
+    } = this.state
     const { audioTranscript, trackId } = this.props
     const trackUrl = `http://localhost:6106/api/v1/transcription/${trackId}/audio`
+    let seekBar
+    
+
     return (
       <Fragment>
         <span>
@@ -144,9 +150,9 @@ class Player extends Component {
             type="button"
           />
 
-          <button className="stop" data-icon="S" aria-label="stop" onClick={this.stopMusic} type="button" />
+          <button className="play" data-icon="S" aria-label="stop" onClick={this.stopMusic} type="button" />
 
-          <div className="timer">
+          
             <input
               type="range"
               min="0"
@@ -156,26 +162,22 @@ class Player extends Component {
               id="myRange"
               onChange={this.onChangeSeek}
             />
-          </div>
-
-          <div className="tidpunkt">
-            {/* <span aria-label="timer" className="seekBar" /> */}
-            <span aria-label="tidpunkt">
-              {this.myRef && this.myRef.current ? currentTime : '--:--'}
-                        /
+              {/* <span aria-label="timer" className="seekBar" /> */}
+              <span aria-label="tidpunkt" class="tidPunkt">
+                {this.myRef && this.myRef.current ? currentTime : '--:--'}
+                /
               {this.myRef && this.myRef.current ? trackDuration : '--:--'}
-            </span>
-          </div>
+              </span>
         </div>
+
         <div className="virtualControl">
           {audioTranscript.segments.map((segment) => {
             if (startTimes.includes(segment.startTime)) {
-              return (<Seek width={((segment.endTime - segment.startTime) * 498) / trackDurationNumeric} background="yellow" />)
+              return (<Seek width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="yellow" />)
             }
-
-            return (<Seek width={((segment.endTime - segment.startTime) * 498) / trackDurationNumeric} background="red" />)
+            return (<Seek width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="red" />)
           })}
-        </div>
+        </div> 
       </Fragment>
     )
   }
