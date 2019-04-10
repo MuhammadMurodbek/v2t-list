@@ -2,8 +2,12 @@ import './App.css'
 import '@elastic/eui/dist/eui_theme_light.css'
 
 import React, { Component } from 'react'
-import { HashRouter, Switch, Route, Link } from 'react-router-dom'
-import { EuiPage, EuiPageSideBar, EuiImage, EuiSideNav } from '@elastic/eui'
+import {
+  HashRouter, Switch, Route, Link
+} from 'react-router-dom'
+import {
+  EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
+} from '@elastic/eui'
 import axios from 'axios'
 
 import logo from './logo.png'
@@ -12,7 +16,6 @@ import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
 
 export default class App extends Component {
-
   static MENU_ITEMS = [
     {
       id: 0,
@@ -66,13 +69,13 @@ export default class App extends Component {
         <EuiPage>
           <EuiPageSideBar>
             <Link to="/">
-              {/* <EuiImage
+              <EuiImage
                 className="logo"
                 size="m"
                 alt="logo"
                 url={logo}
                 allowFullScreen
-              /> */}
+              />
             </Link>
             <EuiSideNav items={App.MENU_ITEMS} />
           </EuiPageSideBar>
