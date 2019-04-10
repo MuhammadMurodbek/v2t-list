@@ -66,23 +66,27 @@ export default class App extends Component {
         <EuiPage>
           <EuiPageSideBar>
             <Link to="/">
-              <EuiImage
+              {/* <EuiImage
                 className="logo"
                 size="m"
                 alt="logo"
                 url={logo}
                 allowFullScreen
-              />
+              /> */}
             </Link>
             <EuiSideNav items={App.MENU_ITEMS} />
           </EuiPageSideBar>
           <Switch>
-            <Route exact path="/" render={props => <StartPage {...{...props, transcripts}} /> } />
-            <Route path="/edit/:id" render={props => {
-              const transcript = transcripts.find(transcript => transcript.id === props.match.params.id)
-              return <EditPage {...{...props, transcript}} />
-            }} />
-          <Route path="/upload/" component={UploadPage} />
+            <Route exact path="/" render={props => <StartPage {...{ ...props, transcripts }} />} />
+            <Route
+              path="/edit/:id"
+              render={(props) => {
+                const transcript = transcripts
+                  .find(currentTranscript => currentTranscript.id === props.match.params.id)
+                return <EditPage {...{ ...props, transcript }} />
+              }}
+            />
+            <Route path="/upload/" component={UploadPage} />
           </Switch>
         </EuiPage>
       </HashRouter>
