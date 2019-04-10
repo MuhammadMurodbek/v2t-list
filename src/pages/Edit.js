@@ -22,11 +22,13 @@ export default class EditPage extends Component {
     isFlyoutVisible: false, 
     originalTranscript: {
       segments: []
-    }
+    },
+    currentTime: 0 
   }
 
   componentDidMount() {
     this.ref = React.createRef()
+    this.player = React.createRef()
     this.loadSubtitles()
     this.loadIcdCodes()
   }
@@ -85,7 +87,10 @@ export default class EditPage extends Component {
     ))
   }
 
+
+  
   updateSubtitles = () => {
+    console.log('updating')
     if (!this.state.subtitles) return
     const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
     const subtitles = Object.assign(...Object.entries(this.state.subtitles)
@@ -103,6 +108,14 @@ export default class EditPage extends Component {
     this.setState({ numberOfWords }, this.loadSubtitles)
   }
 
+  updateSubtitleTemp = () => {
+    console.log('.......')
+    this.player.current.updateTime()
+    // console.log('update temp2')
+    // console.log(this.player.current.seekPosition)
+  }
+
+
   render() {
     const { transcript } = this.props
     const { subtitles, track, tags, isFlyoutVisible, numberOfWords, originalTranscript } = this.state
@@ -111,14 +124,6 @@ export default class EditPage extends Component {
     console.log('hola2')
     console.log(originalTranscript)
     const dummyCode = [
-      // {
-      //   code: 'L007',
-      //   description: 'Fever'
-      // },
-      // {
-      //   code: 'M005',
-      //   description: 'Eye sore'
-      // },
       {
         _index: 'icd.codes',
         _type: '_doc',
@@ -150,7 +155,7 @@ export default class EditPage extends Component {
       <Page title="Editor">
         <div>
           <EuiFlexGroup direction="column" alignItems="flexEnd">
-            <EuiFlexItem grow={true} style={{width: '150px'}}>
+            <EuiFlexItem grow style={{ width: '150px' }}>
               <Fragment>
                 <EuiIcon
                   type="gear"
@@ -168,12 +173,16 @@ export default class EditPage extends Component {
             </EuiFlexItem>
           </EuiFlexGroup>
           <br />
-          <br />
-          <br />
           <EuiFlexGroup wrap>
             <EuiFlexItem>
               <figure>
-                <Player audioTranscript={originalTranscript} trackId={transcript.id} onTimeUpdate={this.updateSubtitles}/>
+                <Player
+                  audioTranscript={originalTranscript}
+                  trackId={transcript.id}
+                  updateSubtitleTemp={this.updateSubtitleTemp}
+                  isPlaying={false}
+                  ref={this.player}
+                />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />

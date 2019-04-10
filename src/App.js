@@ -69,13 +69,13 @@ export default class App extends Component {
         <EuiPage>
           <EuiPageSideBar>
             <Link to="/">
-              <EuiImage
+              {/* <EuiImage
                 className="logo"
                 size="m"
                 alt="logo"
                 url={logo}
                 allowFullScreen
-              />
+              /> */}
             </Link>
             <EuiSideNav items={App.MENU_ITEMS} />
           </EuiPageSideBar>

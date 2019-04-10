@@ -11,7 +11,8 @@ class Player extends Component {
   }
 
   state = {
-    isPlaying: false,
+    isPlaying: this.props.isPlaying,
+    media: this.props.myref,
     trackDuration: null,
     seekPosition: 0,
     maxSeekValue: 100,
@@ -19,22 +20,7 @@ class Player extends Component {
     trackDurationNumeric: 1
   }
 
-  updateTime = () => {
-    const media = this.myRef.current
-    const { currentTime } = media
-    const isPlaying = media.paused === false
-    let minutes = Math.floor(currentTime / 60)
-    let seconds = Math.floor(currentTime - minutes * 60)
-    if (minutes < 10) minutes = `0${minutes}`
-    if (seconds < 10) seconds = `0${seconds}`
-    const formattedCurrentTime = `${minutes}:${seconds}`
-    this.setState({
-      currentTime: formattedCurrentTime,
-      isPlaying,
-      seekPosition: currentTime
-    })
-  }
-
+  
   onChangeSeek = (e) => {
     const { value } = e.target
     const media = this.myRef.current
@@ -77,14 +63,16 @@ class Player extends Component {
   getAudioData = (e) => {
     const { duration } = e.target
     const { audioTranscript } = this.props
-    
     const minutes = Math.floor(duration / 60)
     const seconds = Math.floor(duration - minutes * 60)
     const trackDuration = `${minutes}:${seconds}`
     const maxSeekValue = duration
     this.setState({ trackDuration, maxSeekValue, trackDurationNumeric: duration }, () => {
       this.updateTime()
+      console.log('prop media')
+      console.log(this.state.myRef)
     })
+    
   }
 
   searchKeyword = (e) => {
@@ -101,6 +89,23 @@ class Player extends Component {
     }
     this.setState({ startTimes })
   }
+
+  updateTime = () => {
+    const media = this.myRef.current
+    const { currentTime } = media
+    const isPlaying = media.paused === false
+    let minutes = Math.floor(currentTime / 60)
+    let seconds = Math.floor(currentTime - minutes * 60)
+    if (minutes < 10) minutes = `0${minutes}`
+    if (seconds < 10) seconds = `0${seconds}`
+    const formattedCurrentTime = `${minutes}:${seconds}`
+    this.setState({
+      currentTime: formattedCurrentTime,
+      isPlaying,
+      seekPosition: currentTime
+    })
+  }
+
 
   render() {
     const {
@@ -124,7 +129,8 @@ class Player extends Component {
         <audio
           ref={this.myRef}
           src={trackUrl}
-          onTimeUpdate={this.updateTime}
+          // onTimeUpdate={this.updateTime}
+          onTimeUpdate={this.props.updateSubtitleTemp}
           onLoadedData={this.getAudioData}
         >
         Your browser does not support the
@@ -163,7 +169,7 @@ class Player extends Component {
               onChange={this.onChangeSeek}
             />
               {/* <span aria-label="timer" className="seekBar" /> */}
-              <span aria-label="tidpunkt" class="tidPunkt">
+              <span aria-label="tidpunkt" className="tidPunkt">
                 {this.myRef && this.myRef.current ? currentTime : '--:--'}
                 /
               {this.myRef && this.myRef.current ? trackDuration : '--:--'}
