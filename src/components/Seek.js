@@ -1,15 +1,17 @@
 // Used react synthetic event
-import React, { Component, Fragment } from 'react'
+import React, { Fragment } from 'react'
+import PropTypes from 'prop-types'
 import '../App.css'
 
-class Seek extends Component {
-  render() {
-    return (
-      <Fragment>
-        <span className="seekBar" style={{ width: this.props.width, background: this.props.background }}></span>
-      </Fragment>
-    )
-  }
+const Seek = ({ width, background }) => (
+  <Fragment>
+    <span className="seekBar" style={{ width, background }} />
+  </Fragment>
+)
+
+Seek.propTypes = {
+  width: PropTypes.string.isRequired,
+  background: PropTypes.string.isRequired
 }
 
 export default Seek

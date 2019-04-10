@@ -175,7 +175,7 @@ class Player extends Component {
             if (startTimes.includes(segment.startTime)) {
               return (<Seek width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="yellow" />)
             }
-            return (<Seek width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="red" />)
+            return (<Seek width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="black" />)
           })}
         </div> 
       </Fragment>

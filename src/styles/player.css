@@ -36,8 +36,6 @@
 width: 800px;
 border-radius: 5px;
 bottom: 20px;
-left: 50%;
-margin-left: 100px;
 margin-top: 30px;
 background-color:  #f1f3f4;
 transition: 1s all;
@@ -45,12 +43,13 @@ display: flex;
 }
 
 .virtualControl {
-background-color: red;
-margin-left: 170px;
+background-color: black;
+margin-left: 76px;
 display: flex;
-margin-top: -17px;
+margin-top: -18px;
 z-index:-10;
-width:610px;
+width:595px;
+height:5px;
 }
 
 .player:hover .controls, player:focus .controls {
@@ -130,11 +129,11 @@ z-index: 3;
   position: relative;
   margin-left: 30px;
   margin-top: 8px;
-  margin-right: 10px;
+  margin-right: 20px;
 }
 
 .seekBar {
-  height: 3px;
+  height: 5px;
   cursor: pointer;
   position: relative;
 }
@@ -142,9 +141,9 @@ z-index: 3;
 .sliderWrapper {
   display: inline-block;
   width: 394px;
-  margin-left: 10px;
+  margin-left: 14px;
   height: 15px;
-  margin-top: 9.0px;
+  margin-top: 14.0px;
   z-index: 10;
 }
 
@@ -178,7 +177,7 @@ input[type=range]::-webkit-slider-thumb {
   height: 20px;
   width: 20px;
   border-radius: 60%;
-  background: red;
+  background: black;
   cursor: pointer;
   margin-top: -8px;
 }
@@ -188,7 +187,7 @@ input[type=range]::-moz-range-thumb {
   height: 36px;
   width: 16px;
   border-radius: 3px;
-  background: red;
+  background: black;
   cursor: pointer;
 }
 
@@ -197,7 +196,7 @@ input[type=range]::-ms-thumb {
   height: 36px;
   width: 16px;
   border-radius: 3px;
-  background: red;
+  background: black;
   cursor: pointer;
 }
 
@@ -206,9 +205,9 @@ input[type=range]::-ms-thumb {
 /* track */
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
-  height: 5px;
+  height: 15px;
   cursor: pointer;
-  background-color: transparent;
+  background-color:transparent;
   border-radius: 1.3px;
 }
 
