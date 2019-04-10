@@ -69,10 +69,7 @@ class Player extends Component {
     const maxSeekValue = duration
     this.setState({ trackDuration, maxSeekValue, trackDurationNumeric: duration }, () => {
       this.updateTime()
-      console.log('prop media')
-      console.log(this.state.myRef)
     })
-    
   }
 
   searchKeyword = (e) => {
@@ -103,6 +100,8 @@ class Player extends Component {
       currentTime: formattedCurrentTime,
       isPlaying,
       seekPosition: currentTime
+    }, ()=>{
+      this.props.updateSeek(this.state.seekPosition)
     })
   }
 
@@ -111,7 +110,7 @@ class Player extends Component {
     const {
       isPlaying, trackDuration, trackDurationNumeric, currentTime, startTimes
     } = this.state
-    const { audioTranscript, trackId } = this.props
+    const { audioTranscript, trackId, getCurrentTime } = this.props
     const trackUrl = `http://localhost:6106/api/v1/transcription/${trackId}/audio`
     let seekBar
     
@@ -129,8 +128,7 @@ class Player extends Component {
         <audio
           ref={this.myRef}
           src={trackUrl}
-          // onTimeUpdate={this.updateTime}
-          onTimeUpdate={this.props.updateSubtitleTemp}
+          onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
         Your browser does not support the

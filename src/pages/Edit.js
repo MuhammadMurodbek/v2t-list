@@ -60,7 +60,7 @@ export default class EditPage extends Component {
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
     const response = await axios.get(queryString)
     const queryStringForAudio = `/api/v1/transcription/${transcript.id}`
-    let  originalTranscript = await axios.get(queryStringForAudio)
+    let originalTranscript = await axios.get(queryStringForAudio)
     originalTranscript = originalTranscript.data.transcriptions[0]
     const subtitles = this.parseSubtitles(response.data.transcriptions)
     const tags = response.data.tags
@@ -75,7 +75,8 @@ export default class EditPage extends Component {
   }
 
   parseSubtitle = transcript => {
-    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+    // const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+    const currentTime = this.state.currentTime
     return transcript.segments.map((subtitle, i) => (
       <Subtitle
         key={i}
@@ -83,16 +84,21 @@ export default class EditPage extends Component {
         startTime={subtitle.startTime}
         endTime={subtitle.endTime}
         currentTime={currentTime}
+        updateSeek={this.updateSeek}
       />
     ))
   }
 
 
-  
+  updateSeek= (currentTime) => {
+    this.setState({ currentTime }, ()=>{
+      this.updateSubtitles()
+    })
+  }
   updateSubtitles = () => {
-    console.log('updating')
     if (!this.state.subtitles) return
-    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+    // const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+    const currentTime = this.state.currentTime
     const subtitles = Object.assign(...Object.entries(this.state.subtitles)
       .map(entry => this.updateSubtitle(entry, currentTime)))
     this.setState({ subtitles })
@@ -108,21 +114,14 @@ export default class EditPage extends Component {
     this.setState({ numberOfWords }, this.loadSubtitles)
   }
 
-  updateSubtitleTemp = () => {
-    console.log('.......')
+  getCurrentTime = () => {
     this.player.current.updateTime()
-    // console.log('update temp2')
-    // console.log(this.player.current.seekPosition)
   }
 
 
   render() {
     const { transcript } = this.props
     const { subtitles, track, tags, isFlyoutVisible, numberOfWords, originalTranscript } = this.state
-    console.log('hola')
-    console.log(originalTranscript)
-    console.log('hola2')
-    console.log(originalTranscript)
     const dummyCode = [
       {
         _index: 'icd.codes',
@@ -179,14 +178,15 @@ export default class EditPage extends Component {
                 <Player
                   audioTranscript={originalTranscript}
                   trackId={transcript.id}
-                  updateSubtitleTemp={this.updateSubtitleTemp}
+                  getCurrentTime={this.getCurrentTime}
+                  updateSeek={this.updateSeek}
                   isPlaying={false}
                   ref={this.player}
                 />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />
-                <audio
+                {/* <audio
                   controls
                   src={`/api/v1/transcription/${transcript.id}/audio`}
                   ref={this.ref}
@@ -196,7 +196,7 @@ export default class EditPage extends Component {
                   Your browser does not support the
                   <code>audio</code>
                   element.
-                </audio>
+                </audio> */}
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
