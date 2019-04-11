@@ -18,7 +18,6 @@ export default class EditPage extends Component {
 
   state = {
     subtitles: null,
-    tags: null,
     numberOfWords: '3',
     isFlyoutVisible: false,
     originalTranscript: {
@@ -34,7 +33,8 @@ export default class EditPage extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.transcript !== prevProps.transcript) {
+    const { transcript } = this.props
+    if (transcript !== prevProps.transcript) {
       this.loadSubtitles()
     }
   }
@@ -54,24 +54,24 @@ export default class EditPage extends Component {
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
     const response = await axios.get(queryString)
     const queryStringForAudio = `/api/v1/transcription/${transcript.id}`
-    let originalTranscript = await axios.get(queryStringForAudio)
-    originalTranscript = originalTranscript.data.transcriptions[0]
+    const originalSubtitles = await axios.get(queryStringForAudio)
+    const [originalTranscript] = originalSubtitles.data.transcriptions
     const subtitles = this.parseSubtitles(response.data.transcriptions)
-    const tags = response.data.tags
-    this.setState({ subtitles, tags, originalTranscript })
+    this.setState({ subtitles, originalTranscript })
+    return true
   }
 
   parseSubtitles = transcripts => transcripts.reduce((subtitles, transcript) => {
-    subtitles[transcript.keyword] = this.parseSubtitle(transcript)
-    return subtitles
+    const parsedSubtitles = subtitles
+    parsedSubtitles[transcript.keyword] = this.parseSubtitle(transcript)
+    return parsedSubtitles
   }, {})
 
-  parseSubtitle = transcript => {
-    // const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-    const currentTime = this.state.currentTime
+  parseSubtitle = (transcript) => {
+    const { currentTime } = this.state
     return transcript.segments.map((subtitle, i) => (
       <Subtitle
-        key={i}
+        key={`key-${i + 1}`}
         words={subtitle.words}
         startTime={subtitle.startTime}
         endTime={subtitle.endTime}
@@ -223,7 +223,7 @@ const Preferences = ({
     { id: '5', label: '5' }
   ]
   return (
-    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" >
+    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle">
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
           <h4 id="flyoutTitle">
