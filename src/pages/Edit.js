@@ -24,7 +24,7 @@ export default class EditPage extends Component {
     originalTranscript: {
       segments: []
     },
-    currentTime: 0 
+    currentTime: 0
   }
 
   componentDidMount() {
@@ -40,7 +40,7 @@ export default class EditPage extends Component {
     }
   }
 
-  loadIcdCodes = async() => {
+  loadIcdCodes = async () => {
     const codeData = await axios.post('/api/v1/code-service/search', {
       text: 'N905A postmenopausal blödning hos icke hormonbehandlad kvinna'
     })
@@ -215,12 +215,14 @@ export default class EditPage extends Component {
   }
 }
 
-const Preferences = ({ visible, words, onClose, onChange }) => {
+const Preferences = ({
+  visible, words, onClose, onChange
+}) => {
   if (!visible) return null
   const options = [
-    { id: `1`, label: '1' },
-    { id: `3`, label: '3' },
-    { id: `5`, label: '5'}
+    { id: '1', label: '1' },
+    { id: '3', label: '3' },
+    { id: '5', label: '5' }
   ]
   return (
     <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" >
@@ -243,6 +245,14 @@ const Preferences = ({ visible, words, onClose, onChange }) => {
     </EuiFlyout>
   )
 }
+
+Preferences.propTypes = {
+  visible: PropTypes.string.isRequired,
+  words: PropTypes.string.isRequired,
+  onClose: PropTypes.string.isRequired,
+  onChange: PropTypes.string.isRequired
+}
+
 
 const Subtitle = ({
   words, startTime, endTime, currentTime
