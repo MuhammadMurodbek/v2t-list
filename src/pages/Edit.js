@@ -20,7 +20,7 @@ export default class EditPage extends Component {
     subtitles: null,
     tags: null,
     numberOfWords: '3',
-    isFlyoutVisible: false, 
+    isFlyoutVisible: false,
     originalTranscript: {
       segments: []
     },
@@ -31,19 +31,12 @@ export default class EditPage extends Component {
     this.ref = React.createRef()
     this.player = React.createRef()
     this.loadSubtitles()
-    this.loadIcdCodes()
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.transcript !== prevProps.transcript) {
       this.loadSubtitles()
     }
-  }
-
-  loadIcdCodes = async () => {
-    const codeData = await axios.post('/api/v1/code-service/search', {
-      text: 'N905A postmenopausal blödning hos icke hormonbehandlad kvinna'
-    })
   }
 
   closeFlyout = () => {
@@ -68,12 +61,10 @@ export default class EditPage extends Component {
     this.setState({ subtitles, tags, originalTranscript })
   }
 
-  parseSubtitles = transcripts => {
-    return transcripts.reduce((subtitles, transcript) => {
-      subtitles[transcript.keyword] = this.parseSubtitle(transcript)
-      return subtitles
-    }, {})
-  }
+  parseSubtitles = transcripts => transcripts.reduce((subtitles, transcript) => {
+    subtitles[transcript.keyword] = this.parseSubtitle(transcript)
+    return subtitles
+  }, {})
 
   parseSubtitle = transcript => {
     // const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
@@ -92,22 +83,22 @@ export default class EditPage extends Component {
 
 
   updateSeek= (currentTime) => {
-    this.setState({ currentTime }, ()=>{
+    this.setState({ currentTime }, () => {
       this.updateSubtitles()
     })
   }
+
   updateSubtitles = () => {
-    if (!this.state.subtitles) return
-    // const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-    const currentTime = this.state.currentTime
-    const subtitles = Object.assign(...Object.entries(this.state.subtitles)
+    const { subtitles, currentTime } = this.state
+    if (!subtitles) return
+    const updatedSubtitles = Object.assign(...Object.entries(subtitles)
       .map(entry => this.updateSubtitle(entry, currentTime)))
-    this.setState({ subtitles })
+    this.setState({ subtitles: updatedSubtitles })
   }
 
   updateSubtitle = ([key, subtitles], currentTime) => (
     {
-      [key]: subtitles.map(subtitle => <Subtitle {...{...subtitle.props, currentTime}} />)
+      [key]: subtitles.map(subtitle => <Subtitle {...{ ...subtitle.props, currentTime }} />)
     }
   )
 
@@ -122,7 +113,9 @@ export default class EditPage extends Component {
 
   render() {
     const { transcript } = this.props
-    const { subtitles, track, tags, isFlyoutVisible, numberOfWords, originalTranscript } = this.state
+    const {
+      subtitles, isFlyoutVisible, numberOfWords, originalTranscript
+    } = this.state
     const dummyCode = [
       {
         _index: 'icd.codes',
@@ -214,6 +207,11 @@ export default class EditPage extends Component {
     )
   }
 }
+
+EditPage.propTypes = {
+  transcript: PropTypes.element
+}
+
 
 const Preferences = ({
   visible, words, onClose, onChange
