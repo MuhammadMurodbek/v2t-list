@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/media-has-caption */
-// Used react synthetic event
 import React, { Component, Fragment } from 'react'
 import '../styles/player.css'
 import Seek from './Seek'

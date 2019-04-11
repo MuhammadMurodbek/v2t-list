@@ -48,18 +48,20 @@ export default class App extends Component {
         this.setState({ transcripts: data.data })
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.log(error)
       })
   }
 
   parseTranscripts = data => data.map((d) => {
-    d.transcript = d.words.map((word, i) => ({
+    const receivedTranscript = d
+    receivedTranscript.transcript = d.words.map((word, i) => ({
       id: d.callId,
       text: `${word} `,
       start: d.startTimes[i],
       end: d.endTimes[i]
     }))
-    return d
+    return receivedTranscript
   })
 
   render() {
@@ -69,13 +71,13 @@ export default class App extends Component {
         <EuiPage>
           <EuiPageSideBar>
             <Link to="/">
-              {/* <EuiImage
+              <EuiImage
                 className="logo"
                 size="m"
                 alt="logo"
                 url={logo}
                 allowFullScreen
-              /> */}
+              />
             </Link>
             <EuiSideNav items={App.MENU_ITEMS} />
           </EuiPageSideBar>
