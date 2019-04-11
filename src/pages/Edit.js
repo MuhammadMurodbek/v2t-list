@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react'
+import PropTypes from 'prop-types'
 import {
   EuiFlexGroup, EuiFlexItem,
   EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
@@ -243,7 +244,9 @@ const Preferences = ({ visible, words, onClose, onChange }) => {
   )
 }
 
-const Subtitle = ({ words, startTime, endTime, currentTime }) => {
+const Subtitle = ({
+  words, startTime, endTime, currentTime
+}) => {
   const notCurrent = currentTime <= startTime || currentTime > endTime
   if (notCurrent) return <span>{`${words} `}</span>
   return (
@@ -251,4 +254,11 @@ const Subtitle = ({ words, startTime, endTime, currentTime }) => {
       {`${words} `}
     </span>
   )
+}
+
+Subtitle.propTypes = {
+  words: PropTypes.string.isRequired,
+  startTime: PropTypes.string.isRequired,
+  endTime: PropTypes.string.isRequired,
+  currentTime: PropTypes.string.isRequired
 }
