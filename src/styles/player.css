@@ -1,0 +1,280 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.controls {
+width: 800px;
+border-radius: 5px;
+bottom: 20px;
+margin-top: 30px;
+background-color:  #f1f3f4;
+transition: 1s all;
+display: flex;
+}
+
+.virtualControl {
+background-color: black;
+margin-left: 76px;
+display: flex;
+margin-top: -18px;
+z-index:-10;
+width:595px;
+height:5px;
+}
+
+.player:hover .controls, player:focus .controls {
+opacity: 1;
+}
+
+@font-face {
+font-family: 'HeydingsControlsRegular';
+src: url('../data/fonts/heydings_controls-webfont.eot');
+src: url('../data/fonts/heydings_controls-webfont.eot?#iefix') format('embedded-opentype'),
+    url('../data/fonts/heydings_controls-webfont.woff') format('woff'),
+    url('../data/fonts/heydings_controls-webfont.ttf') format('truetype');
+font-weight: normal;
+font-style: normal;
+}
+
+.play:before {
+font-family: HeydingsControlsRegular;
+font-size: 20px;
+position: relative;
+content: attr(data-icon);
+
+
+}
+
+.play{
+
+    border: none;
+    padding-bottom: 7px;
+    cursor: pointer;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-top: 1px;
+}
+
+.play:focus {
+outline: 0;
+}
+
+.timer {
+line-height: 20px;
+    font-size: 13px;
+    font-family: monospace;
+    text-shadow: 1px 1px 0px black;
+    color: white;
+    /* -webkit-flex: 1.8 1; */
+    /* flex: 0.8 1; */
+    position: relative;
+    margin-top: 2.6px;
+    padding-top: 2px;
+    margin-left: 10px;
+    z-index: 10;
+    position: absolute;
+    width: 500px;
+    margin-left: 72px;
+}
+
+.timer div {
+position: absolute;
+background-color: rgba(165, 172, 233, 0.5);
+left: 0;
+top: 0;
+width: 0;
+height: 5px;
+z-index: 2;
+margin-top: 2px;
+}
+
+.timer span {
+z-index: 3;
+
+}
+
+
+
+.tidPunkt{
+  position: relative;
+  margin-left: 30px;
+  margin-top: 8px;
+  margin-right: 20px;
+}
+
+.seekBar {
+  height: 5px;
+  cursor: pointer;
+  position: relative;
+}
+
+.sliderWrapper {
+  display: inline-block;
+  width: 394px;
+  margin-left: 14px;
+  height: 15px;
+  margin-top: 14.0px;
+  z-index: 10;
+}
+
+
+input[type=range] {
+  -webkit-appearance: none;
+    width: 610px;
+    background-color: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+
+input[type=range]::-ms-track {
+  width: 75%;
+  cursor: pointer;
+
+  /* Hides the slider so custom styles can be added */
+  background-color: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 30px;
+  width: 30px;
+  border-radius: 60%;
+  background: rgba(255,0,0,.35);
+  cursor: pointer;
+  margin-top: -13px;
+}
+
+/* All the same stuff for Firefox */
+input[type=range]::-moz-range-thumb {
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: black;
+  cursor: pointer;
+}
+
+/* All the same stuff for IE */
+input[type=range]::-ms-thumb {
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: black;
+  cursor: pointer;
+}
+
+
+
+/* track */
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 15px;
+  cursor: pointer;
+  background-color:transparent;
+  border-radius: 1.3px;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background-color: transparent;
+}
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 2.4px;
+  cursor: pointer;
+  box-shadow: none;
+  background-color: transparent;
+  border-radius: 1.3px;
+  
+}
+
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 2.4px;
+  cursor: pointer;
+  background-color: transparent;
+  border-width: 16px 0;
+  color: transparent;
+}
+
+input[type=range]::-ms-fill-lower {
+  background-color: rgba(165, 172, 233, 0.5);
+  
+  border-radius: 2.6px;
+  
+}
+
+input[type=range]:focus::-ms-fill-lower {
+  background-color: rgba(165, 172, 233, 0.5);
+}
+
+input[type=range]::-ms-fill-upper {
+  background-color: rgba(165, 172, 233, 0.5);
+  
+  border-radius: 2.6px;
+  
+}
+
+input[type=range]:focus::-ms-fill-upper {
+  background-color: rgba(165, 172, 233, 0.5);
+}
+
+
+.searchBox {
+  width: 400px;
+  padding: 5px;
+  font-size: 20px;
+  margin-top:20px;
+  outline: none;
+  box-shadow: none;
+  border-bottom: 1px solid grey;
+  border-top: none;
+  border-left:  none;
+  border-right:  none;
+}
+
+
+
+
+.alternativeTrack {
+  width: 20px;
+  background: green;
+  height: 5px;
+}

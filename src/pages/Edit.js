@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react'
+import PropTypes from 'prop-types'
 import {
   EuiFlexGroup, EuiFlexItem,
   EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
@@ -8,6 +9,7 @@ import axios from 'axios'
 import Page from '../components/Page'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
+import Player from '../components/Player'
 
 export default class EditPage extends Component {
   static defaultProps = {
@@ -16,27 +18,26 @@ export default class EditPage extends Component {
 
   state = {
     subtitles: null,
-    tags: null,
     numberOfWords: '3',
-    isFlyoutVisible: false
+    isFlyoutVisible: false,
+    originalTranscript: {
+      segments: []
+    },
+    currentTime: 0,
+    queryTerm: ''
   }
 
   componentDidMount() {
     this.ref = React.createRef()
+    this.player = React.createRef()
     this.loadSubtitles()
-    this.loadIcdCodes()
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.transcript !== prevProps.transcript) {
+    const { transcript } = this.props
+    if (transcript !== prevProps.transcript) {
       this.loadSubtitles()
     }
-  }
-
-  loadIcdCodes = async() => {
-    const codeData = await axios.post('/api/v1/code-service/search', {
-      text: 'N905A postmenopausal blödning hos icke hormonbehandlad kvinna'
-    })
   }
 
   closeFlyout = () => {
@@ -53,42 +54,52 @@ export default class EditPage extends Component {
     if (!transcript) return null
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
     const response = await axios.get(queryString)
+    const queryStringForAudio = `/api/v1/transcription/${transcript.id}`
+    const originalSubtitles = await axios.get(queryStringForAudio)
+    const [originalTranscript] = originalSubtitles.data.transcriptions
     const subtitles = this.parseSubtitles(response.data.transcriptions)
-    const tags = response.data.tags
-    this.setState({ subtitles, tags })
+    this.setState({ subtitles, originalTranscript })
+    return true
   }
 
-  parseSubtitles = transcripts => {
-    return transcripts.reduce((subtitles, transcript) => {
-      subtitles[transcript.keyword] = this.parseSubtitle(transcript)
-      return subtitles
-    }, {})
-  }
+  parseSubtitles = transcripts => transcripts.reduce((subtitles, transcript) => {
+    const parsedSubtitles = subtitles
+    parsedSubtitles[transcript.keyword] = this.parseSubtitle(transcript)
+    return parsedSubtitles
+  }, {})
 
-  parseSubtitle = transcript => {
-    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
+  parseSubtitle = (transcript) => {
+    const { currentTime } = this.state
     return transcript.segments.map((subtitle, i) => (
       <Subtitle
-        key={i}
+        key={`key-${i + 1}`}
         words={subtitle.words}
         startTime={subtitle.startTime}
         endTime={subtitle.endTime}
         currentTime={currentTime}
+        updateSeek={this.updateSeek}
       />
     ))
   }
 
+
+  updateSeek= (currentTime) => {
+    this.setState({ currentTime }, () => {
+      this.updateSubtitles()
+    })
+  }
+
   updateSubtitles = () => {
-    if (!this.state.subtitles) return
-    const currentTime = this.ref && this.ref.current ? this.ref.current.currentTime : null
-    const subtitles = Object.assign(...Object.entries(this.state.subtitles)
+    const { subtitles, currentTime } = this.state
+    if (!subtitles) return
+    const updatedSubtitles = Object.assign(...Object.entries(subtitles)
       .map(entry => this.updateSubtitle(entry, currentTime)))
-    this.setState({ subtitles })
+    this.setState({ subtitles: updatedSubtitles })
   }
 
   updateSubtitle = ([key, subtitles], currentTime) => (
     {
-      [key]: subtitles.map(subtitle => <Subtitle {...{...subtitle.props, currentTime}} />)
+      [key]: subtitles.map((subtitle,i) => <Subtitle key={i}  {...{ ...subtitle.props, currentTime }} />)
     }
   )
 
@@ -96,18 +107,23 @@ export default class EditPage extends Component {
     this.setState({ numberOfWords }, this.loadSubtitles)
   }
 
+  getCurrentTime = () => {
+    this.player.current.updateTime()
+  }
+
+  onSelectText = () => {
+    const selctedText = window.getSelection().toString()
+    this.setState({ queryTerm: selctedText }, () => {
+      this.player.current.searchKeyword()
+    })
+  }
+
   render() {
     const { transcript } = this.props
-    const { subtitles, track, tags, isFlyoutVisible, numberOfWords } = this.state
+    const {
+      subtitles, isFlyoutVisible, numberOfWords, originalTranscript, queryTerm
+    } = this.state
     const dummyCode = [
-      // {
-      //   code: 'L007',
-      //   description: 'Fever'
-      // },
-      // {
-      //   code: 'M005',
-      //   description: 'Eye sore'
-      // },
       {
         _index: 'icd.codes',
         _type: '_doc',
@@ -139,7 +155,7 @@ export default class EditPage extends Component {
       <Page title="Editor">
         <div>
           <EuiFlexGroup direction="column" alignItems="flexEnd">
-            <EuiFlexItem grow={true} style={{width: '150px'}}>
+            <EuiFlexItem grow style={{ width: '150px' }}>
               <Fragment>
                 <EuiIcon
                   type="gear"
@@ -156,13 +172,23 @@ export default class EditPage extends Component {
               </Fragment>
             </EuiFlexItem>
           </EuiFlexGroup>
-          <br />
-          <br />
-          <br />
+          
           <EuiFlexGroup wrap>
             <EuiFlexItem>
               <figure>
-                <audio
+                <Player
+                  audioTranscript={originalTranscript}
+                  trackId={transcript.id}
+                  getCurrentTime={this.getCurrentTime}
+                  updateSeek={this.updateSeek}
+                  queryTerm={queryTerm}
+                  isPlaying={false}
+                  ref={this.player}
+                />
+                <EuiSpacer size="m" />
+                <EuiSpacer size="m" />
+                <EuiSpacer size="m" />
+                {/* <audio
                   controls
                   src={`/api/v1/transcription/${transcript.id}/audio`}
                   ref={this.ref}
@@ -172,13 +198,13 @@ export default class EditPage extends Component {
                   Your browser does not support the
                   <code>audio</code>
                   element.
-                </audio>
+                </audio> */}
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup wrap>
             <EuiFlexItem>
-              <Editor transcript={subtitles} id={transcript.id} />
+              <Editor transcript={subtitles} id={transcript.id} onSelect={this.onSelectText} />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <Tags values={dummyCode} />
@@ -190,15 +216,17 @@ export default class EditPage extends Component {
   }
 }
 
-const Preferences = ({ visible, words, onClose, onChange }) => {
+const Preferences = ({
+  visible, words, onClose, onChange
+}) => {
   if (!visible) return null
   const options = [
-    { id: `1`, label: '1' },
-    { id: `3`, label: '3' },
-    { id: `5`, label: '5'}
+    { id: '1', label: '1' },
+    { id: '3', label: '3' },
+    { id: '5', label: '5' }
   ]
   return (
-    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" >
+    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle">
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
           <h4 id="flyoutTitle">
@@ -219,7 +247,11 @@ const Preferences = ({ visible, words, onClose, onChange }) => {
   )
 }
 
-const Subtitle = ({ words, startTime, endTime, currentTime }) => {
+
+
+const Subtitle = ({
+  words, startTime, endTime, currentTime
+}) => {
   const notCurrent = currentTime <= startTime || currentTime > endTime
   if (notCurrent) return <span>{`${words} `}</span>
   return (
@@ -228,3 +260,4 @@ const Subtitle = ({ words, startTime, endTime, currentTime }) => {
     </span>
   )
 }
+

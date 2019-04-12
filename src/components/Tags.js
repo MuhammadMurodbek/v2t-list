@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { Component, Fragment } from 'react'
 import {
   EuiSpacer, EuiText, EuiBasicTable, EuiComboBox, EuiButtonIcon, EuiFlexItem
@@ -23,14 +24,13 @@ export default class Tags extends Component {
       text: searchTerm
     })
 
-    const convertedCodes = []
     // Purpose of doing this is to use free text search
     if (codeData.data !== null) {
-      codeData.data.map((code) => {
-        code.label = `${code._source.Code}: ${code._source.CodeText}`
-        convertedCodes.push(code)
+      const options = codeData.data.map((code) => {
+        const label = `${code._source.Code}: ${code._source.CodeText}`
+        return { ...code, label }
       })
-      this.setState({ options: convertedCodes })
+      this.setState({ options })
     }
   }
 
@@ -53,7 +53,8 @@ export default class Tags extends Component {
       }
 
       if (tableOfCodes.some(e => e._source.Code === data[0])) {
-        alert("Item already exists on the list")
+        // eslint-disable-next-line no-alert
+        alert('Item already exists on the list')
         this.emptySelectedOption()
       } else {
         const temp = tableOfCodes

@@ -1,13 +1,9 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import moment from 'moment'
 import { EuiInMemoryTable, EuiButtonEmpty } from '@elastic/eui'
 
-export default class TransactionList extends Component {
-
-  static defaultProps = {
-    transcripts: []
-  }
-
+export default class TranscriptionList extends Component {
   static columns = [
     {
       field: 'created', name: 'Created', sortable: true, render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
@@ -27,7 +23,7 @@ export default class TransactionList extends Component {
 
   render() {
     const { transcripts } = this.props
-    const { columns } = TransactionList
+    const { columns } = TranscriptionList
 
     return (
       <EuiInMemoryTable
@@ -39,4 +35,9 @@ export default class TransactionList extends Component {
       />
     )
   }
+}
+
+
+TranscriptionList.propTypes = {
+  transcripts: PropTypes.isRequired
 }
