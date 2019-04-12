@@ -143,8 +143,6 @@ const EditableChapters = ({ transcripts, inputRefs, onChange, onSelect }) => {
 }
 
 const EditableChapter = ({ key, keyword, subtitles, inputRefs, onChange, onSelect }) => {
-  console.log('mooo')
-  console.log(key)
   return (
     <Fragment>
       <h2>{keyword}</h2>
