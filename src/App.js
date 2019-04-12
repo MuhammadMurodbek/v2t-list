@@ -53,17 +53,6 @@ export default class App extends Component {
       })
   }
 
-  parseTranscripts = data => data.map((d) => {
-    const receivedTranscript = d
-    receivedTranscript.transcript = d.words.map((word, i) => ({
-      id: d.callId,
-      text: `${word} `,
-      start: d.startTimes[i],
-      end: d.endTimes[i]
-    }))
-    return receivedTranscript
-  })
-
   render() {
     const { transcripts } = this.state
     return (
