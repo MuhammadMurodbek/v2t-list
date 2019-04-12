@@ -172,7 +172,7 @@ export default class EditPage extends Component {
               </Fragment>
             </EuiFlexItem>
           </EuiFlexGroup>
-          <br />
+          
           <EuiFlexGroup wrap>
             <EuiFlexItem>
               <figure>
