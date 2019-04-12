@@ -24,16 +24,13 @@ export default class Tags extends Component {
       text: searchTerm
     })
 
-    const convertedCodes = []
     // Purpose of doing this is to use free text search
     if (codeData.data !== null) {
-      // eslint-disable-next-line array-callback-return
-      codeData.data.map((code) => {
-        // eslint-disable-next-line no-param-reassign
-        code.label = `${code._source.Code}: ${code._source.CodeText}`
-        convertedCodes.push(code)
+      const options = codeData.data.map((code) => {
+        const label = `${code._source.Code}: ${code._source.CodeText}`
+        return { ...code, label }
       })
-      this.setState({ options: convertedCodes })
+      this.setState({ options })
     }
   }
 
