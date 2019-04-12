@@ -116,7 +116,7 @@ class Player extends Component {
       isPlaying, trackDuration, trackDurationNumeric, currentTime, startTimes
     } = this.state
     const { audioTranscript, trackId, getCurrentTime } = this.props
-    const trackUrl = `http://localhost:6106/api/v1/transcription/${trackId}/audio`
+    const trackUrl = `/api/v1/transcription/${trackId}/audio`
     let seekBar
     
 
