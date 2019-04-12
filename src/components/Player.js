@@ -81,15 +81,66 @@ class Player extends Component {
 
     const { audioTranscript } = this.props
     const { segments } = audioTranscript
-    const startTimes = []
+    let startTimes = []
+    let wholeText = ''
     if (searchTerm.length > 0) {
       segments.map((segment) => {
-        if (segment.words.length !== 0 && segment.words.includes(searchTerm)) {
-          startTimes.push(segment.startTime)
-        }
+        wholeText = `${wholeText} ${segment.words}`
       })
     }
-    this.setState({ startTimes })
+    if (searchTerm.length > 0 && wholeText.includes(searchTerm)) {
+      // searchTerm = searchTerm.split(' ')[0]
+      console.log('searchTerm')
+      console.log(searchTerm)
+      startTimes = this.getSelectedSegments(wholeText, searchTerm)
+    }
+    // this.setState({ startTimes })
+  }
+
+  getSelectedSegments = (wholeText, searchTerm) => {
+    const { audioTranscript } = this.props
+    const { segments } = audioTranscript
+    let remainingText
+    let remainingSearchTerm
+    let primarySegments = []
+    console.log('search term')
+    console.log(searchTerm)
+    const searchTermInit = searchTerm.split(' ')[0]
+    segments.map((segment) => {
+      if (segment.words.includes(searchTermInit)) {
+        primarySegments.push(segment)
+      }
+    })
+
+    // Initial list is found, now it is time to prune the output
+    console.log(primarySegments)
+    
+    primarySegments.map((primarySegment) => {
+
+      let startTimesTemp = []
+      segments.map((segment, i)=> {
+        if (segment===primarySegment) {
+          remainingText = wholeText.split(segment.words)[1]
+          remainingSearchTerm = segment.words.split(' ')[segment.words.split(' ').length - 1]
+          remainingSearchTerm = searchTerm.split(' ')
+          segment.words.split(' ').map(word=>{
+            if (word === remainingSearchTerm[0]) remainingSearchTerm.shift()  
+          })
+          remainingSearchTerm = remainingSearchTerm.join(' ')
+          console.log('remainingText')
+          console.log(remainingText)
+          console.log('searchTerm')
+          console.log(searchTerm)
+          console.log('remaining searchTerm')
+          console.log(remainingSearchTerm)
+          
+          // if(remainingText.includes())
+        }
+      })
+
+
+    })
+    return []
   }
 
   updateTime = () => {
