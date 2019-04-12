@@ -2,8 +2,12 @@ import './App.css'
 import '@elastic/eui/dist/eui_theme_light.css'
 
 import React, { Component } from 'react'
-import { HashRouter, Switch, Route, Link } from 'react-router-dom'
-import { EuiPage, EuiPageSideBar, EuiImage, EuiSideNav } from '@elastic/eui'
+import {
+  HashRouter, Switch, Route, Link
+} from 'react-router-dom'
+import {
+  EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
+} from '@elastic/eui'
 import axios from 'axios'
 
 import logo from './logo.png'
@@ -12,7 +16,6 @@ import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
 
 export default class App extends Component {
-
   static MENU_ITEMS = [
     {
       id: 0,
@@ -45,19 +48,10 @@ export default class App extends Component {
         this.setState({ transcripts: data.data })
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.log(error)
       })
   }
-
-  parseTranscripts = data => data.map((d) => {
-    d.transcript = d.words.map((word, i) => ({
-      id: d.callId,
-      text: `${word} `,
-      start: d.startTimes[i],
-      end: d.endTimes[i]
-    }))
-    return d
-  })
 
   render() {
     const { transcripts } = this.state
@@ -77,12 +71,16 @@ export default class App extends Component {
             <EuiSideNav items={App.MENU_ITEMS} />
           </EuiPageSideBar>
           <Switch>
-            <Route exact path="/" render={props => <StartPage {...{...props, transcripts}} /> } />
-            <Route path="/edit/:id" render={props => {
-              const transcript = transcripts.find(transcript => transcript.id === props.match.params.id)
-              return <EditPage {...{...props, transcript}} />
-            }} />
-          <Route path="/upload/" component={UploadPage} />
+            <Route exact path="/" render={props => <StartPage {...{ ...props, transcripts }} />} />
+            <Route
+              path="/edit/:id"
+              render={(props) => {
+                const transcript = transcripts
+                  .find(currentTranscript => currentTranscript.id === props.match.params.id)
+                return <EditPage {...{ ...props, transcript }} />
+              }}
+            />
+            <Route path="/upload/" component={UploadPage} />
           </Switch>
         </EuiPage>
       </HashRouter>

@@ -105,6 +105,7 @@ export default class Editor extends Component {
           transcripts={transcript}
           inputRefs={this.inputRefs}
           onChange={this.onChange}
+          onSelect={this.props.onSelect}
         />
         <EuiFlexGroup>
           <EuiFlexItem>
@@ -127,7 +128,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ transcripts, inputRefs, onChange }) => {
+const EditableChapters = ({ transcripts, inputRefs, onChange, onSelect }) => {
   if (!inputRefs) return null
   return Object.keys(transcripts).map((keyword, i) => (
     <EditableChapter
@@ -136,25 +137,29 @@ const EditableChapters = ({ transcripts, inputRefs, onChange }) => {
       subtitles={transcripts[keyword]}
       inputRefs={inputRefs}
       onChange={onChange}
+      onSelect={onSelect}
     />
   ))
 }
 
-const EditableChapter = ({ keyword, subtitles, inputRefs, onChange }) => (
-  <Fragment>
-    <h2>{keyword}</h2>
-    <pre>
-      <code
-        onInput={onChange}
-        contentEditable
-        suppressContentEditableWarning
-        ref={inputRefs[keyword]}
-      >
-        {subtitles}
-      </code>
-    </pre>
-  </Fragment>
-)
+const EditableChapter = ({ key, keyword, subtitles, inputRefs, onChange, onSelect }) => {
+  return (
+    <Fragment>
+      <h2>{keyword}</h2>
+      <pre>
+        <code
+          onInput={onChange}
+          contentEditable
+          suppressContentEditableWarning
+          ref={inputRefs[keyword]}
+          onSelect={onSelect}
+        >
+          {subtitles}
+        </code>
+      </pre>
+    </Fragment>
+  )
+}
 
 const FullDiff = ({ diff }) => {
   if (diff === null || diff.length === 0) return null
