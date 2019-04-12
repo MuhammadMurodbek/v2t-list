@@ -24,7 +24,7 @@ export default class EditPage extends Component {
       segments: []
     },
     currentTime: 0,
-    searchTerm: ''
+    queryTerm: ''
   }
 
   componentDidMount() {
@@ -113,7 +113,7 @@ export default class EditPage extends Component {
 
   onSelectText = () => {
     const selctedText = window.getSelection().toString()
-    this.setState({ searchTerm: selctedText }, () => {
+    this.setState({ queryTerm: selctedText }, () => {
       this.player.current.searchKeyword()
     })
   }
@@ -121,7 +121,7 @@ export default class EditPage extends Component {
   render() {
     const { transcript } = this.props
     const {
-      subtitles, isFlyoutVisible, numberOfWords, originalTranscript, searchTerm
+      subtitles, isFlyoutVisible, numberOfWords, originalTranscript, queryTerm
     } = this.state
     const dummyCode = [
       {
@@ -181,7 +181,7 @@ export default class EditPage extends Component {
                   trackId={transcript.id}
                   getCurrentTime={this.getCurrentTime}
                   updateSeek={this.updateSeek}
-                  searchTerm={searchTerm}
+                  queryTerm={queryTerm}
                   isPlaying={false}
                   ref={this.player}
                 />

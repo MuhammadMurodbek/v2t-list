@@ -19,7 +19,6 @@ class Player extends Component {
     trackDurationNumeric: 1
   }
 
-  
   onChangeSeek = (e) => {
     const { value } = e.target
     const media = this.myRef.current
@@ -72,28 +71,25 @@ class Player extends Component {
   }
 
   searchKeyword = (e) => {
-    const { searchTerm } = this.props
-    let keyword
+    const { queryTerm } = this.props
+    let searchTerm
     if (e) {
-      keyword = e.target.value
+      searchTerm = e.target.value
     } else {
-      keyword = searchTerm
+      searchTerm = queryTerm
     }
 
     const { audioTranscript } = this.props
     const { segments } = audioTranscript
     const startTimes = []
-    if (keyword.length > 0) {
+    if (searchTerm.length > 0) {
       segments.map((segment) => {
-        if (segment.words.length !== 0 && segment.words.includes(keyword)) {
+        if (segment.words.length !== 0 && segment.words.includes(searchTerm)) {
           startTimes.push(segment.startTime)
         }
       })
     }
     this.setState({ startTimes })
-    // this.setState({ seekPosition: startTimes[0] }, () => {
-    //   this.props.updateSeek(this.state.seekPosition)
-    // })
   }
 
   updateTime = () => {
