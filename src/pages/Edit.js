@@ -23,7 +23,8 @@ export default class EditPage extends Component {
     originalTranscript: {
       segments: []
     },
-    currentTime: 0
+    currentTime: 0,
+    searchTerm: ''
   }
 
   componentDidMount() {
@@ -98,7 +99,7 @@ export default class EditPage extends Component {
 
   updateSubtitle = ([key, subtitles], currentTime) => (
     {
-      [key]: subtitles.map(subtitle => <Subtitle {...{ ...subtitle.props, currentTime }} />)
+      [key]: subtitles.map((subtitle,i) => <Subtitle key={i}  {...{ ...subtitle.props, currentTime }} />)
     }
   )
 
@@ -110,11 +111,17 @@ export default class EditPage extends Component {
     this.player.current.updateTime()
   }
 
+  onSelectText = () => {
+    const selctedText = window.getSelection().toString()
+    this.setState({ searchTerm: selctedText }, () => {
+      this.player.current.searchKeyword()
+    })
+  }
 
   render() {
     const { transcript } = this.props
     const {
-      subtitles, isFlyoutVisible, numberOfWords, originalTranscript
+      subtitles, isFlyoutVisible, numberOfWords, originalTranscript, searchTerm
     } = this.state
     const dummyCode = [
       {
@@ -174,6 +181,7 @@ export default class EditPage extends Component {
                   trackId={transcript.id}
                   getCurrentTime={this.getCurrentTime}
                   updateSeek={this.updateSeek}
+                  searchTerm={searchTerm}
                   isPlaying={false}
                   ref={this.player}
                 />
@@ -196,7 +204,7 @@ export default class EditPage extends Component {
           </EuiFlexGroup>
           <EuiFlexGroup wrap>
             <EuiFlexItem>
-              <Editor transcript={subtitles} id={transcript.id} />
+              <Editor transcript={subtitles} id={transcript.id} onSelect={this.onSelectText} />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <Tags values={dummyCode} />
@@ -207,11 +215,6 @@ export default class EditPage extends Component {
     )
   }
 }
-
-EditPage.propTypes = {
-  transcript: PropTypes.element
-}
-
 
 const Preferences = ({
   visible, words, onClose, onChange
@@ -244,12 +247,6 @@ const Preferences = ({
   )
 }
 
-Preferences.propTypes = {
-  visible: PropTypes.string.isRequired,
-  words: PropTypes.string.isRequired,
-  onClose: PropTypes.string.isRequired,
-  onChange: PropTypes.string.isRequired
-}
 
 
 const Subtitle = ({
@@ -264,9 +261,3 @@ const Subtitle = ({
   )
 }
 
-Subtitle.propTypes = {
-  words: PropTypes.string.isRequired,
-  startTime: PropTypes.string.isRequired,
-  endTime: PropTypes.string.isRequired,
-  currentTime: PropTypes.string.isRequired
-}

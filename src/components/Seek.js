@@ -10,7 +10,7 @@ const Seek = ({ width, background }) => (
 )
 
 Seek.propTypes = {
-  width: PropTypes.string.isRequired,
+  width: PropTypes.number.isRequired,
   background: PropTypes.string.isRequired
 }
 

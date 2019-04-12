@@ -72,7 +72,14 @@ class Player extends Component {
   }
 
   searchKeyword = (e) => {
-    const keyword = e.target.value
+    const { searchTerm } = this.props
+    let keyword
+    if (e) {
+      keyword = e.target.value
+    } else {
+      keyword = searchTerm
+    }
+
     const { audioTranscript } = this.props
     const { segments } = audioTranscript
     const startTimes = []
@@ -84,6 +91,9 @@ class Player extends Component {
       })
     }
     this.setState({ startTimes })
+    // this.setState({ seekPosition: startTimes[0] }, () => {
+    //   this.props.updateSeek(this.state.seekPosition)
+    // })
   }
 
   updateTime = () => {
@@ -174,11 +184,11 @@ class Player extends Component {
         </div>
 
         <div className="virtualControl">
-          {audioTranscript.segments.map((segment) => {
+          {audioTranscript.segments.map((segment, i ) => {
             if (startTimes.includes(segment.startTime)) {
-              return (<Seek width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="yellow" />)
+              return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="yellow" />)
             }
-            return (<Seek width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="black" />)
+            return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="black" />)
           })}
         </div> 
       </Fragment>
