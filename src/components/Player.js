@@ -89,58 +89,63 @@ class Player extends Component {
       })
     }
     if (searchTerm.length > 0 && wholeText.includes(searchTerm)) {
-      // searchTerm = searchTerm.split(' ')[0]
-      console.log('searchTerm')
-      console.log(searchTerm)
-      startTimes = this.getSelectedSegments(wholeText, searchTerm)
+      startTimes = this.getSelectedSegments(searchTerm)
     }
-    // this.setState({ startTimes })
+    this.setState({ startTimes })
   }
 
-  getSelectedSegments = (wholeText, searchTerm) => {
+  getSelectedSegments = (searchTerm) => {
     const { audioTranscript } = this.props
     const { segments } = audioTranscript
-    let remainingText
-    let remainingSearchTerm
-    let primarySegments = []
-    console.log('search term')
-    console.log(searchTerm)
-    const searchTermInit = searchTerm.split(' ')[0]
+    const primarySegments = []
+    const searchTermInit = searchTerm.split(' ')
+    const singleWordObjects = []
     segments.map((segment) => {
-      if (segment.words.includes(searchTermInit)) {
-        primarySegments.push(segment)
+      const words = segment.words.split(' ')
+      words.map((word) => {
+        const nyObj = {}
+        nyObj.word = word
+        nyObj.startTime = segment.startTime
+        nyObj.endTime = segment.endTime
+        singleWordObjects.push(nyObj)
+        return true
+      })
+      return true
+    })
+
+    singleWordObjects.map((singleWordObj, j) => {
+      let patternFound = true
+      if (singleWordObj.word.includes(searchTermInit[0])) {
+        for (let i = 1; i < searchTermInit.length && (j+i)<singleWordObj.length; i += 1) {
+          if (singleWordObj[j + i].word !== searchTermInit[i]) {
+            patternFound = false
+          }
+        }
+        if (patternFound === true) primarySegments.push(singleWordObj.startTime)
       }
     })
 
-    // Initial list is found, now it is time to prune the output
-    console.log(primarySegments)
-    
-    primarySegments.map((primarySegment) => {
+    const finale = []
+    // // Start pruning from here
+    for (let i = 0; i < singleWordObjects.length; i += 1) {
+      if (primarySegments.includes(singleWordObjects[i].startTime)) {
+        // Start matching
+        if (searchTermInit[0] === singleWordObjects[i].word) {
+          let isMatched = true
+          for (let j = 0; j < searchTermInit.length && (i + j) < singleWordObjects.length; j += 1) {
+            if (searchTermInit[j] !== singleWordObjects[i + j].word) {
+              isMatched = false
+            }
+          }
 
-      let startTimesTemp = []
-      segments.map((segment, i)=> {
-        if (segment===primarySegment) {
-          remainingText = wholeText.split(segment.words)[1]
-          remainingSearchTerm = segment.words.split(' ')[segment.words.split(' ').length - 1]
-          remainingSearchTerm = searchTerm.split(' ')
-          segment.words.split(' ').map(word=>{
-            if (word === remainingSearchTerm[0]) remainingSearchTerm.shift()  
-          })
-          remainingSearchTerm = remainingSearchTerm.join(' ')
-          console.log('remainingText')
-          console.log(remainingText)
-          console.log('searchTerm')
-          console.log(searchTerm)
-          console.log('remaining searchTerm')
-          console.log(remainingSearchTerm)
-          
-          // if(remainingText.includes())
+          if (isMatched === true) {
+            finale.push(singleWordObjects[i].startTime)
+          }
         }
-      })
-
-
-    })
-    return []
+      }
+    }
+    const finaleUnique = Array.from(new Set(finale))
+    return finaleUnique
   }
 
   updateTime = () => {
