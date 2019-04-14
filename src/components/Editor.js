@@ -6,43 +6,199 @@ import {
   EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor, EuiButton
 } from '@elastic/eui'
 
+const NEW_KEYWORD = 'New Chapter'
+
 export default class Editor extends Component {
   static defaultProps = {
     diffInstance: new Diff(),
-    transcript: null
+    transcript: null,
+    originalChapters: null,
+    currentTime: 0
   }
 
   state = {
-    diff: null,
+    chapters: null,
+    diff: null
   }
 
-  assignRefsOnce = () => {
-    const { transcript } = this.props
-    if (!transcript) return
-    this.inputRefs = Object.keys(transcript).reduce((refs, keyword) => {
-      refs[keyword] = React.createRef()
-      return refs
-    }, {})
+  componentDidMount() {
+    this.inputRef = React.createRef()
+    this.initChapters()
   }
 
-  onChange = (e) => {
-    const content = this.getContent(e)
-    const diff = this.getDiff(content)
-    this.setState({ diff })
+  componentDidUpdate(prevProps) {
+    const { originalChapters } = this.props
+    if (this.inputRef && this.inputRef.current)
+      this.updateCursor()
+    if (prevProps.originalChapters !== originalChapters)
+      this.initChapters()
   }
 
-  getContent = (e) => {
-    const { target } = e
-    return Object.values(this.inputRefs).map(ref => ref.current.innerText.trim()).join(' ')
+  initChapters = () => {
+    const { originalChapters } = this.props
+    const chapters = originalChapters
+    this.setState({ chapters })
   }
 
-  getDiff = (content) => {
-    const { diffInstance, transcript } = this.props
-    const original = Object.values(transcript)
-      .flatMap(subtitles => subtitles.map(subtitle => subtitle.props.words)).join(' ')
-    const diff = diffInstance.main(original, content)
+  updateCursor = () => {
+    if (this.savedRange)
+      return this.popCursor()
+    const newKeyword = Object.values(this.inputRef.current.getElementsByTagName('h2'))
+      .find(element => element.innerText === NEW_KEYWORD)
+    if (newKeyword)
+      newKeyword.focus()
+  }
+
+  stashCursor = () => {
+    this.savedRange = window.getSelection().getRangeAt(0) //.cloneRange() not working?
+    this.savedRangeOffset = this.savedRange.startOffset
+  }
+
+  popCursor = () => {
+    const selection = window.getSelection()
+    if (selection.rangeCount > 0) selection.removeAllRanges()
+    this.savedRange.setStart(this.savedRange.startContainer, this.savedRangeOffset)
+    selection.addRange(this.savedRange)
+    this.savedRange = this.savedRangeOffset = null
+  }
+
+  onChange = (e, id) => {
+    this.stashCursor()
+    if (e.target.nodeName === 'H2') return this.updateKeyword(id, e.target.innerText)
+    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
+    chapters[id].segments = this.estimateSegmentsFromNode(id, e.target.innerText)
+    const diff = this.getDiff()
+    this.setState({ chapters, diff })
+  }
+
+   onKeyDown = (e, chapterId) => {
+    if (e.keyCode === 13 && !e.shiftKey)
+      this.splitChapter(e, chapterId)
+    if (e.keyCode === 8)
+      this.mergeWithPreviousChapter(e, chapterId)
+    if (e.keyCode === 46)
+      this.mergeWithNextChapter(e, chapterId)
+  }
+
+  updateKeyword = (id, value) => {
+    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
+    chapters[id].keyword = value.replace(/\r?\n|\r/g, '')
+    this.setState({ chapters })
+  }
+
+  splitChapter = (e, chapterId) => {
+    e.preventDefault()
+    const selection = window.getSelection()
+    const nextText = this.nextText(selection)
+    const chapter = {
+      keyword: NEW_KEYWORD,
+      segments: this.estimateSegmentsFromNode(chapterId, nextText)
+    }
+    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
+    const prevText = this.prevText(selection)
+    chapters[chapterId].segments = this.estimateSegmentsFromNode(chapterId, prevText)
+    chapters.splice(chapterId+1, 0, chapter)
+    this.setState({ chapters })
+  }
+
+  mergeWithPreviousChapter = (e, chapterId) => {
+    const selection = window.getSelection()
+    const beginningSelected = !this.prevText(selection).length
+    if (beginningSelected)
+      this.mergeChapter(e, chapterId, chapterId-1)
+  }
+
+  mergeWithNextChapter = (e, chapterId) => {
+    const selection = window.getSelection()
+    const endingSelected = !this.nextText(selection).length
+    if (endingSelected)
+      this.mergeChapter(e, chapterId+1, chapterId)
+  }
+
+  mergeChapter = (e, fromChapterId, toChapterId) => {
+    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
+    if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
+    e.preventDefault()
+    chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
+    chapters.splice(fromChapterId, 1)
+    this.setState({ chapters })
+  }
+
+  estimateSegmentsFromNode = (chapterId, text) => {
+    const { diffInstance } = this.props
+    const { chapters } = this.state
+    const original = chapters[chapterId].segments.map(s => s.words).join('')
+    let consumableDiff = diffInstance.main(original, text)
+    diffInstance.cleanupSemantic(consumableDiff)
+    const postProcess = []
+    const segments = chapters[chapterId].segments.map((segment, i) => {
+      const words = segment.words.split('').map((char, j) => {
+        switch (consumableDiff[0][0]) {
+          case -1:
+            if (consumableDiff[0][1].length < 2)
+              consumableDiff.shift()
+            else
+              consumableDiff[0][1] = consumableDiff[0][1].slice(1)
+            return ''
+          case 1:
+            const added = consumableDiff.shift()[1]
+            const remain = consumableDiff[0][1].slice(0,1)
+            consumableDiff[0][1] = consumableDiff[0][1].slice(1)
+            if (i === 0 || j > 0)
+              return `${added}${remain}`
+            postProcess.push({id: i-1, added})
+            return remain
+          default:
+            if (consumableDiff[0][1].length < 2)
+              return consumableDiff.shift()[1]
+            const same = consumableDiff[0][1].slice(0,1)
+            consumableDiff[0][1] = consumableDiff[0][1].slice(1)
+            return same
+        }
+      }).join('')
+      return { ...segment, words }
+    }).filter(segment => segment.words.length)
+    postProcess.forEach(({ id, added }) => {
+      segments[id].words += added
+    })
+    return segments
+  }
+
+  prevText = (selection) => {
+    const end = selection.anchorNode.textContent.slice(0, selection.anchorOffset)
+    return this.prevSiblingsText(selection.anchorNode.parentNode) + end
+  }
+
+  prevSiblingsText = (parentNode) => {
+    if (!parentNode.previousSibling) return ''
+    return this.prevSiblingsText(parentNode.previousSibling)
+      + Array.from(parentNode.previousSibling.childNodes).reduce((text, child) => text + child.textContent, '')
+  }
+
+  nextText = (selection) => {
+    const start = selection.anchorNode.textContent.slice(selection.anchorOffset)
+    return start + this.nextSiblingsText(selection.anchorNode.parentNode)
+  }
+
+  nextSiblingsText = (parentNode) => {
+    if (!parentNode.nextSibling) return ''
+    return Array.from(parentNode.nextSibling.childNodes).reduce((text, child) => text + child.textContent, '')
+      + this.nextSiblingsText(parentNode.nextSibling)
+  }
+
+  getAllContent = () => {
+    return Object.values(this.inputRef.current.getElementsByTagName('pre'))
+      .map(element => element.innerText).join('')
+  }
+
+  getDiff = () => {
+    const { diffInstance, originalChapters } = this.props
+    if (!this.inputRef || !this.inputRef.current) return null
+    const content = this.getAllContent()
+    const originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
+    const diff = diffInstance.main(originalText, content)
     diffInstance.cleanupSemantic(diff)
-    return diff.map((d, i) => this.parseDiff(i, d, diff))
+    return diff.map((d, i) => this.parseDiff(i, d, diff)).filter(d => d)
   }
 
   parseDiff = (i, thisDiff, diff) => {
@@ -54,29 +210,19 @@ export default class Editor extends Component {
     if (thisDiff[0] === 1) {
       return <AddedLine key={i} diff={thisDiff} prevDiff={prevDiff} nextDiff={nextDiff} />
     }
-    return ''
+    return null
   }
 
   finalize = () => {
     // empty blocks
-    const updatedTranscript = Object.values(this.inputRefs).map(ref => ref.current.innerText).join('')
+    // const updatedTranscript = Object.values(this.inputRef.children).map(ref => ref.current.innerText).join('')
     const {id} = this.props
+    const { chapters } = this.state
     const queryString = `/api/v1/transcription/${id}`
     axios.put(queryString,
       {
-        tags: null,
-        transcriptions: [
-          {
-            keyword: "test",
-            segments: [
-              {
-                words: updatedTranscript,
-                startTime: null,
-                endTime: null
-              }
-            ]
-          }
-        ]
+        tags: [],
+        transcriptions: chapters
       })
       .then((response) => {
         alert('Transcript is updated')
@@ -95,16 +241,17 @@ export default class Editor extends Component {
   }
 
   render() {
-    const { transcript } = this.props
-    const { diff } = this.state
-    if (!transcript) return null
-    this.assignRefsOnce()
+    const { currentTime } = this.props
+    const { chapters, diff } = this.state
+    if (!chapters) return null
     return (
       <EuiText size="s">
         <EditableChapters
-          transcripts={transcript}
-          inputRefs={this.inputRefs}
+          chapters={chapters}
+          inputRef={this.inputRef}
+          currentTime={currentTime}
           onChange={this.onChange}
+          onKeyDown={this.onKeyDown}
           onSelect={this.props.onSelect}
         />
         <EuiFlexGroup>
@@ -128,36 +275,63 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ transcripts, inputRefs, onChange, onSelect }) => {
-  if (!inputRefs) return null
-  return Object.keys(transcripts).map((keyword, i) => (
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect }) => {
+  if (!inputRef) return null
+  const editors = chapters.map((chapter, i) => (
     <EditableChapter
       key={i}
-      keyword={keyword}
-      subtitles={transcripts[keyword]}
-      inputRefs={inputRefs}
+      chapterId={i}
+      keyword={chapter.keyword}
+      subtitles={chapter.segments}
+      currentTime={currentTime}
       onChange={onChange}
+      onKeyDown={onKeyDown}
       onSelect={onSelect}
     />
   ))
+  return (
+    <div ref={inputRef}>
+      {editors}
+    </div>
+  )
 }
 
-const EditableChapter = ({ key, keyword, subtitles, inputRefs, onChange, onSelect }) => {
+const EditableChapter = ({ chapterId, keyword, subtitles, onChange, onKeyDown, currentTime, onSelect }) => (
+  <Fragment>
+    <h2
+      onInput={e => onChange(e, chapterId)}
+      onKeyDown={e => { if (e.keyCode === 13) e.preventDefault() }}
+      contentEditable
+      suppressContentEditableWarning
+      onFocus={() => setTimeout(() => document.execCommand('selectAll',false,null),0)}
+    >
+      {keyword}
+    </h2>
+    <pre>
+      <code
+        onInput={e => onChange(e, chapterId)}
+        onKeyDown={e => onKeyDown(e, chapterId)}
+        contentEditable
+        suppressContentEditableWarning
+        onSelect={onSelect}
+      >
+        <Chunks subtitles={subtitles} currentTime={currentTime} />
+      </code>
+    </pre>
+  </Fragment>
+)
+
+const Chunks = ({ subtitles, currentTime }) => {
+  return subtitles.map((props, i) => <Chunk key={i} {...{...props, currentTime}} />)
+}
+
+const Chunk = ({ words, startTime, endTime, currentTime }) => {
+  const notCurrent = currentTime <= startTime || currentTime > endTime
+  if (notCurrent) return <span>{words}</span>
   return (
-    <Fragment>
-      <h2>{keyword}</h2>
-      <pre>
-        <code
-          onInput={onChange}
-          contentEditable
-          suppressContentEditableWarning
-          ref={inputRefs[keyword]}
-          onSelect={onSelect}
-        >
-          {subtitles}
-        </code>
-      </pre>
-    </Fragment>
+    <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
+      {words}
+    </span>
   )
 }
 

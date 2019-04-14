@@ -16,7 +16,7 @@ class Player extends Component {
     seekPosition: 0,
     maxSeekValue: 100,
     startTimes: [],
-    trackDurationNumeric: 1
+    duration: 1
   }
 
   onChangeSeek = (e) => {
@@ -60,92 +60,82 @@ class Player extends Component {
 
   getAudioData = (e) => {
     const { duration } = e.target
-    const { audioTranscript } = this.props
     const minutes = Math.floor(duration / 60)
     const seconds = Math.floor(duration - minutes * 60)
     const trackDuration = `${minutes}:${seconds}`
     const maxSeekValue = duration
-    this.setState({ trackDuration, maxSeekValue, trackDurationNumeric: duration }, () => {
+    this.setState({ trackDuration, maxSeekValue, duration }, () => {
       this.updateTime()
     })
   }
 
   searchKeyword = (e) => {
-    const { queryTerm } = this.props
-    let searchTerm
-    if (e) {
-      searchTerm = e.target.value
-    } else {
-      searchTerm = queryTerm
-    }
-
-    const { audioTranscript } = this.props
-    const { segments } = audioTranscript
-    let startTimes = []
-    let wholeText = ''
+    const { audioTranscript, queryTerm } = this.props
+    const searchTerm = e ? e.target.value : queryTerm
     if (searchTerm.length > 0) {
-      segments.map((segment) => {
-        wholeText = `${wholeText} ${segment.words}`
-      })
+      const startTimes = audioTranscript.flatMap(({ segments }) => {
+        const text = segments.map(segment => segment.words).join('')
+        return text.includes(searchTerm) ? this.getSelectedSegments(searchTerm) : null
+      }).filter(time => time)
+      this.setState({ startTimes })
+    } else {
+      this.setState({ startTimes: [] })
     }
-    if (searchTerm.length > 0 && wholeText.includes(searchTerm)) {
-      startTimes = this.getSelectedSegments(searchTerm)
-    }
-    this.setState({ startTimes })
   }
 
   getSelectedSegments = (searchTerm) => {
     const { audioTranscript } = this.props
-    const { segments } = audioTranscript
-    const primarySegments = []
-    const searchTermInit = searchTerm.split(' ')
-    const singleWordObjects = []
-    segments.map((segment) => {
-      const words = segment.words.split(' ')
-      words.map((word) => {
-        const nyObj = {}
-        nyObj.word = word
-        nyObj.startTime = segment.startTime
-        nyObj.endTime = segment.endTime
-        singleWordObjects.push(nyObj)
+    return audioTranscript.flatMap(({ segments }) => {
+      const primarySegments = []
+      const searchTermInit = searchTerm.split(' ')
+      const singleWordObjects = []
+      segments.map((segment) => {
+        const words = segment.words.split(' ')
+        words.map((word) => {
+          const nyObj = {}
+          nyObj.word = word
+          nyObj.startTime = segment.startTime
+          nyObj.endTime = segment.endTime
+          singleWordObjects.push(nyObj)
+          return true
+        })
         return true
       })
-      return true
-    })
 
-    singleWordObjects.map((singleWordObj, j) => {
-      let patternFound = true
-      if (singleWordObj.word.includes(searchTermInit[0])) {
-        for (let i = 1; i < searchTermInit.length && (j+i)<singleWordObj.length; i += 1) {
-          if (singleWordObj[j + i].word !== searchTermInit[i]) {
-            patternFound = false
-          }
-        }
-        if (patternFound === true) primarySegments.push(singleWordObj.startTime)
-      }
-    })
-
-    const finale = []
-    // // Start pruning from here
-    for (let i = 0; i < singleWordObjects.length; i += 1) {
-      if (primarySegments.includes(singleWordObjects[i].startTime)) {
-        // Start matching
-        if (searchTermInit[0] === singleWordObjects[i].word) {
-          let isMatched = true
-          for (let j = 0; j < searchTermInit.length && (i + j) < singleWordObjects.length; j += 1) {
-            if (searchTermInit[j] !== singleWordObjects[i + j].word) {
-              isMatched = false
+      singleWordObjects.map((singleWordObj, j) => {
+        let patternFound = true
+        if (singleWordObj.word.includes(searchTermInit[0])) {
+          for (let i = 1; i < searchTermInit.length && (j+i)<singleWordObj.length; i += 1) {
+            if (singleWordObj[j + i].word !== searchTermInit[i]) {
+              patternFound = false
             }
           }
+          if (patternFound === true) primarySegments.push(singleWordObj.startTime)
+        }
+      })
 
-          if (isMatched === true) {
-            finale.push(singleWordObjects[i].startTime)
+      const finale = []
+      // Start pruning from here
+      for (let i = 0; i < singleWordObjects.length; i += 1) {
+        if (primarySegments.includes(singleWordObjects[i].startTime)) {
+          // Start matching
+          if (searchTermInit[0] === singleWordObjects[i].word) {
+            let isMatched = true
+            for (let j = 0; j < searchTermInit.length && (i + j) < singleWordObjects.length; j += 1) {
+              if (searchTermInit[j] !== singleWordObjects[i + j].word) {
+                isMatched = false
+              }
+            }
+
+            if (isMatched === true) {
+              finale.push(singleWordObjects[i].startTime)
+            }
           }
         }
       }
-    }
-    const finaleUnique = Array.from(new Set(finale))
-    return finaleUnique
+      const finaleUnique = Array.from(new Set(finale))
+      return finaleUnique
+    })
   }
 
   updateTime = () => {
@@ -169,13 +159,10 @@ class Player extends Component {
 
   render() {
     const {
-      isPlaying, trackDuration, trackDurationNumeric, currentTime, startTimes
+      isPlaying, trackDuration, duration, currentTime, startTimes
     } = this.state
     const { audioTranscript, trackId, getCurrentTime } = this.props
     const trackUrl = `/api/v1/transcription/${trackId}/audio`
-    let seekBar
-    
-
     return (
       <Fragment>
         <span>
@@ -217,7 +204,7 @@ class Player extends Component {
 
           <button className="play" data-icon="S" aria-label="stop" onClick={this.stopMusic} type="button" />
 
-          
+
             <input
               type="range"
               min="0"
@@ -235,17 +222,28 @@ class Player extends Component {
               </span>
         </div>
 
-        <div className="virtualControl">
-          {audioTranscript.segments.map((segment, i ) => {
-            if (startTimes.includes(segment.startTime)) {
-              return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="yellow" />)
-            }
-            return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / trackDurationNumeric} background="black" />)
-          })}
-        </div> 
+        <VirtualControl
+          transcript={audioTranscript}
+          startTimes={startTimes}
+          duration={duration}
+        />
       </Fragment>
     )
   }
+}
+
+const VirtualControl = ({ transcript, startTimes, duration }) => {
+  if (!transcript) return null
+  return (
+    <div className="virtualControl">
+      {transcript.map(({ segments }) => segments.map((segment, i ) => {
+        if (startTimes.includes(segment.startTime)) {
+          return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / duration} background="yellow" />)
+        }
+        return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / duration} background="black" />)
+      }))}
+    </div>
+  )
 }
 
 export default Player

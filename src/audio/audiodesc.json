@@ -1,36 +1,60 @@
-[{
-    "start": 0.0,
-    "end": 2,
-    "text": "Now when a black sky"
-},
 {
-    "start": 2.1,
-    "end": 4,
-    "text": "a slipper of sunlight crests the earth"
-},
-{
-    "start": 4.1,
-    "end": 7,
-    "text": "rays of light shoot off the mirror"
-},
-{
-    "start": 7.1,
-    "end": 10,
-    "text": "and a three dimensional word orbits the planet"
-},
-{
-    "start": 10.1,
-    "end": 11,
-    "text": "universal"
-},
-{
-    "start": 11.1,
-    "end": 11.9,
-    "text": "words appear"
-},
-{
-    "start": 12,
-    "end": 16,
-    "text": "www.universalstudios.com"
+  "id": {
+    "value": "535b25f9-ef39-4f2a-8d24-3ac7ec079bd4"
+  },
+  "timestamp": "2019-03-14T15:59:57.498751Z",
+  "tags": [
+    {
+      "code": "L001",
+      "description": "Fever",
+      "probability": "0.10"
+    },
+    {
+      "code": "M005",
+      "description": "Eye sore",
+      "probability": "0.50"
+    }
+  ],
+  "transcriptions": [
+    {
+      "keyword": "Transcript",
+      "segments": [
+        {
+          "startTime": 0,
+          "endTime": 2,
+          "words": "Now when a black sky"
+        },
+        {
+          "startTime": 2.1,
+          "endTime": 4,
+          "words": "a slipper of sunlight crests the earth"
+        },
+        {
+          "startTime": 4.1,
+          "endTime": 7,
+          "words": "rays of light shoot off the mirror"
+        },
+        {
+          "startTime": 7.1,
+          "endTime": 10,
+          "words": "and a three dimensional word orbits the planet"
+        },
+        {
+          "startTime": 10.1,
+          "endTime": 11,
+          "words": "universal"
+        },
+        {
+          "startTime": 11.1,
+          "endTime": 11.9,
+          "words": "words appear"
+        },
+        {
+          "startTime": 12,
+          "endTime": 16,
+          "words": "www.universalstudios.com"
+        }
+      ]
+    }
+  ]
 }
-]
