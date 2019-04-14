@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem,
+  EuiFlexGroup, EuiFlexItem, EuiFormRow, EuiComboBox,
   EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
   EuiTitle, EuiIcon, EuiRadioGroup
 } from '@elastic/eui'
@@ -17,6 +17,7 @@ export default class EditPage extends Component {
 
   state = {
     numberOfWords: '3',
+    keywords: [{ label: 'Symptom' }, { label:'Status' }, { label: 'Diagnos' }],
     isFlyoutVisible: false,
     originalChapters: null,
     currentTime: 0,
@@ -48,11 +49,12 @@ export default class EditPage extends Component {
 
   parseTranscriptions = (transcriptions) => {
     return transcriptions.map(transcript => {
+      const keyword = transcript.keyword.length ? transcript.keyword : 'general'
       const segments = transcript.segments.map((chunk, i) => {
         const words = i >= transcript.segments.length -1 ? chunk.words : `${chunk.words} `
         return { ...chunk, words }
       })
-      return { ...transcript, segments }
+      return { ...transcript, keyword, segments }
     })
   }
 
@@ -69,7 +71,11 @@ export default class EditPage extends Component {
   }
 
   changeNumberOfWords = (numberOfWords) => {
-    this.setState({ numberOfWords }, this.loadSegments())
+    this.setState({ numberOfWords }, this.loadSegments)
+  }
+
+  changeKeywords = (keywords) => {
+    this.setState({ keywords })
   }
 
   getCurrentTime = () => {
@@ -85,7 +91,10 @@ export default class EditPage extends Component {
 
   render() {
     const { transcript } = this.props
-    const { currentTime, isFlyoutVisible, numberOfWords, originalChapters, queryTerm } = this.state
+    const {
+      currentTime, isFlyoutVisible, numberOfWords, keywords, originalChapters,
+      queryTerm
+    } = this.state
     const dummyCode = [
       {
         _index: 'icd.codes',
@@ -129,8 +138,10 @@ export default class EditPage extends Component {
                 <Preferences
                   visible={isFlyoutVisible}
                   words={numberOfWords}
+                  keywords={keywords}
                   onClose={this.closeFlyout}
-                  onChange={this.changeNumberOfWords}
+                  onChangeWords={this.changeNumberOfWords}
+                  onChangeKeywords={this.changeKeywords}
                 />
               </Fragment>
             </EuiFlexItem>
@@ -171,7 +182,7 @@ export default class EditPage extends Component {
                 transcript={transcript}
                 originalChapters={originalChapters}
                 currentTime={currentTime}
-                numberOfWords={numberOfWords}
+                keywords={keywords.map(keyword => keyword.label.toLowerCase())}
                 onSelect={this.onSelectText} />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -185,7 +196,7 @@ export default class EditPage extends Component {
 }
 
 const Preferences = ({
-  visible, words, onClose, onChange
+  visible, keywords, words, onClose, onChangeWords, onChangeKeywords
 }) => {
   if (!visible) return null
   const options = [
@@ -193,6 +204,10 @@ const Preferences = ({
     { id: '3', label: '3' },
     { id: '5', label: '5' }
   ]
+  const onCreateKeyword = keyword => {
+    keywords.push({ label: keyword })
+    onChangeKeywords(keywords)
+  }
   return (
     <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle">
       <EuiFlyoutHeader hasBorder>
@@ -204,11 +219,18 @@ const Preferences = ({
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
         <Fragment>
-          <h5 id="flyoutTitle">
-            Highlighted Number of Words
-          </h5>
-          <EuiSpacer size="m" />
-          <EuiRadioGroup options={options} idSelected={words} onChange={onChange} />
+          <EuiFormRow label="Highlighted Number of Words">
+            <EuiRadioGroup options={options} idSelected={words} onChange={onChangeWords} />
+          </EuiFormRow>
+          <EuiFormRow label="Chapter names">
+            <EuiComboBox
+              noSuggestions
+              placeholder="Chapter names are mapped to the journal system"
+              selectedOptions={keywords}
+              onCreateOption={onCreateKeyword}
+              onChange={onChangeKeywords}
+            />
+          </EuiFormRow>
         </Fragment>
       </EuiFlyoutBody>
     </EuiFlyout>

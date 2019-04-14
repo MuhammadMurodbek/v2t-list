@@ -13,12 +13,14 @@ export default class Editor extends Component {
     diffInstance: new Diff(),
     transcript: null,
     originalChapters: null,
-    currentTime: 0
+    currentTime: 0,
+    keywords: []
   }
 
   state = {
     chapters: null,
-    diff: null
+    diff: null,
+    error: []
   }
 
   componentDidMount() {
@@ -213,27 +215,32 @@ export default class Editor extends Component {
     return null
   }
 
-  finalize = () => {
-    // empty blocks
-    // const updatedTranscript = Object.values(this.inputRef.children).map(ref => ref.current.innerText).join('')
-    const {id} = this.props
-    const { chapters } = this.state
-    const queryString = `/api/v1/transcription/${id}`
-    axios.put(queryString,
-      {
-        tags: [],
-        transcriptions: chapters
-      })
-      .then((response) => {
-        alert('Transcript is updated')
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+  finalize = async () => {
+    this.save()
+    // const {id} = this.props
+    // const { chapters } = this.state
+    // const queryString = `/api/v1/transcription/${id}`
+    // axios.put(queryString,
+    //   {
+    //     tags: [],
+    //     transcriptions: chapters
+    //   })
+    //   .then((response) => {
+    //     alert('Transcript is updated')
+    //   })
+    //   .catch((error) => {
+    //     console.log(error)
+    //   })
   }
 
   save = () => {
-    // empty blocks
+    const { keywords } = this.props
+    const { chapters } = this.state
+    const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
+    const error = invalidChapters.map(({ keyword }) => keyword)
+    this.setState({ error })
+    //TODO: post state
+    return !error.length
   }
 
   cancel = () => {
@@ -242,7 +249,7 @@ export default class Editor extends Component {
 
   render() {
     const { currentTime } = this.props
-    const { chapters, diff } = this.state
+    const { chapters, diff, error } = this.state
     if (!chapters) return null
     return (
       <EuiText size="s">
@@ -253,6 +260,7 @@ export default class Editor extends Component {
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
           onSelect={this.props.onSelect}
+          error={error}
         />
         <EuiFlexGroup>
           <EuiFlexItem>
@@ -275,7 +283,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect, error }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -287,6 +295,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
       onChange={onChange}
       onKeyDown={onKeyDown}
       onSelect={onSelect}
+      error={error}
     />
   ))
   return (
@@ -296,7 +305,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, subtitles, onChange, onKeyDown, currentTime, onSelect }) => (
+const EditableChapter = ({ chapterId, keyword, subtitles, onChange, onKeyDown, currentTime, onSelect, error }) => (
   <Fragment>
     <h2
       onInput={e => onChange(e, chapterId)}
@@ -305,7 +314,9 @@ const EditableChapter = ({ chapterId, keyword, subtitles, onChange, onKeyDown, c
       suppressContentEditableWarning
       onFocus={() => setTimeout(() => document.execCommand('selectAll',false,null),0)}
     >
-      {keyword}
+      <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
+        {keyword}
+      </EuiTextColor>
     </h2>
     <pre>
       <code
