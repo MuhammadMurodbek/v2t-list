@@ -81,15 +81,71 @@ class Player extends Component {
 
     const { audioTranscript } = this.props
     const { segments } = audioTranscript
-    const startTimes = []
+    let startTimes = []
+    let wholeText = ''
     if (searchTerm.length > 0) {
       segments.map((segment) => {
-        if (segment.words.length !== 0 && segment.words.includes(searchTerm)) {
-          startTimes.push(segment.startTime)
-        }
+        wholeText = `${wholeText} ${segment.words}`
       })
     }
+    if (searchTerm.length > 0 && wholeText.includes(searchTerm)) {
+      startTimes = this.getSelectedSegments(searchTerm)
+    }
     this.setState({ startTimes })
+  }
+
+  getSelectedSegments = (searchTerm) => {
+    const { audioTranscript } = this.props
+    const { segments } = audioTranscript
+    const primarySegments = []
+    const searchTermInit = searchTerm.split(' ')
+    const singleWordObjects = []
+    segments.map((segment) => {
+      const words = segment.words.split(' ')
+      words.map((word) => {
+        const nyObj = {}
+        nyObj.word = word
+        nyObj.startTime = segment.startTime
+        nyObj.endTime = segment.endTime
+        singleWordObjects.push(nyObj)
+        return true
+      })
+      return true
+    })
+
+    singleWordObjects.map((singleWordObj, j) => {
+      let patternFound = true
+      if (singleWordObj.word.includes(searchTermInit[0])) {
+        for (let i = 1; i < searchTermInit.length && (j+i)<singleWordObj.length; i += 1) {
+          if (singleWordObj[j + i].word !== searchTermInit[i]) {
+            patternFound = false
+          }
+        }
+        if (patternFound === true) primarySegments.push(singleWordObj.startTime)
+      }
+    })
+
+    const finale = []
+    // // Start pruning from here
+    for (let i = 0; i < singleWordObjects.length; i += 1) {
+      if (primarySegments.includes(singleWordObjects[i].startTime)) {
+        // Start matching
+        if (searchTermInit[0] === singleWordObjects[i].word) {
+          let isMatched = true
+          for (let j = 0; j < searchTermInit.length && (i + j) < singleWordObjects.length; j += 1) {
+            if (searchTermInit[j] !== singleWordObjects[i + j].word) {
+              isMatched = false
+            }
+          }
+
+          if (isMatched === true) {
+            finale.push(singleWordObjects[i].startTime)
+          }
+        }
+      }
+    }
+    const finaleUnique = Array.from(new Set(finale))
+    return finaleUnique
   }
 
   updateTime = () => {
