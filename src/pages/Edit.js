@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import PropTypes from 'prop-types'
 import {
   EuiFlexGroup, EuiFlexItem,
   EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
@@ -17,27 +16,44 @@ export default class EditPage extends Component {
   }
 
   state = {
-    subtitles: null,
     numberOfWords: '3',
     isFlyoutVisible: false,
-    originalTranscript: {
-      segments: []
-    },
+    originalChapters: null,
     currentTime: 0,
     queryTerm: ''
   }
 
   componentDidMount() {
-    this.ref = React.createRef()
-    this.player = React.createRef()
-    this.loadSubtitles()
+    const { transcript } = this.props
+    this.playerRef = React.createRef()
+    if (transcript)
+      this.loadSegments()
   }
 
   componentDidUpdate(prevProps) {
     const { transcript } = this.props
-    if (transcript !== prevProps.transcript) {
-      this.loadSubtitles()
-    }
+    const prevId = prevProps.transcript && prevProps.transcript.id
+    if (transcript && transcript.id !== prevId)
+      this.loadSegments()
+  }
+
+  loadSegments = async () => {
+    const { transcript } = this.props
+    const { numberOfWords } = this.state
+    const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
+    const response = await axios.get(queryString)
+    const originalChapters = this.parseTranscriptions(response.data.transcriptions)
+    this.setState({ originalChapters })
+  }
+
+  parseTranscriptions = (transcriptions) => {
+    return transcriptions.map(transcript => {
+      const segments = transcript.segments.map((chunk, i) => {
+        const words = i >= transcript.segments.length -1 ? chunk.words : `${chunk.words} `
+        return { ...chunk, words }
+      })
+      return { ...transcript, segments }
+    })
   }
 
   closeFlyout = () => {
@@ -48,81 +64,28 @@ export default class EditPage extends Component {
     this.setState({ isFlyoutVisible: true })
   }
 
-  loadSubtitles = async () => {
-    const { transcript } = this.props
-    const { numberOfWords } = this.state
-    if (!transcript) return null
-    const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
-    const response = await axios.get(queryString)
-    const queryStringForAudio = `/api/v1/transcription/${transcript.id}`
-    const originalSubtitles = await axios.get(queryStringForAudio)
-    const [originalTranscript] = originalSubtitles.data.transcriptions
-    const subtitles = this.parseSubtitles(response.data.transcriptions)
-    this.setState({ subtitles, originalTranscript })
-    return true
+  onTimeUpdate = (currentTime) => {
+    this.setState({ currentTime })
   }
-
-  parseSubtitles = transcripts => transcripts.reduce((subtitles, transcript) => {
-    const parsedSubtitles = subtitles
-    parsedSubtitles[transcript.keyword] = this.parseSubtitle(transcript)
-    return parsedSubtitles
-  }, {})
-
-  parseSubtitle = (transcript) => {
-    const { currentTime } = this.state
-    return transcript.segments.map((subtitle, i) => (
-      <Subtitle
-        key={`key-${i + 1}`}
-        words={subtitle.words}
-        startTime={subtitle.startTime}
-        endTime={subtitle.endTime}
-        currentTime={currentTime}
-        updateSeek={this.updateSeek}
-      />
-    ))
-  }
-
-
-  updateSeek= (currentTime) => {
-    this.setState({ currentTime }, () => {
-      this.updateSubtitles()
-    })
-  }
-
-  updateSubtitles = () => {
-    const { subtitles, currentTime } = this.state
-    if (!subtitles) return
-    const updatedSubtitles = Object.assign(...Object.entries(subtitles)
-      .map(entry => this.updateSubtitle(entry, currentTime)))
-    this.setState({ subtitles: updatedSubtitles })
-  }
-
-  updateSubtitle = ([key, subtitles], currentTime) => (
-    {
-      [key]: subtitles.map((subtitle,i) => <Subtitle key={i}  {...{ ...subtitle.props, currentTime }} />)
-    }
-  )
 
   changeNumberOfWords = (numberOfWords) => {
-    this.setState({ numberOfWords }, this.loadSubtitles)
+    this.setState({ numberOfWords }, this.loadSegments())
   }
 
   getCurrentTime = () => {
-    this.player.current.updateTime()
+    this.playerRef.current.updateTime()
   }
 
   onSelectText = () => {
     const selctedText = window.getSelection().toString()
     this.setState({ queryTerm: selctedText }, () => {
-      this.player.current.searchKeyword()
+      this.playerRef.current.searchKeyword()
     })
   }
 
   render() {
     const { transcript } = this.props
-    const {
-      subtitles, isFlyoutVisible, numberOfWords, originalTranscript, queryTerm
-    } = this.state
+    const { currentTime, isFlyoutVisible, numberOfWords, originalChapters, queryTerm } = this.state
     const dummyCode = [
       {
         _index: 'icd.codes',
@@ -172,18 +135,18 @@ export default class EditPage extends Component {
               </Fragment>
             </EuiFlexItem>
           </EuiFlexGroup>
-          
+
           <EuiFlexGroup wrap>
             <EuiFlexItem>
               <figure>
                 <Player
-                  audioTranscript={originalTranscript}
+                  audioTranscript={originalChapters}
                   trackId={transcript.id}
                   getCurrentTime={this.getCurrentTime}
-                  updateSeek={this.updateSeek}
+                  updateSeek={this.onTimeUpdate}
                   queryTerm={queryTerm}
                   isPlaying={false}
-                  ref={this.player}
+                  ref={this.playerRef}
                 />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />
@@ -192,7 +155,7 @@ export default class EditPage extends Component {
                   controls
                   src={`/api/v1/transcription/${transcript.id}/audio`}
                   ref={this.ref}
-                  onTimeUpdate={this.updateSubtitles}
+                  onTimeUpdate={this.onTimeUpdate}
                   style={{ width: '100%' }}
                 >
                   Your browser does not support the
@@ -204,7 +167,12 @@ export default class EditPage extends Component {
           </EuiFlexGroup>
           <EuiFlexGroup wrap>
             <EuiFlexItem>
-              <Editor transcript={subtitles} id={transcript.id} onSelect={this.onSelectText} />
+              <Editor
+                transcript={transcript}
+                originalChapters={originalChapters}
+                currentTime={currentTime}
+                numberOfWords={numberOfWords}
+                onSelect={this.onSelectText} />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <Tags values={dummyCode} />
@@ -246,18 +214,3 @@ const Preferences = ({
     </EuiFlyout>
   )
 }
-
-
-
-const Subtitle = ({
-  words, startTime, endTime, currentTime
-}) => {
-  const notCurrent = currentTime <= startTime || currentTime > endTime
-  if (notCurrent) return <span>{`${words} `}</span>
-  return (
-    <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
-      {`${words} `}
-    </span>
-  )
-}
-
