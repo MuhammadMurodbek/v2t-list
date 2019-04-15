@@ -105,7 +105,7 @@ class Player extends Component {
       singleWordObjects.map((singleWordObj, j) => {
         let patternFound = true
         if (singleWordObj.word.includes(searchTermInit[0])) {
-          for (let i = 1; i < searchTermInit.length && (j+i)<singleWordObj.length; i += 1) {
+          for (let i = 1; i < searchTermInit.length && (j + i) < singleWordObj.length; i += 1) {
             if (singleWordObj[j + i].word !== searchTermInit[i]) {
               patternFound = false
             }
@@ -115,20 +115,28 @@ class Player extends Component {
       })
 
       const finale = []
+      const singleWordObjectsWithoutEmptyChar = []
+      singleWordObjects.map((singleWordObject) => {
+        if (singleWordObject.word !== '') {
+          singleWordObjectsWithoutEmptyChar.push(singleWordObject)
+        }
+        return true
+      })
+
       // Start pruning from here
-      for (let i = 0; i < singleWordObjects.length; i += 1) {
-        if (primarySegments.includes(singleWordObjects[i].startTime)) {
+      for (let i = 0; i < singleWordObjectsWithoutEmptyChar.length; i += 1) {
+        if (primarySegments.includes(singleWordObjectsWithoutEmptyChar[i].startTime)) {
           // Start matching
-          if (searchTermInit[0] === singleWordObjects[i].word) {
+          if (searchTermInit[0] === singleWordObjectsWithoutEmptyChar[i].word) {
             let isMatched = true
-            for (let j = 0; j < searchTermInit.length && (i + j) < singleWordObjects.length; j += 1) {
-              if (searchTermInit[j] !== singleWordObjects[i + j].word) {
+            for (let j = 0; j < searchTermInit.length && (i + j) < singleWordObjectsWithoutEmptyChar.length; j += 1) {
+              if (searchTermInit[j] !== singleWordObjectsWithoutEmptyChar[i + j].word) {
                 isMatched = false
               }
             }
 
             if (isMatched === true) {
-              finale.push(singleWordObjects[i].startTime)
+              finale.push(singleWordObjectsWithoutEmptyChar[i].startTime)
             }
           }
         }
