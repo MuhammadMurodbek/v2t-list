@@ -115,12 +115,9 @@ class Player extends Component {
       })
 
       const finale = []
-      const singleWordObjectsWithoutEmptyChar = []
-      singleWordObjects.map((singleWordObject) => {
-        if (singleWordObject.word !== '') {
-          singleWordObjectsWithoutEmptyChar.push(singleWordObject)
-        }
-        return true
+
+      const singleWordObjectsWithoutEmptyChar = singleWordObjects.filter((singleWordObject) => {
+        return singleWordObject.word !== ''
       })
 
       // Start pruning from here
