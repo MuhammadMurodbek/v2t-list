@@ -10,7 +10,8 @@ import {
 } from '@elastic/eui'
 import axios from 'axios'
 
-import logo from './logo.png'
+import logo from './img/medspeech+Inovia_logo_rgb.png'
+
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
