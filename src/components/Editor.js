@@ -37,7 +37,7 @@ export default class Editor extends Component {
   }
 
   initChapters = () => {
-    const { originalChapters } = this.props
+    const { originalChapters, transcript } = this.props
     const chapters = originalChapters
     this.setState({ chapters })
   }
@@ -217,20 +217,6 @@ export default class Editor extends Component {
 
   finalize = async () => {
     this.save()
-    // const {id} = this.props
-    // const { chapters } = this.state
-    // const queryString = `/api/v1/transcription/${id}`
-    // axios.put(queryString,
-    //   {
-    //     tags: [],
-    //     transcriptions: chapters
-    //   })
-    //   .then((response) => {
-    //     alert('Transcript is updated')
-    //   })
-    //   .catch((error) => {
-    //     console.log(error)
-    //   })
   }
 
   save = () => {
@@ -240,6 +226,7 @@ export default class Editor extends Component {
     const error = invalidChapters.map(({ keyword }) => keyword)
     this.setState({ error })
     //TODO: post state
+    
     return !error.length
   }
 
@@ -265,17 +252,6 @@ export default class Editor extends Component {
         <EuiFlexGroup>
           <EuiFlexItem>
             <FullDiff diff={diff} />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiFlexGroup>
-          <EuiFlexItem grow={false}>
-            <EuiButton fill color="secondary" onClick={this.finalize}>Finalize</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiText>

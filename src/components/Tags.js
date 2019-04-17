@@ -13,11 +13,23 @@ export default class Tags extends Component {
   }
 
   state = {
-    tableOfCodes: this.props.values,
+    tableOfCodes: [],
     isLoading: false,
     selectedOption: [],
     options: []
   };
+
+  componentDidUpdate(prevProps) {
+    const { tags } = this.props
+    if (prevProps.tags !== tags) {
+      this.loadTagsFromTranscript()
+    }
+  }
+
+  loadTagsFromTranscript = () => {
+    const { tags } = this.props
+    this.setState({ tableOfCodes: tags })
+  }
 
   loadIcdCodes = async (searchTerm) => {
     const codeData = await axios.post('/api/v1/code-service/search', {
@@ -36,23 +48,22 @@ export default class Tags extends Component {
 
   deleteRow = (item) => {
     const { tableOfCodes } = this.state
-    const remainingCodes = tableOfCodes.filter(el => el._source.Code !== item._source.Code)
+    const remainingCodes = tableOfCodes.filter(el => el.id !== item.id)
     this.setState({ tableOfCodes: remainingCodes })
   }
 
   addCode = () => {
     const { selectedOption, tableOfCodes } = this.state
+
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
-      data = data.label.split(':')
+      data = data.label.split(': ')
       const newCode = {
-        _source: {
-          Code: data[0],
-          CodeText: data[1]
-        }
+        id: data[0],
+        description: data[1]
       }
 
-      if (tableOfCodes.some(e => e._source.Code === data[0])) {
+      if (tableOfCodes.some(e => e.id === data[0])) {
         // eslint-disable-next-line no-alert
         alert('Item already exists on the list')
         this.emptySelectedOption()
@@ -96,13 +107,13 @@ export default class Tags extends Component {
 
     const COLUMNS = [
       {
-        field: '_source.Code',
+        field: 'id',
         name: 'Code',
         sortable: true,
         width: '80px'
       },
       {
-        field: '_source.CodeText',
+        field: 'description',
         name: 'Description',
         width: '300px'
       },

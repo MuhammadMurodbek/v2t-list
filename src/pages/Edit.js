@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem, EuiFormRow, EuiComboBox,
   EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
-  EuiTitle, EuiIcon, EuiRadioGroup
+  EuiTitle, EuiIcon, EuiRadioGroup, EuiButton
 } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
@@ -21,12 +21,15 @@ export default class EditPage extends Component {
     isFlyoutVisible: false,
     originalChapters: null,
     currentTime: 0,
-    queryTerm: ''
+    queryTerm: '',
+    tags: []
   }
 
   componentDidMount() {
     const { transcript } = this.props
     this.playerRef = React.createRef()
+    this.editorRef = React.createRef()
+    this.tagsRef = React.createRef()
     if (transcript)
       this.loadSegments()
   }
@@ -44,7 +47,8 @@ export default class EditPage extends Component {
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
     const response = await axios.get(queryString)
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
-    this.setState({ originalChapters })
+    const tags = response.data.tags
+    this.setState({ originalChapters, tags })
   }
 
   parseTranscriptions = (transcriptions) => {
@@ -92,11 +96,38 @@ export default class EditPage extends Component {
     })
   }
 
+  finalize = () => {
+    const editor = this.editorRef.current
+    const tags = this.tagsRef.current
+    const { transcript } = this.props
+    const { chapters } = editor.state
+    chapters.forEach(chapter => {
+      if (!chapter.segments[0].words.includes(chapter.keyword)) {
+        chapter.segments[0].words = `${chapter.keyword} ${chapter.segments[0].words}`
+      }
+    })
+
+    const updateURL = `/api/v1/transcription/${transcript.id}`
+    const { tableOfCodes } = tags.state
+  
+    axios.put(updateURL,
+      {
+        tags: tableOfCodes,
+        transcriptions: chapters
+      })
+      .then((response) => {
+        alert('Transcript is updated')
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
   render() {
     const { transcript } = this.props
     const {
       currentTime, isFlyoutVisible, numberOfWords, keywords, originalChapters,
-      queryTerm
+      queryTerm, tags
     } = this.state
     const dummyCode = [
       {
@@ -186,10 +217,27 @@ export default class EditPage extends Component {
                 originalChapters={originalChapters}
                 currentTime={currentTime}
                 keywords={keywords.map(keyword => keyword.label.toLowerCase())}
-                onSelect={this.onSelectText} />
+                onSelect={this.onSelectText} 
+                ref={this.editorRef}
+              />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <Tags values={dummyCode} />
+              <Tags
+                values={dummyCode}
+                tags={tags}
+                ref={this.tagsRef}
+              />
+            </EuiFlexItem>
+          </EuiFlexGroup>
+          <EuiFlexGroup>
+            <EuiFlexItem grow={false}>
+              <EuiButton fill color="secondary" onClick={this.finalize}>Finalize</EuiButton>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>
