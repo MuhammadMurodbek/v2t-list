@@ -8,9 +8,6 @@ import axios from 'axios'
 import '../styles/tags.css'
 
 export default class Tags extends Component {
-  static defaultProps = {
-    values: []
-  }
 
   state = {
     tableOfCodes: [],
@@ -49,7 +46,9 @@ export default class Tags extends Component {
   deleteRow = (item) => {
     const { tableOfCodes } = this.state
     const remainingCodes = tableOfCodes.filter(el => el.id !== item.id)
-    this.setState({ tableOfCodes: remainingCodes })
+    this.setState({ tableOfCodes: remainingCodes },()=>{
+      this.props.updateTags(this.state.tableOfCodes)
+    })
   }
 
   addCode = () => {
@@ -72,6 +71,7 @@ export default class Tags extends Component {
         temp.push(newCode)
         this.setState({ tableOfCodes: temp }, () => {
           this.emptySelectedOption()
+          this.props.updateTags(this.state.tableOfCodes)
         })
       }
     }

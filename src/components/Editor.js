@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react'
-import axios from 'axios'
 import Diff from 'text-diff'
 
 import {
-  EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor, EuiButton
+  EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor
 } from '@elastic/eui'
 
 const NEW_KEYWORD = 'New Chapter'
@@ -30,25 +29,32 @@ export default class Editor extends Component {
 
   componentDidUpdate(prevProps) {
     const { originalChapters } = this.props
-    if (this.inputRef && this.inputRef.current)
+    if (this.inputRef && this.inputRef.current) {
       this.updateCursor()
-    if (prevProps.originalChapters !== originalChapters)
+    }
+
+    if (prevProps.originalChapters !== originalChapters) {
       this.initChapters()
+    }
   }
 
   initChapters = () => {
-    const { originalChapters, transcript } = this.props
+    const { originalChapters } = this.props
     const chapters = originalChapters
-    this.setState({ chapters })
+    this.setState({ chapters }, () => {
+      this.props.updateTranscript(chapters)
+    })
   }
 
   updateCursor = () => {
-    if (this.savedRange)
+    if (this.savedRange) {
       return this.popCursor()
+    }
     const newKeyword = Object.values(this.inputRef.current.getElementsByTagName('h2'))
       .find(element => element.innerText === NEW_KEYWORD)
-    if (newKeyword)
+    if (newKeyword) {
       newKeyword.focus()
+    }
   }
 
   stashCursor = () => {
@@ -61,7 +67,8 @@ export default class Editor extends Component {
     if (selection.rangeCount > 0) selection.removeAllRanges()
     this.savedRange.setStart(this.savedRange.startContainer, this.savedRangeOffset)
     selection.addRange(this.savedRange)
-    this.savedRange = this.savedRangeOffset = null
+    this.savedRange = null
+    this.savedRangeOffset = null
   }
 
   onChange = (e, id) => {
@@ -70,22 +77,27 @@ export default class Editor extends Component {
     const chapters = JSON.parse(JSON.stringify(this.state.chapters))
     chapters[id].segments = this.estimateSegmentsFromNode(id, e.target.innerText)
     const diff = this.getDiff()
-    this.setState({ chapters, diff })
+    this.setState({ chapters, diff }, () => {
+      this.props.updateTranscript(chapters)
+    })
   }
 
    onKeyDown = (e, chapterId) => {
-    if (e.keyCode === 13 && !e.shiftKey)
-      this.splitChapter(e, chapterId)
-    if (e.keyCode === 8)
-      this.mergeWithPreviousChapter(e, chapterId)
-    if (e.keyCode === 46)
-      this.mergeWithNextChapter(e, chapterId)
-  }
+     if (e.keyCode === 13 && !e.shiftKey) {
+       this.splitChapter(e, chapterId)
+     }
+     if (e.keyCode === 8) {
+       this.mergeWithPreviousChapter(e, chapterId)
+     }
+     if (e.keyCode === 46) {
+       this.mergeWithNextChapter(e, chapterId)
+     }
+   }
 
   updateKeyword = (id, value) => {
     const chapters = JSON.parse(JSON.stringify(this.state.chapters))
     chapters[id].keyword = value.replace(/\r?\n|\r/g, '')
-    this.setState({ chapters })
+    this.setState({ chapters }, () => { this.props.updateTranscript(chapters)})
   }
 
   splitChapter = (e, chapterId) => {
@@ -106,8 +118,9 @@ export default class Editor extends Component {
   mergeWithPreviousChapter = (e, chapterId) => {
     const selection = window.getSelection()
     const beginningSelected = !this.prevText(selection).length
-    if (beginningSelected)
-      this.mergeChapter(e, chapterId, chapterId-1)
+    if (beginningSelected) {
+      this.mergeChapter(e, chapterId, chapterId - 1)
+    }
   }
 
   mergeWithNextChapter = (e, chapterId) => {
@@ -215,24 +228,18 @@ export default class Editor extends Component {
     return null
   }
 
-  finalize = async () => {
-    this.save()
-  }
 
-  save = () => {
+  validate = () => {
     const { keywords } = this.props
     const { chapters } = this.state
     const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
     const error = invalidChapters.map(({ keyword }) => keyword)
-    this.setState({ error })
-    //TODO: post state
-    
+    this.setState({ error }, ()=> {
+      this.props.validateTranscript(error)
+    }) 
     return !error.length
   }
 
-  cancel = () => {
-    // empty blocks
-  }
 
   render() {
     const { currentTime } = this.props
@@ -245,6 +252,7 @@ export default class Editor extends Component {
           inputRef={this.inputRef}
           currentTime={currentTime}
           onChange={this.onChange}
+          validate={this.validate}
           onKeyDown={this.onKeyDown}
           onSelect={this.props.onSelect}
           error={error}
@@ -259,7 +267,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect, error }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, error }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -269,6 +277,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
       subtitles={chapter.segments}
       currentTime={currentTime}
       onChange={onChange}
+      validate={validate}
       onKeyDown={onKeyDown}
       onSelect={onSelect}
       error={error}
@@ -281,7 +290,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, subtitles, onChange, onKeyDown, currentTime, onSelect, error }) => (
+const EditableChapter = ({ chapterId, keyword, subtitles, onChange, validate, onKeyDown, currentTime, onSelect, error }) => (
   <Fragment>
     <h2
       onInput={e => onChange(e, chapterId)}
@@ -289,6 +298,7 @@ const EditableChapter = ({ chapterId, keyword, subtitles, onChange, onKeyDown, c
       contentEditable
       suppressContentEditableWarning
       onFocus={() => setTimeout(() => document.execCommand('selectAll',false,null),0)}
+      onBlur={validate}
     >
       <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
         {keyword}
@@ -305,6 +315,7 @@ const EditableChapter = ({ chapterId, keyword, subtitles, onChange, onKeyDown, c
         <Chunks subtitles={subtitles} currentTime={currentTime} />
       </code>
     </pre>
+
   </Fragment>
 )
 

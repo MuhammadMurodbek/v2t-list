@@ -102,7 +102,7 @@ class Player extends Component {
         return true
       })
 
-      singleWordObjects.map((singleWordObj, j) => {
+      singleWordObjects.forEach((singleWordObj, j) => {
         let patternFound = true
         if (singleWordObj.word.includes(searchTermInit[0])) {
           for (let i = 1; i < searchTermInit.length && (j + i) < singleWordObj.length; i += 1) {
