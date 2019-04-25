@@ -220,9 +220,9 @@ class Player extends Component {
               onChange={this.onChangeSeek}
             />
           <span aria-label="tidpunkt" className="tidPunkt">
-            {this.myRef && this.myRef.current && currentTime ? currentTime : '--:--'}
+            {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
             /
-            {this.myRef && this.myRef.current && trackDuration ? trackDuration : '--:--'}
+            {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
           </span>
         </div>
 
