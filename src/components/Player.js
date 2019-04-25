@@ -219,12 +219,11 @@ class Player extends Component {
               id="myRange"
               onChange={this.onChangeSeek}
             />
-              {/* <span aria-label="timer" className="seekBar" /> */}
-              <span aria-label="tidpunkt" className="tidPunkt">
-                {this.myRef && this.myRef.current ? currentTime : '--:--'}
-                /
-              {this.myRef && this.myRef.current ? trackDuration : '--:--'}
-              </span>
+          <span aria-label="tidpunkt" className="tidPunkt">
+            {this.myRef && this.myRef.current && currentTime ? currentTime : '--:--'}
+            /
+            {this.myRef && this.myRef.current && trackDuration ? trackDuration : '--:--'}
+          </span>
         </div>
 
         <VirtualControl
