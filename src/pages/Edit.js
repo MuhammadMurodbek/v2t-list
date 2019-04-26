@@ -124,9 +124,6 @@ export default class EditPage extends Component {
     })
 
     const updateURL = `/api/v1/transcription/${transcript.id}`
-    console.log('chapters')
-    console.log(chapters, tags)
-
     if (errors.length) return false
     return axios.put(updateURL,
       {
