@@ -102,7 +102,7 @@ class Player extends Component {
         return true
       })
 
-      singleWordObjects.map((singleWordObj, j) => {
+      singleWordObjects.forEach((singleWordObj, j) => {
         let patternFound = true
         if (singleWordObj.word.includes(searchTermInit[0])) {
           for (let i = 1; i < searchTermInit.length && (j + i) < singleWordObj.length; i += 1) {
@@ -219,12 +219,11 @@ class Player extends Component {
               id="myRange"
               onChange={this.onChangeSeek}
             />
-              {/* <span aria-label="timer" className="seekBar" /> */}
-              <span aria-label="tidpunkt" className="tidPunkt">
-                {this.myRef && this.myRef.current ? currentTime : '--:--'}
-                /
-              {this.myRef && this.myRef.current ? trackDuration : '--:--'}
-              </span>
+          <span aria-label="tidpunkt" className="tidPunkt">
+            {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
+            /
+            {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
+          </span>
         </div>
 
         <VirtualControl
