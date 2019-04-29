@@ -81,6 +81,7 @@ const NewPage = () => {
         alert('Input Device not recognized')
       })
   }
+
   const mergeLeftRightBuffers = (config, callback) => {
     let leftBuffers = config.leftBuffers.slice(0);
     let rightBuffers = config.rightBuffers.slice(0);
