@@ -39,5 +39,5 @@ export default class TranscriptionList extends Component {
 
 
 TranscriptionList.propTypes = {
-  transcripts: PropTypes.isRequired
+  transcripts: PropTypes.array
 }
