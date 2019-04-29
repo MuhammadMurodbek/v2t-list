@@ -15,6 +15,7 @@ import logo from './img/medspeech+Inovia_logo_rgb.png'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
+import NewPage from './pages/New'
 
 export default class App extends Component {
   static MENU_ITEMS = [
@@ -23,9 +24,10 @@ export default class App extends Component {
       name: '',
       items: [
         { id: 1, name: 'Start', href: '/#/' },
-        { id: 2, name: 'Upload', href: '/#/upload' },
+        { id: 2, name: 'Create', href: '/#/new' },
+        { id: 3, name: 'Upload', href: '/#/upload' },
         {
-          id: 2,
+          id: 4,
           name: 'Analytics',
           href: 'http://localhost:5601/app/kibana#/dashboards?_g=()',
           target: '_blank'
@@ -88,6 +90,7 @@ export default class App extends Component {
               }}
             />
             <Route path="/upload/" component={UploadPage} />
+            <Route path="/new/" component={NewPage} />
           </Switch>
         </EuiPage>
       </HashRouter>
