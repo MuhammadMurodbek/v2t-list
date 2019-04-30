@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import { EuiForm, EuiFormRow, EuiFlexGroup, EuiFlexItem, EuiFilePicker,
   EuiFieldText, EuiButton } from '@elastic/eui'
 import Page from '../components/Page'
 
+export const API_PATH = '/api/v1/transcription/'
+
 export default class UploadPage extends Component {
 
-  API_PATH = '/api/v1/v2t-realtime'
-
   DEFAULT_STATE = {
-    name: '',
     files: [],
     loading: false,
     message: ''
@@ -16,60 +16,47 @@ export default class UploadPage extends Component {
 
   state = this.DEFAULT_STATE
 
-  onNameChange = e => {
-    const name = e.target.value
-    this.setState({ name })
-  }
-
   onFilesChange = files => {
     this.setState({ files })
   }
 
-  onSubmit = async () => {
+  onSubmit = () => {
     const loading = true
     this.setState({ loading })
-    const id = await this.initUpload()
-    this.uploadChunks(id)
+    this.uploadFiles()
   }
 
-  async initUpload() {
-    const response = await fetch(`${this.API_PATH}/init`)
-    const json = await response.json()
-    return json.id
-  }
-
-  async uploadChunks(id) {
+  async uploadFiles() {
     const { files } = this.state
-    const requests = files.map((file, i) => this.uploadChunk(id, file, i))
-    await Promise.all(requests)
-    return this.uploadResult(id)
+    const requests = Array.from(files).map((file, i) => this.uploadFile(file))
+    await Promise.all(requests).catch(this.onUploadFailed)
+    return this.onUploaded()
   }
 
-  async uploadChunk(id, file, i) {
-    const { name } = this.state
+  uploadFile(file) {
     const body = new FormData()
-    body.append('name', name)
-    body.append('audioChunk', file)
-    return fetch(`${this.API_PATH}/${id}/chunk/${i}`)
+    body.append('audio', file)
+    return axios.post(API_PATH, body)
   }
 
-  async finalizeUpload(id) {
-    const response = await fetch(`${this.API_PATH}/${id}/complete`)
-    const json = response.json()
-    const message = json.message
+  onUploaded = () => {
+    const message = 'Successfully uploaded files'
     this.setState({ ...this.DEFAULT_STATE, message })
   }
 
+  onUploadFailed = (e) => {
+    const message = `An error accured during file upload. ${e.message}`
+    this.setState({ ...this.DEFAULT_STATE, message })
+    throw e
+  }
+
   render() {
-    const { name, message, loading } = this.state
+    const { message, loading } = this.state
     return (
       <Page title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
             <EuiFilePicker multiple onChange={this.onFilesChange} />
-          </EuiFormRow>
-          <EuiFormRow label="Name of full recording">
-            <EuiFieldText value={name} onChange={this.onNameChange} />
           </EuiFormRow>
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
