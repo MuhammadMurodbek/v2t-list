@@ -106,12 +106,20 @@ export default class EditPage extends Component {
   }
 
   finalize = async () => {
+    const { transcript } = this.props
+    const finalizeURL = `/api/v1/workflow/finish/${transcript.id}`
     const success = await this.save()
     if (success) {
+      await axios.get(finalizeURL).catch(this.trowAsyncError)
       window.location = '/'
     } else {
       alert('Illegal keyword usage')
     }
+  }
+
+  throwAsyncError = (e) => {
+    alert(e)
+    throw new Error(e)
   }
 
   save = async () => {
