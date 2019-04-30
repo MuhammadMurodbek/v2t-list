@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import React, { Component, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem, EuiFormRow, EuiComboBox,
@@ -17,12 +18,14 @@ export default class EditPage extends Component {
 
   state = {
     numberOfWords: '3',
-    keywords: [{ label: 'Symptom' }, { label:'Status' }, { label: 'Diagnos' }],
+    keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
     isFlyoutVisible: false,
     originalChapters: null,
     currentTime: 0,
     queryTerm: '',
-    tags: []
+    tags: [],
+    chapters: [],
+    errors: []
   }
 
   componentDidMount() {
@@ -30,15 +33,17 @@ export default class EditPage extends Component {
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
     this.tagsRef = React.createRef()
-    if (transcript)
+    if (transcript) {
       this.loadSegments()
+    }
   }
 
   componentDidUpdate(prevProps) {
     const { transcript } = this.props
     const prevId = prevProps.transcript && prevProps.transcript.id
-    if (transcript && transcript.id !== prevId)
+    if (transcript && transcript.id !== prevId) {
       this.loadSegments()
+    }
   }
 
   loadSegments = async () => {
@@ -47,8 +52,12 @@ export default class EditPage extends Component {
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
     const response = await axios.get(queryString)
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
-    const tags = response.data.tags
-    this.setState({ originalChapters, tags })
+    const { tags } = response.data
+    if (tags) {
+      this.setState({ originalChapters, tags })
+    } else {
+      this.setState({ originalChapters, tags: [] })
+    }
   }
 
   parseTranscriptions = (transcriptions) => {
@@ -96,31 +105,58 @@ export default class EditPage extends Component {
     })
   }
 
-  finalize = () => {
-    const editor = this.editorRef.current
-    const tags = this.tagsRef.current
+  finalize = async () => {
     const { transcript } = this.props
-    const { chapters } = editor.state
-    chapters.forEach(chapter => {
+    const finalizeURL = `/api/v1/workflow/finish/${transcript.id}`
+    const success = await this.save()
+    if (success) {
+      await axios.get(finalizeURL).catch(this.trowAsyncError)
+      window.location = '/'
+    } else {
+      alert('Illegal keyword usage')
+    }
+  }
+
+  throwAsyncError = (e) => {
+    alert(e)
+    throw new Error(e)
+  }
+
+  save = async () => {
+    const { transcript } = this.props
+    const { chapters, tags, errors } = this.state
+    chapters.forEach((chapter) => {
       if (!chapter.segments[0].words.includes(chapter.keyword)) {
         chapter.segments[0].words = `${chapter.keyword} ${chapter.segments[0].words}`
       }
     })
 
     const updateURL = `/api/v1/transcription/${transcript.id}`
-    const { tableOfCodes } = tags.state
-  
-    axios.put(updateURL,
+    if (errors.length) return false
+    return axios.put(updateURL,
       {
-        tags: tableOfCodes,
+        tags,
         transcriptions: chapters
       })
-      .then((response) => {
+      .then(() => {
         alert('Transcript is updated')
+        return true
       })
       .catch((error) => {
         console.log(error)
       })
+  }
+
+  onUpdateTags = (tags) => {
+    this.setState({ tags })
+  }
+
+  onUpdateTranscript = (chapters) => {
+    this.setState({ chapters })
+  }
+
+  onValidateTranscript = (errors) => {
+    this.setState({ errors })
   }
 
   render() {
@@ -129,32 +165,6 @@ export default class EditPage extends Component {
       currentTime, isFlyoutVisible, numberOfWords, keywords, originalChapters,
       queryTerm, tags
     } = this.state
-    const dummyCode = [
-      {
-        _index: 'icd.codes',
-        _type: '_doc',
-        _id: 'N950A',
-        _score: 95.074844,
-        _source: {
-          CodeText: 'Postmenopausal blödning hos icke hormonbehandlad kvinna',
-          CategoryCode: 'N95',
-          CategoryName: 'Sjukliga tillstånd i samband med klimakteriet',
-          Code: 'N950A'
-        }
-      },
-      {
-        _index: 'icd.codes',
-        _type: '_doc',
-        _id: 'N734',
-        _score: 33.49643,
-        _source: {
-          CodeText: 'Kronisk bäckenperitonit hos kvinna',
-          CategoryCode: 'N73',
-          CategoryName: 'Andra inflammatoriska sjukdomar i det kvinnliga bäckenet',
-          Code: 'N734'
-        }
-      }
-    ]
 
     if (!transcript) return null
     return (
@@ -217,15 +227,15 @@ export default class EditPage extends Component {
                 originalChapters={originalChapters}
                 currentTime={currentTime}
                 keywords={keywords.map(keyword => keyword.label.toLowerCase())}
-                onSelect={this.onSelectText} 
-                ref={this.editorRef}
+                onSelect={this.onSelectText}
+                updateTranscript={this.onUpdateTranscript}
+                validateTranscript={this.onValidateTranscript}
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <Tags
-                values={dummyCode}
                 tags={tags}
-                ref={this.tagsRef}
+                updateTags={this.onUpdateTags}
               />
             </EuiFlexItem>
           </EuiFlexGroup>
@@ -255,7 +265,7 @@ const Preferences = ({
     { id: '3', label: '3' },
     { id: '5', label: '5' }
   ]
-  const onCreateKeyword = keyword => {
+  const onCreateKeyword = (keyword) => {
     keywords.push({ label: keyword })
     onChangeKeywords(keywords)
   }
