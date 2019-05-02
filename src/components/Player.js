@@ -166,7 +166,7 @@ class Player extends Component {
     const {
       isPlaying, trackDuration, duration, currentTime, startTimes
     } = this.state
-    const { audioTranscript, trackId, getCurrentTime } = this.props
+    const { audioTranscript, trackId, getCurrentTime, audioModeEnabled, isMediaAudio } = this.props
     const trackUrl = `/api/v1/transcription/${trackId}/audio`
     return (
       <Fragment>
@@ -178,9 +178,11 @@ class Player extends Component {
             onChange={this.searchKeyword}
           />
         </span>
+
         <audio
           ref={this.myRef}
           src={trackUrl}
+          style={audioModeEnabled || isMediaAudio ? { display: 'block' } : { display: 'none' }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
@@ -188,6 +190,19 @@ class Player extends Component {
           <code>audio</code>
         element.
         </audio>
+
+        <video
+          ref={this.myRef}
+          src={trackUrl}
+          style={!audioModeEnabled || !isMediaAudio ? { display: 'none' } : { display: 'block' }}
+          onTimeUpdate={getCurrentTime}
+          onLoadedData={this.getAudioData}
+        >
+        Your browser does not support the
+          <code>audio</code>
+        element.
+        </video>
+
         <div className="controls">
           <button
             style={isPlaying === false ? { display: 'block' } : { display: 'none' }}
