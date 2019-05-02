@@ -157,6 +157,10 @@ export default class EditPage extends Component {
     this.setState({ chapters })
   }
 
+  preferAudioMode = () => {
+    
+  }
+
   onValidateTranscript = (errors) => {
     this.setState({ errors })
   }
@@ -297,6 +301,7 @@ const Preferences = ({
           <EuiFormRow label="Highlighted Number of Words">
             <EuiRadioGroup options={options} idSelected={words} onChange={onChangeWords} />
           </EuiFormRow>
+          <EuiSpacer size="m" />
           <EuiFormRow label="Chapter names">
             <EuiComboBox
               noSuggestions
