@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem, EuiFormRow, EuiComboBox,
   EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
-  EuiTitle, EuiIcon, EuiRadioGroup, EuiButton
+  EuiTitle, EuiIcon, EuiRadioGroup, EuiButton, EuiSwitch
 } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
@@ -25,7 +25,9 @@ export default class EditPage extends Component {
     queryTerm: '',
     tags: [],
     chapters: [],
-    errors: []
+    errors: [],
+    isMediaAudio: true, // should be prop
+    audioModeEnabled: false
   }
 
   componentDidMount() {
@@ -159,11 +161,18 @@ export default class EditPage extends Component {
     this.setState({ errors })
   }
 
+  switchToAudioMode = (e) => {
+    const { checked } = e.target
+    this.setState({
+      audioModeEnabled: checked
+    })
+  }
+
   render() {
     const { transcript } = this.props
     const {
       currentTime, isFlyoutVisible, numberOfWords, keywords, originalChapters,
-      queryTerm, tags
+      queryTerm, tags, audioModeEnabled, isMediaAudio
     } = this.state
 
     if (!transcript) return null
@@ -186,6 +195,9 @@ export default class EditPage extends Component {
                   onClose={this.closeFlyout}
                   onChangeWords={this.changeNumberOfWords}
                   onChangeKeywords={this.changeKeywords}
+                  isMediaAudio={isMediaAudio}
+                  audioModeEnabled={audioModeEnabled}
+                  switchToAudioMode={this.switchToAudioMode}
                 />
               </Fragment>
             </EuiFlexItem>
@@ -201,6 +213,8 @@ export default class EditPage extends Component {
                   updateSeek={this.onTimeUpdate}
                   queryTerm={queryTerm}
                   isPlaying={false}
+                  audioModeEnabled={audioModeEnabled}
+                  isContentAudio={isMediaAudio}
                   ref={this.playerRef}
                 />
                 <EuiSpacer size="m" />
@@ -241,7 +255,7 @@ export default class EditPage extends Component {
           </EuiFlexGroup>
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="secondary" onClick={this.finalize}>Finalize</EuiButton>
+              <EuiButton fill color="secondary" onClick={this.finalize}>Submit to Co-worker</EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
@@ -257,7 +271,7 @@ export default class EditPage extends Component {
 }
 
 const Preferences = ({
-  visible, keywords, words, onClose, onChangeWords, onChangeKeywords
+  visible, keywords, words, onClose, onChangeWords, onChangeKeywords, isMediaAudio, audioModeEnabled, switchToAudioMode
 }) => {
   if (!visible) return null
   const options = [
@@ -290,6 +304,14 @@ const Preferences = ({
               selectedOptions={keywords}
               onCreateOption={onCreateKeyword}
               onChange={onChangeKeywords}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="Player Preference">
+            <EuiSwitch
+              label="Always play audio instead of Video"
+              checked={audioModeEnabled}
+              onChange={switchToAudioMode}
+              disabled={isMediaAudio}
             />
           </EuiFormRow>
         </Fragment>
