@@ -16,6 +16,7 @@ const NewPage = () => {
   const recordingLength = useRef(0)
   const chunkRecordingLength = useRef(0)
   const bufferSize = useRef(4096)
+  const sampleRate = useState(44100)
   const [chunkStartTime, setChunkStartTime] = useState(new Date().getTime())
   const [recording, setRecording] = useState(false)
 
@@ -26,7 +27,7 @@ const NewPage = () => {
   const onAudioProcess = (e) => {
     const left = e.inputBuffer.getChannelData(0)
     const tempLeftChannel = leftChannel.current
-    console.log(leftChannel)
+    // console.log(leftChannel)
     tempLeftChannel.push(new Float32Array(left))
     leftChannel.current.push(tempLeftChannel)
 
@@ -42,8 +43,12 @@ const NewPage = () => {
     const tempChunkRightChannel = chunkRightChannel.current
     tempChunkRightChannel.push(new Float32Array(right))
     chunkRightChannel.current.push(tempChunkRightChannel)
-    recordingLength.current += bufferSize
-    chunkRecordingLength.current += bufferSize
+    console.log('chunkRecordingLength.current')
+    console.log(chunkRecordingLength.current)
+    console.log('bufferSize')
+    console.log(bufferSize.current)
+    recordingLength.current += bufferSize.current
+    chunkRecordingLength.current += bufferSize.current
   }
 
   const startRecord = () => {
@@ -82,106 +87,179 @@ const NewPage = () => {
       })
   }
 
+  const mergeBuffers = (channelBuffer, rLength, opt) => {
+    console.log('in the callback ....')
+    console.log(opt)
+    console.log('channel buffer')
+    console.log(channelBuffer)
+    console.log('channel buffer length')
+    console.log(channelBuffer.length)
+    console.log('rLength')
+    console.log(rLength)
+    console.log('channel buffer')
+    console.log(channelBuffer )
+    const result = new Float64Array(rLength)
+    let offset = 0
+    const lng = channelBuffer.length
+    console.log('lng ::'+lng)
+    for (let i = 0; i < lng; i += 1) {
+      console.log(i)
+      const buffer = channelBuffer[i]
+      console.log('Buffer')
+      console.log(channelBuffer[i])
+      result.set(buffer, offset)
+      offset += buffer.length
+      console.log('we are here '+i)
+    }
+    console.log('all is blueß')
+    return result
+  }
+
+  const linearInterpolate = (before, after, atPoint) => {
+    return before + (after - before) * atPoint
+  }
+
+  // for changing the sampling rate, reference:
+  // http://stackoverflow.com/a/28977136/552182
+  const interpolateArray = (data, newSampleRate, oldSampleRate) => {
+    const fitCount = Math.round(data.length * (newSampleRate / oldSampleRate))
+    const newData = []
+    const springFactor = Number((data.length - 1) / (fitCount - 1))
+    newData[0] = data[0] // for new allocation
+    for (let i = 1; i < fitCount - 1; i += 1) {
+      const tmp = i * springFactor
+      const before = Number(Math.floor(tmp)).toFixed()
+      const after = Number(Math.ceil(tmp)).toFixed()
+      const atPoint = tmp - before
+      newData[i] = linearInterpolate(data[before], data[after], atPoint)
+    }
+    newData[fitCount - 1] = data[data.length - 1] // for new allocation
+    return newData
+  }
+
+  const writeUTFBytes = (view, offset, string) => {
+    const lng = string.length
+    for (let i = 0; i < lng; i += 1) {
+      view.setUint8(offset + i, string.charCodeAt(i))
+    }
+  }
+
+  const interleave = (leftChannel, rightChannel) => {
+    const length = leftChannel.length + rightChannel.length
+    const result = new Float64Array(length)
+    let inputIndex = 0
+
+    for (let index = 0; index < length;) {
+      result[index++] = leftChannel[inputIndex]
+      result[index++] = rightChannel[inputIndex]
+      inputIndex++
+    }
+    return result
+  }
+
   const mergeLeftRightBuffers = (config, callback) => {
-    let leftBuffers = config.leftBuffers.slice(0);
-    let rightBuffers = config.rightBuffers.slice(0);
-    let sampleRate = config.sampleRate;
-    let internalInterleavedLength = config.internalInterleavedLength;
-    let desiredSampRate = config.desiredSampRate;
+    console.log('current')
+    console.log(config)
+    let leftBuffers = config.leftBuffers.slice(0)
+    let rightBuffers = config.rightBuffers.slice(0)
+    // let sampleRate = config.sampleRate
+    let sampleRate = config.sampleRate[0]
+    let internalInterleavedLength = config.internalInterleavedLength
+    let desiredSampRate = config.desiredSampRate
 
     if (numberOfAudioChannels === 2) {
-      leftBuffers = this.mergeBuffers(leftBuffers, internalInterleavedLength);
-      rightBuffers = this.mergeBuffers(rightBuffers, internalInterleavedLength);
+      leftBuffers = mergeBuffers(leftBuffers, internalInterleavedLength,'l')
+      rightBuffers = mergeBuffers(rightBuffers, internalInterleavedLength,'r')
       if (desiredSampRate) {
-        leftBuffers = this.interpolateArray(leftBuffers, desiredSampRate, sampleRate);
-        rightBuffers = this.interpolateArray(rightBuffers, desiredSampRate, sampleRate);
+        leftBuffers = interpolateArray(leftBuffers, desiredSampRate, sampleRate)
+        rightBuffers = interpolateArray(rightBuffers, desiredSampRate, sampleRate)
       }
     }
 
     if (numberOfAudioChannels === 1) {
-      leftBuffers = this.mergeBuffers(leftBuffers, internalInterleavedLength);
+      leftBuffers = mergeBuffers(leftBuffers, internalInterleavedLength,'m')
       if (desiredSampRate) {
-        leftBuffers = this.interpolateArray(leftBuffers, desiredSampRate, sampleRate);
+        leftBuffers = interpolateArray(leftBuffers, desiredSampRate, sampleRate)
       }
     }
 
     // set sample rate as desired sample rate
     if (desiredSampRate) {
-      sampleRate = desiredSampRate;
+      sampleRate = desiredSampRate
     }
-    let interleaved;
+    let interleaved
 
     if (numberOfAudioChannels === 2) {
-      interleaved = this.interleave(leftBuffers, rightBuffers);
+      interleaved = interleave(leftBuffers, rightBuffers)
     }
 
     if (numberOfAudioChannels === 1) {
-      interleaved = leftBuffers;
+      interleaved = leftBuffers
     }
 
-    const interleavedLength = interleaved.length;
+    const interleavedLength = interleaved.length
 
     // create wav file
-    const resultingBufferLength = 44 + interleavedLength * 2;
+    const resultingBufferLength = 44 + interleavedLength * 2
 
-    const buffer = new ArrayBuffer(resultingBufferLength);
+    const buffer = new ArrayBuffer(resultingBufferLength)
 
-    const view = new DataView(buffer);
+    const view = new DataView(buffer)
 
     // RIFF chunk descriptor/identifier
-    this.writeUTFBytes(view, 0, 'RIFF');
+    writeUTFBytes(view, 0, 'RIFF')
 
     // RIFF chunk length
     view.setUint32(4, 44 + interleavedLength * 2, true);
 
     // RIFF type
-    this.writeUTFBytes(view, 8, 'WAVE');
+    writeUTFBytes(view, 8, 'WAVE')
 
     // format chunk identifier
     // FMT sub-chunk
-    this.writeUTFBytes(view, 12, 'fmt ');
+    writeUTFBytes(view, 12, 'fmt ')
 
     // format chunk length
-    view.setUint32(16, 16, true);
+    view.setUint32(16, 16, true)
 
     // sample format (raw)
-    view.setUint16(20, 1, true);
+    view.setUint16(20, 1, true)
 
     // stereo (2 channels)
-    view.setUint16(22, numberOfAudioChannels, true);
+    view.setUint16(22, numberOfAudioChannels, true)
 
     // sample rate
-    view.setUint32(24, sampleRate, true);
+    view.setUint32(24, sampleRate, true)
 
     // byte rate (sample rate * block align)
-    view.setUint32(28, sampleRate * 2, true);
+    view.setUint32(28, sampleRate * 2, true)
 
     // block align (channel count * bytes per sample)
-    view.setUint16(32, numberOfAudioChannels * 2, true);
+    view.setUint16(32, numberOfAudioChannels * 2, true)
 
     // bits per sample
-    view.setUint16(34, 16, true);
+    view.setUint16(34, 16, true)
 
     // data sub-chunk
     // data chunk identifier
-    this.writeUTFBytes(view, 36, 'data');
+    writeUTFBytes(view, 36, 'data')
 
     // data chunk length
-    view.setUint32(40, interleavedLength * 2, true);
+    view.setUint32(40, interleavedLength * 2, true)
 
     // write the PCM samples
-    const lng = interleavedLength;
-    let index = 44;
-    const volume = 1;
+    const lng = interleavedLength
+    let index = 44
+    const volume = 1
 
-    for (let i = 0; i < lng; i++) {
-      view.setInt16(index, interleaved[i] * (0x7FFF * volume), true);
-      index += 2;
+    for (let i = 0; i < lng; i += 1) {
+      view.setInt16(index, interleaved[i] * (0x7FFF * volume), true)
+      index += 2
     }
     callback(
       buffer,
       view,
-    );
+    )
   }
 
   const mergeCallbackChunk = (buffer, view) => {
@@ -189,15 +267,18 @@ const NewPage = () => {
     const blob = new Blob([view], { type: 'audio/wav' })
     const a = document.createElement('a')
     document.body.appendChild(a)
-    a.style = 'display: none'
+    // a.style = 'display: none'
 
 
     // download blob
-    // let url = window.URL.createObjectURL(blob);
-    // a.href = url;
-    // a.download = "a.wav";
-    // a.click();
-    // window.URL.revokeObjectURL(url);
+    let url = window.URL.createObjectURL(blob)
+    a.href = url;
+    a.download = "a.wav"
+    a.click(()=>{
+      console.log('downloading audio data')
+      return true
+    })
+    window.URL.revokeObjectURL(url)
 
     setChunkStartTime(new Date().getTime())
     leftChannel.current = []
@@ -206,7 +287,7 @@ const NewPage = () => {
     chunkRightChannel.current = []
     recordingLength.current = 0
     chunkRecordingLength.current = 0
-    // this.sendRequest(blob)
+    this.sendRequest(blob)
   }
 
 
@@ -214,15 +295,14 @@ const NewPage = () => {
     setMicrophoneBeingPressed(false)
     audioInput.current.disconnect()
     jsAudioNode.current.disconnect()
-
-    // this.mergeLeftRightBuffers({
-    //   sampleRate: this.state.sampleRate,
-    //   desiredSampRate: 16000,
-    //   numberOfAudioChannels: this.state.numberOfAudioChannels,
-    //   internalInterleavedLength: this.state.chunkRecordingLength,
-    //   leftBuffers: this.state.chunkLeftChannel,
-    //   rightBuffers: this.state.numberOfAudioChannels === 1 ? [] : this.state.chunkRightChannel,
-    // }, this.mergeCallbackChunk);
+    mergeLeftRightBuffers({
+      sampleRate,
+      desiredSampRate: 16000,
+      numberOfAudioChannels,
+      internalInterleavedLength: chunkRecordingLength.current,
+      leftBuffers: chunkLeftChannel.current,
+      rightBuffers: numberOfAudioChannels === 1 ? [] : chunkRightChannel.current
+    }, mergeCallbackChunk)
   }
 
 

@@ -16,6 +16,7 @@ import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
 import NewPage from './pages/New'
+import LivePage from './pages/Live'
 
 export default class App extends Component {
   static MENU_ITEMS = [
@@ -31,7 +32,8 @@ export default class App extends Component {
           name: 'Analytics',
           href: 'http://localhost:5601/app/kibana#/dashboards?_g=()',
           target: '_blank'
-        }
+        },
+        { id: 5, name: 'Live Transcript', href: '/#/live' }
       ]
     }
   ]
@@ -91,6 +93,7 @@ export default class App extends Component {
             />
             <Route path="/upload/" component={UploadPage} />
             <Route path="/new/" component={NewPage} />
+            <Route path="/live/" component={LivePage} />
           </Switch>
         </EuiPage>
       </HashRouter>
