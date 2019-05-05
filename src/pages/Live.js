@@ -2,7 +2,9 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import axios from 'axios'
-import { EuiButton } from '@elastic/eui'
+import { EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer } from '@elastic/eui'
+import Editor from '../components/Editor'
+import Tags from '../components/Tags'
 import Page from '../components/Page'
 
 export default class LivePage extends Component {
@@ -22,7 +24,38 @@ export default class LivePage extends Component {
       recordingLength: 0,
       chunkRecordingLength: 0,
       microphoneBeingPressed: false,
-      silentBuffersInRow: 0
+      silentBuffersInRow: 0,
+      keywords: [],
+      segments: [],
+      originalChapters: [{
+        keyword:'generals',
+        segments:[]
+      }]
+    }
+
+    dummyData = {
+      transcript: {
+        created: '2019-04-30T12:47:50.545424Z',
+        description: 'A transcription',
+        id: 'c204ea14-b5b2-4c8a-ab9c-b4d65215145a',
+        lastUpdated: '2019-05-03T11:23:22.937572Z',
+        status: 'CREATED',
+        type: 'VOICE'
+      },
+      originalChapters: [{
+        keyword: 'general',
+        segments: [{
+          endTime: 1.72,
+          startTime: 0,
+          words: 'och så dikterar '
+        }, {
+          endTime: 1.73,
+          startTime: 4.24,
+          words: 'och så dikterar '
+        }]
+      }],
+      keywords: ['general'],
+      currentTime: 0
     }
 
     startRecord = () => {
@@ -74,7 +107,7 @@ export default class LivePage extends Component {
       this.setState({ chunkRightChannel: [] })
       this.setState({ recordingLength: 0 })
       this.setState({ chunkRecordingLength: 0 })
-      this.sendRequest(blob)
+      this.sendRequest(blob, view)
     }
 
     sendRequest = (buffer) => {
@@ -84,7 +117,30 @@ export default class LivePage extends Component {
       this.getResultFromServer(buffer)
     }
 
-  getResultFromServer = (buffer) => {
+
+  liveTranscrption = (respondedData) => {
+    let words = respondedData.split(' ')
+    words.forEach((word) => {
+      const { keywords, originalChapters, segments} = this.state
+      if (keywords.length === 0) {
+        this.setState({ keywords: ['general'] })
+      }
+      if (word === 'AT' || word === 'Lungor' || word === 'Buk' || word === 'Diagnos') {
+        const newKeywords = keywords.push(word)
+        this.setState({ keywords: newKeywords })
+      } else {
+        const tempOriginalChapters = {
+          keywords,
+          segments: segments.push(word)
+        }
+        this.setState({ originalChapters: tempOriginalChapters },()=>{
+          console.log(this.state)
+        })
+      }
+    })
+  }
+
+  getResultFromServer = (buffer, view) => {
     console.log('attemp to send data')
     axios({
       method: 'post',
@@ -95,15 +151,52 @@ export default class LivePage extends Component {
       // data: temp,
     }).then((response) => {
       console.log('response')
-      console.log(response)
+      // console.log(response)
       // Print the text from the response
       let respondedData = response.data
       if (typeof (respondedData) !== 'string') {
         respondedData = respondedData.toString()
       }
+      console.log(respondedData)
+      // this.liveTranscrption(respondedData)
     }).catch((err) => {
       throw Error(err)
     })
+    // const blob = new Blob([view], { type: 'audio/wav' })
+    // const a = document.createElement('a')
+    // document.body.appendChild(a)
+    // a.style = 'display: none'
+
+    //   // download blob
+    //   const url = window.URL.createObjectURL(blob)
+    //   a.href = url
+    //   a.download = 'a.wav'
+    //   a.click()
+    //   // window.URL.revokeObjectURL(url)
+    // let d = new FormData()
+    // console.log('blob')
+    // console.log(url)
+    // d.append('wavfile', blob)
+
+    
+    // axios({
+    //   method: 'post',
+    //   url: '/api/v1/transcription/',
+    //   data: {
+    //     audio: d
+    //   },
+    //   headers: { 'content-type': 'multipart/form-data' }
+    // }).then((response) => {
+    //   console.log('response')
+    //   console.log(response)
+    //   // Print the text from the response
+    //   let respondedData = response.data
+    //   if (typeof (respondedData) !== 'string') {
+    //     respondedData = respondedData.toString()
+    //   }
+    // }).catch((err) => {
+    //   throw Error(err)
+    // })
   }
 
     stopRecord = () => {
@@ -278,6 +371,7 @@ export default class LivePage extends Component {
 
     onAudioProcess = (e) => {
       const {
+        sampleRate,
         leftChannel,
         chunkLeftChannel,
         rightChannel,
@@ -308,16 +402,15 @@ export default class LivePage extends Component {
       this.setState({ recordingLength: (recordingLength + bufferSize) })
       this.setState({ chunkRecordingLength: (chunkRecordingLength + bufferSize) })
 
-      // mergeLeftRightBuffers({
-      //   sampleRate: sampleRate,
+      // this.mergeLeftRightBuffers({
+      //   sampleRate,
       //   desiredSampRate: 16000,
-      //   numberOfAudioChannels: numberOfAudioChannels,
+      //   numberOfAudioChannels,
       //   internalInterleavedLength: chunkRecordingLength,
       //   leftBuffers: chunkLeftChannel,
       //   rightBuffers: numberOfAudioChannels === 1 ? [] : chunkRightChannel
-      // }, mergeCallbackChunk);
+      // }, this.mergeCallbackChunk)
 
-      // chunkStartTime = new Date().getTime()
       // this.clearChunkRecordedData()
     }
 
@@ -358,6 +451,19 @@ clearChunkRecordedData = () => {
     // console.log("Min: " + min + ", max: " + max + ", total: " + total + ", avg: " + avg);
     return count
   }
+  
+  onSelectText = () => {
+    const selctedText = window.getSelection().toString()
+    this.setState({ queryTerm: selctedText })
+  }
+
+  onUpdateTranscript = (chapters) => {
+    this.setState({ chapters })
+  }
+
+  onValidateTranscript = (errors) => {
+    this.setState({ errors })
+  }
 
   detectSilence = (lcX, rcX, numberOfAudioChannels) => {
     const { silentBuffersInRow } = this.state
@@ -396,6 +502,28 @@ clearChunkRecordedData = () => {
         >
           Stop
         </EuiButton>
+        <EuiSpacer size="m" />
+        <EuiSpacer size="m" />
+        <EuiSpacer size="m" />
+        <EuiFlexGroup wrap>
+          <EuiFlexItem>
+            <Editor
+              transcript={this.dummyData.transcript}
+              originalChapters={this.state.originalChapters}
+              currentTime={this.dummyData.currentTime}
+              keywords={this.state.keywords}
+              onSelect={this.onSelectText}
+              updateTranscript={this.onUpdateTranscript}
+              validateTranscript={this.onValidateTranscript}
+            />
+          </EuiFlexItem>
+          {/* <EuiFlexItem grow={false}>
+            <Tags
+              tags={tags}
+              updateTags={this.onUpdateTags}
+            />
+          </EuiFlexItem> */}
+        </EuiFlexGroup>
       </Page>
     )
   }

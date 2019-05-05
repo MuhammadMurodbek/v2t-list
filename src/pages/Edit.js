@@ -157,10 +157,6 @@ export default class EditPage extends Component {
     this.setState({ chapters })
   }
 
-  preferAudioMode = () => {
-    
-  }
-
   onValidateTranscript = (errors) => {
     this.setState({ errors })
   }

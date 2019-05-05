@@ -39,6 +39,8 @@ export default class Editor extends Component {
   }
 
   initChapters = () => {
+    console.log('moo')
+    console.log(this.props)
     const { originalChapters } = this.props
     const chapters = originalChapters
     this.setState({ chapters }, () => {

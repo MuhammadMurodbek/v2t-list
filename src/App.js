@@ -15,7 +15,6 @@ import logo from './img/medspeech+Inovia_logo_rgb.png'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
-import NewPage from './pages/New'
 import LivePage from './pages/Live'
 
 export default class App extends Component {
@@ -25,15 +24,14 @@ export default class App extends Component {
       name: '',
       items: [
         { id: 1, name: 'Start', href: '/#/' },
-        { id: 2, name: 'Create', href: '/#/new' },
-        { id: 3, name: 'Upload', href: '/#/upload' },
+        { id: 2, name: 'Upload', href: '/#/upload' },
         {
-          id: 4,
+          id: 3,
           name: 'Analytics',
           href: 'http://localhost:5601/app/kibana#/dashboards?_g=()',
           target: '_blank'
         },
-        { id: 5, name: 'Live Transcript', href: '/#/live' }
+        { id: 4, name: 'Live Transcript', href: '/#/live' }
       ]
     }
   ]
@@ -92,7 +90,6 @@ export default class App extends Component {
               }}
             />
             <Route path="/upload/" component={UploadPage} />
-            <Route path="/new/" component={NewPage} />
             <Route path="/live/" component={LivePage} />
           </Switch>
         </EuiPage>
