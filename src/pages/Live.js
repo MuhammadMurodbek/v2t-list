@@ -8,6 +8,7 @@ import {
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Page from '../components/Page'
+import '../styles/editor.css'
 
 export default class LivePage extends Component {
     audioInput = null
@@ -30,9 +31,7 @@ export default class LivePage extends Component {
       keywords: [],
       segments: [],
       originalChapters: []
-
-      }
-    
+    }
 
     dummyData = {
       transcript: {
@@ -118,16 +117,6 @@ export default class LivePage extends Component {
       this.getResultFromServer(buffer)
     }
 
-  updateTranscript = (keywords, segments) => {
-    console.log('keywords')
-    console.log(keywords)
-    console.log('segments')
-    console.log(segments)
-    const { originalChapters } = this.state
-    let updatedChapters = originalChapters
-    // updatedChapters.push({keywords})
-  }
-
   liveTranscrption = (respondedData) => {
     const { keywords, originalChapters } = this.state
     const words = respondedData.split(' ')
@@ -140,46 +129,29 @@ export default class LivePage extends Component {
     words.forEach((word) => {
       if (word === 'at' || word === 'lungor' || word === 'buk' || word === 'diagnos' || word === 'var' || word === 'den') {
         newKeywords.push(word)
-        // newSegments.forEach((newSegment) => {
-        //   recordedSegments.push({
-        //     endTime: 0,
-        //     startTime: 0,
-        //     words: newSegment
-        //   })
-        // })
-
-        // newTranscript.push({
-        //   keyword: newKeywords[newKeywords.length - 1],
-        //   segments: newSegments
-        // })
-        
-        // newTranscript.push({
-        //   keyword: newKeywords[newKeywords.length - 1],
-        //   segments: recordedSegments
-        // })
         newSegments = []
-        
       } else {
         newSegments.push(word)
       }
     })
 
-    if (newKeywords.length === 0) {
+    if (newKeywords.length === 0 && originalChapters.length === 0) {
       newKeywords = ['general']
     }
 
-    
     console.log('newKeywords')
     console.log(newKeywords)
     console.log('newSegments')
     console.log(newSegments)
-    
+
     newSegments.forEach((newSegment) => {
-      recordedSegments.push({
-        endTime: 0,
-        startTime: 0,
-        words: newSegment + ' '
-      })
+      if (newSegment.length > 0) {
+        recordedSegments.push({
+          endTime: 0,
+          startTime: 0,
+          words: `${newSegment} `
+        })
+      }
     })
     // newSegments = []
     newTranscript.push({
@@ -188,10 +160,18 @@ export default class LivePage extends Component {
     })
 
     let updatedTranscript = originalChapters
-    updatedTranscript = updatedTranscript.push(newTranscript[0])
+    if (newKeywords.length !== 0) {
+      updatedTranscript = updatedTranscript.push(newTranscript[0])
+    } else {
+      console.log('recorded segments')
+      console.log(recordedSegments)
+      recordedSegments.forEach((recordedSegment) => {
+        updatedTranscript[updatedTranscript.length - 1].segments.push(recordedSegment)
+      })
+    }
+
     console.log('new Transcript')
     console.log(newTranscript)
-    
     console.log('updated transcript 1')
     console.log(this.state.originalChapters)
     this.setState({
