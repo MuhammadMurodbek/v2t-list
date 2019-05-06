@@ -138,7 +138,7 @@ export default class LivePage extends Component {
     console.log(words)
     let recordedSegments = []
     words.forEach((word) => {
-      if (word === 'at' || word === 'lungor' || word === 'buk' || word === 'diagnos' || word === 'var') {
+      if (word === 'at' || word === 'lungor' || word === 'buk' || word === 'diagnos' || word === 'var' || word === 'den') {
         newKeywords.push(word)
         // newSegments.forEach((newSegment) => {
         //   recordedSegments.push({
@@ -178,7 +178,7 @@ export default class LivePage extends Component {
       recordedSegments.push({
         endTime: 0,
         startTime: 0,
-        words: newSegment
+        words: newSegment + ' '
       })
     })
     // newSegments = []
@@ -490,7 +490,12 @@ clearChunkRecordedData = () => {
   }
 
   onUpdateTranscript = (chapters) => {
-    this.setState({ chapters: this.state.originalChapters })
+    console.log('update')
+    console.log(chapters)
+    // this.setState({ chapters: this.state.originalChapters },()=>{
+      // console.log('current chapters')
+      
+//    })
   }
 
   onValidateTranscript = (errors) => {
