@@ -2,7 +2,9 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import axios from 'axios'
-import { EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer } from '@elastic/eui'
+import {
+  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer
+} from '@elastic/eui'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Page from '../components/Page'
@@ -27,11 +29,10 @@ export default class LivePage extends Component {
       silentBuffersInRow: 0,
       keywords: [],
       segments: [],
-      originalChapters: [{
-        keyword:'generals',
-        segments:[]
-      }]
-    }
+      originalChapters: []
+
+      }
+    
 
     dummyData = {
       transcript: {
@@ -117,30 +118,96 @@ export default class LivePage extends Component {
       this.getResultFromServer(buffer)
     }
 
-
-  liveTranscrption = (respondedData) => {
-    let words = respondedData.split(' ')
-    words.forEach((word) => {
-      const { keywords, originalChapters, segments} = this.state
-      if (keywords.length === 0) {
-        this.setState({ keywords: ['general'] })
-      }
-      if (word === 'AT' || word === 'Lungor' || word === 'Buk' || word === 'Diagnos') {
-        const newKeywords = keywords.push(word)
-        this.setState({ keywords: newKeywords })
-      } else {
-        const tempOriginalChapters = {
-          keywords,
-          segments: segments.push(word)
-        }
-        this.setState({ originalChapters: tempOriginalChapters },()=>{
-          console.log(this.state)
-        })
-      }
-    })
+  updateTranscript = (keywords, segments) => {
+    console.log('keywords')
+    console.log(keywords)
+    console.log('segments')
+    console.log(segments)
+    const { originalChapters } = this.state
+    let updatedChapters = originalChapters
+    // updatedChapters.push({keywords})
   }
 
-  getResultFromServer = (buffer, view) => {
+  liveTranscrption = (respondedData) => {
+    const { keywords, originalChapters } = this.state
+    const words = respondedData.split(' ')
+    let newTranscript = []
+    let newKeywords = []
+    let newSegments = []
+    console.log('words')
+    console.log(words)
+    let recordedSegments = []
+    words.forEach((word) => {
+      if (word === 'at' || word === 'lungor' || word === 'buk' || word === 'diagnos' || word === 'var') {
+        newKeywords.push(word)
+        // newSegments.forEach((newSegment) => {
+        //   recordedSegments.push({
+        //     endTime: 0,
+        //     startTime: 0,
+        //     words: newSegment
+        //   })
+        // })
+
+        // newTranscript.push({
+        //   keyword: newKeywords[newKeywords.length - 1],
+        //   segments: newSegments
+        // })
+        
+        // newTranscript.push({
+        //   keyword: newKeywords[newKeywords.length - 1],
+        //   segments: recordedSegments
+        // })
+        newSegments = []
+        
+      } else {
+        newSegments.push(word)
+      }
+    })
+
+    if (newKeywords.length === 0) {
+      newKeywords = ['general']
+    }
+
+    
+    console.log('newKeywords')
+    console.log(newKeywords)
+    console.log('newSegments')
+    console.log(newSegments)
+    
+    newSegments.forEach((newSegment) => {
+      recordedSegments.push({
+        endTime: 0,
+        startTime: 0,
+        words: newSegment
+      })
+    })
+    // newSegments = []
+    newTranscript.push({
+      keyword: newKeywords[newKeywords.length - 1],
+      segments: recordedSegments
+    })
+
+    let updatedTranscript = originalChapters
+    updatedTranscript = updatedTranscript.push(newTranscript[0])
+    console.log('new Transcript')
+    console.log(newTranscript)
+    
+    console.log('updated transcript 1')
+    console.log(this.state.originalChapters)
+    this.setState({
+      originalChapters
+    })
+    // this.setState({
+    //   originalChapters: updatedTranscript
+    // }, () => {
+    //   console.log('updated transcript')
+    //   console.log(this.state.originalChapters)
+    // })
+
+    // this.updateTranscript(newTranscript)
+  }
+
+  getResultFromServer = (buffer) => {
     console.log('attemp to send data')
     axios({
       method: 'post',
@@ -158,45 +225,10 @@ export default class LivePage extends Component {
         respondedData = respondedData.toString()
       }
       console.log(respondedData)
-      // this.liveTranscrption(respondedData)
+      this.liveTranscrption(respondedData)
     }).catch((err) => {
       throw Error(err)
     })
-    // const blob = new Blob([view], { type: 'audio/wav' })
-    // const a = document.createElement('a')
-    // document.body.appendChild(a)
-    // a.style = 'display: none'
-
-    //   // download blob
-    //   const url = window.URL.createObjectURL(blob)
-    //   a.href = url
-    //   a.download = 'a.wav'
-    //   a.click()
-    //   // window.URL.revokeObjectURL(url)
-    // let d = new FormData()
-    // console.log('blob')
-    // console.log(url)
-    // d.append('wavfile', blob)
-
-    
-    // axios({
-    //   method: 'post',
-    //   url: '/api/v1/transcription/',
-    //   data: {
-    //     audio: d
-    //   },
-    //   headers: { 'content-type': 'multipart/form-data' }
-    // }).then((response) => {
-    //   console.log('response')
-    //   console.log(response)
-    //   // Print the text from the response
-    //   let respondedData = response.data
-    //   if (typeof (respondedData) !== 'string') {
-    //     respondedData = respondedData.toString()
-    //   }
-    // }).catch((err) => {
-    //   throw Error(err)
-    // })
   }
 
     stopRecord = () => {
@@ -451,14 +483,14 @@ clearChunkRecordedData = () => {
     // console.log("Min: " + min + ", max: " + max + ", total: " + total + ", avg: " + avg);
     return count
   }
-  
+
   onSelectText = () => {
     const selctedText = window.getSelection().toString()
     this.setState({ queryTerm: selctedText })
   }
 
   onUpdateTranscript = (chapters) => {
-    this.setState({ chapters })
+    this.setState({ chapters: this.state.originalChapters })
   }
 
   onValidateTranscript = (errors) => {
@@ -487,7 +519,7 @@ clearChunkRecordedData = () => {
   }
 
   render() {
-    const { microphoneBeingPressed } = this.state
+    const { microphoneBeingPressed, originalChapters, keywords } = this.state
     return (
       <Page title="Live Transcript">
         <EuiButton
@@ -509,9 +541,10 @@ clearChunkRecordedData = () => {
           <EuiFlexItem>
             <Editor
               transcript={this.dummyData.transcript}
-              originalChapters={this.state.originalChapters}
+              originalChapters={originalChapters}
+              // originalChapters={this.dummyData.originalChapters}
               currentTime={this.dummyData.currentTime}
-              keywords={this.state.keywords}
+              keywords={keywords}
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
               validateTranscript={this.onValidateTranscript}
