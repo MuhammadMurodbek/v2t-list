@@ -29,8 +29,8 @@ export default class LivePage extends Component {
       microphoneBeingPressed: false,
       silentBuffersInRow: 0,
       keywords: [],
-      segments: [],
-      originalChapters: []
+      originalChapters: [],
+      tags: []
     }
 
     dummyData = {
@@ -118,14 +118,14 @@ export default class LivePage extends Component {
     }
 
   liveTranscrption = (respondedData) => {
-    const { keywords, originalChapters } = this.state
+    const { originalChapters } = this.state
     const words = respondedData.split(' ')
-    let newTranscript = []
+    const newTranscript = []
     let newKeywords = []
     let newSegments = []
     console.log('words')
     console.log(words)
-    let recordedSegments = []
+    const recordedSegments = []
     words.forEach((word) => {
       if (word === 'at' || word === 'lungor' || word === 'buk' || word === 'diagnos' || word === 'var' || word === 'den') {
         newKeywords.push(word)
@@ -173,18 +173,10 @@ export default class LivePage extends Component {
     console.log('new Transcript')
     console.log(newTranscript)
     console.log('updated transcript 1')
-    console.log(this.state.originalChapters)
+    console.log(originalChapters)
     this.setState({
       originalChapters
     })
-    // this.setState({
-    //   originalChapters: updatedTranscript
-    // }, () => {
-    //   console.log('updated transcript')
-    //   console.log(this.state.originalChapters)
-    // })
-
-    // this.updateTranscript(newTranscript)
   }
 
   getResultFromServer = (buffer) => {
@@ -503,8 +495,12 @@ clearChunkRecordedData = () => {
     // + count + "/" + totalSize + ", : "  + silentBuffersInRow);
   }
 
+  onUpdateTags = (tags) => {
+    this.setState({ tags })
+  }
+
   render() {
-    const { microphoneBeingPressed, originalChapters, keywords } = this.state
+    const { microphoneBeingPressed, originalChapters, keywords, tags } = this.state
     return (
       <Page title="Live Transcript">
         <EuiButton
@@ -535,12 +531,12 @@ clearChunkRecordedData = () => {
               validateTranscript={this.onValidateTranscript}
             />
           </EuiFlexItem>
-          {/* <EuiFlexItem grow={false}>
+          <EuiFlexItem grow={false}>
             <Tags
               tags={tags}
               updateTags={this.onUpdateTags}
             />
-          </EuiFlexItem> */}
+          </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
     )
