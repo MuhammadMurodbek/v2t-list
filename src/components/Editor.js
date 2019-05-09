@@ -6,18 +6,22 @@ import {
 } from '@elastic/eui'
 
 const NEW_KEYWORD = 'New Chapter'
+const KEYCODE_ENTER = 13
+const KEYCODE_BACKSPACE = 8
+const KEYCODE_DELETE = 46
+const ERROR_NOT_FOUND = 8
 
 export default class Editor extends Component {
   static defaultProps = {
     diffInstance: new Diff(),
     transcript: null,
     originalChapters: null,
+    chapters: null,
     currentTime: 0,
     keywords: []
   }
 
   state = {
-    chapters: null,
     diff: null,
     error: []
   }
@@ -29,9 +33,7 @@ export default class Editor extends Component {
 
   componentDidUpdate(prevProps) {
     const { originalChapters } = this.props
-    if (this.inputRef && this.inputRef.current) {
-      this.updateCursor()
-    }
+    this.updateCursor()
 
     if (prevProps.originalChapters !== originalChapters) {
       this.initChapters()
@@ -39,15 +41,14 @@ export default class Editor extends Component {
   }
 
   initChapters = () => {
-    const { originalChapters } = this.props
+    const { originalChapters, updateTranscript } = this.props
     const chapters = originalChapters
-    this.setState({ chapters }, () => {
-      this.props.updateTranscript(chapters)
-    })
+    updateTranscript(chapters)
   }
 
   updateCursor = () => {
-    if (this.savedRange) {
+    if (!this.inputRef || !this.inputRef.current) return
+    if (this.cursor) {
       return this.popCursor()
     }
     const newKeyword = Object.values(this.inputRef.current.getElementsByTagName('h2'))
@@ -57,159 +58,192 @@ export default class Editor extends Component {
     }
   }
 
-  stashCursor = () => {
-    this.savedRange = window.getSelection().getRangeAt(0) //.cloneRange() not working?
-    this.savedRangeOffset = this.savedRange.startOffset
+  stashCursor = (offset = 0) => {
+    const { chapters } = this.props
+    const range = window.getSelection().getRangeAt(0)
+    const node = range.startContainer
+    const dataset = this.getClosestDataset(node)
+    this.cursor = {
+      keyword: Number(dataset.keyword),
+      chapter: Number(dataset.chapter),
+      segment: Number(dataset.segment),
+      offset: range.startOffset + offset
+    }
+    this.arrangeCursor()
   }
 
   popCursor = () => {
     const selection = window.getSelection()
+    const range = document.createRange()
     if (selection.rangeCount > 0) selection.removeAllRanges()
-    this.savedRange.setStart(this.savedRange.startContainer, this.savedRangeOffset)
-    selection.addRange(this.savedRange)
-    this.savedRange = null
-    this.savedRangeOffset = null
+    const container = this.getSelectedElement()
+    range.setStart(container.firstChild || container, this.cursor.offset)
+    range.setEnd(container.firstChild || container, this.cursor.offset)
+    selection.addRange(range)
+    this.cursor = null
   }
 
-  onChange = (e, id) => {
+  getClosestDataset = (node, offset) => {
+    return Object.keys(node.dataset || {}).length ? node.dataset : this.getClosestDataset(node.parentNode)
+  }
+
+  getSelectedElement = () => {
+    if (!isNaN(this.cursor.keyword))
+      return this.getSelectedKeywordElement()
+    const filter = `[data-chapter='${this.cursor.chapter}'][data-segment='${this.cursor.segment}']`
+    const fallbackFilter = `[data-chapter='${this.cursor.chapter-1}']`
+    return document.querySelector(filter) || document.querySelector(fallbackFilter).lastChild
+  }
+
+  getSelectedKeywordElement = () => {
+    const h2 = document.querySelector(`[data-keyword='${this.cursor.keyword}']`)
+    return h2.firstChild || h2
+  }
+
+  arrangeCursor = () => {
+    const { chapters } = this.props
+    const cursor = this.cursor
+    if (!isNaN(cursor.keyword) || cursor.offset >= 0) return
+    cursor.segment--
+    if (cursor.segment < 0) {
+      cursor.chapter--
+      cursor.segment = chapters[cursor.chapter].segments.length -1
+    }
+    cursor.offset = chapters[cursor.chapter].segments[cursor.segment].words.length
+    this.cursor = cursor
+  }
+
+  onChange = (e, chapterId) => {
+    const { updateTranscript } = this.props
     this.stashCursor()
-    if (e.target.nodeName === 'H2') return this.updateKeyword(id, e.target.innerText)
-    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
-    chapters[id].segments = this.estimateSegmentsFromNode(id, e.target.innerText)
-    const diff = this.getDiff()
-    this.setState({ chapters, diff }, () => {
-      this.props.updateTranscript(chapters)
-    })
+    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
+    if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, e.target.innerText)
+    chapters[chapterId] = this.parseChapter(e.target, chapterId)
+    const diff = this.getDiff(chapters)
+    this.setState({ diff })
+    updateTranscript(chapters)
+  }
+
+  onPaste = (e, chapterId) => {
+    const original = e.target.innerText
+    const insert = e.clipboardData.getData('Text')
+    const selection = window.getSelection()
+    const startOffset = selection.getRangeAt(0).startOffset
+    const endOffset = selection.getRangeAt(0).endOffset
+    const words = `${original.slice(0, startOffset)}${insert}${original.slice(endOffset)}`
+    e.preventDefault()
+    if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, words)
+    const i = e.target.dataset.segment
+    this.onChangeSegment(e, chapterId, i, words)
+  }
+
+  onChangeSegment = (e, chapterId, segmentId, words) => {
+    const { updateTranscript } = this.props
+    this.stashCursor(words.length - e.target.innerText.length)
+    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
+    chapters[chapterId].segments[segmentId].words = words
+    const diff = this.getDiff(chapters)
+    this.setState({ diff })
+    updateTranscript(chapters)
   }
 
    onKeyDown = (e, chapterId) => {
-     if (e.keyCode === 13 && !e.shiftKey) {
-       this.splitChapter(e, chapterId)
+     const selection = window.getSelection()
+     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
+     if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
+       this.splitChapter(e, chapterId, segmentId)
      }
-     if (e.keyCode === 8) {
-       this.mergeWithPreviousChapter(e, chapterId)
+     if (e.keyCode === KEYCODE_BACKSPACE) {
+       this.mergeWithPreviousChapter(e, chapterId, segmentId)
      }
-     if (e.keyCode === 46) {
-       this.mergeWithNextChapter(e, chapterId)
+     if (e.keyCode === KEYCODE_DELETE) {
+       this.mergeWithNextChapter(e, chapterId, segmentId)
      }
    }
 
   updateKeyword = (id, value) => {
-    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
+    const { updateTranscript } = this.props
+    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     chapters[id].keyword = value.replace(/\r?\n|\r/g, '')
-    this.setState({ chapters }, () => { this.props.updateTranscript(chapters)})
+    updateTranscript(chapters)
   }
 
-  splitChapter = (e, chapterId) => {
+  splitChapter = (e, chapterId, segmentId) => {
+    const { updateTranscript } = this.props
+    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     e.preventDefault()
-    const selection = window.getSelection()
-    const nextText = this.nextText(selection)
-    const chapter = {
+    const range = window.getSelection().getRangeAt(0)
+    const chapter = chapters[chapterId]
+    const segment = chapter.segments[segmentId]
+    const nextSegment = {...segment}
+    nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
+    const nextChapter = {
       keyword: NEW_KEYWORD,
-      segments: this.estimateSegmentsFromNode(chapterId, nextText)
+      segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId+1)]
+        .filter(segment => segment.words.length)
     }
-    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
-    const prevText = this.prevText(selection)
-    chapters[chapterId].segments = this.estimateSegmentsFromNode(chapterId, prevText)
-    chapters.splice(chapterId+1, 0, chapter)
-    this.setState({ chapters })
+    const prevSegment = {...segment}
+    prevSegment.words = prevSegment.words.slice(0, range.startOffset).trimEnd()
+    chapters[chapterId].segments = [...chapter.segments.slice(0, segmentId), prevSegment]
+      .filter(segment => segment.words.length)
+    chapters.splice(chapterId+1, 0, nextChapter)
+    updateTranscript(chapters)
   }
 
-  mergeWithPreviousChapter = (e, chapterId) => {
+  mergeWithPreviousChapter = (e, chapterId, segmentId) => {
     const selection = window.getSelection()
-    const beginningSelected = !this.prevText(selection).length
+    const beginningSelected = segmentId === 0 && selection.getRangeAt(0).endOffset === 0
     if (beginningSelected) {
-      this.mergeChapter(e, chapterId, chapterId - 1)
+      this.mergeChapter(e, chapterId, chapterId - 1, -1)
     }
   }
 
-  mergeWithNextChapter = (e, chapterId) => {
+  mergeWithNextChapter = (e, chapterId, segmentId) => {
+    const { chapters } = this.props
     const selection = window.getSelection()
-    const endingSelected = !this.nextText(selection).length
+    const chapter = chapters[chapterId]
+    const isLastSegment = chapter.segments.length -1 === segmentId
+    const wordsLength = chapter.segments[segmentId].words.length
+    const endingSelected = isLastSegment && wordsLength === selection.getRangeAt(0).startOffset
     if (endingSelected)
       this.mergeChapter(e, chapterId+1, chapterId)
   }
 
-  mergeChapter = (e, fromChapterId, toChapterId) => {
-    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
+  mergeChapter = (e, fromChapterId, toChapterId, cursorOffset) => {
+    const { updateTranscript } = this.props
+    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     e.preventDefault()
+    this.stashCursor(cursorOffset)
+    const toSegments = chapters[toChapterId].segments
+    const lastToSegment = toSegments[toSegments.length-1]
+    chapters[toChapterId].segments[toSegments.length-1].words = `${lastToSegment.words.trimEnd()} `
     chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
     chapters.splice(fromChapterId, 1)
-    this.setState({ chapters })
+    updateTranscript(chapters)
   }
 
-  estimateSegmentsFromNode = (chapterId, text) => {
-    const { diffInstance } = this.props
-    const { chapters } = this.state
-    const original = chapters[chapterId].segments.map(s => s.words).join('')
-    let consumableDiff = diffInstance.main(original, text)
-    diffInstance.cleanupSemantic(consumableDiff)
-    const postProcess = []
-    const segments = chapters[chapterId].segments.map((segment, i) => {
-      const words = segment.words.split('').map((char, j) => {
-        switch (consumableDiff[0][0]) {
-          case -1:
-            if (consumableDiff[0][1].length < 2)
-              consumableDiff.shift()
-            else
-              consumableDiff[0][1] = consumableDiff[0][1].slice(1)
-            return ''
-          case 1:
-            const added = consumableDiff.shift()[1]
-            const remain = consumableDiff[0][1].slice(0,1)
-            consumableDiff[0][1] = consumableDiff[0][1].slice(1)
-            if (i === 0 || j > 0)
-              return `${added}${remain}`
-            postProcess.push({id: i-1, added})
-            return remain
-          default:
-            if (consumableDiff[0][1].length < 2)
-              return consumableDiff.shift()[1]
-            const same = consumableDiff[0][1].slice(0,1)
-            consumableDiff[0][1] = consumableDiff[0][1].slice(1)
-            return same
-        }
-      }).join('')
-      return { ...segment, words }
-    }).filter(segment => segment.words.length)
-    postProcess.forEach(({ id, added }) => {
-      segments[id].words += added
-    })
-    return segments
+  parseChapter = (target, chapterId) => {
+    const { chapters } = this.props
+    const segments = Array.from(target.childNodes).map(child => this.parseSegment(child, chapterId))
+      .filter(segment => segment.words.length)
+    return { ...chapters[chapterId], segments }
   }
 
-  prevText = (selection) => {
-    const end = selection.anchorNode.textContent.slice(0, selection.anchorOffset)
-    return this.prevSiblingsText(selection.anchorNode.parentNode) + end
+  parseSegment = (child, chapterId) => {
+    const { chapters } = this.props
+    const segmentId = child.dataset ? child.dataset.segment : null
+    const segments = chapters[chapterId].segments
+    const words = child.textContent
+    if (segmentId)
+      return { ...segments[segmentId], words }
+    return { startTime: 0, endTime: 0, words }
   }
 
-  prevSiblingsText = (parentNode) => {
-    if (!parentNode.previousSibling) return ''
-    return this.prevSiblingsText(parentNode.previousSibling)
-      + Array.from(parentNode.previousSibling.childNodes).reduce((text, child) => text + child.textContent, '')
-  }
-
-  nextText = (selection) => {
-    const start = selection.anchorNode.textContent.slice(selection.anchorOffset)
-    return start + this.nextSiblingsText(selection.anchorNode.parentNode)
-  }
-
-  nextSiblingsText = (parentNode) => {
-    if (!parentNode.nextSibling) return ''
-    return Array.from(parentNode.nextSibling.childNodes).reduce((text, child) => text + child.textContent, '')
-      + this.nextSiblingsText(parentNode.nextSibling)
-  }
-
-  getAllContent = () => {
-    return Object.values(this.inputRef.current.getElementsByTagName('pre'))
-      .map(element => element.innerText).join('')
-  }
-
-  getDiff = () => {
+  getDiff = (chapters) => {
     const { diffInstance, originalChapters } = this.props
     if (!this.inputRef || !this.inputRef.current) return null
-    const content = this.getAllContent()
+    const content = chapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
     const originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
     const diff = diffInstance.main(originalText, content)
     diffInstance.cleanupSemantic(diff)
@@ -230,20 +264,19 @@ export default class Editor extends Component {
 
 
   validate = () => {
-    const { keywords } = this.props
-    const { chapters } = this.state
+    const { keywords, chapters } = this.props
     const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
     const error = invalidChapters.map(({ keyword }) => keyword)
     this.setState({ error }, ()=> {
       this.props.validateTranscript(error)
-    }) 
+    })
     return !error.length
   }
 
 
   render() {
-    const { currentTime } = this.props
-    const { chapters, diff, error } = this.state
+    const { currentTime, chapters, onSelect } = this.props
+    const { diff, error } = this.state
     if (!chapters) return null
     return (
       <EuiText size="s">
@@ -254,7 +287,8 @@ export default class Editor extends Component {
           onChange={this.onChange}
           validate={this.validate}
           onKeyDown={this.onKeyDown}
-          onSelect={this.props.onSelect}
+          onSelect={this.onSelect}
+          onPaste={this.onPaste}
           error={error}
         />
         <EuiFlexGroup>
@@ -267,19 +301,20 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, error }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
       key={i}
       chapterId={i}
       keyword={chapter.keyword}
-      subtitles={chapter.segments}
+      segments={chapter.segments}
       currentTime={currentTime}
       onChange={onChange}
       validate={validate}
       onKeyDown={onKeyDown}
       onSelect={onSelect}
+      onPaste={onPaste}
       error={error}
     />
   ))
@@ -290,48 +325,73 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, subtitles, onChange, validate, onKeyDown, currentTime, onSelect, error }) => (
-  <Fragment>
-    <h2
-      onInput={e => onChange(e, chapterId)}
-      onKeyDown={e => { if (e.keyCode === 13) e.preventDefault() }}
-      contentEditable
-      suppressContentEditableWarning
-      onFocus={() => setTimeout(() => document.execCommand('selectAll',false,null),0)}
-      onBlur={validate}
-    >
-      <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
-        {keyword}
-      </EuiTextColor>
-    </h2>
-    <pre>
-      <code
+const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error }) => {
+  const onFocus = () => {
+    if (keyword === NEW_KEYWORD)
+      setTimeout(() => document.execCommand('selectAll',false,null),0)
+  }
+  return (
+    <Fragment>
+      <h2
+        key={keyword}
         onInput={e => onChange(e, chapterId)}
-        onKeyDown={e => onKeyDown(e, chapterId)}
+        onKeyDown={e => { if (e.keyCode === 13) e.preventDefault() }}
         contentEditable
         suppressContentEditableWarning
-        onSelect={onSelect}
+        onFocus={onFocus}
+        onBlur={validate}
+        data-keyword={chapterId}
       >
-        <Chunks subtitles={subtitles} currentTime={currentTime} />
-      </code>
-    </pre>
-
-  </Fragment>
-)
-
-const Chunks = ({ subtitles, currentTime }) => {
-  return subtitles.map((props, i) => <Chunk key={i} {...{...props, currentTime}} />)
+        <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
+          {keyword}
+        </EuiTextColor>
+      </h2>
+      <Chunks
+        segments={segments}
+        currentTime={currentTime}
+        chapterId={chapterId}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        onSelect={onSelect}
+        onPaste={onPaste}
+      />
+    </Fragment>
+  )
 }
 
-const Chunk = ({ words, startTime, endTime, currentTime }) => {
-  const notCurrent = currentTime <= startTime || currentTime > endTime
-  if (notCurrent) return <span>{words}</span>
+const Chunks = ({ segments, currentTime, chapterId, onChange, onKeyDown, onSelect, onPaste }) => {
+  const chunks = segments.map((props, i) => <Chunk key={i} {...{...props, chapterId, i, currentTime}} />)
   return (
-    <span style={{ fontWeight: 'bold', backgroundColor: '#FFFF00' }}>
+    <pre>
+      <code
+        key={segments.toString()}
+        onInput={e => onChange(e, chapterId)}
+        onKeyDown={e => onKeyDown(e, chapterId)}
+        onSelect={onSelect}
+        onPaste={e => onPaste(e, chapterId)}
+        contentEditable
+        suppressContentEditableWarning
+        data-chapter={chapterId}
+      >
+        {chunks.length ? chunks : <FallbackChunk chapterId={chapterId} />}
+      </code>
+    </pre>
+  )
+}
+
+const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime }) => {
+  const current = currentTime > startTime && currentTime <= endTime
+  const style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : {}
+  return (
+    <span style={style} data-chapter={chapterId} data-segment={i}>
       {words}
     </span>
   )
 }
+
+const FallbackChunk = ({ chapterId }) => (
+  <Chunk words='' startTime={0} endTime={0} chapterId={chapterId} i={0} currentTime={0} />
+)
 
 const FullDiff = ({ diff }) => {
   if (diff === null || diff.length === 0) return null
