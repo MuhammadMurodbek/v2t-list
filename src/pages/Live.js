@@ -516,6 +516,7 @@ export default class LivePage extends Component {
           <EuiFlexItem>
             <Editor
               originalChapters={originalChapters}
+              chapters={originalChapters}
               keywords={keywords}
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
