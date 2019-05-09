@@ -172,7 +172,7 @@ export default class EditPage extends Component {
     const { transcript } = this.props
     const {
       currentTime, isFlyoutVisible, numberOfWords, keywords, originalChapters,
-      queryTerm, tags, audioModeEnabled, isMediaAudio
+      chapters, queryTerm, tags, audioModeEnabled, isMediaAudio
     } = this.state
 
     if (!transcript) return null
@@ -239,6 +239,7 @@ export default class EditPage extends Component {
               <Editor
                 transcript={transcript}
                 originalChapters={originalChapters}
+                chapters={chapters}
                 currentTime={currentTime}
                 keywords={keywords.map(keyword => keyword.label.toLowerCase())}
                 onSelect={this.onSelectText}
