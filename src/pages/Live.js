@@ -79,7 +79,7 @@ export default class LivePage extends Component {
       .then((microphone) => {
         this.audioInput = Storage.ctx.createMediaStreamSource(microphone)
         this.audioInput.connect(this.jsAudioNode)
-        this.state.recording = true
+        this.setState({recording: true})
         this.jsAudioNode.onaudioprocess = this.onAudioProcess
       })
       .catch((onMicrophoneCaptureError) => {
