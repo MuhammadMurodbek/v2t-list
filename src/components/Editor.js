@@ -63,11 +63,12 @@ export default class Editor extends Component {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
     const dataset = this.getClosestDataset(node)
+    const siblingOffset = node.wholeText ? node.wholeText.replace(new RegExp(`${node.textContent}$`), '').length : 0
     this.cursor = {
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
-      segment: Number(dataset.segment),
-      offset: range.startOffset + offset
+      segment: Number(dataset.segment || 0),
+      offset: range.startOffset + siblingOffset + offset
     }
     this.arrangeCursor()
   }
@@ -91,7 +92,7 @@ export default class Editor extends Component {
     if (!isNaN(this.cursor.keyword))
       return this.getSelectedKeywordElement()
     const filter = `[data-chapter='${this.cursor.chapter}'][data-segment='${this.cursor.segment}']`
-    const fallbackFilter = `[data-chapter='${this.cursor.chapter-1}']`
+    const fallbackFilter = `[data-chapter='${this.cursor.chapter}']`
     return document.querySelector(filter) || document.querySelector(fallbackFilter).lastChild
   }
 
@@ -109,7 +110,9 @@ export default class Editor extends Component {
       cursor.chapter--
       cursor.segment = chapters[cursor.chapter].segments.length -1
     }
-    cursor.offset = chapters[cursor.chapter].segments[cursor.segment].words.length
+    const newSegment = chapters[cursor.chapter].segments[cursor.segment]
+    cursor.offset = newSegment ? newSegment.words.length : 0
+    cursor.segment = newSegment ? cursor.segment : 0
     this.cursor = cursor
   }
 
@@ -175,6 +178,7 @@ export default class Editor extends Component {
     const range = window.getSelection().getRangeAt(0)
     const chapter = chapters[chapterId]
     const segment = chapter.segments[segmentId]
+    if (!segment) return
     const nextSegment = {...segment}
     nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
     const nextChapter = {
@@ -202,8 +206,9 @@ export default class Editor extends Component {
     const { chapters } = this.props
     const selection = window.getSelection()
     const chapter = chapters[chapterId]
-    const isLastSegment = chapter.segments.length -1 === segmentId
-    const wordsLength = chapter.segments[segmentId].words.length
+    const isLastSegment = chapter.segments.length -1 <= segmentId
+    const segment = chapter.segments[segmentId]
+    const wordsLength = segment ? segment.words.length : 0
     const endingSelected = isLastSegment && wordsLength === selection.getRangeAt(0).startOffset
     if (endingSelected)
       this.mergeChapter(e, chapterId+1, chapterId)
@@ -217,7 +222,8 @@ export default class Editor extends Component {
     this.stashCursor(cursorOffset)
     const toSegments = chapters[toChapterId].segments
     const lastToSegment = toSegments[toSegments.length-1]
-    chapters[toChapterId].segments[toSegments.length-1].words = `${lastToSegment.words.trimEnd()} `
+    if (lastToSegment)
+      chapters[toChapterId].segments[toSegments.length-1].words = `${lastToSegment.words.trimEnd()} `
     chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
     chapters.splice(fromChapterId, 1)
     updateTranscript(chapters)
