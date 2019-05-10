@@ -298,7 +298,6 @@ const Preferences = ({
           <EuiFormRow label="Highlighted Number of Words">
             <EuiRadioGroup options={options} idSelected={words} onChange={onChangeWords} />
           </EuiFormRow>
-          <EuiSpacer size="m" />
           <EuiFormRow label="Chapter names">
             <EuiComboBox
               noSuggestions
