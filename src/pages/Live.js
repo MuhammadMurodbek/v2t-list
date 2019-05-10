@@ -99,7 +99,7 @@ export default class LivePage extends Component {
     document.body.appendChild(a)
     a.style = 'display: none'
 
-    // download blob
+    // // download blob
     // const url = window.URL.createObjectURL(blob)
     // a.href = url
     // a.download = 'a.wav'
@@ -130,7 +130,7 @@ export default class LivePage extends Component {
       let wordBeforeProcessing = word
       // Postprocess
       if (wordBeforeProcessing === 'punkt') {
-        wordBeforeProcessing = '.'
+        word = '.'
       }
 
       // Text Process
@@ -176,21 +176,17 @@ export default class LivePage extends Component {
     }
     this.setState({
       originalChapters
-    }, ()=>{
-      console.log('-----------------')
-      console.log('-----------------')
-      console.log('-----------------')
-      console.log('POKEMON')
-      console.log('-----------------')
-      console.log('-----------------')
-      console.log('-----------------')
+    }, () => {
+      // Check for icd codes
+      
     })
   }
 
   getResultFromServer = (buffer) => {
     axios({
       method: 'post',
-      url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
+      // url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
+      url: 'https://mlgpu01.inoviagroup.se/api_medical_lm/v1/predict/stereo',
       data: buffer,
       cache: false,
       contentType: 'application/octet-stream'
