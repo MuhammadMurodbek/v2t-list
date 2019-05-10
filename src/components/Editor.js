@@ -222,8 +222,8 @@ export default class Editor extends Component {
   mergeChapter = (e, fromChapterId, toChapterId, cursorOffset) => {
     const { updateTranscript } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
-    if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     e.preventDefault()
+    if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     this.stashCursor(cursorOffset)
     const toSegments = chapters[toChapterId].segments
     const lastToSegment = toSegments[toSegments.length-1]
