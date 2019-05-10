@@ -89,6 +89,22 @@ content: attr(data-icon);
 outline: 0;
 }
 
+
+.record:before {
+font-family: HeydingsControlsRegular;
+font-size: 60px;
+content: attr(data-icon);
+}
+
+.record{
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.record:focus {
+  outline: 0;
+}
+
 .timer {
 line-height: 20px;
     font-size: 13px;

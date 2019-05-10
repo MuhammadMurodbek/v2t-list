@@ -1,15 +1,17 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer
+  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiTextAlign 
 } from '@elastic/eui'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Page from '../components/Page'
 import '../styles/editor.css'
-
+import '../styles/player.css'
 export default class LivePage extends Component {
   audioInput = null
 
@@ -19,7 +21,7 @@ export default class LivePage extends Component {
     bufferSize: 4096,
     sampleRate: 44100,
     numberOfAudioChannels: 2,
-    recording: false,
+    recordingAction: 'start',
     leftChannel: [],
     rightChannel: [],
     chunkLeftChannel: [],
@@ -58,7 +60,10 @@ export default class LivePage extends Component {
 
   startRecord = () => {
     const { numberOfAudioChannels } = this.state
-    this.setState({ microphoneBeingPressed: true })
+    this.setState({
+      microphoneBeingPressed: true,
+      recordingAction: 'stop'
+    })
     const Storage = {}
     Storage.ctx = new AudioContext()
     const bufferSize = 4096
@@ -165,35 +170,32 @@ export default class LivePage extends Component {
     if (newKeywords.length !== 0) {
       updatedTranscript = updatedTranscript.push(newTranscript[0])
     } else {
-      console.log('recorded segments')
-      console.log(recordedSegments)
       recordedSegments.forEach((recordedSegment) => {
         updatedTranscript[updatedTranscript.length - 1].segments.push(recordedSegment)
       })
     }
-
-    console.log('new Transcript')
-    console.log(newTranscript)
-    console.log('updated transcript 1')
-    console.log(originalChapters)
     this.setState({
       originalChapters
+    }, ()=>{
+      console.log('-----------------')
+      console.log('-----------------')
+      console.log('-----------------')
+      console.log('POKEMON')
+      console.log('-----------------')
+      console.log('-----------------')
+      console.log('-----------------')
     })
   }
 
   getResultFromServer = (buffer) => {
-    console.log('attemp to send data')
     axios({
       method: 'post',
       url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
       data: buffer,
       cache: false,
       contentType: 'application/octet-stream'
-      // data: temp,
     }).then((response) => {
       console.log('response')
-      // console.log(response)
-      // Print the text from the response
       let respondedData = response.data
       if (typeof (respondedData) !== 'string') {
         respondedData = respondedData.toString()
@@ -213,7 +215,10 @@ export default class LivePage extends Component {
       chunkLeftChannel,
       chunkRightChannel
     } = this.state
-    this.setState({ microphoneBeingPressed: false })
+    this.setState({
+      microphoneBeingPressed: false,
+      recordingAction: 'start'
+    })
     this.audioInput.disconnect()
     this.jsAudioNode.disconnect()
     this.mergeLeftRightBuffers({
@@ -336,7 +341,6 @@ export default class LivePage extends Component {
   }
 
   mergeBuffers = (channelBuffer, rLength) => {
-    console.log('in the callback ....')
     const result = new Float64Array(rLength)
     let offset = 0
     const lng = channelBuffer.length
@@ -488,27 +492,71 @@ export default class LivePage extends Component {
     this.setState({ tags })
   }
 
+  finalize = () => {
+    this.save()
+  }
+
+  save = () => {
+    // Create a new transcript
+    console.log('saved')
+  }
+
+  cancel = () => {
+    if (window.confirm('Are you sure you want to cancel everything?')) {
+      this.setState({
+        recordingAction: 'start',
+        leftChannel: [],
+        rightChannel: [],
+        chunkLeftChannel: [],
+        chunkRightChannel: [],
+        recordingLength: 0,
+        chunkRecordingLength: 0,
+        microphoneBeingPressed: false,
+        silentBuffersInRow: 0,
+        keywords: [],
+        reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'var', 'den'],
+        originalChapters: [],
+        tags: []
+      })
+    }
+  }
+
   render() {
     const {
       microphoneBeingPressed,
       originalChapters,
       keywords,
-      tags
+      tags,
+      recordingAction
     } = this.state
     return (
       <Page title="Live Transcript">
-        <EuiButton
-          onClick={this.startRecord}
-          style={microphoneBeingPressed === false ? { display: 'block' } : { display: 'none' }}
-        >
-          Start
-        </EuiButton>
-        <EuiButton
-          onClick={this.stopRecord}
-          style={microphoneBeingPressed === true ? { display: 'block' } : { display: 'none' }}
-        >
-          Stop
-        </EuiButton>
+        <EuiTextAlign textAlign="center">
+          <p
+            style={microphoneBeingPressed === false ? { display: 'block', color: 'black' } : { display: 'none' }}
+            className="record"
+            data-icon="R"
+            aria-label="play pause toggle"
+            onClick={this.startRecord}
+            type="button"
+          />
+
+          <p
+            style={microphoneBeingPressed === true ? { display: 'block', color: 'red' } : { display: 'none' }}
+            className="record"
+            data-icon="R"
+            aria-label="play pause toggle"
+            onClick={this.stopRecord}
+            type="button"
+          />
+          <EuiSpacer size="m" />
+          <span>
+            Click the button to&nbsp;
+            {recordingAction}
+            &nbsp;recording
+          </span>
+        </EuiTextAlign>
+
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
@@ -529,6 +577,17 @@ export default class LivePage extends Component {
               updateTags={this.onUpdateTags}
               ref={this.tagsRef}
             />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup style={originalChapters.length !== 0 ? { display: 'flex' } : { display: 'none' }}>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="secondary" onClick={this.finalize}>Submit to Co-worker</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
