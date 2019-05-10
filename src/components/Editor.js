@@ -84,7 +84,7 @@ export default class Editor extends Component {
     this.cursor = null
   }
 
-  getClosestDataset = (node, offset) => {
+  getClosestDataset = (node) => {
     return Object.keys(node.dataset || {}).length ? node.dataset : this.getClosestDataset(node.parentNode)
   }
 
@@ -131,20 +131,25 @@ export default class Editor extends Component {
     const original = e.target.innerText
     const insert = e.clipboardData.getData('Text')
     const selection = window.getSelection()
-    const startOffset = selection.getRangeAt(0).startOffset
-    const endOffset = selection.getRangeAt(0).endOffset
-    const words = `${original.slice(0, startOffset)}${insert}${original.slice(endOffset)}`
+    const range = selection.getRangeAt(0)
+    const endOffset = range.startContainer.isSameNode(range.endContainer) ? range.endOffset : original.length
+    const words = `${original.slice(0, range.startOffset)}${insert}${original.slice(endOffset)}`
     e.preventDefault()
     if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, words)
-    const i = e.target.dataset.segment
-    this.onChangeSegment(e, chapterId, i, words)
+    this.onChangeSegments(chapterId, range, words, insert.length)
   }
 
-  onChangeSegment = (e, chapterId, segmentId, words) => {
+  onChangeSegments = (chapterId, range, words, offset) => {
     const { updateTranscript } = this.props
-    this.stashCursor(words.length - e.target.innerText.length)
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
-    chapters[chapterId].segments[segmentId].words = words
+    const startSegmentId = Number(this.getClosestDataset(range.startContainer).segment || 0)
+    const endSegmentId = Number(this.getClosestDataset(range.endContainer).segment || 0)
+    const endSegment = chapters[chapterId].segments[endSegmentId]
+    endSegment.words = endSegment.words.slice(range.endOffset)
+    for (let segmentId = endSegmentId -1; segmentId > startSegmentId; segmentId--)
+      chapters[chapterId].segments.splice(segmentId, 1)
+    chapters[chapterId].segments[startSegmentId].words = words
+    this.stashCursor(offset)
     const diff = this.getDiff(chapters)
     this.setState({ diff })
     updateTranscript(chapters)
