@@ -31,7 +31,7 @@ export default class LivePage extends Component {
     microphoneBeingPressed: false,
     silentBuffersInRow: 0,
     keywords: [],
-    reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'var', 'den'],
+    reservedKeywords: ['at', 'lungor', 'buk', 'diagnos'],
     originalChapters: [],
     tags: []
   }
@@ -131,6 +131,10 @@ export default class LivePage extends Component {
       // Postprocess
       if (wordBeforeProcessing === 'punkt') {
         word = '.'
+      }
+      
+      if (wordBeforeProcessing === 'kolon' || wordBeforeProcessing === ':') {
+        word = ''
       }
 
       // Text Process
@@ -510,7 +514,7 @@ export default class LivePage extends Component {
         microphoneBeingPressed: false,
         silentBuffersInRow: 0,
         keywords: [],
-        reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'var', 'den'],
+        reservedKeywords: ['at', 'lungor', 'buk', 'diagnos'],
         originalChapters: [],
         tags: []
       })
