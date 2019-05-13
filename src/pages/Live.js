@@ -31,7 +31,7 @@ export default class LivePage extends Component {
     microphoneBeingPressed: false,
     silentBuffersInRow: 0,
     keywords: [],
-    reservedKeywords: ['at', 'lungor', 'buk', 'diagnos'],
+    reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'general'],
     originalChapters: [],
     tags: []
   }
@@ -117,71 +117,126 @@ export default class LivePage extends Component {
 
   liveTranscrption = (respondedData) => {
     const { originalChapters, reservedKeywords } = this.state
-    const words = respondedData.split(' ')
+    let words = respondedData.split(' ')
     const newTranscript = []
     let newKeywords = []
-    let newSegments = []
-    console.log('words')
-    console.log(words)
-    const recordedSegments = []
     // Postprocessing is formatting of the text, punkt, uppercase etc
     // Textprocess is where we find a code, keywords and save in workflow
-    words.forEach((word) => {
-      let wordBeforeProcessing = word
-      // Postprocess
-      if (wordBeforeProcessing === 'punkt') {
-        word = '.'
-      }
-      
-      if (wordBeforeProcessing === 'kolon' || wordBeforeProcessing === ':') {
-        word = ''
-      }
 
-      // Text Process
-      if (reservedKeywords.includes(wordBeforeProcessing)) {
-        newKeywords.push(word)
-        newSegments = []
+    const precessedWords = []
+
+    words.forEach((word) => {
+      // Postprocess
+      if (word === 'punkt') {
+        precessedWords.push('.')
+      } else if (word === 'kolon' || word === ':') {
+        precessedWords.push('')
       } else {
-        newSegments.push(word)
+        precessedWords.push(word)
       }
     })
 
-    if (newKeywords.length === 0 && originalChapters.length === 0) {
-      newKeywords = ['general']
-    }
+    words = precessedWords
+
+    console.log('words')
+    console.log(words)
+
+    words.forEach((word) => {
+      if (reservedKeywords.includes(word)) {
+        newKeywords.push(word)
+      }
+    })
+
 
     console.log('newKeywords')
     console.log(newKeywords)
-    console.log('newSegments')
-    console.log(newSegments)
+    console.log('length of original chapters')
+    console.log(originalChapters.length)
 
-    newSegments.forEach((newSegment) => {
-      if (newSegment.length > 0) {
-        recordedSegments.push({
-          endTime: 0,
-          startTime: 0,
-          words: `${newSegment} `
-        })
+    const transcriptsToBeAppended = []
+    let currentKeyword = ''
+    let tempObj = {
+      keyword: currentKeyword,
+      segments: []
+    }
+
+    words.forEach((word) => {
+      if (reservedKeywords.includes(word)) {
+        tempObj.keyword = currentKeyword
+        transcriptsToBeAppended.push(tempObj)
+        currentKeyword = word
+        tempObj = {
+          keyword: currentKeyword,
+          segments: []
+        }
+      } else {
+        tempObj.segments.push(word)
       }
     })
-    // newSegments = []
-    newTranscript.push({
-      keyword: newKeywords[newKeywords.length - 1],
-      segments: recordedSegments
+    tempObj.keyword = currentKeyword
+    transcriptsToBeAppended.push(tempObj)
+
+    const receivedTranscripts = []
+    transcriptsToBeAppended.forEach((transcriptToBeAppended) => {
+      if (transcriptToBeAppended.segments.length !== 0) {
+        receivedTranscripts.push(transcriptToBeAppended)
+      }
     })
 
-    let updatedTranscript = originalChapters
-    if (newKeywords.length !== 0) {
-      updatedTranscript = updatedTranscript.push(newTranscript[0])
-    } else {
-      recordedSegments.forEach((recordedSegment) => {
-        updatedTranscript[updatedTranscript.length - 1].segments.push(recordedSegment)
+    const receivedTranscriptsWithTimeInfo = []
+    receivedTranscripts.forEach((receivedTranscript) => {
+      let tempObj = {
+        keyword: receivedTranscript.keyword,
+        segments: []
+      }
+
+      receivedTranscript.segments.forEach((word) => {
+        tempObj.segments.push({
+          endTime: 0,
+          startTime: 0,
+          words: `${word} `
+        })
       })
-    }
+      receivedTranscriptsWithTimeInfo.push(tempObj)
+    })
+
+
+    // receivedTranscriptsWithTimeInfo.forEach((receivedTranscriptWithTimeInfo) => {
+    //   receivedTranscriptWithTimeInfo.segments.forEach((word,i)=>{
+    //     if (word === '.' && i !== 0) {
+    //       receivedTranscriptWithTimeInfo.segments[i-1] =
+    //     }
+    //   })
+    // })
+
+    // Add general or merge with previous headers
+    let updatedTranscript = originalChapters
+    receivedTranscriptsWithTimeInfo.forEach((receivedTranscript) => {
+      let currentKeyword = ''
+      if (receivedTranscript.keyword === '' && updatedTranscript.length === 0) {
+        currentKeyword = 'general'
+      } else {
+        currentKeyword = receivedTranscript.keyword
+      }
+
+      if (currentKeyword !== '') {
+        updatedTranscript.push({
+          keyword: currentKeyword,
+          segments: receivedTranscript.segments
+        })
+      } else {
+        updatedTranscript[updatedTranscript.length-1].segments.push(...receivedTranscript.segments)
+      }
+    })
+
+    console.log('originalChapters')
+    console.log(originalChapters)
+    console.log('updated transcripts')
+    console.log(updatedTranscript)
     this.setState({
-      originalChapters
+      originalChapters: updatedTranscript
     }, () => {
-      // Check for icd codes
+      // Check for icd codes  
       
     })
   }
