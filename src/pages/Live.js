@@ -31,7 +31,7 @@ export default class LivePage extends Component {
     microphoneBeingPressed: false,
     silentBuffersInRow: 0,
     keywords: [],
-    reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'general'],
+    reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
     originalChapters: [],
     tags: []
   }
@@ -115,6 +115,10 @@ export default class LivePage extends Component {
     this.getResultFromServer(blob)
   }
 
+  jsUcfirst = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1)
+  } 
+
   liveTranscrption = (respondedData) => {
     const { originalChapters, reservedKeywords } = this.state
     let words = respondedData.split(' ')
@@ -124,6 +128,11 @@ export default class LivePage extends Component {
     // Textprocess is where we find a code, keywords and save in workflow
 
     const precessedWords = []
+
+    console.log('words')
+    words.forEach((word) => {
+      console.log(word)
+    })
 
     words.forEach((word) => {
       // Postprocess
@@ -140,10 +149,20 @@ export default class LivePage extends Component {
 
     // Remove space before punkt
     for (let i = 0; i < words.length; i += 1) {
+      // if (reservedKeywords.includes(words[i].toLowerCase) && i < words.length) {
+      //   words[i + 1] = this.jsUcfirst(words[i + 1])
+      // }
       if (words[i] === '. ' && i !== 0) {
         words[i - 1] = words[i - 1].trim()
       }
     }
+
+    // Capitalize
+    // for (let i = 0; i < words.length; i += 1) {
+    //     if (i < words.length - 1 && !reservedKeywords.includes(words[i - 1].toLowerCase)) {
+    //     //   words[i + 1] = this.jsUcfirst(words[i + 1])
+    //     // }
+    // }
 
     words.forEach((word) => {
       if (reservedKeywords.includes(word)) {
@@ -553,7 +572,7 @@ export default class LivePage extends Component {
         microphoneBeingPressed: false,
         silentBuffersInRow: 0,
         keywords: [],
-        reservedKeywords: ['at', 'lungor', 'buk', 'diagnos'],
+        reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
         originalChapters: [],
         tags: []
       })
