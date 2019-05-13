@@ -128,30 +128,28 @@ export default class LivePage extends Component {
     words.forEach((word) => {
       // Postprocess
       if (word === 'punkt') {
-        precessedWords.push('.')
+        precessedWords.push('. ')
       } else if (word === 'kolon' || word === ':') {
         precessedWords.push('')
       } else {
-        precessedWords.push(word)
+        precessedWords.push(`${word} `)
       }
     })
 
     words = precessedWords
 
-    console.log('words')
-    console.log(words)
+    // Remove space before punkt
+    for (let i = 0; i < words.length; i += 1) {
+      if (words[i] === '. ' && i !== 0) {
+        words[i - 1] = words[i - 1].trim()
+      }
+    }
 
     words.forEach((word) => {
       if (reservedKeywords.includes(word)) {
         newKeywords.push(word)
       }
     })
-
-
-    console.log('newKeywords')
-    console.log(newKeywords)
-    console.log('length of original chapters')
-    console.log(originalChapters.length)
 
     const transcriptsToBeAppended = []
     let currentKeyword = ''
@@ -194,20 +192,12 @@ export default class LivePage extends Component {
         tempObj.segments.push({
           endTime: 0,
           startTime: 0,
-          words: `${word} `
+          words: `${word}`
         })
       })
       receivedTranscriptsWithTimeInfo.push(tempObj)
     })
 
-
-    // receivedTranscriptsWithTimeInfo.forEach((receivedTranscriptWithTimeInfo) => {
-    //   receivedTranscriptWithTimeInfo.segments.forEach((word,i)=>{
-    //     if (word === '.' && i !== 0) {
-    //       receivedTranscriptWithTimeInfo.segments[i-1] =
-    //     }
-    //   })
-    // })
 
     // Add general or merge with previous headers
     let updatedTranscript = originalChapters
@@ -229,15 +219,9 @@ export default class LivePage extends Component {
       }
     })
 
-    console.log('originalChapters')
-    console.log(originalChapters)
-    console.log('updated transcripts')
-    console.log(updatedTranscript)
+
     this.setState({
       originalChapters: updatedTranscript
-    }, () => {
-      // Check for icd codes  
-      
     })
   }
 
