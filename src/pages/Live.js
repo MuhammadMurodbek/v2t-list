@@ -18,6 +18,7 @@ export default class LivePage extends Component {
   jsAudioNode = null
 
   state = {
+    transcriptId: null,
     bufferSize: 4096,
     sampleRate: 44100,
     numberOfAudioChannels: 2,
@@ -55,8 +56,27 @@ export default class LivePage extends Component {
 
   componentDidMount = () => {
     this.tagsRef = React.createRef()
+    this.retrieveId()
   }
 
+  retrieveId = async () => {
+    const idData = await axios({
+      method: 'post',
+      url: 'http://10.210.0.236:6100/api/v1/v2t-realtime/init/',
+      data: {},
+      contentType: 'application/json'
+    })
+    console.log('retrieved id data')
+    console.log(idData)
+    if (idData.data.id) {
+        this.setState({
+          transcriptId: idData.data.id
+        }, ()=>{
+          console.log('Initialization successfull')
+          console.log(this.state.transcriptId)
+        })
+      }
+  }
 
   startRecord = () => {
     const { numberOfAudioChannels } = this.state
