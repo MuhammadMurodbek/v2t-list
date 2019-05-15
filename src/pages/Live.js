@@ -248,7 +248,8 @@ export default class LivePage extends Component {
     axios({
       method: 'post',
       // url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
-      url: 'https://mlgpu01.inoviagroup.se/api_medical_lm/v1/predict/stereo',
+      // url: 'https://mlgpu01.inoviagroup.se/api_medical_lm/v1/predict/stereo',
+      url: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
       data: buffer,
       cache: false,
       contentType: 'application/octet-stream'
