@@ -154,7 +154,7 @@ export default class Tags extends Component {
               onSearchChange={this.onSearchChange}
             />
           </span>
-          <span>
+          <span style={{ marginTop: '4px' }}>
             <AddButton onClick={this.addCode} />
           </span>
         </div>
@@ -175,7 +175,7 @@ const AddButton = props => (
   <Fragment>
     <EuiButtonIcon
       style={{ display: 'contents' }}
-      iconSize="xxl"
+      iconSize="xl"
       color="subdued"
       onClick={props.onClick}
       iconType="listAdd"

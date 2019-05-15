@@ -1,15 +1,86 @@
 stages:
-  - docker
+  - package
+#  - review
+#  - development
+  - upload
 
-### stage: build
+### stage: package
 ##################################################
 docker:
-  image: docker:git
-  stage: docker
+  image: docker:stable
+  stage: package
   script:
     - init_docker
-    - init_external_docker_build
-    - docker_build_tool
+    - docker_build
+  only:
+    - branches
+    - web
+
+package-chart:
+  image: dtzar/helm-kubectl:2.9.1
+  stage: package
+  script:
+    - helm_init
+    - helm_package_chart
+  only:
+    - branches
+    - web
+  artifacts:
+    name: helm-chart
+    paths:
+      - ./chart/*.tgz
+      - ./values.yaml
+    expire_in: 1 week
+
+### stage: development
+##################################################
+#development:
+#  stage: development
+#  image: dtzar/helm-kubectl:2.9.1
+#  script:
+#    - kube_init
+#    - helm_deploy_service
+#  variables:
+#    GIT_STRATEGY: none
+#  dependencies:
+#    - package-chart
+#  environment:
+#    name: development
+#  only:
+#    - master
+#
+#purge-development:
+#  stage: development
+#  image: dtzar/helm-kubectl:2.9.1
+#  variables:
+#    GIT_STRATEGY: none
+#  script:
+#    - kube_init
+#    - helm_purge
+#  environment:
+#    name: development
+#    action: stop
+#  only:
+#    - master
+#  when: manual
+#  allow_failure: true
+#  dependencies: []
+
+### stage: upload
+##################################################
+upload-chart:
+  image: dtzar/helm-kubectl:2.9.1
+  stage: upload
+  script:
+    - helm_init
+    - init_git
+    - helm_upload_chart
+  variables:
+    GIT_STRATEGY: none
+  only:
+    - master
+  dependencies:
+    - package-chart
 
 ### Scripts
 ##################################################
@@ -18,22 +89,78 @@ docker:
     set -x
   fi
 
-  function init_docker() {
-    mkdir -p ~/.docker && echo "$DOCKER_AUTH_CONFIG" > ~/.docker/config.json
+  function get_version() {
+    cat version 2> /dev/null \
+      || echo "0.0.1-SNAPSHOT"
   }
 
-  function init_external_docker_build() {
-    if [[ -n "${EXTERNAL_DOCKER_REPO+x}" ]] ; then
+  function shell_bump_version_to_release() {
+    sed -i 's/-SNAPSHOT//g' version
+  }
 
-      git clone --depth 1 --single-branch --branch ${EXTERNAL_DOCKER_REPO_BRANCH-master} $EXTERNAL_DOCKER_REPO repo
+  function shell_bump_version_to_next_snapshot() {
+    sed -ri 's/([0-9])\.([0-9])\.([0-9])/echo -n "\1.\2.$((\3+1))-SNAPSHOT"/ge' version
+  }
 
-      dir="repo/${EXTERNAL_DOCKER_REPO_DIR-}"
-      if [[ -f versions.json ]] ; then
-        cp versions.json "$dir/"
-      fi
+  function is_snapshot() {
+    echo "$VERSION" | grep -qe  '-SNAPSHOT$'
+  }
 
-      cd "$dir/"
+  function init_npm() {
+    echo "$NPM_AUTH" >> ~/.npmrc
+  }
+
+  function init_git() {
+    apk update
+    apk add -y git openssh-client
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    echo -e 'Host *\n\tStrictHostKeyChecking no\n\n' > ~/.ssh/config
+    eval $(ssh-agent -s) && echo "$GIT_SSH_KEY" | ssh-add -
+    git config --global user.email "$GIT_EMAIL"
+    git config --global user.name "$GIT_USER"
+  }
+
+  function is_master_branch() {
+    [[ "$CI_COMMIT_REF_NAME" == "master" ]]
+  }
+
+  function ensure_master_branch() {
+    if ! is_master_branch ; then
+      echo "Release only allowed for master branch"
+      exit 1
     fi
+  }
+
+  function get_git_url() {
+    echo $CI_PROJECT_URL | sed 's!https://\([^/]*\)/\(.*\)$!git@\1:\2.git!g'
+  }
+
+  function git_tag_and_push() {
+    GIT_URL="$(get_git_url)"
+    git add -u
+    git commit -m "Released version $VERSION"
+    git tag "$VERSION"
+    git push "$GIT_URL" "$VERSION"
+  }
+
+  function git_commit_and_push() {
+    GIT_URL="$(get_git_url)"
+    git add -u
+    git commit -m "Prepare next snapshot version $(get_version)"
+    git push "$GIT_URL" HEAD:master
+  }
+
+  export VERSION="$(get_version)"
+
+  function get_version() {
+    cat version 2> /dev/null \
+      || node -p "require('$dir/package.json').version" 2> /dev/null | tee version \
+      || echo "0.0.1-SNAPSHOT"
+  }
+
+  function init_docker() {
+    mkdir -p ~/.docker && echo "$DOCKER_AUTH_CONFIG" > ~/.docker/config.json
   }
 
   function docker_add_jq() {
@@ -51,7 +178,7 @@ docker:
       docker build --pull $build_args -t "$image_name:$first_tag" .
       docker push "$image_name:$first_tag"
 
-      for tag in $other_tags; do
+      for tag in ; do
         docker tag "$image_name:$first_tag" "$image_name:$tag"
         docker push "$image_name:$tag"
       done
@@ -90,6 +217,89 @@ docker:
   }
 
   export IMAGE_NAME="${IMAGE_NAME-$CI_PROJECT_NAMESPACE/${CI_PROJECT_NAME#docker-}}"
+
+  function kube_init() {
+    mkdir -p ~/.kube && echo "$KUBE_AUTH_CONFIG" > ~/.kube/config
+  }
+
+  function kube_namespace() {
+    echo "${KUBE_NAMESPACE-$PATRONUM_DEV_NAMESPACE}"
+  }
+
+  function helm_init() {
+    helm init --client-only
+    helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
+    helm repo add inovia-snapshot "$HELM_SNAPSHOT_REPO" --username "$HELM_USER" --password "$HELM_PASSWORD"
+    helm repo add inovia-release "$HELM_RELEASE_REPO" --username "$HELM_USER" --password "$HELM_PASSWORD"
+  }
+
+  function helm_update_version() {
+    version="${1-$(get_version)}"
+    sed -i "s/^version: .*\$/version: $version/" "$HELM_CHART/Chart.yaml"
+  }
+
+  function helm_release_name() {
+    reversed_path_slug="$(echo $CI_PROJECT_PATH | tr '/' '\n' | tac | tr '\n' '/' | head -c -1 | tr -c '[:alnum:]' '-')"
+    release_name="${CI_ENVIRONMENT_SLUG}-${reversed_path_slug}"
+    echo -n "${release_name:0:43}"
+  }
+
+  function helm_deploy_infra() {
+    helm upgrade --install --wait \
+         --namespace="$(kube_namespace)" \
+          --values values.yml \
+         "$HELM_RELEASE_NAME" "$HELM_CHART"
+  }
+
+  function helm_deploy_service() {
+    values_arg=""
+    if [[ -f values.yaml ]] ; then
+      values_arg="--values values.yaml"
+    fi
+    tag="${1-latest-master}"
+    replicas="${2-2}"
+
+    helm upgrade --install --wait \
+         --namespace="$(kube_namespace)" \
+         --set "global.namePrefix=${1-false}" \
+         --set "image.tag=$tag" \
+         --set "deployment.replicas=$replicas" \
+         --set "branch=$CI_COMMIT_REF_NAME" \
+         --set "commitHash=$CI_COMMIT_SHA" \
+         $values_arg \
+         "$HELM_RELEASE_NAME" "$HELM_CHART"/*.tgz
+  }
+
+  function helm_purge() {
+    helm delete --purge "$HELM_RELEASE_NAME"
+  }
+
+  function helm_get_chart_name() {
+    helm inspect chart "$HELM_CHART" | grep -e '^name:' | sed 's/name: //'
+  }
+
+  function helm_package_chart() {
+    chart_name="$(helm_get_chart_name)"
+    cp -R ./chart "./$chart_name"
+    helm package "./$chart_name" --version "$VERSION"
+    mv ./$chart_name*.tgz "$HELM_CHART"
+  }
+
+  function helm_upload_chart() {
+    helm plugin install https://github.com/chartmuseum/helm-push
+    helm push ./chart/*.tgz "$(helm_repo_name)"
+  }
+
+  function helm_repo_name() {
+    if is_snapshot ; then
+      echo -n "inovia-snapshot"
+    else
+      echo -n "inovia-release"
+    fi
+  }
+
+  export HELM_CHART="${HELM_CHART-./chart}"
+  export HELM_RELEASE_NAME="${HELM_RELEASE_NAME-$(helm_release_name)}"
 
 
 before_script:

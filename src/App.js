@@ -25,7 +25,7 @@ export default class App extends Component {
         { id: 1, name: 'Start', href: '/#/' },
         { id: 2, name: 'Upload', href: '/#/upload' },
         {
-          id: 2,
+          id: 3,
           name: 'Analytics',
           href: 'http://localhost:5601/app/kibana#/dashboards?_g=()',
           target: '_blank'
