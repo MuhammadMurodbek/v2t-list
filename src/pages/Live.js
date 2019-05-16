@@ -36,7 +36,7 @@ export default class LivePage extends Component {
     originalChapters: [],
     tags: [],
     recordedDiagnos: null,
-    blob: null
+    buffer: null
   }
 
   /*
@@ -141,7 +141,7 @@ export default class LivePage extends Component {
     return string.charAt(0).toUpperCase() + string.slice(1)
   } 
 
-  liveTranscrption = (respondedData, blob) => {
+  liveTranscrption = (respondedData, buffer) => {
     const { originalChapters, reservedKeywords } = this.state
     let words = respondedData.split(' ')
     const newTranscript = []
@@ -267,7 +267,7 @@ export default class LivePage extends Component {
 
     this.setState({
       originalChapters: updatedTranscript,
-      blob
+      buffer
     })
   }
 
@@ -603,8 +603,49 @@ export default class LivePage extends Component {
 
   save = () => {
     // Create a new transcript
-    console.log('saved')
+    const {buffer, transcriptId, originalChapters } = this.state
+    let tempTranscript=""
+    let tempKeywords=""
+    originalChapters.forEach((originalChapter)=>{
+      tempKeywords = tempKeywords + originalChapter.keyword.toLowerCase() + ' ' 
+      tempTranscript = tempTranscript + originalChapter.keyword.toLowerCase() + ' ' 
+      originalChapter.segments.forEach((seg)=>{
+        tempTranscript = tempTranscript + seg.words.toLowerCase() + ' ' 
+      })
+    })
+
+    console.log('tempTranscript')
+    console.log(tempTranscript)
+    console.log('tempKeywords')
+    console.log(tempKeywords)
     
+
+    const blob = new Blob([buffer], { type: 'audio/wav' })
+    console.log('saved')
+    const fd = new FormData()
+    fd.append('audioChunk', blob)
+    fd.append('transcript', tempTranscript)
+    fd.append('keywords', tempKeywords)
+    axios({
+      method: 'post',
+      url: `/api/v1/v2t-service-realtime/save/${transcriptId}/chunk/0`,
+      data: fd,
+      cache: false
+    }).then((response) => {
+      console.log('saved and listed')
+      console.log(response)
+      let respondedData = null
+      respondedData = response.data.transcriptions
+      // if (typeof (respondedData) !== 'string' && respondedData !== undefined) {
+      //   respondedData = respondedData.toString()
+      // }
+      console.log(respondedData)
+      // this.liveTranscrption(respondedData)
+    }).catch((err) => {
+      console.log('err')
+      console.log(err)
+      throw Error(err)
+    })
     
   }
 
@@ -625,7 +666,7 @@ export default class LivePage extends Component {
         originalChapters: [],
         tags: [],
         recordedDiagnos: null,
-        blob: null
+        buffer: null
       })
     }
   }
