@@ -621,7 +621,7 @@ export default class LivePage extends Component {
     
 
     const blob = new Blob([buffer], { type: 'audio/wav' })
-    console.log('saved')
+    
     const fd = new FormData()
     fd.append('audioChunk', blob)
     fd.append('transcript', tempTranscript)
@@ -632,7 +632,7 @@ export default class LivePage extends Component {
       data: fd,
       cache: false
     }).then((response) => {
-      console.log('saved and listed')
+      alert('saved and listed')
       console.log(response)
       let respondedData = null
       respondedData = response.data.transcriptions
