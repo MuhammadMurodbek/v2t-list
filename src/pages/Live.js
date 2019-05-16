@@ -607,7 +607,7 @@ export default class LivePage extends Component {
     let tempTranscript=""
     let tempKeywords=""
     originalChapters.forEach((originalChapter)=>{
-      tempKeywords = tempKeywords + originalChapter.keyword.toLowerCase() + ' ' 
+      tempKeywords = tempKeywords + originalChapter.keyword.toLowerCase() + ',' 
       tempTranscript = tempTranscript + originalChapter.keyword.toLowerCase() + ' ' 
       originalChapter.segments.forEach((seg)=>{
         tempTranscript = tempTranscript + seg.words.toLowerCase() + ' ' 
