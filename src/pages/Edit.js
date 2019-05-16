@@ -18,7 +18,14 @@ export default class EditPage extends Component {
 
   state = {
     numberOfWords: '3',
-    keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
+    keywords: [{ label: 'Symptom' }, 
+    { label: 'Status' },
+     { label: 'Diagnos' },
+      { label: 'General' },
+      { label: 'At' },
+      { label: 'Lungor' },
+      { label: 'Buk' }
+    ],
     isFlyoutVisible: false,
     originalChapters: null,
     currentTime: 0,
