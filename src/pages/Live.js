@@ -34,7 +34,8 @@ export default class LivePage extends Component {
     keywords: [],
     reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
     originalChapters: [],
-    tags: []
+    tags: [],
+    recordedDiagnos: null
   }
 
   /*
@@ -258,10 +259,33 @@ export default class LivePage extends Component {
       }
     })
 
+    // Update code section
+    this.searchAndUpdateTag(updatedTranscript)
+      
+
 
     this.setState({
       originalChapters: updatedTranscript
     })
+  }
+
+
+
+  searchAndUpdateTag = async (updateTranscript) => {
+    const codeData = await axios.post('/api/v1/code-service/search', {
+      text: 'j301'
+    })
+
+    this.setState({
+      recordedDiagnos: [{
+        id: 'J301',
+        description: 'Allergisk rinit orsakad av pollen'
+      }]
+    })
+    // Purpose of doing this is to use free text search
+    if (codeData.data !== null) {
+      console.log(codeData)
+    }
   }
 
   getResultFromServer = (buffer) => {
@@ -595,7 +619,8 @@ export default class LivePage extends Component {
         keywords: [],
         reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
         originalChapters: [],
-        tags: []
+        tags: [],
+        recordedDiagnos: null
       })
     }
   }
@@ -606,7 +631,8 @@ export default class LivePage extends Component {
       originalChapters,
       keywords,
       tags,
-      recordingAction
+      recordingAction,
+      recordedDiagnos
     } = this.state
     return (
       <Page title="Live Transcript">
@@ -652,7 +678,7 @@ export default class LivePage extends Component {
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <Tags
-              tags={tags}
+              tags={recordedDiagnos}
               updateTags={this.onUpdateTags}
               ref={this.tagsRef}
             />
