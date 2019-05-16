@@ -68,16 +68,12 @@ export default class LivePage extends Component {
       data: {},
       contentType: 'application/json'
     })
-    console.log('retrieved id data')
-    console.log(idData)
+
     if (idData.data.id) {
-        this.setState({
-          transcriptId: idData.data.id
-        }, ()=>{
-          console.log('Initialization successfull')
-          console.log(this.state.transcriptId)
-        })
-      }
+      this.setState({
+        transcriptId: idData.data.id
+      })
+    }
   }
 
   startRecord = () => {
@@ -106,7 +102,6 @@ export default class LivePage extends Component {
       .then((microphone) => {
         this.audioInput = Storage.ctx.createMediaStreamSource(microphone)
         this.audioInput.connect(this.jsAudioNode)
-        this.setState({recording: true})
         this.jsAudioNode.onaudioprocess = this.onAudioProcess
       })
       .catch((onMicrophoneCaptureError) => {
@@ -115,11 +110,10 @@ export default class LivePage extends Component {
   }
 
   mergeCallbackChunk = (buffer, view) => {
-    console.log('in the callback for chunk')
     const blob = new Blob([view], { type: 'audio/wav' })
-    const a = document.createElement('a')
-    document.body.appendChild(a)
-    a.style = 'display: none'
+    // const a = document.createElement('a')
+    // document.body.appendChild(a)
+    // a.style = 'display: none'
 
     // // download blob
     // const url = window.URL.createObjectURL(blob)
@@ -150,11 +144,6 @@ export default class LivePage extends Component {
     // Textprocess is where we find a code, keywords and save in workflow
 
     const precessedWords = []
-
-    console.log('words')
-    words.forEach((word) => {
-      console.log(word)
-    })
 
     words.forEach((word) => {
       // Postprocess
@@ -300,12 +289,10 @@ export default class LivePage extends Component {
       cache: false,
       contentType: 'application/octet-stream'
     }).then((response) => {
-      console.log('response')
       let respondedData = response.data
       if (typeof (respondedData) !== 'string') {
         respondedData = respondedData.toString()
       }
-      console.log(respondedData)
       this.liveTranscrption(respondedData, buffer)
     }).catch((err) => {
       throw Error(err)
@@ -561,11 +548,6 @@ export default class LivePage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    console.log('update')
-    console.log(chapters)
-    // this.setState({ chapters: this.state.originalChapters },()=>{
-    // console.log('current chapters')
-    //    })
   }
 
   onValidateTranscript = (errors) => {
@@ -614,12 +596,6 @@ export default class LivePage extends Component {
       })
     })
 
-    console.log('tempTranscript')
-    console.log(tempTranscript)
-    console.log('tempKeywords')
-    console.log(tempKeywords)
-    
-
     const blob = new Blob([buffer], { type: 'audio/wav' })
     
     const fd = new FormData()
@@ -632,21 +608,12 @@ export default class LivePage extends Component {
       data: fd,
       cache: false
     }).then((response) => {
-      alert('saved and listed')
-      console.log(response)
-      let respondedData = null
-      respondedData = response.data.transcriptions
-      // if (typeof (respondedData) !== 'string' && respondedData !== undefined) {
-      //   respondedData = respondedData.toString()
-      // }
-      console.log(respondedData)
-      // this.liveTranscrption(respondedData)
+      alert('Saved')
     }).catch((err) => {
       console.log('err')
       console.log(err)
       throw Error(err)
-    })
-    
+    })    
   }
 
   cancel = () => {
