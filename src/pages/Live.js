@@ -35,7 +35,8 @@ export default class LivePage extends Component {
     reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
     originalChapters: [],
     tags: [],
-    recordedDiagnos: null
+    recordedDiagnos: null,
+    blob: null
   }
 
   /*
@@ -63,7 +64,7 @@ export default class LivePage extends Component {
   retrieveId = async () => {
     const idData = await axios({
       method: 'post',
-      url: 'http://10.210.0.236:6100/api/v1/v2t-realtime/init/',
+      url: '/api/v1/v2t-realtime/init/',
       data: {},
       contentType: 'application/json'
     })
@@ -140,7 +141,7 @@ export default class LivePage extends Component {
     return string.charAt(0).toUpperCase() + string.slice(1)
   } 
 
-  liveTranscrption = (respondedData) => {
+  liveTranscrption = (respondedData, blob) => {
     const { originalChapters, reservedKeywords } = this.state
     let words = respondedData.split(' ')
     const newTranscript = []
@@ -265,7 +266,8 @@ export default class LivePage extends Component {
 
 
     this.setState({
-      originalChapters: updatedTranscript
+      originalChapters: updatedTranscript,
+      blob
     })
   }
 
@@ -304,7 +306,7 @@ export default class LivePage extends Component {
         respondedData = respondedData.toString()
       }
       console.log(respondedData)
-      this.liveTranscrption(respondedData)
+      this.liveTranscrption(respondedData, buffer)
     }).catch((err) => {
       throw Error(err)
     })
@@ -602,6 +604,8 @@ export default class LivePage extends Component {
   save = () => {
     // Create a new transcript
     console.log('saved')
+    
+    
   }
 
   cancel = () => {
@@ -620,7 +624,8 @@ export default class LivePage extends Component {
         reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
         originalChapters: [],
         tags: [],
-        recordedDiagnos: null
+        recordedDiagnos: null,
+        blob: null
       })
     }
   }
