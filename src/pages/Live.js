@@ -169,11 +169,15 @@ export default class LivePage extends Component {
     }
 
     // Capitalize
-    // for (let i = 0; i < words.length; i += 1) {
-    //     if (i < words.length - 1 && !reservedKeywords.includes(words[i - 1].toLowerCase)) {
-    //     //   words[i + 1] = this.jsUcfirst(words[i + 1])
-    //     // }
-    // }
+    for (let i = 0; i < words.length; i += 1) {
+        const reserved = `${words[i].toLowerCase()}`
+      if (i < words.length - 1 && words[i - 1] == '. ' && !reservedKeywords.includes(reserved)) {
+        words[i] = this.jsUcfirst(words[i])
+      }
+      // if (reservedKeywords.includes(reserved) && i+1 < words.length) {
+      //   words[i+1] = this.jsUcfirst(words[i+1])
+      // }
+    }
 
     words.forEach((word) => {
       if (reservedKeywords.includes(word)) {
@@ -252,7 +256,7 @@ export default class LivePage extends Component {
     // Update code section
     this.searchAndUpdateTag(updatedTranscript)
       
-
+    // Capitalize the First letter after keyword
 
     this.setState({
       originalChapters: updatedTranscript,
@@ -285,6 +289,7 @@ export default class LivePage extends Component {
       // url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
       // url: 'https://mlgpu01.inoviagroup.se/api_medical_lm/v1/predict/stereo',
       url: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
+      // url: 'http://v2t-2/api_aiva/v1/predict/stereo',
       data: buffer,
       cache: false,
       contentType: 'application/octet-stream'
@@ -649,7 +654,10 @@ export default class LivePage extends Component {
     } = this.state
     return (
       <Page title="Live Transcript">
-        <EuiTextAlign textAlign="center">
+        <EuiSpacer size="m" />
+        <EuiSpacer size="m" />
+        <EuiSpacer size="m" />
+        <EuiTextAlign textAlign="left">
           <p
             style={microphoneBeingPressed === false ? { display: 'block', color: 'black' } : { display: 'none' }}
             className="record"
