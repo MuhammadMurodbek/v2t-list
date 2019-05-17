@@ -1,0 +1,28 @@
+{{- $registry := required "image registry needs to be specified" .Values.image.registry }}
+{{- $imageName := required "image name needs to be specified" .Values.image.name }}
+{{- $tag := required "image tag needs to be specified" .Values.image.tag }}
+{{- $name := include "v2t-list.name" . }}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{$name}}
+  labels:
+    app: {{$name}}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{$name}}
+      annotations:
+        commitHash: {{ .Values.commitHash | default $tag}}
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - name: service
+          image: {{$registry}}/{{$imageName}}:{{$tag}}
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: 80
