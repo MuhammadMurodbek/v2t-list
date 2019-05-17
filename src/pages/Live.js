@@ -253,10 +253,23 @@ export default class LivePage extends Component {
       }
     })
 
+    // Capitalize transcript
+    console.log('updated transcript')
+    console.log(updatedTranscript)
+    let tempUpdatedTranscript = updatedTranscript
+    updatedTranscript.forEach((keywordsAndSegments) => {
+      for (let i = 0; i < keywordsAndSegments.segments.length;i+=1) {
+        if (keywordsAndSegments.segments[i].words.length!==0) {
+          keywordsAndSegments.segments[i].words = this.jsUcfirst(keywordsAndSegments.segments[i].words)
+          break
+        }  
+      }
+    })
+    
+
     // Update code section
     this.searchAndUpdateTag(updatedTranscript)
-      
-    // Capitalize the First letter after keyword
+
 
     this.setState({
       originalChapters: updatedTranscript,
