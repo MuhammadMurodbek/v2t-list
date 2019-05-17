@@ -5,20 +5,23 @@ import {
   EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor
 } from '@elastic/eui'
 
+import { PreferenceContext } from './PreferencesProvider'
+
 const NEW_KEYWORD = 'New Chapter'
 const KEYCODE_ENTER = 13
 const KEYCODE_BACKSPACE = 8
 const KEYCODE_DELETE = 46
-const ERROR_NOT_FOUND = 8
 
 export default class Editor extends Component {
+
+  static contextType = PreferenceContext
+
   static defaultProps = {
     diffInstance: new Diff(),
     transcript: null,
     originalChapters: null,
     chapters: null,
-    currentTime: 0,
-    keywords: []
+    currentTime: 0
   }
 
   state = {
@@ -59,7 +62,6 @@ export default class Editor extends Component {
   }
 
   stashCursor = (offset = 0) => {
-    const { chapters } = this.props
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
     const dataset = this.getClosestDataset(node)
@@ -84,7 +86,7 @@ export default class Editor extends Component {
     this.cursor = null
   }
 
-  getClosestDataset = (node, offset) => {
+  getClosestDataset = (node) => {
     return Object.keys(node.dataset || {}).length ? node.dataset : this.getClosestDataset(node.parentNode)
   }
 
@@ -131,20 +133,25 @@ export default class Editor extends Component {
     const original = e.target.innerText
     const insert = e.clipboardData.getData('Text')
     const selection = window.getSelection()
-    const startOffset = selection.getRangeAt(0).startOffset
-    const endOffset = selection.getRangeAt(0).endOffset
-    const words = `${original.slice(0, startOffset)}${insert}${original.slice(endOffset)}`
+    const range = selection.getRangeAt(0)
+    const endOffset = range.startContainer.isSameNode(range.endContainer) ? range.endOffset : original.length
+    const words = `${original.slice(0, range.startOffset)}${insert}${original.slice(endOffset)}`
     e.preventDefault()
     if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, words)
-    const i = e.target.dataset.segment
-    this.onChangeSegment(e, chapterId, i, words)
+    this.onChangeSegments(chapterId, range, words, insert.length)
   }
 
-  onChangeSegment = (e, chapterId, segmentId, words) => {
+  onChangeSegments = (chapterId, range, words, offset) => {
     const { updateTranscript } = this.props
-    this.stashCursor(words.length - e.target.innerText.length)
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
-    chapters[chapterId].segments[segmentId].words = words
+    const startSegmentId = Number(this.getClosestDataset(range.startContainer).segment || 0)
+    const endSegmentId = Number(this.getClosestDataset(range.endContainer).segment || 0)
+    const endSegment = chapters[chapterId].segments[endSegmentId]
+    endSegment.words = endSegment.words.slice(range.endOffset)
+    for (let segmentId = endSegmentId -1; segmentId > startSegmentId; segmentId--)
+      chapters[chapterId].segments.splice(segmentId, 1)
+    chapters[chapterId].segments[startSegmentId].words = words
+    this.stashCursor(offset)
     const diff = this.getDiff(chapters)
     this.setState({ diff })
     updateTranscript(chapters)
@@ -217,8 +224,8 @@ export default class Editor extends Component {
   mergeChapter = (e, fromChapterId, toChapterId, cursorOffset) => {
     const { updateTranscript } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
-    if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     e.preventDefault()
+    if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     this.stashCursor(cursorOffset)
     const toSegments = chapters[toChapterId].segments
     const lastToSegment = toSegments[toSegments.length-1]
@@ -270,7 +277,9 @@ export default class Editor extends Component {
 
 
   validate = () => {
-    const { keywords, chapters } = this.props
+    const { chapters } = this.props
+    const [ preferences ] = this.context
+    const keywords = preferences.keywords.map(keyword => keyword.label.toLowerCase())
     const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
     const error = invalidChapters.map(({ keyword }) => keyword)
     this.setState({ error }, ()=> {
@@ -293,7 +302,7 @@ export default class Editor extends Component {
           onChange={this.onChange}
           validate={this.validate}
           onKeyDown={this.onKeyDown}
-          onSelect={this.onSelect}
+          onSelect={onSelect}
           onPaste={this.onPaste}
           error={error}
         />

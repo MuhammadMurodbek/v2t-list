@@ -3,7 +3,12 @@ import React, { Component, Fragment } from 'react'
 import '../styles/player.css'
 import Seek from './Seek'
 
+import { PreferenceContext } from './PreferencesProvider'
+
 class Player extends Component {
+
+  static contextType = PreferenceContext
+
   constructor(props) {
     super(props)
     this.myRef = React.createRef()
@@ -166,7 +171,8 @@ class Player extends Component {
     const {
       isPlaying, trackDuration, duration, currentTime, startTimes
     } = this.state
-    const { audioTranscript, trackId, getCurrentTime, audioModeEnabled, isMediaAudio } = this.props
+    const { audioTranscript, trackId, getCurrentTime, isMediaAudio } = this.props
+    const [ preferences ] = this.context
     const trackUrl = `/api/v1/transcription/${trackId}/audio`
     return (
       <Fragment>
@@ -182,7 +188,7 @@ class Player extends Component {
         <audio
           ref={this.myRef}
           src={trackUrl}
-          style={audioModeEnabled || isMediaAudio ? { display: 'block' } : { display: 'none' }}
+          style={preferences.audioOnly || isMediaAudio ? { display: 'block' } : { display: 'none' }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
@@ -194,7 +200,7 @@ class Player extends Component {
         <video
           ref={this.myRef}
           src={trackUrl}
-          style={!audioModeEnabled || !isMediaAudio ? { display: 'none' } : { display: 'block' }}
+          style={!preferences.audioOnly || !isMediaAudio ? { display: 'none' } : { display: 'block' }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >

@@ -1,0 +1,21 @@
+  # Image configuration
+  image:
+    registry: docker-registry.inoviagroup.se
+    name: patronum/v2t/ui/v2t-list
+    tag: latest-master
+    pullPolicy: Always
+
+  # Override the service name
+  # fullname:
+
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /v2t-list
+      ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    path: /v2t-list
+    host: patronum-dev-tools.inoviagroup.se
+
+  global:
+    namePrefix: null

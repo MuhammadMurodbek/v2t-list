@@ -1,32 +1,22 @@
 /* eslint-disable no-alert */
-import React, { Component, Fragment } from 'react'
-import {
-  EuiFlexGroup, EuiFlexItem, EuiFormRow, EuiComboBox,
-  EuiSpacer, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
-  EuiTitle, EuiIcon, EuiRadioGroup, EuiButton, EuiSwitch
-} from '@elastic/eui'
+import React, { Component } from 'react'
+import { EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
+import { PreferenceContext } from '../components/PreferencesProvider'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Player from '../components/Player'
 
 export default class EditPage extends Component {
+
+  static contextType = PreferenceContext
+
   static defaultProps = {
     transcript: null
   }
 
   state = {
-    numberOfWords: '3',
-    keywords: [{ label: 'Symptom' }, 
-    { label: 'Status' },
-     { label: 'Diagnos' },
-      { label: 'General' },
-      { label: 'At' },
-      { label: 'Lungor' },
-      { label: 'Buk' }
-    ],
-    isFlyoutVisible: false,
     originalChapters: null,
     currentTime: 0,
     queryTerm: '',
@@ -34,7 +24,6 @@ export default class EditPage extends Component {
     chapters: [],
     errors: [],
     isMediaAudio: true, // should be prop
-    audioModeEnabled: false
   }
 
   componentDidMount() {
@@ -57,8 +46,9 @@ export default class EditPage extends Component {
 
   loadSegments = async () => {
     const { transcript } = this.props
-    const { numberOfWords } = this.state
-    const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${numberOfWords}`
+    const [ preferences ] = this.context
+    const { words } = preferences
+    const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${words}`
     const response = await axios.get(queryString)
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags } = response.data
@@ -83,24 +73,8 @@ export default class EditPage extends Component {
     return []
   }
 
-  closeFlyout = () => {
-    this.setState({ isFlyoutVisible: false })
-  }
-
-  showFlyout = () => {
-    this.setState({ isFlyoutVisible: true })
-  }
-
   onTimeUpdate = (currentTime) => {
     this.setState({ currentTime })
-  }
-
-  changeNumberOfWords = (numberOfWords) => {
-    this.setState({ numberOfWords }, this.loadSegments)
-  }
-
-  changeKeywords = (keywords) => {
-    this.setState({ keywords })
   }
 
   getCurrentTime = () => {
@@ -168,48 +142,13 @@ export default class EditPage extends Component {
     this.setState({ errors })
   }
 
-  switchToAudioMode = (e) => {
-    const { checked } = e.target
-    this.setState({
-      audioModeEnabled: checked
-    })
-  }
-
   render() {
     const { transcript } = this.props
-    const {
-      currentTime, isFlyoutVisible, numberOfWords, keywords, originalChapters,
-      chapters, queryTerm, tags, audioModeEnabled, isMediaAudio
-    } = this.state
-
+    const { currentTime, originalChapters, chapters, queryTerm, tags, isMediaAudio } = this.state
     if (!transcript) return null
     return (
-      <Page title="Editor">
+      <Page preferences title="Editor">
         <div>
-          <EuiFlexGroup direction="column" alignItems="flexEnd">
-            <EuiFlexItem grow style={{ width: '150px' }}>
-              <Fragment>
-                <EuiIcon
-                  type="gear"
-                  size="xl"
-                  className="gear"
-                  onClick={this.showFlyout}
-                />
-                <Preferences
-                  visible={isFlyoutVisible}
-                  words={numberOfWords}
-                  keywords={keywords}
-                  onClose={this.closeFlyout}
-                  onChangeWords={this.changeNumberOfWords}
-                  onChangeKeywords={this.changeKeywords}
-                  isMediaAudio={isMediaAudio}
-                  audioModeEnabled={audioModeEnabled}
-                  switchToAudioMode={this.switchToAudioMode}
-                />
-              </Fragment>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-
           <EuiFlexGroup wrap>
             <EuiFlexItem>
               <figure>
@@ -220,7 +159,6 @@ export default class EditPage extends Component {
                   updateSeek={this.onTimeUpdate}
                   queryTerm={queryTerm}
                   isPlaying={false}
-                  audioModeEnabled={audioModeEnabled}
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
                 />
@@ -248,7 +186,6 @@ export default class EditPage extends Component {
                 originalChapters={originalChapters}
                 chapters={chapters}
                 currentTime={currentTime}
-                keywords={keywords.map(keyword => keyword.label.toLowerCase())}
                 onSelect={this.onSelectText}
                 updateTranscript={this.onUpdateTranscript}
                 validateTranscript={this.onValidateTranscript}
@@ -276,54 +213,4 @@ export default class EditPage extends Component {
       </Page>
     )
   }
-}
-
-const Preferences = ({
-  visible, keywords, words, onClose, onChangeWords, onChangeKeywords, isMediaAudio, audioModeEnabled, switchToAudioMode
-}) => {
-  if (!visible) return null
-  const options = [
-    { id: '1', label: '1' },
-    { id: '3', label: '3' },
-    { id: '5', label: '5' }
-  ]
-  const onCreateKeyword = (keyword) => {
-    keywords.push({ label: keyword })
-    onChangeKeywords(keywords)
-  }
-  return (
-    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle">
-      <EuiFlyoutHeader hasBorder>
-        <EuiTitle size="m">
-          <h4 id="flyoutTitle">
-            Preferences
-          </h4>
-        </EuiTitle>
-      </EuiFlyoutHeader>
-      <EuiFlyoutBody>
-        <Fragment>
-          <EuiFormRow label="Highlighted Number of Words">
-            <EuiRadioGroup options={options} idSelected={words} onChange={onChangeWords} />
-          </EuiFormRow>
-          <EuiFormRow label="Chapter names">
-            <EuiComboBox
-              noSuggestions
-              placeholder="Chapter names are mapped to the journal system"
-              selectedOptions={keywords}
-              onCreateOption={onCreateKeyword}
-              onChange={onChangeKeywords}
-            />
-          </EuiFormRow>
-          <EuiFormRow label="Player Preference">
-            <EuiSwitch
-              label="Always play audio instead of Video"
-              checked={audioModeEnabled}
-              onChange={switchToAudioMode}
-              disabled={isMediaAudio}
-            />
-          </EuiFormRow>
-        </Fragment>
-      </EuiFlyoutBody>
-    </EuiFlyout>
-  )
 }
