@@ -314,13 +314,14 @@ export default class LivePage extends Component {
   }
 
   getResultFromServer = (buffer) => {
+    const { postURL } = this.state
     axios({
       method: 'post',
       // url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
       // url: 'https://mlgpu01.inoviagroup.se/api_medical_lm/v1/predict/stereo',
       // url: 'http://v2t-2/api_aiva/v1/predict/stereo',
       // url: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
-      url: this.state.postURL,
+      url: postURL,
       data: buffer,
       cache: false,
       contentType: 'application/octet-stream'
@@ -674,6 +675,11 @@ export default class LivePage extends Component {
     }
   }
 
+  changeModelUrl = (e) => {
+    console.log(e.target.value)
+    this.setState({ postURL: e.target.value})
+  }
+
   render() {
     const {
       microphoneBeingPressed,
@@ -688,12 +694,15 @@ export default class LivePage extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
+        
+        <input type="text" style={{ display: 'none' }} onChange={this.changeModelUrl} />
+        
         <EuiTextAlign textAlign="left">
           <img
             src={mic}
             className='mic'
             style={microphoneBeingPressed === false ? {
-              display: 'block', color: 'black', height: '40px', cursor: 'pointer'
+              display: 'block', color: 'black', height: '50px', cursor: 'pointer'
             } : { display: 'none' }}
             alt="mic"
             onClick={this.startRecord}
@@ -702,7 +711,7 @@ export default class LivePage extends Component {
             src={micRecording}
             className='mic'
             style={microphoneBeingPressed === true ? {
-              display: 'block', color: 'black', height: '40px', cursor: 'pointer'
+              display: 'block', color: 'black', height: '50px', cursor: 'pointer'
             } : { display: 'none' }}
             alt="mic"
             onClick={this.stopRecord}
