@@ -6,7 +6,7 @@ export default class Analytics extends Component {
 
   render() {
     return (
-      <img src={analyticsImg} width='1000' height='818' />
+      <img src={analyticsImg} height='818' style={{ maxHeight: '100vw' }} />
     )
   }
 }
