@@ -12,6 +12,9 @@ import Tags from '../components/Tags'
 import Page from '../components/Page'
 import '../styles/editor.css'
 import '../styles/player.css'
+import mic from '../img/voice-recording.png'
+import micRecording from '../img/voice-recording-red.png'
+
 export default class LivePage extends Component {
   audioInput = null
 
@@ -19,6 +22,7 @@ export default class LivePage extends Component {
 
   state = {
     transcriptId: null,
+    postURL: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
     bufferSize: 4096,
     sampleRate: 44100,
     numberOfAudioChannels: 2,
@@ -144,13 +148,26 @@ export default class LivePage extends Component {
     // Textprocess is where we find a code, keywords and save in workflow
 
     const precessedWords = []
-
+    console.log('words')
+    console.log(words)
+    let allmäntillståndUsed = false
     words.forEach((word) => {
       // Postprocess
       if (word === 'punkt') {
         precessedWords.push('. ')
       } else if (word === 'kolon' || word === ':') {
         precessedWords.push('')
+      } else if (word === 'allmäntillstånd' || word.toLowerCase().trim() === 'at') {
+        if (allmäntillståndUsed===false) {
+          precessedWords.push('at')
+          allmäntillståndUsed = true
+        } else {
+          precessedWords.push('')
+        }
+      } else if (word === 'trettio') {
+        precessedWords.push('30')
+      } else if (word === 'ett') {
+        precessedWords.push('1')
       } else {
         precessedWords.push(`${word} `)
       }
@@ -170,15 +187,15 @@ export default class LivePage extends Component {
 
     // Capitalize
     for (let i = 0; i < words.length; i += 1) {
-        const reserved = `${words[i].toLowerCase()}`
+      const reserved = `${words[i].toLowerCase()}`
       if (i < words.length - 1 && words[i - 1] == '. ' && !reservedKeywords.includes(reserved)) {
         words[i] = this.jsUcfirst(words[i])
       }
-      // if (reservedKeywords.includes(reserved) && i+1 < words.length) {
-      //   words[i+1] = this.jsUcfirst(words[i+1])
-      // }
     }
 
+    
+    
+    
     words.forEach((word) => {
       if (reservedKeywords.includes(word)) {
         newKeywords.push(word)
@@ -301,8 +318,9 @@ export default class LivePage extends Component {
       method: 'post',
       // url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
       // url: 'https://mlgpu01.inoviagroup.se/api_medical_lm/v1/predict/stereo',
-      url: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
       // url: 'http://v2t-2/api_aiva/v1/predict/stereo',
+      // url: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
+      url: this.state.postURL,
       data: buffer,
       cache: false,
       contentType: 'application/octet-stream'
@@ -671,22 +689,23 @@ export default class LivePage extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiTextAlign textAlign="left">
-          <p
-            style={microphoneBeingPressed === false ? { display: 'block', color: 'black' } : { display: 'none' }}
-            className="record"
-            data-icon="R"
-            aria-label="play pause toggle"
+          <img
+            src={mic}
+            className='mic'
+            style={microphoneBeingPressed === false ? {
+              display: 'block', color: 'black', height: '40px', cursor: 'pointer'
+            } : { display: 'none' }}
+            alt="mic"
             onClick={this.startRecord}
-            type="button"
           />
-
-          <p
-            style={microphoneBeingPressed === true ? { display: 'block', color: 'red' } : { display: 'none' }}
-            className="record"
-            data-icon="R"
-            aria-label="play pause toggle"
+          <img
+            src={micRecording}
+            className='mic'
+            style={microphoneBeingPressed === true ? {
+              display: 'block', color: 'black', height: '40px', cursor: 'pointer'
+            } : { display: 'none' }}
+            alt="mic"
             onClick={this.stopRecord}
-            type="button"
           />
           <EuiSpacer size="m" />
           <span>
@@ -720,14 +739,11 @@ export default class LivePage extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup style={originalChapters.length !== 0 ? { display: 'flex' } : { display: 'none' }}>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="secondary" onClick={this.finalize}>Submit to Co-worker</EuiButton>
+            <EuiButton fill color="secondary" onClick={this.save}>Submit to Co-worker</EuiButton>
           </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
+          {/* <EuiFlexItem grow={false}>
             <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
-          </EuiFlexItem>
+          </EuiFlexItem> */}
         </EuiFlexGroup>
       </Page>
     )
