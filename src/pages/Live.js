@@ -646,6 +646,7 @@ export default class LivePage extends Component {
       cache: false
     }).then((response) => {
       alert('Saved')
+      window.location.replace('/')
     }).catch((err) => {
       console.log('err')
       console.log(err)
