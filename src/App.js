@@ -16,6 +16,7 @@ import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
+import AnalyticsPage from './pages/Analytics'
 
 import Preference from './models/Preference'
 
@@ -27,12 +28,7 @@ export default class App extends Component {
       items: [
         { id: 1, name: 'Start', href: '/#/' },
         { id: 2, name: 'Upload', href: '/#/upload' },
-        {
-          id: 3,
-          name: 'Analytics',
-          href: 'http://localhost:5601/app/kibana#/dashboards?_g=()',
-          target: '_blank'
-        }
+        { id: 3, name: 'Analytics', href: '/#/analytics'}
       ]
     }
   ]
@@ -98,6 +94,7 @@ export default class App extends Component {
                 }}
               />
               <Route path="/upload/" component={UploadPage} />
+              <Route path="/analytics" component={AnalyticsPage} />
             </Switch>
           </EuiPage>
         </PreferencesProvider>
