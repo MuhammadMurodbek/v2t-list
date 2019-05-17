@@ -17,15 +17,14 @@ export const COLUMN_OPTIONS = [
     render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
   },
   { label: 'type', name: 'Type', render: () => 'voice' },
+  { label: 'name', name: 'Doctor name', render: () => 'Maria S' },
   { label: 'id', field: 'id', name: 'Id', sortable: true },
   {
-    label: 'file',
+    label: 'open',
     field: 'id',
-    name: 'File',
-    render: (id) => {
-      const fileName = `http://localhost:6106/api/v1/transcription/${id}`
-      return <EuiButtonEmpty iconType="play" href={`/#edit/${id}`}>{fileName}</EuiButtonEmpty>
-    }
+    name: '',
+    width: '100px',
+    render: (id) => <EuiButtonEmpty iconType="play" href={`/#edit/${id}`}>Open</EuiButtonEmpty>
   }
 ]
 
@@ -41,7 +40,7 @@ export default class Preference {
     words: '3',
     keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
     audioOnly: false,
-    columns: COLUMN_OPTIONS,
+    columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
     allColumns: COLUMN_OPTIONS
   }
 
