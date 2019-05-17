@@ -4,7 +4,9 @@ import {
   EuiPageContentHeaderSection, EuiTitle, EuiPageContentBody
 } from '@elastic/eui'
 
-const Start = ({ title, children }) => (
+import Preferences from './Preferences'
+
+const Start = ({ title, children, preferences }) => (
   <EuiPageBody style={{ minHeight: '100vh', margin: '-16px', paddingLeft: '16px' }}>
     <EuiPageContent style={{ borderRadius: 0 }}>
       <EuiPageContentHeader>
@@ -12,6 +14,9 @@ const Start = ({ title, children }) => (
           <EuiTitle>
             <h2>{title}</h2>
           </EuiTitle>
+        </EuiPageContentHeaderSection>
+        <EuiPageContentHeaderSection>
+          {preferences ? <Preferences /> : null}
         </EuiPageContentHeaderSection>
       </EuiPageContentHeader>
       <EuiPageContentBody>

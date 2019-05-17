@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import { EuiForm, EuiFormRow, EuiFlexGroup, EuiFlexItem, EuiFilePicker,
-  EuiFieldText, EuiButton } from '@elastic/eui'
+import { EuiForm, EuiFormRow, EuiFlexGroup, EuiFlexItem, EuiFilePicker, EuiButton } from '@elastic/eui'
 import Page from '../components/Page'
 
 export const API_PATH = '/api/v1/transcription/'
@@ -53,7 +52,7 @@ export default class UploadPage extends Component {
   render() {
     const { message, loading } = this.state
     return (
-      <Page title="Upload">
+      <Page preferences title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
             <EuiFilePicker multiple onChange={this.onFilesChange} />
@@ -61,7 +60,7 @@ export default class UploadPage extends Component {
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
               <EuiButton fill onClick={this.onSubmit} isLoading={loading}>
-                Upload
+                Send
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem>
