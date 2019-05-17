@@ -5,20 +5,23 @@ import {
   EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor
 } from '@elastic/eui'
 
+import { PreferenceContext } from './PreferencesProvider'
+
 const NEW_KEYWORD = 'New Chapter'
 const KEYCODE_ENTER = 13
 const KEYCODE_BACKSPACE = 8
 const KEYCODE_DELETE = 46
-const ERROR_NOT_FOUND = 8
 
 export default class Editor extends Component {
+
+  static contextType = PreferenceContext
+
   static defaultProps = {
     diffInstance: new Diff(),
     transcript: null,
     originalChapters: null,
     chapters: null,
-    currentTime: 0,
-    keywords: []
+    currentTime: 0
   }
 
   state = {
@@ -59,7 +62,6 @@ export default class Editor extends Component {
   }
 
   stashCursor = (offset = 0) => {
-    const { chapters } = this.props
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
     const dataset = this.getClosestDataset(node)
@@ -275,7 +277,9 @@ export default class Editor extends Component {
 
 
   validate = () => {
-    const { keywords, chapters } = this.props
+    const { chapters } = this.props
+    const [ preferences ] = this.context
+    const keywords = preferences.keywords.map(keyword => keyword.label.toLowerCase())
     const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
     const error = invalidChapters.map(({ keyword }) => keyword)
     this.setState({ error }, ()=> {
@@ -298,7 +302,7 @@ export default class Editor extends Component {
           onChange={this.onChange}
           validate={this.validate}
           onKeyDown={this.onKeyDown}
-          onSelect={this.onSelect}
+          onSelect={onSelect}
           onPaste={this.onPaste}
           error={error}
         />

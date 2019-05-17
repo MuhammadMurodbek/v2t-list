@@ -4,7 +4,7 @@ import Page from '../components/Page'
 import TranscriptionList from '../components/TranscriptionList'
 
 const StartPage = ({ transcripts }) => (
-  <Page title={<EuiI18n token="startTitle" default="Active Back Log" />}>
+  <Page preferences title={<EuiI18n token="startTitle" default="Active Backlog" />}>
     <TranscriptionList transcripts={transcripts} />
   </Page>
 )
