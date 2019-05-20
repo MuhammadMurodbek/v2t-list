@@ -5,7 +5,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiTextAlign 
+  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiTextAlign
 } from '@elastic/eui'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
@@ -22,7 +22,7 @@ export default class LivePage extends Component {
 
   state = {
     transcriptId: null,
-    postURL: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
+    postURL: 'http://v2t-2/api_aiva/v1/predict/stereo',
     bufferSize: 4096,
     sampleRate: 44100,
     numberOfAudioChannels: 2,
@@ -137,7 +137,7 @@ export default class LivePage extends Component {
 
   jsUcfirst = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1)
-  } 
+  }
 
   liveTranscrption = (respondedData, buffer) => {
     const { originalChapters, reservedKeywords } = this.state
@@ -193,9 +193,9 @@ export default class LivePage extends Component {
       }
     }
 
-    
-    
-    
+
+
+
     words.forEach((word) => {
       if (reservedKeywords.includes(word)) {
         newKeywords.push(word)
@@ -279,10 +279,10 @@ export default class LivePage extends Component {
         if (keywordsAndSegments.segments[i].words.length!==0) {
           keywordsAndSegments.segments[i].words = this.jsUcfirst(keywordsAndSegments.segments[i].words)
           break
-        }  
+        }
       }
     })
-    
+
 
     // Update code section
     this.searchAndUpdateTag(updatedTranscript)
@@ -626,15 +626,15 @@ export default class LivePage extends Component {
     let tempTranscript=""
     let tempKeywords=""
     originalChapters.forEach((originalChapter)=>{
-      tempKeywords = tempKeywords + originalChapter.keyword.toLowerCase() + ',' 
-      tempTranscript = tempTranscript + originalChapter.keyword.toLowerCase() + ' ' 
+      tempKeywords = tempKeywords + originalChapter.keyword.toLowerCase() + ','
+      tempTranscript = tempTranscript + originalChapter.keyword.toLowerCase() + ' '
       originalChapter.segments.forEach((seg)=>{
-        tempTranscript = tempTranscript + seg.words.toLowerCase() + ' ' 
+        tempTranscript = tempTranscript + seg.words.toLowerCase() + ' '
       })
     })
 
     const blob = new Blob([buffer], { type: 'audio/wav' })
-    
+
     const fd = new FormData()
     fd.append('audioChunk', blob)
     fd.append('transcript', tempTranscript)
@@ -651,7 +651,7 @@ export default class LivePage extends Component {
       console.log('err')
       console.log(err)
       throw Error(err)
-    })    
+    })
   }
 
   cancel = () => {
@@ -695,9 +695,9 @@ export default class LivePage extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
-        
+
         <input type="text" style={{ display: 'none' }} onChange={this.changeModelUrl} />
-        
+
         <EuiTextAlign textAlign="left">
           <img
             src={mic}
