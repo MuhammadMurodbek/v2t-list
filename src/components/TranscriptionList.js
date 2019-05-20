@@ -15,6 +15,7 @@ export default class TranscriptionList extends Component {
     return (
       <EuiInMemoryTable
         pagination
+        sorting={{ sort: { field: 'created', direction: 'desc' } }}
         columns={preferences.columns}
         items={transcripts}
         search={{ onChange: () => {} }}
