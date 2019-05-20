@@ -15,6 +15,7 @@ import logo from './img/medspeech+Inovia_logo_rgb.png'
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
+import LivePage from './pages/Live'
 import UploadPage from './pages/Upload'
 import AnalyticsPage from './pages/Analytics'
 
@@ -27,8 +28,9 @@ export default class App extends Component {
       name: '',
       items: [
         { id: 1, name: 'Start', href: '/#/' },
-        { id: 2, name: 'Upload', href: '/#/upload' },
-        { id: 3, name: 'Analytics', href: '/#/analytics'}
+        { id: 2, name: 'Live Transcript', href: '/#/live' },
+        { id: 3, name: 'Upload', href: '/#/upload' },
+        { id: 4, name: 'Analytics', href: '/#/analytics'}
       ]
     }
   ]
@@ -93,6 +95,7 @@ export default class App extends Component {
                   return <EditPage {...{ ...props, transcript }} />
                 }}
               />
+              <Route path="/live/" component={LivePage} />
               <Route path="/upload/" component={UploadPage} />
               <Route path="/analytics" component={AnalyticsPage} />
             </Switch>
