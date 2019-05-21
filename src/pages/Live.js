@@ -636,7 +636,7 @@ export default class LivePage extends Component {
       url: `/api/v1/v2t-service-realtime/save/${transcriptId}/chunk/0`,
       data: fd,
       cache: false
-    }).then(() => {
+    }).then((response) => {
       alert('Saved')
       window.location.replace('/')
     }).catch((err) => {
