@@ -22,7 +22,7 @@ export default class LivePage extends Component {
 
   state = {
     transcriptId: null,
-    postURL: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
+    postURL: 'http://v2t-2/api_aiva/v1/predict/stereo',
     bufferSize: 4096,
     sampleRate: 44100,
     numberOfAudioChannels: 2,
