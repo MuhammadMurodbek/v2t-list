@@ -135,15 +135,13 @@ export default class LivePage extends Component {
     this.getResultFromServer(blob)
   }
 
-  jsUcfirst = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1)
-  } 
+  jsUcfirst = string => string.charAt(0).toUpperCase() + string.slice(1)
 
   liveTranscrption = (respondedData, buffer) => {
     const { originalChapters, reservedKeywords } = this.state
     let words = respondedData.split(' ')
-    const newTranscript = []
-    let newKeywords = []
+    const newKeywords = []
+
     // Postprocessing is formatting of the text, punkt, uppercase etc
     // Textprocess is where we find a code, keywords and save in workflow
 
@@ -158,7 +156,7 @@ export default class LivePage extends Component {
       } else if (word === 'kolon' || word === ':') {
         precessedWords.push('')
       } else if (word === 'allmäntillstånd' || word.toLowerCase().trim() === 'at') {
-        if (allmäntillståndUsed===false) {
+        if (allmäntillståndUsed === false) {
           precessedWords.push('at')
           allmäntillståndUsed = true
         } else {
@@ -188,14 +186,11 @@ export default class LivePage extends Component {
     // Capitalize
     for (let i = 0; i < words.length; i += 1) {
       const reserved = `${words[i].toLowerCase()}`
-      if (i < words.length - 1 && words[i - 1] == '. ' && !reservedKeywords.includes(reserved)) {
+      if (i < words.length - 1 && words[i - 1] === '. ' && !reservedKeywords.includes(reserved)) {
         words[i] = this.jsUcfirst(words[i])
       }
     }
 
-    
-    
-    
     words.forEach((word) => {
       if (reservedKeywords.includes(word)) {
         newKeywords.push(word)
@@ -234,7 +229,7 @@ export default class LivePage extends Component {
 
     const receivedTranscriptsWithTimeInfo = []
     receivedTranscripts.forEach((receivedTranscript) => {
-      let tempObj = {
+      tempObj = {
         keyword: receivedTranscript.keyword,
         segments: []
       }
@@ -251,7 +246,7 @@ export default class LivePage extends Component {
 
 
     // Add general or merge with previous headers
-    let updatedTranscript = originalChapters
+    const updatedTranscript = originalChapters
     receivedTranscriptsWithTimeInfo.forEach((receivedTranscript) => {
       let currentKeyword = ''
       if (receivedTranscript.keyword === '' && updatedTranscript.length === 0) {
@@ -273,7 +268,6 @@ export default class LivePage extends Component {
     // Capitalize transcript
     console.log('updated transcript')
     console.log(updatedTranscript)
-    let tempUpdatedTranscript = updatedTranscript
     updatedTranscript.forEach((keywordsAndSegments) => {
       for (let i = 0; i < keywordsAndSegments.segments.length;i+=1) {
         if (keywordsAndSegments.segments[i].words.length!==0) {
@@ -293,8 +287,6 @@ export default class LivePage extends Component {
       buffer
     })
   }
-
-
 
   searchAndUpdateTag = async (updateTranscript) => {
     const codeData = await axios.post('/api/v1/code-service/search', {
@@ -622,10 +614,10 @@ export default class LivePage extends Component {
 
   save = () => {
     // Create a new transcript
-    const {buffer, transcriptId, originalChapters } = this.state
-    let tempTranscript=""
-    let tempKeywords=""
-    originalChapters.forEach((originalChapter)=>{
+    const { buffer, transcriptId, originalChapters } = this.state
+    let tempTranscript = ''
+    let tempKeywords = ''
+    originalChapters.forEach((originalChapter) => {
       tempKeywords = tempKeywords + originalChapter.keyword.toLowerCase() + ',' 
       tempTranscript = tempTranscript + originalChapter.keyword.toLowerCase() + ' ' 
       originalChapter.segments.forEach((seg)=>{
@@ -634,7 +626,7 @@ export default class LivePage extends Component {
     })
 
     const blob = new Blob([buffer], { type: 'audio/wav' })
-    
+
     const fd = new FormData()
     fd.append('audioChunk', blob)
     fd.append('transcript', tempTranscript)
@@ -644,14 +636,14 @@ export default class LivePage extends Component {
       url: `/api/v1/v2t-service-realtime/save/${transcriptId}/chunk/0`,
       data: fd,
       cache: false
-    }).then((response) => {
+    }).then(() => {
       alert('Saved')
       window.location.replace('/')
     }).catch((err) => {
       console.log('err')
       console.log(err)
       throw Error(err)
-    })    
+    })
   }
 
   cancel = () => {
@@ -678,7 +670,7 @@ export default class LivePage extends Component {
 
   changeModelUrl = (e) => {
     console.log(e.target.value)
-    this.setState({ postURL: e.target.value})
+    this.setState({ postURL: e.target.value })
   }
 
   render() {
@@ -686,7 +678,6 @@ export default class LivePage extends Component {
       microphoneBeingPressed,
       originalChapters,
       keywords,
-      tags,
       recordingAction,
       recordedDiagnos
     } = this.state
@@ -695,13 +686,11 @@ export default class LivePage extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
-        
         <input type="text" style={{ display: 'none' }} onChange={this.changeModelUrl} />
-        
         <EuiTextAlign textAlign="left">
           <img
             src={mic}
-            className='mic'
+            className="mic"
             style={microphoneBeingPressed === false ? {
               display: 'block', color: 'black', height: '50px', cursor: 'pointer'
             } : { display: 'none' }}
@@ -710,7 +699,7 @@ export default class LivePage extends Component {
           />
           <img
             src={micRecording}
-            className='mic'
+            className="mic"
             style={microphoneBeingPressed === true ? {
               display: 'block', color: 'black', height: '50px', cursor: 'pointer'
             } : { display: 'none' }}
