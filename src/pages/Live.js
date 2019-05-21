@@ -39,7 +39,7 @@ export default class LivePage extends Component {
     reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
     originalChapters: [],
     tags: [],
-    recordedDiagnos: null,
+    recordedDiagnos: [],
     buffer: null
   }
 
@@ -662,7 +662,7 @@ export default class LivePage extends Component {
         reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
         originalChapters: [],
         tags: [],
-        recordedDiagnos: null,
+        recordedDiagnos: [],
         buffer: null
       })
     }
@@ -741,7 +741,7 @@ export default class LivePage extends Component {
             <EuiButton fill color="secondary" onClick={this.save}>Submit to Co-worker</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger">Cancel</EuiButton>
+            <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
