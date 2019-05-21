@@ -10,6 +10,9 @@ import {
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Page from '../components/Page'
+import retrieveNewId from '../models/retrieveNewId'
+import capitalize from '../models/textProcessing/capitalize'
+import wordsToTranscript from '../models/textProcessing/wordsToTranscript'
 import '../styles/editor.css'
 import '../styles/player.css'
 import mic from '../img/voice-recording.png'
@@ -60,22 +63,12 @@ export default class LivePage extends Component {
     }]
   */
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
     this.tagsRef = React.createRef()
-    this.retrieveId()
-  }
-
-  retrieveId = async () => {
-    const idData = await axios({
-      method: 'post',
-      url: '/api/v1/v2t-realtime/init/',
-      data: {},
-      contentType: 'application/json'
-    })
-
-    if (idData.data.id) {
+    const transcriptId = await retrieveNewId()
+    if (transcriptId.data.id) {
       this.setState({
-        transcriptId: idData.data.id
+        transcriptId: transcriptId.data.id
       })
     }
   }
@@ -115,16 +108,18 @@ export default class LivePage extends Component {
 
   mergeCallbackChunk = (buffer, view) => {
     const blob = new Blob([view], { type: 'audio/wav' })
-    // const a = document.createElement('a')
-    // document.body.appendChild(a)
-    // a.style = 'display: none'
 
-    // // download blob
-    // const url = window.URL.createObjectURL(blob)
-    // a.href = url
-    // a.download = 'a.wav'
-    // a.click()
-    // window.URL.revokeObjectURL(url)
+    /*
+      const a = document.createElement('a')
+      document.body.appendChild(a)
+      a.style = 'display: none'
+      // download blob
+      const url = window.URL.createObjectURL(blob)
+      a.href = url
+      a.download = 'a.wav'
+      a.click()
+      window.URL.revokeObjectURL(url)
+    */
 
     this.setState({ leftChannel: [] })
     this.setState({ rightChannel: [] })
@@ -135,117 +130,12 @@ export default class LivePage extends Component {
     this.getResultFromServer(blob)
   }
 
-  jsUcfirst = string => string.charAt(0).toUpperCase() + string.slice(1)
-
   liveTranscrption = (respondedData, buffer) => {
     const { originalChapters, reservedKeywords } = this.state
     let words = respondedData.split(' ')
-    const newKeywords = []
-
-    // Postprocessing is formatting of the text, punkt, uppercase etc
-    // Textprocess is where we find a code, keywords and save in workflow
-
-    const precessedWords = []
-    console.log('words')
-    console.log(words)
-    let allmäntillståndUsed = false
-    words.forEach((word) => {
-      // Postprocess
-      if (word === 'punkt') {
-        precessedWords.push('. ')
-      } else if (word === 'kolon' || word === ':') {
-        precessedWords.push('')
-      } else if (word === 'allmäntillstånd' || word.toLowerCase().trim() === 'at') {
-        if (allmäntillståndUsed === false) {
-          precessedWords.push('at')
-          allmäntillståndUsed = true
-        } else {
-          precessedWords.push('')
-        }
-      } else if (word === 'trettio') {
-        precessedWords.push('30')
-      } else if (word === 'ett') {
-        precessedWords.push('1')
-      } else {
-        precessedWords.push(`${word} `)
-      }
-    })
-
-    words = precessedWords
-
-    // Remove space before punkt
-    for (let i = 0; i < words.length; i += 1) {
-      // if (reservedKeywords.includes(words[i].toLowerCase) && i < words.length) {
-      //   words[i + 1] = this.jsUcfirst(words[i + 1])
-      // }
-      if (words[i] === '. ' && i !== 0) {
-        words[i - 1] = words[i - 1].trim()
-      }
-    }
-
-    // Capitalize
-    for (let i = 0; i < words.length; i += 1) {
-      const reserved = `${words[i].toLowerCase()}`
-      if (i < words.length - 1 && words[i - 1] === '. ' && !reservedKeywords.includes(reserved)) {
-        words[i] = this.jsUcfirst(words[i])
-      }
-    }
-
-    words.forEach((word) => {
-      if (reservedKeywords.includes(word)) {
-        newKeywords.push(word)
-      }
-    })
-
-    const transcriptsToBeAppended = []
-    let currentKeyword = ''
-    let tempObj = {
-      keyword: currentKeyword,
-      segments: []
-    }
-
-    words.forEach((word) => {
-      if (reservedKeywords.includes(word)) {
-        tempObj.keyword = currentKeyword
-        transcriptsToBeAppended.push(tempObj)
-        currentKeyword = word
-        tempObj = {
-          keyword: currentKeyword,
-          segments: []
-        }
-      } else {
-        tempObj.segments.push(word)
-      }
-    })
-    tempObj.keyword = currentKeyword
-    transcriptsToBeAppended.push(tempObj)
-
-    const receivedTranscripts = []
-    transcriptsToBeAppended.forEach((transcriptToBeAppended) => {
-      if (transcriptToBeAppended.segments.length !== 0) {
-        receivedTranscripts.push(transcriptToBeAppended)
-      }
-    })
-
-    const receivedTranscriptsWithTimeInfo = []
-    receivedTranscripts.forEach((receivedTranscript) => {
-      tempObj = {
-        keyword: receivedTranscript.keyword,
-        segments: []
-      }
-
-      receivedTranscript.segments.forEach((word) => {
-        tempObj.segments.push({
-          endTime: 0,
-          startTime: 0,
-          words: `${word}`
-        })
-      })
-      receivedTranscriptsWithTimeInfo.push(tempObj)
-    })
-
 
     // Add general or merge with previous headers
+    const receivedTranscriptsWithTimeInfo = wordsToTranscript(words, reservedKeywords)
     const updatedTranscript = originalChapters
     receivedTranscriptsWithTimeInfo.forEach((receivedTranscript) => {
       let currentKeyword = ''
@@ -261,7 +151,7 @@ export default class LivePage extends Component {
           segments: receivedTranscript.segments
         })
       } else {
-        updatedTranscript[updatedTranscript.length-1].segments.push(...receivedTranscript.segments)
+        updatedTranscript[updatedTranscript.length - 1].segments.push(...receivedTranscript.segments)
       }
     })
 
@@ -271,12 +161,11 @@ export default class LivePage extends Component {
     updatedTranscript.forEach((keywordsAndSegments) => {
       for (let i = 0; i < keywordsAndSegments.segments.length;i+=1) {
         if (keywordsAndSegments.segments[i].words.length!==0) {
-          keywordsAndSegments.segments[i].words = this.jsUcfirst(keywordsAndSegments.segments[i].words)
+          keywordsAndSegments.segments[i].words = capitalize(keywordsAndSegments.segments[i].words)
           break
         }  
       }
     })
-    
 
     // Update code section
     this.searchAndUpdateTag(updatedTranscript)
