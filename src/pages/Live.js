@@ -10,6 +10,7 @@ import {
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Page from '../components/Page'
+import Mic from '../components/Mic'
 import retrieveNewId from '../models/retrieveNewId'
 import capitalize from '../models/textProcessing/capitalize'
 import wordsToTranscript from '../models/textProcessing/wordsToTranscript'
@@ -494,6 +495,7 @@ export default class LivePage extends Component {
   }
 
   onUpdateTags = (tags) => {
+    // Update
     this.setState({ tags })
   }
 
@@ -562,6 +564,15 @@ export default class LivePage extends Component {
     this.setState({ postURL: e.target.value })
   }
 
+  toggleRecord = () => {
+    const {microphoneBeingPressed} = this.state
+    if (microphoneBeingPressed === false) {
+      this.startRecord()
+    } else {
+      this.stopRecord()
+    }
+  }
+
   render() {
     const {
       microphoneBeingPressed,
@@ -576,7 +587,12 @@ export default class LivePage extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <input type="text" style={{ display: 'none' }} onChange={this.changeModelUrl} />
-        <EuiTextAlign textAlign="left">
+        <Mic
+          recordingAction={recordingAction}
+          microphoneBeingPressed={microphoneBeingPressed}
+          onClick={this.toggleRecord}
+        />
+        {/* <EuiTextAlign textAlign="left">
           <img
             src={mic}
             className="mic"
@@ -601,7 +617,7 @@ export default class LivePage extends Component {
             {recordingAction}
             &nbsp;recording
           </span>
-        </EuiTextAlign>
+        </EuiTextAlign> */}
 
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
