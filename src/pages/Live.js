@@ -639,6 +639,8 @@ export default class LivePage extends Component {
     fd.append('audioChunk', blob)
     fd.append('transcript', tempTranscript)
     fd.append('keywords', tempKeywords)
+    fd.append('tags', 'J301')
+    fd.append('tagsdescription', 'Allergisk rinit orsakad av pollen')
     axios({
       method: 'post',
       url: `/api/v1/v2t-service-realtime/save/${transcriptId}/chunk/0`,
