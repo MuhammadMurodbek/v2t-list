@@ -166,6 +166,10 @@ export default class LivePage extends Component {
         }
       } else if (word === 'trettio') {
         precessedWords.push('30')
+      } else if (word === 'nitton') {
+        precessedWords.push('19')
+      } else if (word === 'tolv') {
+        precessedWords.push('12')
       } else if (word === 'ett') {
         precessedWords.push('1')
       } else {
@@ -426,7 +430,7 @@ export default class LivePage extends Component {
     // stereo (2 channels)
     view.setUint16(22, numberOfAudioChannels, true)
 
-    // sample rate
+    // sample rateda
     view.setUint32(24, sampleRate, true)
 
     // byte rate (sample rate * block align)
@@ -613,7 +617,12 @@ export default class LivePage extends Component {
   }
 
   onUpdateTags = (tags) => {
+    console.log('tags')
+    console.log(tags)
     this.setState({ tags })
+    this.setState({
+      recordedDiagnos: tags
+    })
   }
 
   finalize = () => {
@@ -622,7 +631,7 @@ export default class LivePage extends Component {
 
   save = () => {
     // Create a new transcript
-    const {buffer, transcriptId, originalChapters } = this.state
+    const {buffer, transcriptId, originalChapters, recordedDiagnos } = this.state
     let tempTranscript=""
     let tempKeywords=""
     originalChapters.forEach((originalChapter)=>{
@@ -639,8 +648,16 @@ export default class LivePage extends Component {
     fd.append('audioChunk', blob)
     fd.append('transcript', tempTranscript)
     fd.append('keywords', tempKeywords)
-    fd.append('tags', 'J301')
-    fd.append('tagsdescription', 'Allergisk rinit orsakad av pollen')
+    let tempTags =[]
+    let tempTagDescriptions =[]
+    recordedDiagnos.forEach((tag)=>{
+      tempTags.push(tag.id)
+      tempTagDescriptions.push(tag.description)
+    })
+    const tagsAsString = tempTags.join()
+    const tagsDescriptionAsString = tempTagDescriptions.join()
+    fd.append('tags', tagsAsString)
+    fd.append('tagsdescription', tagsDescriptionAsString)
     axios({
       method: 'post',
       url: `/api/v1/v2t-service-realtime/save/${transcriptId}/chunk/0`,
@@ -648,7 +665,7 @@ export default class LivePage extends Component {
       cache: false
     }).then((response) => {
       alert('Saved')
-      window.location.replace('/')
+      // window.location.replace('/')
     }).catch((err) => {
       console.log('err')
       console.log(err)
@@ -672,16 +689,13 @@ export default class LivePage extends Component {
         reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
         originalChapters: [],
         tags: [],
-        recordedDiagnos: null,
+        recordedDiagnos: [],
         buffer: null
       })
     }
   }
 
-  changeModelUrl = (e) => {
-    console.log(e.target.value)
-    this.setState({ postURL: e.target.value})
-  }
+  
 
   render() {
     const {
@@ -698,7 +712,6 @@ export default class LivePage extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
 
-        <input type="text" style={{ display: 'none' }} onChange={this.changeModelUrl} />
 
         <EuiTextAlign textAlign="left">
           <img
