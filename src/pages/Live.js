@@ -170,6 +170,8 @@ export default class LivePage extends Component {
         precessedWords.push('19')
       } else if (word === 'tolv') {
         precessedWords.push('12')
+      } else if (word === 'hundra') {
+        precessedWords.push('')
       } else if (word === 'ett') {
         precessedWords.push('1')
       } else {
