@@ -666,8 +666,8 @@ export default class LivePage extends Component {
       data: fd,
       cache: false
     }).then((response) => {
-      alert('Saved')
-      // window.location.replace('/')
+      alert('Sent to co-worker')
+      window.location.replace('/')
     }).catch((err) => {
       console.log('err')
       console.log(err)
