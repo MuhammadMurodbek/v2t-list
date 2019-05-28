@@ -6,13 +6,17 @@ import { EuiSpacer, EuiTextAlign } from '@elastic/eui'
 import mic from '../img/voice-recording.png'
 import micRecording from '../img/voice-recording-red.png'
 
-const Mic = ({ recordingAction, microphoneBeingPressed, toggleRecord }) => (
+const Mic = ({
+  recordingAction,
+  microphoneBeingPressed,
+  toggleRecord
+}) => (
   <EuiTextAlign textAlign="left">
     <img
       src={mic}
       className="mic"
       style={microphoneBeingPressed === false ? {
-        display: 'block', color: 'black', height: '50px', cursor: 'pointer'
+        display: 'block', height: '50px', cursor: 'pointer'
       } : { display: 'none' }}
       alt="mic"
       onClick={toggleRecord}
@@ -21,7 +25,7 @@ const Mic = ({ recordingAction, microphoneBeingPressed, toggleRecord }) => (
       src={micRecording}
       className="mic"
       style={microphoneBeingPressed === true ? {
-        display: 'block', color: 'black', height: '50px', cursor: 'pointer'
+        display: 'block', height: '50px', cursor: 'pointer'
       } : { display: 'none' }}
       alt="mic"
       onClick={toggleRecord}

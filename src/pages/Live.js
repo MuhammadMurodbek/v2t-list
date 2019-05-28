@@ -104,13 +104,13 @@ export default class LivePage extends Component {
       window.URL.revokeObjectURL(url)
     */
 
+    this.getResultFromServer(blob)
     this.setState({ leftChannel: [] })
     this.setState({ rightChannel: [] })
     this.setState({ chunkLeftChannel: [] })
     this.setState({ chunkRightChannel: [] })
     this.setState({ recordingLength: 0 })
     this.setState({ chunkRecordingLength: 0 })
-    this.getResultFromServer(blob)
   }
 
   liveTranscrption = (respondedData, buffer) => {
@@ -156,9 +156,9 @@ export default class LivePage extends Component {
   }
 
   searchAndUpdateTag = async (updateTranscript) => {
-    const codeData = await axios.post('/api/v1/code-service/search', {
-      text: 'j301'
-    })
+    // const codeData = await axios.post('/api/v1/code-service/search', {
+    //   text: 'j301'
+    // })
 
     this.setState({
       recordedDiagnos: [{
@@ -167,9 +167,9 @@ export default class LivePage extends Component {
       }]
     })
     // Purpose of doing this is to use free text search
-    if (codeData.data !== null) {
-      console.log(codeData)
-    }
+    // if (codeData.data !== null) {
+    //   console.log(codeData)
+    // }
   }
 
   getResultFromServer = (buffer) => {
@@ -181,6 +181,8 @@ export default class LivePage extends Component {
       cache: false,
       contentType: 'application/octet-stream'
     }).then((response) => {
+      console.log('received response')
+      console.log(response)
       let respondedData = response.data
       if (typeof (respondedData) !== 'string') {
         respondedData = respondedData.toString()
@@ -192,6 +194,23 @@ export default class LivePage extends Component {
   }
 
   stopRecord = () => {
+    this.setState({
+      microphoneBeingPressed: false,
+      recordingAction: 'start'
+    })
+
+    const intervalId = setInterval(() => {
+      const { microphoneBeingPressed } = this.state
+      if (microphoneBeingPressed === false) {
+        this.processAudio()
+        clearInterval(intervalId)
+      }
+    }, 0.0001)
+  }
+
+  processAudio = () => {
+    this.audioInput.disconnect()
+    this.jsAudioNode.disconnect()
     const {
       sampleRate,
       numberOfAudioChannels,
@@ -199,12 +218,7 @@ export default class LivePage extends Component {
       chunkLeftChannel,
       chunkRightChannel
     } = this.state
-    this.setState({
-      microphoneBeingPressed: false,
-      recordingAction: 'start'
-    })
-    this.audioInput.disconnect()
-    this.jsAudioNode.disconnect()
+    
     mergeLeftRightBuffers({
       sampleRate,
       desiredSampRate: 16000,
@@ -226,19 +240,22 @@ export default class LivePage extends Component {
       chunkRecordingLength,
       numberOfAudioChannels
     } = this.state
+
     const left = e.inputBuffer.getChannelData(0)
     const tempLeftChannel = leftChannel
-    tempLeftChannel.push(new Float32Array(left))
-    this.setState({ leftChannel: tempLeftChannel })
     const tempChunkLeftChannel = chunkLeftChannel
-    tempChunkLeftChannel.push(new Float32Array(left))
-    this.setState({ chunkLeftChannel: tempChunkLeftChannel })
     const right = e.inputBuffer.getChannelData(1)
     const tempRightChannel = rightChannel
-    tempRightChannel.push(new Float32Array(right))
-    this.setState({ rightChannel: tempRightChannel })
     const tempChunkRightChannel = chunkRightChannel
+
+    tempLeftChannel.push(new Float32Array(left))
+    tempChunkLeftChannel.push(new Float32Array(left))
+    tempRightChannel.push(new Float32Array(right))
     tempChunkRightChannel.push(new Float32Array(right))
+
+    this.setState({ leftChannel: tempLeftChannel })
+    this.setState({ chunkLeftChannel: tempChunkLeftChannel })
+    this.setState({ rightChannel: tempRightChannel })
     this.setState({ chunkRightChannel: tempChunkRightChannel })
     this.detectSilence(chunkLeftChannel, chunkRightChannel, numberOfAudioChannels)
     this.setState({ recordingLength: (recordingLength + bufferSize) })
@@ -286,7 +303,7 @@ export default class LivePage extends Component {
     // Update
     this.setState({ recordedDiagnos: tags })
   }
-
+  
   finalize = () => {
     this.save()
   }
