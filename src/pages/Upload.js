@@ -19,28 +19,29 @@ export default class UploadPage extends Component {
     files: [],
     loading: false,
     message: '',
-    metaData: 'option_one'
+    metaData: 'medical'
   }
 
   state = this.DEFAULT_STATE
 
   options = [{
+    value: {
+      model: 'medical'
+    },
+    inputDisplay: 'Medial Transcript',
+    dropdownDisplay: (
+      <DropDown
+        title="Medial Transcript"
+        content="This one is used for medical records."
+      />
+    )
+  }, {
     value: 'option_one',
     inputDisplay: 'Finalcial logs',
     dropdownDisplay: (
       <DropDown
         title="Finalcial logs"
         content="This one is used for financial records."
-      />
-    )
-  },
-  {
-    value: 'option_two',
-    inputDisplay: 'Medial Transcript',
-    dropdownDisplay: (
-      <DropDown
-        title="Medial Transcript"
-        content="This one is used for medical records."
       />
     )
   },
@@ -70,15 +71,16 @@ export default class UploadPage extends Component {
   }
 
   uploadFiles = async () => {
-    const { files } = this.state
-    const requests = Array.from(files).map(file => this.uploadFile(file))
+    const { files, metadata } = this.state
+    const requests = Array.from(files).map(file => this.uploadFile(file, metadata))
     await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
   }
 
-  uploadFile = (file) => {
+  uploadFile = (file, metadata) => {
     const body = new FormData()
     body.append('audio', file)
+    body.append('metadata', metadata)
     return axios.post(API_PATH, body)
   }
 

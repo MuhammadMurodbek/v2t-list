@@ -5,7 +5,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer
+  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiLoadingChart, EuiTextColor, EuiBottomBar
 } from '@elastic/eui'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
@@ -18,6 +18,7 @@ import bufferSilenceCount from '../models/audioProcessing/bufferSilenceCount'
 import wordsToTranscript from '../models/textProcessing/wordsToTranscript'
 import '../styles/editor.css'
 import '../styles/player.css'
+import { EuiText } from '@elastic/eui';
 
 export default class LivePage extends Component {
   audioInput = null
@@ -43,7 +44,8 @@ export default class LivePage extends Component {
     reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
     originalChapters: [],
     recordedDiagnos: [],
-    buffer: null
+    buffer: null,
+    waitingForServer: false
   }
 
   componentDidMount = async () => {
@@ -181,6 +183,7 @@ export default class LivePage extends Component {
       cache: false,
       contentType: 'application/octet-stream'
     }).then((response) => {
+      this.setState({ waitingForServer: false })
       console.log('received response')
       console.log(response)
       let respondedData = response.data
@@ -196,7 +199,8 @@ export default class LivePage extends Component {
   stopRecord = () => {
     this.setState({
       microphoneBeingPressed: false,
-      recordingAction: 'start'
+      recordingAction: 'start',
+      waitingForServer: true
     })
 
     const intervalId = setInterval(() => {
@@ -218,7 +222,6 @@ export default class LivePage extends Component {
       chunkLeftChannel,
       chunkRightChannel
     } = this.state
-    
     mergeLeftRightBuffers({
       sampleRate,
       desiredSampRate: 16000,
@@ -303,7 +306,7 @@ export default class LivePage extends Component {
     // Update
     this.setState({ recordedDiagnos: tags })
   }
-  
+
   finalize = () => {
     this.save()
   }
@@ -357,7 +360,8 @@ export default class LivePage extends Component {
         reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
         originalChapters: [],
         recordedDiagnos: [],
-        buffer: null
+        buffer: null,
+        waitingForServer: false
       })
     }
   }
@@ -377,7 +381,8 @@ export default class LivePage extends Component {
       originalChapters,
       keywords,
       recordingAction,
-      recordedDiagnos
+      recordedDiagnos, 
+      waitingForServer
     } = this.state
     return (
       <Page title="Live Transcript">
@@ -392,6 +397,13 @@ export default class LivePage extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
+        <EuiText style={waitingForServer === true ? { display: 'block' } : { display: 'none' }}>
+          <h3>
+            <EuiLoadingChart size="xl" />
+            &nbsp;&nbsp;
+            <EuiTextColor color="default">Getting response from server</EuiTextColor>
+          </h3>
+        </EuiText>
         <EuiFlexGroup wrap>
           <EuiFlexItem>
             <Editor
