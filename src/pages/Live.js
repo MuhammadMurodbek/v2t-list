@@ -185,8 +185,6 @@ export default class LivePage extends Component {
       contentType: 'application/octet-stream'
     }).then((response) => {
       this.setState({ waitingForServer: false })
-      console.log('received response')
-      console.log(response)
       let respondedData = response.data
       if (typeof (respondedData) !== 'string') {
         respondedData = respondedData.toString()
@@ -347,7 +345,6 @@ export default class LivePage extends Component {
 
   showHideCancelBox = () => {
     const { showCancelBar } = this.state
-    console.log(showCancelBar)
     this.setState({
       showCancelBar: !showCancelBar
     })
