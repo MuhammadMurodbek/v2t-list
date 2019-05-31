@@ -5,13 +5,13 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiLoadingChart, EuiTextColor, EuiBottomBar,
-  EuiButtonEmpty
+  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiLoadingChart, EuiText, EuiTextColor
 } from '@elastic/eui'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Page from '../components/Page'
 import Mic from '../components/Mic'
+import ResetBar from '../components/ResetBar'
 import retrieveNewId from '../models/retrieveNewId'
 import capitalize from '../models/textProcessing/capitalize'
 import mergeLeftRightBuffers from '../models/audioProcessing/mergeLeftRightBuffers'
@@ -19,7 +19,6 @@ import bufferSilenceCount from '../models/audioProcessing/bufferSilenceCount'
 import wordsToTranscript from '../models/textProcessing/wordsToTranscript'
 import '../styles/editor.css'
 import '../styles/player.css'
-import { EuiText } from '@elastic/eui';
 
 export default class LivePage extends Component {
   audioInput = null
@@ -346,8 +345,9 @@ export default class LivePage extends Component {
     })
   }
 
-  cancel = () => {
+  showHideCancelBox = () => {
     const { showCancelBar } = this.state
+    console.log(showCancelBar)
     this.setState({
       showCancelBar: !showCancelBar
     })
@@ -360,13 +360,6 @@ export default class LivePage extends Component {
     } else {
       this.stopRecord()
     }
-  }
-
-  onButtonClick = () => {
-    const { showCancelBar } = this.state
-    this.setState({
-      showCancelBar: !showCancelBar
-    })
   }
 
   clearState = () => {
@@ -445,34 +438,14 @@ export default class LivePage extends Component {
             <EuiButton fill color="secondary" onClick={this.save}>Submit to Co-worker</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
+            <EuiButton fill color="danger" onClick={this.showHideCancelBox}>Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiBottomBar style={showCancelBar !== false ? { display: 'flex' } : { display: 'none' }}>
-          <EuiFlexGroup justifyContent="flexEnd">
-            <EuiFlexItem grow={false}>
-              <EuiFlexGroup gutterSize="xl">
-                <EuiFlexItem grow={false}>
-                  <EuiButtonEmpty
-                    color="ghost"
-                    size="l"
-                    iconType="cross"
-                    onClick={() => {
-                      this.setState({ showCancelBar: !showCancelBar })
-                    }}
-                  >
-                    Leave as it is
-                  </EuiButtonEmpty>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiButton color="danger" fill size="l" iconType="check" onClick={this.clearState}>
-                    Reset all the changes
-                  </EuiButton>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </EuiBottomBar>
+        <ResetBar
+          showCancelBar={showCancelBar}
+          showHideCancelBox={this.showHideCancelBox}
+          resetState={this.clearState}
+        />
       </Page>
     )
   }
