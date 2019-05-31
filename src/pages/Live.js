@@ -5,7 +5,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiLoadingChart, EuiTextColor, EuiBottomBar
+  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiLoadingChart, EuiTextColor, EuiBottomBar,
+  EuiButtonEmpty
 } from '@elastic/eui'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
@@ -45,7 +46,8 @@ export default class LivePage extends Component {
     originalChapters: [],
     recordedDiagnos: [],
     buffer: null,
-    waitingForServer: false
+    waitingForServer: false,
+    showCancelBar: false
   }
 
   componentDidMount = async () => {
@@ -345,25 +347,10 @@ export default class LivePage extends Component {
   }
 
   cancel = () => {
-    if (window.confirm('Are you sure you want to cancel everything?')) {
-      this.setState({
-        recordingAction: 'start',
-        leftChannel: [],
-        rightChannel: [],
-        chunkLeftChannel: [],
-        chunkRightChannel: [],
-        recordingLength: 0,
-        chunkRecordingLength: 0,
-        microphoneBeingPressed: false,
-        silentBuffersInRow: 0,
-        keywords: [],
-        reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
-        originalChapters: [],
-        recordedDiagnos: [],
-        buffer: null,
-        waitingForServer: false
-      })
-    }
+    const { showCancelBar } = this.state
+    this.setState({
+      showCancelBar: !showCancelBar
+    })
   }
 
   toggleRecord = () => {
@@ -375,14 +362,44 @@ export default class LivePage extends Component {
     }
   }
 
+  onButtonClick = () => {
+    const { showCancelBar } = this.state
+    this.setState({
+      showCancelBar: !showCancelBar
+    })
+  }
+
+  clearState = () => {
+    const { showCancelBar } = this.state
+    this.setState({ showCancelBar: !showCancelBar })
+    this.setState({
+      recordingAction: 'start',
+      leftChannel: [],
+      rightChannel: [],
+      chunkLeftChannel: [],
+      chunkRightChannel: [],
+      recordingLength: 0,
+      chunkRecordingLength: 0,
+      microphoneBeingPressed: false,
+      silentBuffersInRow: 0,
+      keywords: [],
+      reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
+      originalChapters: [],
+      recordedDiagnos: [],
+      buffer: null,
+      waitingForServer: false
+    })
+  }
+
   render() {
     const {
       microphoneBeingPressed,
       originalChapters,
       keywords,
       recordingAction,
-      recordedDiagnos, 
-      waitingForServer
+      recordedDiagnos,
+      waitingForServer,
+      showCancelBar
     } = this.state
     return (
       <Page title="Live Transcript">
@@ -431,6 +448,31 @@ export default class LivePage extends Component {
             <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
+        <EuiBottomBar style={showCancelBar !== false ? { display: 'flex' } : { display: 'none' }}>
+          <EuiFlexGroup justifyContent="flexEnd">
+            <EuiFlexItem grow={false}>
+              <EuiFlexGroup gutterSize="xl">
+                <EuiFlexItem grow={false}>
+                  <EuiButtonEmpty
+                    color="ghost"
+                    size="l"
+                    iconType="cross"
+                    onClick={() => {
+                      this.setState({ showCancelBar: !showCancelBar })
+                    }}
+                  >
+                    Leave as it is
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  <EuiButton color="danger" fill size="l" iconType="check" onClick={this.clearState}>
+                    Reset all the changes
+                  </EuiButton>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </EuiBottomBar>
       </Page>
     )
   }
