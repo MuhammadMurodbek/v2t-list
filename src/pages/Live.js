@@ -276,6 +276,10 @@ export default class LivePage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
+    const {originalChapters} = this.state
+    this.setState({
+      originalChapters: chapters
+    })
   }
 
   onValidateTranscript = (errors) => {
