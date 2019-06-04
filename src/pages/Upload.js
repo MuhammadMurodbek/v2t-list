@@ -1,21 +1,67 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import axios from 'axios'
-import { EuiForm, EuiFormRow, EuiFlexGroup, EuiFlexItem, EuiFilePicker, EuiButton } from '@elastic/eui'
+import PropTypes from 'prop-types'
+import {
+  EuiForm,
+  EuiFormRow,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiFilePicker,
+  EuiButton,
+  EuiSuperSelect, EuiSpacer, EuiText
+} from '@elastic/eui'
 import Page from '../components/Page'
 
 export const API_PATH = '/api/v1/transcription/'
 
 export default class UploadPage extends Component {
-
   DEFAULT_STATE = {
     files: [],
     loading: false,
-    message: ''
+    message: '',
+    metaData: 'medical'
   }
 
   state = this.DEFAULT_STATE
 
-  onFilesChange = files => {
+  options = [{
+    value: 'medical',
+    inputDisplay: 'Medical Transcript',
+    dropdownDisplay: (
+      <DropDown
+        title="Medial Transcript"
+        content="This one is used for medical records."
+      />
+    )
+  }, {
+    value: 'option_one',
+    inputDisplay: 'Financial logs',
+    dropdownDisplay: (
+      <DropDown
+        title="Financial logs"
+        content="This one is used for financial records."
+      />
+    )
+  },
+  {
+    value: 'option_three',
+    inputDisplay: 'Legal Documents',
+    dropdownDisplay: (
+      <DropDown
+        title="Legal Documents"
+        content="Select this one for legal interrogations."
+      />
+    )
+  }]
+
+  componentDidMount = async () => {
+    document.title = 'Inovia AB :: Upload'
+  }
+  onMetadataChange = (metaData) => {
+    this.setState({ metaData })
+  }
+
+  onFilesChange = (files) => {
     this.setState({ files })
   }
 
@@ -25,16 +71,21 @@ export default class UploadPage extends Component {
     this.uploadFiles()
   }
 
-  async uploadFiles() {
-    const { files } = this.state
-    const requests = Array.from(files).map((file, i) => this.uploadFile(file))
+  uploadFiles = async () => {
+    const { files, metaData } = this.state
+    const requests = Array.from(files).map(file => this.uploadFile(file, metaData))
     await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
   }
 
-  uploadFile(file) {
+  uploadFile = (file, metadata) => {
     const body = new FormData()
     body.append('audio', file)
+    if (metadata) {
+      body.set('metadata', new Blob([JSON.stringify({ 'model': metadata })], {
+        type: "application/json"
+      }));
+    }
     return axios.post(API_PATH, body)
   }
 
@@ -50,12 +101,21 @@ export default class UploadPage extends Component {
   }
 
   render() {
-    const { message, loading } = this.state
+    const { message, loading, metaData } = this.state
     return (
       <Page preferences title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
             <EuiFilePicker multiple onChange={this.onFilesChange} />
+          </EuiFormRow>
+          <EuiFormRow label="Choose model for the transcript">
+            <EuiSuperSelect
+              options={this.options}
+              valueOfSelected={metaData}
+              onChange={this.onMetadataChange}
+              itemLayoutAlign="top"
+              hasDividers
+            />
           </EuiFormRow>
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
@@ -71,4 +131,21 @@ export default class UploadPage extends Component {
       </Page>
     )
   }
+}
+
+const DropDown = ({ title, content }) => (
+  <Fragment>
+    <strong>{title}</strong>
+    <EuiSpacer size="xs" />
+    <EuiText size="s" color="subdued">
+      <p className="euiTextColor--subdued">
+        {content}
+      </p>
+    </EuiText>
+  </Fragment>
+)
+
+DropDown.propTypes = {
+  title: PropTypes.string.isRequired,
+  content: PropTypes.string.isRequired
 }

@@ -1,0 +1,45 @@
+body {
+    background: black;
+}
+
+.mic {
+  outline: none;
+  cursor: pointer;
+  height: 70px; 
+  color: white;
+  border-radius: 50%;
+  margin: 10px;
+  padding: 10px;
+  /* background-image: linear-gradient(to right top, #f7204b, #f72843, #f7303a, #f63831, #f43f27);  */
+  box-shadow: 
+    0 0 40px rgb(83, 201, 248),
+    0 0 800px rgb(164, 226, 178);
+  transition: 300ms;
+}
+
+.micRecording {
+  outline: none;
+  cursor: pointer;
+  height: 70px; 
+  color: white;
+  border-radius: 50%;
+  margin: 10px;
+  padding: 10px;
+  /* background-image: linear-gradient(to right top, #f7204b, #f72843, #f7303a, #f63831, #f43f27);  */
+  box-shadow: 
+    0 0 20px rgb(164, 226, 178),
+    0 0 40px  rgb(83, 201, 248),
+    0 0 800px rgb(164, 226, 178);
+  transition: 300ms;
+}
+
+.mic:hover {
+  box-shadow: 
+    0 0 20px rgb(164, 226, 178),
+    0 0 40px  rgb(83, 201, 248),
+    0 0 800px  rgb(164, 226, 178);
+}
+
+.recording{
+  background-color: black;
+}

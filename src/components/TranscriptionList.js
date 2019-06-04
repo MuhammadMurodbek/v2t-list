@@ -8,6 +8,11 @@ export default class TranscriptionList extends Component {
 
   static contextType = PreferenceContext
 
+  componentDidMount = async () => {
+    document.title = 'Inovia AB :: All Transcripts'
+  }
+
+
   render() {
     const { transcripts } = this.props
     const [ preferences ] = this.context

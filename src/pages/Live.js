@@ -5,15 +5,20 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiTextAlign
+  EuiFlexGroup, EuiFlexItem, EuiButton, EuiSpacer, EuiLoadingChart, EuiText, EuiTextColor
 } from '@elastic/eui'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Page from '../components/Page'
+import Mic from '../components/Mic'
+import ResetBar from '../components/ResetBar'
+import retrieveNewId from '../models/retrieveNewId'
+import capitalize from '../models/textProcessing/capitalize'
+import mergeLeftRightBuffers from '../models/audioProcessing/mergeLeftRightBuffers'
+import bufferSilenceCount from '../models/audioProcessing/bufferSilenceCount'
+import wordsToTranscript from '../models/textProcessing/wordsToTranscript'
 import '../styles/editor.css'
 import '../styles/player.css'
-import mic from '../img/voice-recording.png'
-import micRecording from '../img/voice-recording-red.png'
 
 export default class LivePage extends Component {
   audioInput = null
@@ -38,44 +43,19 @@ export default class LivePage extends Component {
     keywords: [],
     reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
     originalChapters: [],
-    tags: [],
-    recordedDiagnos: null,
-    buffer: null
+    recordedDiagnos: [],
+    buffer: null,
+    waitingForServer: false,
+    showCancelBar: false
   }
 
-  /*
-    Sample original chapter
-
-    originalChapters: [{
-      keyword: 'general',
-      segments: [{
-        endTime: 1.72,
-        startTime: 0,
-        words: 'och så dikterar '
-      }, {
-        endTime: 1.73,
-        startTime: 4.24,
-        words: 'och så dikterar '
-      }]
-    }]
-  */
-
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    document.title = 'Inovia AB :: Live Transcript 🎤'
     this.tagsRef = React.createRef()
-    this.retrieveId()
-  }
-
-  retrieveId = async () => {
-    const idData = await axios({
-      method: 'post',
-      url: '/api/v1/v2t-realtime/init/',
-      data: {},
-      contentType: 'application/json'
-    })
-
-    if (idData.data.id) {
+    const transcriptId = await retrieveNewId()
+    if (transcriptId.data.id) {
       this.setState({
-        transcriptId: idData.data.id
+        transcriptId: transcriptId.data.id
       })
     }
   }
@@ -115,149 +95,33 @@ export default class LivePage extends Component {
 
   mergeCallbackChunk = (buffer, view) => {
     const blob = new Blob([view], { type: 'audio/wav' })
-    // const a = document.createElement('a')
-    // document.body.appendChild(a)
-    // a.style = 'display: none'
 
-    // // download blob
-    // const url = window.URL.createObjectURL(blob)
-    // a.href = url
-    // a.download = 'a.wav'
-    // a.click()
-    // window.URL.revokeObjectURL(url)
+    /*
+      const a = document.createElement('a')
+      document.body.appendChild(a)
+      a.style = 'display: none'
+      // download blob
+      const url = window.URL.createObjectURL(blob)
+      a.href = url
+      a.download = 'a.wav'
+      a.click()
+      window.URL.revokeObjectURL(url)
+    */
 
+    this.getResultFromServer(blob)
     this.setState({ leftChannel: [] })
     this.setState({ rightChannel: [] })
     this.setState({ chunkLeftChannel: [] })
     this.setState({ chunkRightChannel: [] })
     this.setState({ recordingLength: 0 })
     this.setState({ chunkRecordingLength: 0 })
-    this.getResultFromServer(blob)
-  }
-
-  jsUcfirst = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1)
   }
 
   liveTranscrption = (respondedData, buffer) => {
     const { originalChapters, reservedKeywords } = this.state
-    let words = respondedData.split(' ')
-    const newTranscript = []
-    let newKeywords = []
-    // Postprocessing is formatting of the text, punkt, uppercase etc
-    // Textprocess is where we find a code, keywords and save in workflow
-
-    const precessedWords = []
-    console.log('words')
-    console.log(words)
-    let allmäntillståndUsed = false
-    words.forEach((word) => {
-      // Postprocess
-      if (word === 'punkt') {
-        precessedWords.push('. ')
-      } else if (word === 'kolon' || word === ':') {
-        precessedWords.push('')
-      } else if (word === 'allmäntillstånd' || word.toLowerCase().trim() === 'at') {
-        if (allmäntillståndUsed===false) {
-          precessedWords.push('at')
-          allmäntillståndUsed = true
-        } else {
-          precessedWords.push('')
-        }
-      } else if (word === 'trettio') {
-        precessedWords.push('30')
-      } else if (word === 'nitton') {
-        precessedWords.push('19')
-      } else if (word === 'tolv') {
-        precessedWords.push('12')
-      } else if (word === 'hundra') {
-        precessedWords.push('')
-      } else if (word === 'ett') {
-        precessedWords.push('1')
-      } else {
-        precessedWords.push(`${word} `)
-      }
-    })
-
-    words = precessedWords
-
-    // Remove space before punkt
-    for (let i = 0; i < words.length; i += 1) {
-      // if (reservedKeywords.includes(words[i].toLowerCase) && i < words.length) {
-      //   words[i + 1] = this.jsUcfirst(words[i + 1])
-      // }
-      if (words[i] === '. ' && i !== 0) {
-        words[i - 1] = words[i - 1].trim()
-      }
-    }
-
-    // Capitalize
-    for (let i = 0; i < words.length; i += 1) {
-      const reserved = `${words[i].toLowerCase()}`
-      if (i < words.length - 1 && words[i - 1] == '. ' && !reservedKeywords.includes(reserved)) {
-        words[i] = this.jsUcfirst(words[i])
-      }
-    }
-
-
-
-
-    words.forEach((word) => {
-      if (reservedKeywords.includes(word)) {
-        newKeywords.push(word)
-      }
-    })
-
-    const transcriptsToBeAppended = []
-    let currentKeyword = ''
-    let tempObj = {
-      keyword: currentKeyword,
-      segments: []
-    }
-
-    words.forEach((word) => {
-      if (reservedKeywords.includes(word)) {
-        tempObj.keyword = currentKeyword
-        transcriptsToBeAppended.push(tempObj)
-        currentKeyword = word
-        tempObj = {
-          keyword: currentKeyword,
-          segments: []
-        }
-      } else {
-        tempObj.segments.push(word)
-      }
-    })
-    tempObj.keyword = currentKeyword
-    transcriptsToBeAppended.push(tempObj)
-
-    const receivedTranscripts = []
-    transcriptsToBeAppended.forEach((transcriptToBeAppended) => {
-      if (transcriptToBeAppended.segments.length !== 0) {
-        receivedTranscripts.push(transcriptToBeAppended)
-      }
-    })
-
-    const receivedTranscriptsWithTimeInfo = []
-    receivedTranscripts.forEach((receivedTranscript) => {
-      let tempObj = {
-        keyword: receivedTranscript.keyword,
-        segments: []
-      }
-
-      receivedTranscript.segments.forEach((word) => {
-        tempObj.segments.push({
-          endTime: 0,
-          startTime: 0,
-          words: `${word}`
-        })
-      })
-      receivedTranscriptsWithTimeInfo.push(tempObj)
-    })
-
-
-    // Add general or merge with previous headers
-    let updatedTranscript = originalChapters
+    const words = respondedData.split(' ')
+    const receivedTranscriptsWithTimeInfo = wordsToTranscript(words, reservedKeywords)
+    const updatedTranscript = originalChapters
     receivedTranscriptsWithTimeInfo.forEach((receivedTranscript) => {
       let currentKeyword = ''
       if (receivedTranscript.keyword === '' && updatedTranscript.length === 0) {
@@ -272,40 +136,33 @@ export default class LivePage extends Component {
           segments: receivedTranscript.segments
         })
       } else {
-        updatedTranscript[updatedTranscript.length-1].segments.push(...receivedTranscript.segments)
+        updatedTranscript[updatedTranscript.length - 1]
+          .segments.push(...receivedTranscript.segments)
       }
     })
 
     // Capitalize transcript
-    console.log('updated transcript')
-    console.log(updatedTranscript)
-    let tempUpdatedTranscript = updatedTranscript
     updatedTranscript.forEach((keywordsAndSegments) => {
-      for (let i = 0; i < keywordsAndSegments.segments.length;i+=1) {
-        if (keywordsAndSegments.segments[i].words.length!==0) {
-          keywordsAndSegments.segments[i].words = this.jsUcfirst(keywordsAndSegments.segments[i].words)
+      for (let i = 0; i < keywordsAndSegments.segments.length; i += 1) {
+        if (keywordsAndSegments.segments[i].words.length !== 0) {
+          keywordsAndSegments.segments[i].words = capitalize(keywordsAndSegments.segments[i].words)
           break
         }
       }
     })
 
-
     // Update code section
     this.searchAndUpdateTag(updatedTranscript)
-
-
     this.setState({
       originalChapters: updatedTranscript,
       buffer
     })
   }
 
-
-
   searchAndUpdateTag = async (updateTranscript) => {
-    const codeData = await axios.post('/api/v1/code-service/search', {
-      text: 'j301'
-    })
+    // const codeData = await axios.post('/api/v1/code-service/search', {
+    //   text: 'j301'
+    // })
 
     this.setState({
       recordedDiagnos: [{
@@ -314,35 +171,52 @@ export default class LivePage extends Component {
       }]
     })
     // Purpose of doing this is to use free text search
-    if (codeData.data !== null) {
-      console.log(codeData)
-    }
+    // if (codeData.data !== null) {
+    //   console.log(codeData)
+    // }
   }
 
   getResultFromServer = (buffer) => {
     const { postURL } = this.state
     axios({
       method: 'post',
-      // url: 'https://v2t-1.inoviagroup.se/api_aiva/v1/predict/stereo',
-      // url: 'https://mlgpu01.inoviagroup.se/api_medical_lm/v1/predict/stereo',
-      // url: 'http://v2t-2/api_aiva/v1/predict/stereo',
-      // url: 'https://mlgpu01.inoviagroup.se/api_medical_num/v1/predict/stereo',
       url: postURL,
       data: buffer,
       cache: false,
       contentType: 'application/octet-stream'
     }).then((response) => {
+      this.setState({ waitingForServer: false })
       let respondedData = response.data
       if (typeof (respondedData) !== 'string') {
         respondedData = respondedData.toString()
       }
       this.liveTranscrption(respondedData, buffer)
     }).catch((err) => {
-      throw Error(err)
+      console.log(err)
+      alert('Could not receive transcript')
+      // throw Error(err)
     })
   }
 
   stopRecord = () => {
+    this.setState({
+      microphoneBeingPressed: false,
+      recordingAction: 'start',
+      waitingForServer: true
+    })
+
+    const intervalId = setInterval(() => {
+      const { microphoneBeingPressed } = this.state
+      if (microphoneBeingPressed === false) {
+        this.processAudio()
+        clearInterval(intervalId)
+      }
+    }, 0.0001)
+  }
+
+  processAudio = () => {
+    this.audioInput.disconnect()
+    this.jsAudioNode.disconnect()
     const {
       sampleRate,
       numberOfAudioChannels,
@@ -350,13 +224,7 @@ export default class LivePage extends Component {
       chunkLeftChannel,
       chunkRightChannel
     } = this.state
-    this.setState({
-      microphoneBeingPressed: false,
-      recordingAction: 'start'
-    })
-    this.audioInput.disconnect()
-    this.jsAudioNode.disconnect()
-    this.mergeLeftRightBuffers({
+    mergeLeftRightBuffers({
       sampleRate,
       desiredSampRate: 16000,
       numberOfAudioChannels,
@@ -364,154 +232,6 @@ export default class LivePage extends Component {
       leftBuffers: chunkLeftChannel,
       rightBuffers: numberOfAudioChannels === 1 ? [] : chunkRightChannel
     }, this.mergeCallbackChunk)
-  }
-
-
-  mergeLeftRightBuffers = (config, callback) => {
-    const { numberOfAudioChannels, internalInterleavedLength, desiredSampRate } = config
-    let leftBuffers = config.leftBuffers.slice(0)
-    let rightBuffers = config.rightBuffers.slice(0)
-    let { sampleRate } = config
-
-    if (numberOfAudioChannels === 2) {
-      leftBuffers = this.mergeBuffers(leftBuffers, internalInterleavedLength)
-      rightBuffers = this.mergeBuffers(rightBuffers, internalInterleavedLength)
-      if (desiredSampRate) {
-        leftBuffers = this.interpolateArray(leftBuffers, desiredSampRate, sampleRate)
-        rightBuffers = this.interpolateArray(rightBuffers, desiredSampRate, sampleRate)
-      }
-    }
-
-    if (numberOfAudioChannels === 1) {
-      leftBuffers = this.mergeBuffers(leftBuffers, internalInterleavedLength)
-      if (desiredSampRate) {
-        leftBuffers = this.interpolateArray(leftBuffers, desiredSampRate, sampleRate)
-      }
-    }
-
-    // set sample rate as desired sample rate
-    if (desiredSampRate) {
-      sampleRate = desiredSampRate
-    }
-    let interleaved
-
-    if (numberOfAudioChannels === 2) {
-      interleaved = this.interleave(leftBuffers, rightBuffers)
-    }
-
-    if (numberOfAudioChannels === 1) {
-      interleaved = leftBuffers
-    }
-
-    const interleavedLength = interleaved.length
-
-    // create wav file
-    const resultingBufferLength = 44 + interleavedLength * 2
-    const buffer = new ArrayBuffer(resultingBufferLength)
-    const view = new DataView(buffer)
-
-    // RIFF chunk descriptor/identifier
-    this.writeUTFBytes(view, 0, 'RIFF')
-
-    // RIFF chunk length
-    view.setUint32(4, 44 + interleavedLength * 2, true)
-
-    // RIFF type
-    this.writeUTFBytes(view, 8, 'WAVE')
-
-    // format chunk identifier
-    // FMT sub-chunk
-    this.writeUTFBytes(view, 12, 'fmt ')
-
-    // format chunk length
-    view.setUint32(16, 16, true)
-
-    // sample format (raw)
-    view.setUint16(20, 1, true)
-
-    // stereo (2 channels)
-    view.setUint16(22, numberOfAudioChannels, true)
-
-    // sample rateda
-    view.setUint32(24, sampleRate, true)
-
-    // byte rate (sample rate * block align)
-    view.setUint32(28, sampleRate * 2, true)
-
-    // block align (channel count * bytes per sample)
-    view.setUint16(32, numberOfAudioChannels * 2, true)
-
-    // bits per sample
-    view.setUint16(34, 16, true)
-
-    // data sub-chunk
-    // data chunk identifier
-    this.writeUTFBytes(view, 36, 'data')
-
-    // data chunk length
-    view.setUint32(40, interleavedLength * 2, true)
-
-    // write the PCM samples
-    const lng = interleavedLength
-    let index = 44
-    const volume = 1
-
-    for (let i = 0; i < lng; i += 1) {
-      view.setInt16(index, interleaved[i] * (0x7FFF * volume), true)
-      index += 2
-    }
-    callback(buffer, view)
-  }
-
-  interleave = (leftChannel, rightChannel) => {
-    const length = leftChannel.length + rightChannel.length
-    const result = new Float64Array(length)
-    let inputIndex = 0
-    for (let index = 0; index < length;) {
-      result[index += 1] = leftChannel[inputIndex]
-      result[index += 1] = rightChannel[inputIndex]
-      inputIndex += 1
-    }
-    return result
-  }
-
-  mergeBuffers = (channelBuffer, rLength) => {
-    const result = new Float64Array(rLength)
-    let offset = 0
-    const lng = channelBuffer.length
-    for (let i = 0; i < lng; i += 1) {
-      const buffer = channelBuffer[i]
-      result.set(buffer, offset)
-      offset += buffer.length
-    }
-    return result
-  }
-
-  // for changing the sampling rate, reference:
-  // http://stackoverflow.com/a/28977136/552182
-  interpolateArray = (data, newSampleRate, oldSampleRate) => {
-    const fitCount = Math.round(data.length * (newSampleRate / oldSampleRate))
-    const newData = []
-    const springFactor = Number((data.length - 1) / (fitCount - 1))
-    newData[0] = data // newData[0] = data[0] // for new allocation
-    for (let i = 1; i < fitCount - 1; i += 1) {
-      const tmp = i * springFactor
-      const before = Number(Math.floor(tmp)).toFixed()
-      const after = Number(Math.ceil(tmp)).toFixed()
-      const atPoint = tmp - before
-      newData[i] = this.linearInterpolate(data[before], data[after], atPoint)
-    }
-    newData[fitCount - 1] = data[data.length - 1] // for new allocation
-    return newData
-  }
-
-  linearInterpolate = (before, after, atPoint) => before + (after - before) * atPoint
-
-  writeUTFBytes = (view, offset, string) => {
-    const lng = string.length
-    for (let i = 0; i < lng; i += 1) {
-      view.setUint8(offset + i, string.charCodeAt(i))
-    }
   }
 
   onAudioProcess = (e) => {
@@ -525,24 +245,24 @@ export default class LivePage extends Component {
       chunkRecordingLength,
       numberOfAudioChannels
     } = this.state
+
     const left = e.inputBuffer.getChannelData(0)
     const tempLeftChannel = leftChannel
-    tempLeftChannel.push(new Float32Array(left))
-    this.setState({ leftChannel: tempLeftChannel })
     const tempChunkLeftChannel = chunkLeftChannel
-    tempChunkLeftChannel.push(new Float32Array(left))
-    this.setState({ chunkLeftChannel: tempChunkLeftChannel })
     const right = e.inputBuffer.getChannelData(1)
     const tempRightChannel = rightChannel
-    tempRightChannel.push(new Float32Array(right))
-    this.setState({ rightChannel: tempRightChannel })
-
     const tempChunkRightChannel = chunkRightChannel
+
+    tempLeftChannel.push(new Float32Array(left))
+    tempChunkLeftChannel.push(new Float32Array(left))
+    tempRightChannel.push(new Float32Array(right))
     tempChunkRightChannel.push(new Float32Array(right))
+
+    this.setState({ leftChannel: tempLeftChannel })
+    this.setState({ chunkLeftChannel: tempChunkLeftChannel })
+    this.setState({ rightChannel: tempRightChannel })
     this.setState({ chunkRightChannel: tempChunkRightChannel })
-
     this.detectSilence(chunkLeftChannel, chunkRightChannel, numberOfAudioChannels)
-
     this.setState({ recordingLength: (recordingLength + bufferSize) })
     this.setState({ chunkRecordingLength: (chunkRecordingLength + bufferSize) })
   }
@@ -553,44 +273,15 @@ export default class LivePage extends Component {
     this.setState({ chunkRecordingLength: 0 })
   }
 
-  bufferSilenceCount = (channel) => {
-    let min = 100
-    let max = -100
-    // let total = 0
-    let count = 0
-    for (let i = 0; i < channel.length; i += 1) {
-      if (channel[i] > max) {
-        max = channel[i]
-      }
-      if (channel[i] < min) {
-        min = channel[i]
-      }
-      // total += channel[i]
-
-      if (channel[i] > -0.001 && channel[i] < 0.001) {
-        count += 1
-      }
-      /* else {
-        channel[i] = channel[i] * 2;
-        if (channel[i] > 1.0) {
-          channel[i] = 1.0;
-        }
-        if (channel[i] < -1.0) {
-        channel[i] = -1.0;
-      }
-    } */
-    }
-    // const avg = total / channel.length
-    // console.log("Min: " + min + ", max: " + max + ", total: " + total + ", avg: " + avg);
-    return count
-  }
-
   onSelectText = () => {
     const selctedText = window.getSelection().toString()
     this.setState({ queryTerm: selctedText })
   }
 
   onUpdateTranscript = (chapters) => {
+    this.setState({
+      originalChapters: chapters
+    })
   }
 
   onValidateTranscript = (errors) => {
@@ -600,12 +291,12 @@ export default class LivePage extends Component {
   detectSilence = (lcX, rcX, numberOfAudioChannels) => {
     const { silentBuffersInRow } = this.state
     const lc = lcX[lcX.length - 1]
-    let count = this.bufferSilenceCount(lc)
+    let count = bufferSilenceCount(lc)
     let totalSize = lc.length
 
     if (numberOfAudioChannels === 2) {
       const rc = rcX[rcX.length - 1]
-      count += this.bufferSilenceCount(rc)
+      count += bufferSilenceCount(rc)
       totalSize += rc.length
     }
 
@@ -614,17 +305,11 @@ export default class LivePage extends Component {
     } else {
       this.setState({ silentBuffersInRow: 0 })
     }
-    // console.log("Silence detection: "
-    // + count + "/" + totalSize + ", : "  + silentBuffersInRow);
   }
 
   onUpdateTags = (tags) => {
-    console.log('tags')
-    console.log(tags)
-    this.setState({ tags })
-    this.setState({
-      recordedDiagnos: tags
-    })
+    // Update
+    this.setState({ recordedDiagnos: tags })
   }
 
   finalize = () => {
@@ -633,26 +318,30 @@ export default class LivePage extends Component {
 
   save = () => {
     // Create a new transcript
-    const {buffer, transcriptId, originalChapters, recordedDiagnos } = this.state
-    let tempTranscript=""
-    let tempKeywords=""
-    originalChapters.forEach((originalChapter)=>{
-      tempKeywords = tempKeywords + originalChapter.keyword.toLowerCase() + ','
-      tempTranscript = tempTranscript + originalChapter.keyword.toLowerCase() + ' '
-      originalChapter.segments.forEach((seg)=>{
-        tempTranscript = tempTranscript + seg.words.toLowerCase() + ' '
+    const {
+      buffer,
+      transcriptId,
+      originalChapters,
+      recordedDiagnos
+    } = this.state
+    let tempTranscript = ''
+    let tempKeywords = ''
+    originalChapters.forEach((originalChapter) => {
+      tempKeywords = `${tempKeywords + originalChapter.keyword.toLowerCase()},`
+      tempTranscript = `${tempTranscript + originalChapter.keyword.toLowerCase()} `
+      originalChapter.segments.forEach((seg) => {
+        tempTranscript = `${tempTranscript + seg.words.toLowerCase()} `
       })
     })
 
     const blob = new Blob([buffer], { type: 'audio/wav' })
-
     const fd = new FormData()
     fd.append('audioChunk', blob)
     fd.append('transcript', tempTranscript)
     fd.append('keywords', tempKeywords)
-    let tempTags =[]
-    let tempTagDescriptions =[]
-    recordedDiagnos.forEach((tag)=>{
+    const tempTags = []
+    const tempTagDescriptions = []
+    recordedDiagnos.forEach((tag) => {
       tempTags.push(tag.id)
       tempTagDescriptions.push(tag.description)
     })
@@ -665,86 +354,85 @@ export default class LivePage extends Component {
       url: `/api/v1/v2t-service-realtime/save/${transcriptId}/chunk/0`,
       data: fd,
       cache: false
-    }).then((response) => {
-      alert('Sent to co-worker')
+    }).then(() => {
+      alert('Sent to Co-worker')
       window.location.replace('/')
     }).catch((err) => {
       console.log('err')
       console.log(err)
-      throw Error(err)
+      alert('Could not send to the co-worker')
+      // throw Error(err)
     })
   }
 
-  cancel = () => {
-    if (window.confirm('Are you sure you want to cancel everything?')) {
-      this.setState({
-        recordingAction: 'start',
-        leftChannel: [],
-        rightChannel: [],
-        chunkLeftChannel: [],
-        chunkRightChannel: [],
-        recordingLength: 0,
-        chunkRecordingLength: 0,
-        microphoneBeingPressed: false,
-        silentBuffersInRow: 0,
-        keywords: [],
-        reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
-        originalChapters: [],
-        tags: [],
-        recordedDiagnos: [],
-        buffer: null
-      })
+  showHideCancelBox = () => {
+    const { showCancelBar } = this.state
+    this.setState({
+      showCancelBar: !showCancelBar
+    })
+  }
+
+  toggleRecord = () => {
+    const { microphoneBeingPressed } = this.state
+    if (microphoneBeingPressed === false) {
+      this.startRecord()
+    } else {
+      this.stopRecord()
     }
   }
 
-  
+  clearState = () => {
+    const { showCancelBar } = this.state
+    this.setState({ showCancelBar: !showCancelBar })
+    this.setState({
+      recordingAction: 'start',
+      leftChannel: [],
+      rightChannel: [],
+      chunkLeftChannel: [],
+      chunkRightChannel: [],
+      recordingLength: 0,
+      chunkRecordingLength: 0,
+      microphoneBeingPressed: false,
+      silentBuffersInRow: 0,
+      keywords: [],
+      reservedKeywords: ['at', 'lungor', 'buk', 'diagnos', 'at ', 'lungor ', 'buk ', 'diagnos '],
+      originalChapters: [],
+      recordedDiagnos: [],
+      buffer: null,
+      waitingForServer: false
+    })
+  }
 
   render() {
     const {
       microphoneBeingPressed,
       originalChapters,
       keywords,
-      tags,
       recordingAction,
-      recordedDiagnos
+      recordedDiagnos,
+      waitingForServer,
+      showCancelBar
     } = this.state
     return (
       <Page title="Live Transcript">
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
-
-
-        <EuiTextAlign textAlign="left">
-          <img
-            src={mic}
-            className='mic'
-            style={microphoneBeingPressed === false ? {
-              display: 'block', color: 'black', height: '50px', cursor: 'pointer'
-            } : { display: 'none' }}
-            alt="mic"
-            onClick={this.startRecord}
-          />
-          <img
-            src={micRecording}
-            className='mic'
-            style={microphoneBeingPressed === true ? {
-              display: 'block', color: 'black', height: '50px', cursor: 'pointer'
-            } : { display: 'none' }}
-            alt="mic"
-            onClick={this.stopRecord}
-          />
-          <EuiSpacer size="m" />
-          <span>
-            Click the button to&nbsp;
-            {recordingAction}
-            &nbsp;recording
-          </span>
-        </EuiTextAlign>
-
+        <Mic
+          recordingAction={recordingAction}
+          microphoneBeingPressed={microphoneBeingPressed}
+          toggleRecord={this.toggleRecord}
+        />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
+        <EuiText style={waitingForServer === true ? { display: 'block' } : { display: 'none' }}>
+          <h3>
+            <EuiLoadingChart size="xl" />
+            &nbsp;&nbsp;
+            <EuiTextColor color="default">Getting response from server</EuiTextColor>
+          </h3>
+        </EuiText>
         <EuiFlexGroup wrap>
           <EuiFlexItem>
             <Editor
@@ -769,9 +457,14 @@ export default class LivePage extends Component {
             <EuiButton fill color="secondary" onClick={this.save}>Submit to Co-worker</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger">Cancel</EuiButton>
+            <EuiButton fill color="danger" onClick={this.showHideCancelBox}>Cancel</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
+        <ResetBar
+          showCancelBar={showCancelBar}
+          showHideCancelBox={this.showHideCancelBox}
+          resetState={this.clearState}
+        />
       </Page>
     )
   }
