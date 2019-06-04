@@ -50,6 +50,7 @@ export default class LivePage extends Component {
   }
 
   componentDidMount = async () => {
+    document.title = 'Inovia AB :: Live Transcript 🎤'
     this.tagsRef = React.createRef()
     const transcriptId = await retrieveNewId()
     if (transcriptId.data.id) {
@@ -191,7 +192,9 @@ export default class LivePage extends Component {
       }
       this.liveTranscrption(respondedData, buffer)
     }).catch((err) => {
-      throw Error(err)
+      console.log(err)
+      alert('Could not receive transcript')
+      // throw Error(err)
     })
   }
 
@@ -276,7 +279,6 @@ export default class LivePage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    const {originalChapters} = this.state
     this.setState({
       originalChapters: chapters
     })
@@ -343,7 +345,8 @@ export default class LivePage extends Component {
     }).catch((err) => {
       console.log('err')
       console.log(err)
-      throw Error(err)
+      alert('Could not send to the co-worker')
+      // throw Error(err)
     })
   }
 

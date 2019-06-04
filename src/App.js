@@ -30,7 +30,7 @@ export default class App extends Component {
         { id: 1, name: 'Start', href: '/#/' },
         { id: 2, name: 'Live Transcript', href: '/#/live' },
         { id: 3, name: 'Upload', href: '/#/upload' },
-        { id: 4, name: 'Analytics', href: '/#/analytics'}
+        { id: 4, name: 'Analytics', href: '/#/analytics' }
       ]
     }
   ]

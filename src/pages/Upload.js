@@ -25,10 +25,8 @@ export default class UploadPage extends Component {
   state = this.DEFAULT_STATE
 
   options = [{
-    value: {
-      model: 'medical'
-    },
-    inputDisplay: 'Medial Transcript',
+    value: 'medical',
+    inputDisplay: 'Medical Transcript',
     dropdownDisplay: (
       <DropDown
         title="Medial Transcript"
@@ -37,10 +35,10 @@ export default class UploadPage extends Component {
     )
   }, {
     value: 'option_one',
-    inputDisplay: 'Finalcial logs',
+    inputDisplay: 'Financial logs',
     dropdownDisplay: (
       <DropDown
-        title="Finalcial logs"
+        title="Financial logs"
         content="This one is used for financial records."
       />
     )
@@ -56,6 +54,9 @@ export default class UploadPage extends Component {
     )
   }]
 
+  componentDidMount = async () => {
+    document.title = 'Inovia AB :: Upload'
+  }
   onMetadataChange = (metaData) => {
     this.setState({ metaData })
   }
@@ -71,8 +72,8 @@ export default class UploadPage extends Component {
   }
 
   uploadFiles = async () => {
-    const { files, metadata } = this.state
-    const requests = Array.from(files).map(file => this.uploadFile(file, metadata))
+    const { files, metaData } = this.state
+    const requests = Array.from(files).map(file => this.uploadFile(file, metaData))
     await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
   }
@@ -80,7 +81,11 @@ export default class UploadPage extends Component {
   uploadFile = (file, metadata) => {
     const body = new FormData()
     body.append('audio', file)
-    body.append('metadata', metadata)
+    if (metadata) {
+      body.set('metadata', new Blob([JSON.stringify({ 'model': metadata })], {
+        type: "application/json"
+      }));
+    }
     return axios.post(API_PATH, body)
   }
 
