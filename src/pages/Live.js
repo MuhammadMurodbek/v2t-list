@@ -430,7 +430,7 @@ export default class LivePage extends Component {
           <h3>
             <EuiLoadingChart size="xl" />
             &nbsp;&nbsp;
-            <EuiTextColor color="default">Getting response from server</EuiTextColor>
+            <EuiTextColor color="default">Analyzing Audio</EuiTextColor>
           </h3>
         </EuiText>
         <EuiFlexGroup wrap>
