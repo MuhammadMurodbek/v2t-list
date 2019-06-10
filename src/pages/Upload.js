@@ -29,7 +29,7 @@ export default class UploadPage extends Component {
     inputDisplay: 'Medical Transcript',
     dropdownDisplay: (
       <DropDown
-        title="Medial Transcript"
+        title="Medical Transcript"
         content="This one is used for medical records."
       />
     )
