@@ -57,6 +57,7 @@ export default class UploadPage extends Component {
   componentDidMount = async () => {
     document.title = 'Inovia AB :: Upload'
   }
+
   onMetadataChange = (metaData) => {
     this.setState({ metaData })
   }
@@ -82,9 +83,9 @@ export default class UploadPage extends Component {
     const body = new FormData()
     body.append('audio', file)
     if (metadata) {
-      body.set('metadata', new Blob([JSON.stringify({ 'model': metadata })], {
-        type: "application/json"
-      }));
+      body.set('metadata', new Blob([JSON.stringify({ model: metadata })], {
+        type: 'application/json'
+      }))
     }
     return axios.post(API_PATH, body)
   }
