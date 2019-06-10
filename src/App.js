@@ -18,6 +18,7 @@ import EditPage from './pages/Edit'
 import LivePage from './pages/Live'
 import UploadPage from './pages/Upload'
 import AnalyticsPage from './pages/Analytics'
+import TrainingPage from './pages/Training'
 
 import Preference from './models/Preference'
 
@@ -30,7 +31,8 @@ export default class App extends Component {
         { id: 1, name: 'Start', href: '/#/' },
         { id: 2, name: 'Live Transcript', href: '/#/live' },
         { id: 3, name: 'Upload', href: '/#/upload' },
-        { id: 4, name: 'Analytics', href: '/#/analytics' }
+        { id: 4, name: 'Analytics', href: '/#/analytics' },
+        { id: 5, name: 'Training', href: '/#/training' }
       ]
     }
   ]
@@ -40,13 +42,13 @@ export default class App extends Component {
     preferences: new Preference()
   }
 
+  componentDidMount() {
+    this.fetchTranscripts()
+  }
+
   setPreferences = (state) => {
     const preferences = this.state.preferences.clone().add(state)
     this.setState({ preferences })
-  }
-
-  componentDidMount() {
-    this.fetchTranscripts()
   }
 
   fetchTranscripts = () => {
@@ -98,6 +100,7 @@ export default class App extends Component {
               <Route path="/live/" component={LivePage} />
               <Route path="/upload/" component={UploadPage} />
               <Route path="/analytics" component={AnalyticsPage} />
+              <Route path="/training" component={TrainingPage} />
             </Switch>
           </EuiPage>
         </PreferencesProvider>

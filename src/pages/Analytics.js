@@ -5,7 +5,7 @@ import analyticsImg from '../img/analytics.png'
 export default class Analytics extends Component {
   
   componentDidMount = async () => {
-    document.title = 'Inovia AB :: Analytics 📊'
+    document.title = 'Inovia AI :: Analytics 📊'
   }
 
   render() {

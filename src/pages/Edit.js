@@ -27,7 +27,7 @@ export default class EditPage extends Component {
   }
 
   componentDidMount() {
-    document.title = 'Inovia AB :: V2t Editor 🎤'
+    document.title = 'Inovia AI :: V2t Editor 🎤'
     const { transcript } = this.props
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()

@@ -55,7 +55,7 @@ export default class UploadPage extends Component {
   }]
 
   componentDidMount = async () => {
-    document.title = 'Inovia AB :: Upload'
+    document.title = 'Inovia AI :: Upload'
   }
 
   onMetadataChange = (metaData) => {
