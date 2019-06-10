@@ -17,10 +17,13 @@ import capitalize from '../models/textProcessing/capitalize'
 import mergeLeftRightBuffers from '../models/audioProcessing/mergeLeftRightBuffers'
 import bufferSilenceCount from '../models/audioProcessing/bufferSilenceCount'
 import wordsToTranscript from '../models/textProcessing/wordsToTranscript'
+import { PreferenceContext } from '../components/PreferencesProvider'
 import '../styles/editor.css'
 import '../styles/player.css'
 
 export default class LivePage extends Component {
+  static contextType = PreferenceContext
+
   audioInput = null
 
   jsAudioNode = null
@@ -52,6 +55,7 @@ export default class LivePage extends Component {
   componentDidMount = async () => {
     document.title = 'Inovia AB :: Live Transcript 🎤'
     this.tagsRef = React.createRef()
+    const [preferences] = this.context
     const transcriptId = await retrieveNewId()
     if (transcriptId.data.id) {
       this.setState({
@@ -417,7 +421,7 @@ export default class LivePage extends Component {
       showCancelBar
     } = this.state
     return (
-      <Page title="Live Transcript">
+      <Page preferences title="Live Transcript">
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
