@@ -192,6 +192,9 @@ export default class LivePage extends Component {
       }
       this.liveTranscrption(respondedData, buffer)
     }).catch((err) => {
+      this.setState({
+        waitingForServer: false
+      })
       console.log(err)
       alert('Could not receive transcript')
       // throw Error(err)
