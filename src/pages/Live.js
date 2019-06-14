@@ -160,6 +160,8 @@ export default class LivePage extends Component {
     this.setState({
       originalChapters: updatedTranscript,
       buffer
+    }, ()=> {
+        console.log(originalChapters)
     })
   }
 
