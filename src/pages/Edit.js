@@ -24,6 +24,7 @@ export default class EditPage extends Component {
     chapters: [],
     errors: [],
     isMediaAudio: true, // should be prop
+    isBeingEdited: false
   }
 
   componentDidMount() {
@@ -42,6 +43,15 @@ export default class EditPage extends Component {
     const prevId = prevProps.transcript && prevProps.transcript.id
     if (transcript && transcript.id !== prevId) {
       this.loadSegments()
+    }
+  }
+
+  isBeingEdited = (editStatus) => {
+    console.log('focusing')
+    if (editStatus) {
+      this.setState({ isBeingEdited: true })
+    } else {
+      this.setState({ isBeingEdited: false })
     }
   }
 
@@ -145,7 +155,7 @@ export default class EditPage extends Component {
 
   render() {
     const { transcript } = this.props
-    const { currentTime, originalChapters, chapters, queryTerm, tags, isMediaAudio } = this.state
+    const { currentTime, originalChapters, chapters, queryTerm, tags, isMediaAudio, isBeingEdited} = this.state
     if (!transcript) return null
     return (
       <Page preferences title="Editor">
@@ -162,6 +172,7 @@ export default class EditPage extends Component {
                   isPlaying={false}
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
+                  isBeingEdited={isBeingEdited}
                 />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />
@@ -190,6 +201,7 @@ export default class EditPage extends Component {
                 onSelect={this.onSelectText}
                 updateTranscript={this.onUpdateTranscript}
                 validateTranscript={this.onValidateTranscript}
+                isBeingEdited={this.isBeingEdited}
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
