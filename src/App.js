@@ -69,6 +69,10 @@ export default class App extends Component {
       })
   }
 
+  loadHomescreen = () => {
+    window.location.replace('/')
+  }
+
   render() {
     const { transcripts, preferences } = this.state
     return (
@@ -76,15 +80,14 @@ export default class App extends Component {
         <PreferencesProvider value={[preferences, this.setPreferences]}>
           <EuiPage>
             <EuiPageSideBar>
-              <Link to="/">
-                <EuiImage
-                  className="logo"
-                  size="m"
-                  alt="logo"
-                  url={logo}
-                  allowFullScreen
-                />
-              </Link>
+              <EuiImage
+                className="logo"
+                size="m"
+                alt="logo"
+                url={logo}
+                allowFullScreen
+                onClick={this.loadHomescreen}
+              />
               <EuiSideNav items={App.MENU_ITEMS} />
             </EuiPageSideBar>
             <Switch>
