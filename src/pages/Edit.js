@@ -203,6 +203,7 @@ export default class EditPage extends Component {
                 updateTranscript={this.onUpdateTranscript}
                 validateTranscript={this.onValidateTranscript}
                 isBeingEdited={this.isBeingEdited}
+                isDiffVisible
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>

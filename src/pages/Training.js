@@ -132,6 +132,7 @@ export default class UploadPage extends Component {
               updateTranscript={this.onUpdateTranscript}
               validateTranscript={this.onValidateTranscript}
               isBeingEdited={this.isBeingEdited}
+              isDiffVisible={false}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

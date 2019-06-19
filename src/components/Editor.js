@@ -291,7 +291,7 @@ export default class Editor extends Component {
 
 
   render() {
-    const { currentTime, chapters, onSelect } = this.props
+    const { currentTime, chapters, onSelect, isDiffVisible } = this.props
     const { diff, error } = this.state
     if (!chapters) return null
     return (
@@ -308,7 +308,7 @@ export default class Editor extends Component {
           error={error}
           isBeingEdited={this.props.isBeingEdited}
         />
-        <EuiFlexGroup>
+        <EuiFlexGroup style={{ display: isDiffVisible ? 'flex' : 'none' }}>
           <EuiFlexItem>
             <FullDiff diff={diff} />
           </EuiFlexItem>
