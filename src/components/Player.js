@@ -37,11 +37,12 @@ class Player extends Component {
 
 
   onChangeSeek = (e) => {
+    const { duration } = this.state
     const { value } = e.target
     const media = this.myRef.current
-    media.currentTime = value
+    media.currentTime = value * duration / 100
     this.setState({
-      seekPosition: value
+      seekPosition: media.currentTime
     })
   };
 
@@ -277,14 +278,15 @@ class Player extends Component {
       audioTranscript,
       trackId,
       getCurrentTime,
-      isMediaAudio
+      isMediaAudio,
+      searchBoxVisible
     } = this.props
 
     const [preferences] = this.context
     const trackUrl = `/api/v1/transcription/${trackId}/audio`
     return (
       <Fragment>
-        <span>
+        <span style={{ display: searchBoxVisible ? 'flex' : 'none' }}>
           <input
             type="text"
             className="searchBox"
@@ -296,7 +298,7 @@ class Player extends Component {
         <audio
           ref={this.myRef}
           src={trackUrl}
-          style={preferences.audioOnly || isMediaAudio ? { display: 'block' } : { display: 'none' }}
+          style={{ display: preferences.audioOnly || isMediaAudio ? 'block' : 'none' }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
@@ -308,7 +310,7 @@ class Player extends Component {
         <video
           ref={this.myRef}
           src={trackUrl}
-          style={!preferences.audioOnly || !isMediaAudio ? { display: 'none' } : { display: 'block' }}
+          style={{ display: !preferences.audioOnly || !isMediaAudio ? 'none' : 'block' }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
@@ -319,8 +321,8 @@ class Player extends Component {
 
         <div className="controls">
           <button
-            title="Play" 
-            style={isPlaying === false ? { display: 'block' } : { display: 'none' }}
+            title="Play"
+            style={{ display: isPlaying === false ? 'block' : 'none' }}
             className="play"
             data-icon="P"
             aria-label="play pause toggle"
@@ -330,7 +332,7 @@ class Player extends Component {
 
           <button
             title="Pause"
-            style={isPlaying === true ? { display: 'block' } : { display: 'none' }}
+            style={{ display: isPlaying === true ? 'block' : 'none' }}
             className="play"
             data-icon="u"
             aria-label="play pause toggle"
@@ -367,8 +369,8 @@ class Player extends Component {
           <input
             type="range"
             min="0"
-            max={maxSeekValue.toString()}
-            value={seekPosition}
+            max="100"
+            value={(seekPosition / duration) * 100}
             className="sliderWrapper"
             id="myRange"
             onChange={this.onChangeSeek}

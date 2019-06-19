@@ -33,50 +33,48 @@
 }
 
 .controls {
-width: 800px;
-border-radius: 5px;
-bottom: 20px;
-margin-top: 30px;
-background-color:  #f1f3f4;
-transition: 1s all;
-display: flex;
+  width: 750px;
+  border-radius: 5px;
+  bottom: 20px;
+  margin-top: 30px;
+  background-color:  #f1f3f4;
+  transition: 1s all;
+  display: flex;
 }
 
 .virtualControl {
-background-color: black;
-margin-left: 76px;
-display: flex;
-margin-top: -18px;
-z-index:-10;
-width:595px;
-height:5px;
+  background-color: black;
+  margin-left: 135px;
+  display: flex;
+  margin-top: -18px;
+  z-index:-10;
+  width:487px;
+  height:5px;
 }
 
 .player:hover .controls, player:focus .controls {
-opacity: 1;
+  opacity: 1;
 }
 
 @font-face {
-font-family: 'HeydingsControlsRegular';
-src: url('../data/fonts/heydings_controls-webfont.eot');
-src: url('../data/fonts/heydings_controls-webfont.eot?#iefix') format('embedded-opentype'),
+  font-family: 'HeydingsControlsRegular';
+  src: url('../data/fonts/heydings_controls-webfont.eot');
+  src: 
+    url('../data/fonts/heydings_controls-webfont.eot?#iefix') format('embedded-opentype'),
     url('../data/fonts/heydings_controls-webfont.woff') format('woff'),
     url('../data/fonts/heydings_controls-webfont.ttf') format('truetype');
-font-weight: normal;
-font-style: normal;
+  font-weight: normal;
+  font-style: normal;
 }
 
 .play:before {
-font-family: HeydingsControlsRegular;
-font-size: 20px;
-position: relative;
-content: attr(data-icon);
-
-
+  font-family: HeydingsControlsRegular;
+  font-size: 20px;
+  position: relative;
+  content: attr(data-icon);
 }
 
 .play{
-
     border: none;
     padding-bottom: 7px;
     cursor: pointer;
@@ -86,14 +84,14 @@ content: attr(data-icon);
 }
 
 .play:focus {
-outline: 0;
+  outline: 0;
 }
 
 
 .record:before {
-font-family: HeydingsControlsRegular;
-font-size: 60px;
-content: attr(data-icon);
+  font-family: HeydingsControlsRegular;
+  font-size: 60px;
+  content: attr(data-icon);
 }
 
 .record{
@@ -106,40 +104,37 @@ content: attr(data-icon);
 }
 
 .timer {
-line-height: 20px;
-    font-size: 13px;
-    font-family: monospace;
-    text-shadow: 1px 1px 0px black;
-    color: white;
-    /* -webkit-flex: 1.8 1; */
-    /* flex: 0.8 1; */
-    position: relative;
-    margin-top: 2.6px;
-    padding-top: 2px;
-    margin-left: 10px;
-    z-index: 10;
-    position: absolute;
-    width: 500px;
-    margin-left: 72px;
+  line-height: 20px;
+  font-size: 13px;
+  font-family: monospace;
+  text-shadow: 1px 1px 0px black;
+  color: white;
+  /* -webkit-flex: 1.8 1; */
+  /* flex: 0.8 1; */
+  position: relative;
+  margin-top: 2.6px;
+  padding-top: 2px;
+  margin-left: 10px;
+  z-index: 10;
+  position: absolute;
+  width: 500px;
+  margin-left: 72px;
 }
 
 .timer div {
-position: absolute;
-background-color: rgba(165, 172, 233, 0.5);
-left: 0;
-top: 0;
-width: 0;
-height: 5px;
-z-index: 2;
-margin-top: 2px;
+  position: absolute;
+  background-color: rgba(165, 172, 233, 0.5);
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 5px;
+  z-index: 2;
+  margin-top: 2px;
 }
 
 .timer span {
-z-index: 3;
-
+  z-index: 3;
 }
-
-
 
 .tidPunkt{
   position: relative;
@@ -166,8 +161,9 @@ z-index: 3;
 
 input[type=range] {
   -webkit-appearance: none;
-    width: 550px;
-    background-color: transparent;
+  -moz-appearance: none;
+  width: 487px;
+  background-color: transparent;
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -289,9 +285,6 @@ input[type=range]:focus::-ms-fill-upper {
   border-left:  none;
   border-right:  none;
 }
-
-
-
 
 .alternativeTrack {
   width: 20px;

@@ -108,7 +108,7 @@ export default class UploadPage extends Component {
           <EuiFlexItem>
             <Player
             //   audioTranscript={originalChapters}
-              trackId="b75d6cd4b7dd4727b32febd806d488c8"
+              trackId="24453e3d-d473-47f5-b7be-74d2c8ba8f37"
               getCurrentTime={this.getCurrentTime}
               updateSeek={this.onTimeUpdate}
               queryTerm={queryTerm}
@@ -116,6 +116,7 @@ export default class UploadPage extends Component {
               isContentAudio={isMediaAudio}
               ref={this.playerRef}
               isBeingEdited={isBeingEdited}
+              searchBoxVisible={false}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

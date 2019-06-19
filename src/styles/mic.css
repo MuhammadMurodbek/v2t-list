@@ -43,3 +43,17 @@ body {
 .recording{
   background-color: black;
 }
+
+
+.euiProgress--subdued.euiProgress--indeterminate::before {
+    background-color:rgb(164, 226, 178);
+}
+
+.euiProgress--s {
+    height: 4px;
+}
+.euiProgress {
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(83, 201, 248);
+}

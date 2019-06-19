@@ -173,6 +173,7 @@ export default class EditPage extends Component {
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
                   isBeingEdited={isBeingEdited}
+                  searchBoxVisible
                 />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />

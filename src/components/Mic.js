@@ -29,7 +29,7 @@ const Mic = ({
         onClick={toggleRecord}
       />
       <EuiSpacer size="m" />
-      <EuiProgress size="m" color="subdued" />
+      <EuiProgress size="s" color="subdued" />
     </span>
     <EuiSpacer size="m" />
     <span>
