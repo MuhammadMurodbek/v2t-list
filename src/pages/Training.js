@@ -19,8 +19,18 @@ export default class UploadPage extends Component {
     isMediaAudio: true,
     queryTerm: false,
     isBeingEdited: false,
+    listOfTrainingData: [{
+      id: '572ba6fc-e720-40d0-bcf5-39813708b14f',
+      status: 'incomplete'
+    }, {
+      id: 'd3d34e61-c823-45a3-9299-75cbf5fda626',
+      status: 'incomplete'
+    }, {
+      id: '372b1a57-4d74-412b-b7af-f01ac9d460ee',
+      status: 'incomplete'
+    }],
     chapters: [{
-      keyword: 'Transcript',
+      keyword: '',
       segments: [
         {
           endTime: 0,
@@ -29,7 +39,8 @@ export default class UploadPage extends Component {
         }]
     }],
     trasncriptId: null,
-    toasts: []
+    toasts: [],
+    currentTranscript: null
   }
 
   componentDidMount = async () => {
@@ -39,6 +50,7 @@ export default class UploadPage extends Component {
   }
 
   loadCurrentTranscript = async () => {
+    const { listOfTrainingData, currentTranscript } = this.state
     const status = await axios.get('/api/v1/training/')
     if (Object.prototype.hasOwnProperty.call(status, 'transcription')) {
       this.setState({
@@ -46,6 +58,55 @@ export default class UploadPage extends Component {
       })
     } else {
       // alert('Yayyyy, all transcripts have feedback now')
+    }
+    console.log('status')
+    console.log(status)
+    for (let i = 0; i < listOfTrainingData.length; i += 1) {
+      if (listOfTrainingData[i].status === 'incomplete') {
+        this.setState({ currentTranscript: listOfTrainingData[i] }, ()=>{
+          this.loadSubtitle()
+        })
+        break
+      }
+    }
+    
+    let numberOfIncompleteData = 0
+    for (let i = 0; i < listOfTrainingData.length; i += 1) {
+      if (listOfTrainingData[i].status === 'incomplete') {
+        numberOfIncompleteData += 1
+      }
+    }
+
+    if (numberOfIncompleteData === 0) {
+      console.log('There is no pending trainng data to be assesed')
+    }
+  }
+
+  loadSubtitle = async () => {
+    const { currentTranscript } = this.state
+    console.log('currentTranscript')
+    console.log(currentTranscript)
+    if (currentTranscript) {
+      const content = await axios
+        .get(`http://localhost:3000/api/v1/transcription/${currentTranscript.id}`)
+      console.log('content')
+      console.log(content)
+      let tempChapter = [{
+        keyword: '',
+        segments: [
+          {
+            endTime: 0,
+            startTime: 0,
+            words: ''
+          }]
+      }]
+
+      let words = ''
+      content.data.transcriptions[0].segments.forEach((segment) => {
+        words = `${words} ${segment.words}`
+      })
+      tempChapter[0].segments[0].words = words
+      this.setState({ chapters: tempChapter })
     }
   }
 
@@ -164,7 +225,8 @@ export default class UploadPage extends Component {
       currentTime,
       isBeingEdited,
       trasncriptId,
-      toasts
+      toasts,
+      currentTranscript
     } = this.state
 
     return (
@@ -176,7 +238,7 @@ export default class UploadPage extends Component {
         <EuiFlexGroup alignItems="center">
           <EuiFlexItem>
             <Player
-              trackId={trasncriptId}
+              trackId={currentTranscript ? currentTranscript.id : 0}
               getCurrentTime={this.getCurrentTime}
               updateSeek={this.onTimeUpdate}
               queryTerm={queryTerm}
