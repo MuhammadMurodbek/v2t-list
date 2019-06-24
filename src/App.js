@@ -3,7 +3,7 @@ import '@elastic/eui/dist/eui_theme_light.css'
 
 import React, { Component } from 'react'
 import {
-  HashRouter, Switch, Route, Link
+  HashRouter, Switch, Route
 } from 'react-router-dom'
 import {
   EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
@@ -47,8 +47,8 @@ export default class App extends Component {
   }
 
   setPreferences = (state) => {
-    const preferences = this.state.preferences.clone().add(state)
-    this.setState({ preferences })
+    const { preferences } = this.state
+    this.setState({ preferences: preferences.clone().add(state) })
   }
 
   fetchTranscripts = () => {
