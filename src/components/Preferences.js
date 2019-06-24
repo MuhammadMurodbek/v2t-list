@@ -43,7 +43,7 @@ const Flyout = ({ visible, onClose }) => {
 
 
   return (
-    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle">
+    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" size="s">
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
           <h4 id="flyoutTitle">

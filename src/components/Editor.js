@@ -6,7 +6,7 @@ import {
 } from '@elastic/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
-
+import '../styles/editor.css'
 const NEW_KEYWORD = 'New Chapter'
 const KEYCODE_ENTER = 13
 const KEYCODE_BACKSPACE = 8
@@ -402,7 +402,7 @@ const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }
   const current = currentTime > startTime && currentTime <= endTime
   const style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00', fontSize: context.currentFontSize } : { fontSize: context.currentFontSize }
   return (
-    <span style={style} data-chapter={chapterId} data-segment={i}>
+    <span style={style} className="editorBody" data-chapter={chapterId} data-segment={i}>
       {words}
     </span>
   )
