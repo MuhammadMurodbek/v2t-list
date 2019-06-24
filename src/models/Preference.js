@@ -33,6 +33,7 @@ export default class Preference {
   get words() { return this._words } set words(v) { this._words = v }
   get keywords() { return this._keywords } set keywords(v) { this._keywords = v }
   get audioOnly() { return this._audioOnly } set audioOnly(v) { this._audioOnly = v }
+  get highlightMode() { return this._highlightMode } set highlightMode(v) { this._highlightMode = v }
   get columns() { return this._columns } set columns(v) { this._columns = v }
   get allColumns() { return this._allColumns } set allColumns(v) { this._allColumns = v }
 
@@ -40,6 +41,7 @@ export default class Preference {
     words: '3',
     keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
     audioOnly: false,
+    highlightMode: false,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
     allColumns: COLUMN_OPTIONS
   }

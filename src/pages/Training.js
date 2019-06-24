@@ -7,7 +7,9 @@ import {
   EuiSpacer,
   EuiTitle,
   EuiGlobalToastList,
-  EuiProgress
+  EuiProgress,
+  EuiAvatar, EuiTextAlign, EuiIcon,
+  EuiImage
 } from '@elastic/eui'
 import Player from '../components/Player'
 import Editor from '../components/Editor'
@@ -18,7 +20,6 @@ export default class UploadPage extends Component {
   state = {
     isMediaAudio: true,
     queryTerm: false,
-    isBeingEdited: false,
     listOfTrainingData: [{
       id: '572ba6fc-e720-40d0-bcf5-39813708b14f',
       status: 'incomplete'
@@ -29,24 +30,29 @@ export default class UploadPage extends Component {
       id: '372b1a57-4d74-412b-b7af-f01ac9d460ee',
       status: 'incomplete'
     }],
-    chapters: [{
-      keyword: '',
-      segments: [
-        {
-          endTime: 0,
-          startTime: 0,
-          words: 'Gott och opåverkad. Inga kardiella inkompensationstecken i vila. Pollenallergiker'
-        }]
-    }],
+    chapters: [],
     trasncriptId: null,
     toasts: [],
-    currentTranscript: null
+    currentTranscript: null,
+    incompleteTranscriptExists: true
   }
 
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Training ⛷'
     this.playerRef = React.createRef()
-    this.loadCurrentTranscript()
+    this.setState({
+      toasts: [{
+        title: '',
+        color: 'primary',
+        text: (
+          <Fragment>
+            <h3>Loading new training data</h3>
+            <EuiProgress size="s" color="subdued" />
+          </Fragment>)
+      }]
+    }, () => {
+      this.loadCurrentTranscript()
+    })
   }
 
   loadCurrentTranscript = async () => {
@@ -78,6 +84,7 @@ export default class UploadPage extends Component {
     }
 
     if (numberOfIncompleteData === 0) {
+      this.setState({ incompleteTranscriptExists: false })
       console.log('There is no pending trainng data to be assesed')
     }
   }
@@ -133,19 +140,11 @@ export default class UploadPage extends Component {
     this.setState({ chapters })
   }
 
-  isBeingEdited = (editStatus) => {
-    console.log('focusing')
-    if (editStatus) {
-      this.setState({ isBeingEdited: true })
-    } else {
-      this.setState({ isBeingEdited: false })
-    }
-  }
-
   completeTranscript = async () => {
     // const status = await axios.get('/api/v1/training/')
     // console.log('status')
     // console.log(status)
+    const { currentTranscript, listOfTrainingData } = this.state
     this.setState({
       toasts: [{
         title: '',
@@ -156,6 +155,14 @@ export default class UploadPage extends Component {
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
+    }, () => {
+      console.log(currentTranscript)
+      listOfTrainingData.forEach((transcript) => {
+        if (transcript.id === currentTranscript.id) {
+          transcript.status = 'complete'
+        }
+      })
+      this.loadCurrentTranscript()
     })
   }
 
@@ -163,6 +170,7 @@ export default class UploadPage extends Component {
     // TODO
     // Redirect to the next incomplete one
     // If there is none, let the user know that it is the last one to be completed
+    const { currentTranscript, listOfTrainingData } = this.state
     this.setState({
       toasts: [{
         title: '',
@@ -173,8 +181,15 @@ export default class UploadPage extends Component {
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
+    }, () => {
+      console.log(currentTranscript)
+      listOfTrainingData.forEach((transcript) => {
+        if (transcript.id === currentTranscript.id) {
+          transcript.status = 'skip'
+        }
+      })
+      this.loadCurrentTranscript()
     })
-    this.loadCurrentTranscript()
   }
 
   rejectTranscript = async () => {
@@ -188,7 +203,7 @@ export default class UploadPage extends Component {
     //   text: trainingText,
     //   status: 'REJECT'
     // })
-
+    const { currentTranscript, listOfTrainingData } = this.state
     this.setState({
       toasts: [{
         title: '',
@@ -199,6 +214,14 @@ export default class UploadPage extends Component {
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
+    }, () => {
+      console.log(currentTranscript)
+      listOfTrainingData.forEach((transcript) => {
+        if (transcript.id === currentTranscript.id) {
+          transcript.status = 'rejected'
+        }
+      })
+      this.loadCurrentTranscript()
     })
 
     // if (rejectionStatus) {
@@ -223,19 +246,38 @@ export default class UploadPage extends Component {
       queryTerm,
       chapters,
       currentTime,
-      isBeingEdited,
       trasncriptId,
       toasts,
-      currentTranscript
+      currentTranscript,
+      incompleteTranscriptExists
     } = this.state
 
     return (
       <Page preferences>
-        <EuiTitle size="l">
+        <EuiTitle size="l" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
           <h1>Training</h1>
         </EuiTitle>
         <EuiSpacer size="xxl" />
-        <EuiFlexGroup alignItems="center">
+        <EuiFlexGroup
+          style={{ display: incompleteTranscriptExists ? 'none' : 'flex' }}
+          alignItems="center"
+        >
+          <EuiFlexItem>
+            <EuiTextAlign textAlign="center">
+              <EuiImage
+                size="original"
+                hasShadow={false}
+                caption="There is nothing to train now!"
+                alt="Random nature image"
+                url="https://media.giphy.com/media/26xBy4g1eHS1vqZRS/giphy.gif"
+              />
+            </EuiTextAlign>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup
+          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
+          alignItems="center"
+        >
           <EuiFlexItem>
             <Player
               trackId={currentTranscript ? currentTranscript.id : 0}
@@ -245,14 +287,15 @@ export default class UploadPage extends Component {
               isPlaying={false}
               isContentAudio={isMediaAudio}
               ref={this.playerRef}
-              isBeingEdited={isBeingEdited}
               searchBoxVisible={false}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xxl" />
-        <EuiFlexGroup>
-          <EuiFlexItem>
+        <EuiFlexGroup
+          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
+        >
+          <EuiFlexItem style={{ fontSize: '22px' }}>
             <Editor
               transcript={chapters}
               originalChapters={chapters}
@@ -261,13 +304,14 @@ export default class UploadPage extends Component {
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
               validateTranscript={this.onValidateTranscript}
-              isBeingEdited={this.isBeingEdited}
               isDiffVisible={false}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xl" />
-        <EuiFlexGroup style={chapters.length !== 0 ? { display: 'flex' } : { display: 'none' }}>
+        <EuiFlexGroup
+          style={{ display: incompleteTranscriptExists && chapters.length !== 0 ? 'flex' : 'none' }}
+        >
           <EuiFlexItem grow={false}>
             <EuiButton fill color="secondary" onClick={this.completeTranscript}>Complete</EuiButton>
           </EuiFlexItem>

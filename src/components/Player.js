@@ -205,22 +205,38 @@ class Player extends Component {
 
   handleKeyPress = (e) => {
     const { isPlaying, currentVolumeLevel } = this.state
-    const { isBeingEdited } = this.props
     const media = this.myRef && this.myRef.current ? this.myRef.current : null
-    if (isBeingEdited === false) {
-      if (e.key === 'ArrowLeft') {
-        this.backwardMusic()
-      } else if (e.key === 'ArrowRight') {
-        this.forwardMusic()
-      } else if (e.key === 'ArrowUp') {
-        let updatedCurrentVolume = currentVolumeLevel
-        if (currentVolumeLevel !== 1) {
-          updatedCurrentVolume = parseFloat((currentVolumeLevel + 0.20).toFixed(2))
-        }
+    if (e.altKey && e.key === 'ArrowLeft') {
+      this.backwardMusic()
+    } else if (e.altKey && e.key === 'ArrowRight') {
+      this.forwardMusic()
+    } else if (e.altKey && e.key === 'ArrowUp') {
+      let updatedCurrentVolume = currentVolumeLevel
+      if (currentVolumeLevel !== 1) {
+        updatedCurrentVolume = parseFloat((currentVolumeLevel + 0.20).toFixed(2))
+      }
+      this.setState({
+        currentVolumeLevel: updatedCurrentVolume
+      }, () => {
+        media.volume = updatedCurrentVolume
         this.setState({
-          currentVolumeLevel: updatedCurrentVolume
-        }, () => {
-            media.volume = updatedCurrentVolume
+          toasts: [{
+            title: 'Volume 📢',
+            color: 'success',
+            text: `${updatedCurrentVolume * 100}%`
+          }]
+        })
+      })
+    } else if (e.altKey && e.key === 'ArrowDown') {
+      let updatedCurrentVolume = currentVolumeLevel
+      if (currentVolumeLevel !== 0.00) {
+        updatedCurrentVolume = parseFloat((currentVolumeLevel - 0.20).toFixed(2))
+      }
+      this.setState({
+        currentVolumeLevel: updatedCurrentVolume
+      }, () => {
+        media.volume = updatedCurrentVolume
+        if (updatedCurrentVolume !== 0) {
           this.setState({
             toasts: [{
               title: 'Volume 📢',
@@ -228,40 +244,21 @@ class Player extends Component {
               text: `${updatedCurrentVolume * 100}%`
             }]
           })
-        })
-      } else if (e.key === 'ArrowDown') {
-        let updatedCurrentVolume = currentVolumeLevel
-        if (currentVolumeLevel !== 0.00) {
-          updatedCurrentVolume = parseFloat((currentVolumeLevel - 0.20).toFixed(2))
-        }
-        this.setState({
-          currentVolumeLevel: updatedCurrentVolume
-        }, () => {
-          media.volume = updatedCurrentVolume
-          if (updatedCurrentVolume !== 0) {
-            this.setState({
-              toasts: [{
-                title: 'Volume 📢',
-                color: 'success',
-                text: `${updatedCurrentVolume * 100}%`
-              }]
-            })
-          } else {
-            this.setState({
-              toasts: [{
-                title: 'Volume 🔕',
-                color: 'success',
-                text: 'Muted'
-              }]
-            })
-          }
-        })
-      } else if (e.key === ' ') {
-        if (isPlaying) {
-          this.pauseMusic()
         } else {
-          this.playMusic()
+          this.setState({
+            toasts: [{
+              title: 'Volume 🔕',
+              color: 'success',
+              text: 'Muted'
+            }]
+          })
         }
+      })
+    } else if (e.altKey && e.keyCode === 32) {
+      if (isPlaying) {
+        this.pauseMusic()
+      } else {
+        this.playMusic()
       }
     }
   }

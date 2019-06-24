@@ -23,3 +23,9 @@ input[type=range]::-ms-thumb {
 .sliderWrapper {
   height: 4px;
 }
+
+
+
+.euiImage__caption {
+  font-size: 30px;
+}

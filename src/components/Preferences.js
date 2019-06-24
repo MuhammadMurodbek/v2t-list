@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import {
   EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
-  EuiTitle, EuiIcon, EuiRadioGroup, EuiSwitch
+  EuiTitle, EuiIcon, EuiRadioGroup, EuiSwitch, EuiRange
 } from '@elastic/eui'
 
 import { usePreferences } from './PreferencesProvider'
@@ -38,6 +38,8 @@ const Flyout = ({ visible, onClose }) => {
   })
   const setKeywords = keywords => setPreferences({ keywords })
   const setAudioOnly = audioOnly => setPreferences({ audioOnly })
+  const setHighlightMode = highlightMode => setPreferences({ highlightMode })
+
 
   return (
     <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle">
@@ -81,6 +83,13 @@ const Flyout = ({ visible, onClose }) => {
               onChange={setAudioOnly}
             />
           </EuiFormRow>
+          <EuiFormRow label="Highlights the words">
+            <EuiSwitch
+              label="Highlight"
+              checked={false}
+              onChange={setHighlightMode}
+            />
+          </EuiFormRow>  
         </Fragment>
       </EuiFlyoutBody>
     </EuiFlyout>

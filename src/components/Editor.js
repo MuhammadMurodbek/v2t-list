@@ -277,12 +277,11 @@ export default class Editor extends Component {
 
 
   validate = () => {
-    const { chapters, isBeingEdited } = this.props
+    const { chapters } = this.props
     const [ preferences ] = this.context
     const keywords = preferences.keywords.map(keyword => keyword.label.toLowerCase())
     const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
     const error = invalidChapters.map(({ keyword }) => keyword)
-    isBeingEdited(false)
     this.setState({ error }, ()=> {
       this.props.validateTranscript(error)
     })
@@ -306,7 +305,6 @@ export default class Editor extends Component {
           onSelect={onSelect}
           onPaste={this.onPaste}
           error={error}
-          isBeingEdited={this.props.isBeingEdited}
         />
         <EuiFlexGroup style={{ display: isDiffVisible ? 'flex' : 'none' }}>
           <EuiFlexItem>
@@ -318,7 +316,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, isBeingEdited }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -333,7 +331,6 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
       onSelect={onSelect}
       onPaste={onPaste}
       error={error}
-      isBeingEdited={isBeingEdited}
     />
   ))
   return (
@@ -343,11 +340,10 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, isBeingEdited }) => {
+const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error }) => {
   const onFocus = () => {
     if (keyword === NEW_KEYWORD)
       setTimeout(() => document.execCommand('selectAll',false,null),0)
-    isBeingEdited(true)
   }
   return (
     <Fragment>
@@ -373,20 +369,17 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
         onKeyDown={onKeyDown}
         onSelect={onSelect}
         onPaste={onPaste}
-        isBeingEdited={isBeingEdited}
       />
     </Fragment>
   )
 }
 
-const Chunks = ({ segments, currentTime, chapterId, onChange, onKeyDown, onSelect, onPaste, isBeingEdited }) => {
+const Chunks = ({ segments, currentTime, chapterId, onChange, onKeyDown, onSelect, onPaste }) => {
   const chunks = segments.map((props, i) => <Chunk key={i} {...{...props, chapterId, i, currentTime}} />)
   return (
     <pre>
       <code
         key={segments.toString()}
-        onFocus={()=>{ isBeingEdited(true) }}
-        onBlur={()=>{ isBeingEdited(false) }}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}
         onSelect={onSelect}
@@ -403,7 +396,7 @@ const Chunks = ({ segments, currentTime, chapterId, onChange, onKeyDown, onSelec
 
 const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime }) => {
   const current = currentTime > startTime && currentTime <= endTime
-  const style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : {}
+  const style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00', fontSize: '1.3rem' } : { fontSize: '1.3rem' }
   return (
     <span style={style} data-chapter={chapterId} data-segment={i}>
       {words}
