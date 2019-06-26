@@ -14,26 +14,17 @@ import {
 import Player from '../components/Player'
 import Editor from '../components/Editor'
 import Page from '../components/Page'
+import TrainingInstructions from '../components/TrainingInstructions'
+import TrainingButtonActions from '../components/TrainingButtonActions'
 import '../styles/simple-player.css'
 
 export default class UploadPage extends Component {
   state = {
     isMediaAudio: true,
     queryTerm: false,
-    listOfTrainingData: [{
-      id: '572ba6fc-e720-40d0-bcf5-39813708b14f',
-      status: 'incomplete'
-    }, {
-      id: 'd3d34e61-c823-45a3-9299-75cbf5fda626',
-      status: 'incomplete'
-    }, {
-      id: '372b1a57-4d74-412b-b7af-f01ac9d460ee',
-      status: 'incomplete'
-    }],
     chapters: [],
-    trasncriptId: null,
+    transcriptionId: 0,
     toasts: [],
-    currentTranscript: null,
     incompleteTranscriptExists: true
   }
 
@@ -56,69 +47,33 @@ export default class UploadPage extends Component {
   }
 
   loadCurrentTranscript = async () => {
-    const { listOfTrainingData, currentTranscript } = this.state
     const status = await axios.get('/api/v1/training/')
-    if (Object.prototype.hasOwnProperty.call(status, 'transcription')) {
+    if (status.data.transcription) {
       this.setState({
-        trasncriptId: status.transcription.transcriptionId
+        transcriptionId: status.data.transcription.transcriptionId
+      }, () => {
+        this.loadSubtitle(status)
       })
     } else {
       // alert('Yayyyy, all transcripts have feedback now')
-    }
-    console.log('status')
-    console.log(status)
-    for (let i = 0; i < listOfTrainingData.length; i += 1) {
-      if (listOfTrainingData[i].status === 'incomplete') {
-        this.setState({ currentTranscript: listOfTrainingData[i] }, ()=>{
-          this.loadSubtitle()
-        })
-        break
-      }
-    }
-    
-    let numberOfIncompleteData = 0
-    for (let i = 0; i < listOfTrainingData.length; i += 1) {
-      if (listOfTrainingData[i].status === 'incomplete') {
-        numberOfIncompleteData += 1
-      }
-    }
-
-    if (numberOfIncompleteData === 0) {
       this.setState({ incompleteTranscriptExists: false })
-      console.log('There is no pending trainng data to be assesed')
     }
   }
 
-  loadSubtitle = async () => {
-    const { currentTranscript } = this.state
-    console.log('currentTranscript')
-    console.log(currentTranscript)
-    if (currentTranscript) {
-      const content = await axios
-        .get(`http://localhost:3000/api/v1/transcription/${currentTranscript.id}`)
-      console.log('content')
-      console.log(content)
-      let tempChapter = [{
-        keyword: '',
-        segments: [
-          {
-            endTime: 0,
-            startTime: 0,
-            words: ''
-          }]
-      }]
-
-      let words = ''
-      content.data.transcriptions[0].segments.forEach((segment) => {
-        words = `${words} ${segment.words}`
-      })
-      tempChapter[0].segments[0].words = words
-      this.setState({ chapters: tempChapter })
-    }
+  loadSubtitle = (status) => {
+    const tempChapter = [{
+      keyword: '',
+      segments: [
+        {
+          endTime: 0,
+          startTime: 0,
+          words: status.data.transcription.text
+        }]
+    }]
+    this.setState({ chapters: tempChapter })
   }
 
   onTimeUpdate = () => {
-    console.log('updated')
   }
 
   getCurrentTime = () => {
@@ -141,10 +96,7 @@ export default class UploadPage extends Component {
   }
 
   completeTranscript = async () => {
-    // const status = await axios.get('/api/v1/training/')
-    // console.log('status')
-    // console.log(status)
-    const { currentTranscript, listOfTrainingData } = this.state
+  const { transcriptionId, chapters } = this.state
     this.setState({
       toasts: [{
         title: '',
@@ -156,21 +108,21 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, () => {
-      console.log(currentTranscript)
-      listOfTrainingData.forEach((transcript) => {
-        if (transcript.id === currentTranscript.id) {
-          transcript.status = 'complete'
-        }
+      axios({
+        method: 'post',
+        url: `/api/v1/training/${transcriptionId}/0/0`,
+        data: {
+          text: chapters[0].segments[0].words
+        },
+        contentType: 'application/json',
+        acceptEncoding: 'gzip, deflate'
       })
+
       this.loadCurrentTranscript()
     })
   }
 
   skipTranscript = () => {
-    // TODO
-    // Redirect to the next incomplete one
-    // If there is none, let the user know that it is the last one to be completed
-    const { currentTranscript, listOfTrainingData } = this.state
     this.setState({
       toasts: [{
         title: '',
@@ -182,28 +134,12 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, () => {
-      console.log(currentTranscript)
-      listOfTrainingData.forEach((transcript) => {
-        if (transcript.id === currentTranscript.id) {
-          transcript.status = 'skip'
-        }
-      })
       this.loadCurrentTranscript()
     })
   }
 
   rejectTranscript = async () => {
-    // const { trasncriptId, chapters } = this.state
-    // let trainingText = ''
-    // chapters.forEach((chapter) => {
-    //   trainingText = `${trainingText} ${chapter.segment}`
-    // })
-
-    // const rejectionStatus = await axios.post(`/api/v1/training/${trasncriptId}/0/0`, {
-    //   text: trainingText,
-    //   status: 'REJECT'
-    // })
-    const { currentTranscript, listOfTrainingData } = this.state
+    const { transcriptionId, chapters } = this.state
     this.setState({
       toasts: [{
         title: '',
@@ -215,21 +151,20 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, () => {
-      console.log(currentTranscript)
-      listOfTrainingData.forEach((transcript) => {
-        if (transcript.id === currentTranscript.id) {
-          transcript.status = 'rejected'
-        }
+      axios({
+        method: 'post',
+        url: `/api/v1/training/${transcriptionId}/0/0`,
+        data: {
+          text: chapters[0].segments[0].words,
+          status: 'REJECT'
+        },
+        contentType: 'application/json',
+        acceptEncoding: 'gzip, deflate'
       })
+
       this.loadCurrentTranscript()
     })
-
-    // if (rejectionStatus) {
-    //   alert('The training data is marked as rejected.')
-    //   window.location.replace('/training')
-    // }
   }
-
 
   onValidateTranscript = (errors) => {
     this.setState({ errors })
@@ -246,9 +181,8 @@ export default class UploadPage extends Component {
       queryTerm,
       chapters,
       currentTime,
-      trasncriptId,
+      transcriptionId,
       toasts,
-      currentTranscript,
       incompleteTranscriptExists
     } = this.state
 
@@ -257,7 +191,7 @@ export default class UploadPage extends Component {
         <EuiTitle size="l" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
           <h1>Training</h1>
         </EuiTitle>
-        <EuiSpacer size="xxl" />
+        <EuiSpacer size="s" />
         <EuiFlexGroup
           style={{ display: incompleteTranscriptExists ? 'none' : 'flex' }}
           alignItems="center"
@@ -280,7 +214,7 @@ export default class UploadPage extends Component {
         >
           <EuiFlexItem>
             <Player
-              trackId={currentTranscript ? currentTranscript.id : 0}
+              trackId={transcriptionId}
               getCurrentTime={this.getCurrentTime}
               updateSeek={this.onTimeUpdate}
               queryTerm={queryTerm}
@@ -288,10 +222,11 @@ export default class UploadPage extends Component {
               isContentAudio={isMediaAudio}
               ref={this.playerRef}
               searchBoxVisible={false}
+              isTraining
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiSpacer size="xxl" />
+        <EuiSpacer size="m" />
         <EuiFlexGroup
           style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
@@ -308,7 +243,7 @@ export default class UploadPage extends Component {
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiSpacer size="xl" />
+        <EuiSpacer size="s" />
         <EuiFlexGroup
           style={{ display: incompleteTranscriptExists && chapters.length !== 0 ? 'flex' : 'none' }}
         >
@@ -320,6 +255,29 @@ export default class UploadPage extends Component {
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton fill color="danger" onClick={this.rejectTranscript}>Reject</EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        
+        <EuiSpacer size="xxl" />
+        <EuiSpacer size="xxl" />
+        <EuiSpacer size="m" />
+        <EuiTitle size="s" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
+          <h6>Instructions</h6>
+        </EuiTitle>
+        <EuiSpacer size="m" />
+        <EuiFlexGroup
+          style={{ display: incompleteTranscriptExists && chapters.length !== 0 ? 'flex' : 'none' }}
+        >
+          <EuiFlexItem>
+            <TrainingInstructions />
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <TrainingButtonActions />
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiSpacer size="xl" />
+            <EuiSpacer size="xl" />
+            <EuiSpacer size="xl" />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiGlobalToastList

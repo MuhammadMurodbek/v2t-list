@@ -170,6 +170,7 @@ export default class EditPage extends Component {
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
                   searchBoxVisible
+                  isTraining={false}
                 />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />
