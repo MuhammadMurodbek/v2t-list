@@ -48,6 +48,8 @@ export default class UploadPage extends Component {
 
   loadCurrentTranscript = async () => {
     const status = await axios.get('/api/v1/training/')
+    console.log('status')
+    console.log(status)
     if (status.data.transcription) {
       this.setState({
         transcriptionId: status.data.transcription.transcriptionId
