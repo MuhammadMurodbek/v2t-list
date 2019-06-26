@@ -108,16 +108,18 @@ class Player extends Component {
   }
 
   searchKeyword = (e) => {
-    const { audioTranscript, queryTerm } = this.props
+    const { audioTranscript, queryTerm, searchBoxVisible } = this.props
     const searchTerm = e ? e.target.value : queryTerm
-    if (searchTerm.length > 0) {
-      const startTimes = audioTranscript.flatMap(({ segments }) => {
-        const text = segments.map(segment => segment.words).join('')
-        return text.includes(searchTerm) ? this.getSelectedSegments(searchTerm) : null
-      }).filter(time => time)
-      this.setState({ startTimes })
-    } else {
-      this.setState({ startTimes: [] })
+    if (searchBoxVisible) {
+      if (searchTerm.length > 0) {
+        const startTimes = audioTranscript.flatMap(({ segments }) => {
+          const text = segments.map(segment => segment.words).join('')
+          return text.includes(searchTerm) ? this.getSelectedSegments(searchTerm) : null
+        }).filter(time => time)
+        this.setState({ startTimes })
+      } else {
+        this.setState({ startTimes: [] })
+      }
     }
   }
 
