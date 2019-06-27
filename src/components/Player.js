@@ -285,7 +285,7 @@ class Player extends Component {
     let trackUrl = `/api/v1/transcription/${trackId}/audio`
     const isTraining = this.props
     if (isTraining) {
-      trackUrl = `http://localhost:6106/api/v1/training/media/${trackId}`
+      trackUrl = `/api/v1/training/media/${trackId}`
     }
     return (
       <Fragment>
