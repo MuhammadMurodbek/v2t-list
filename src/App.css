@@ -1,3 +1,7 @@
 .euiImage.logo {
   margin-bottom: 5vh;
 }
+
+p {
+  line-height: 2;
+}

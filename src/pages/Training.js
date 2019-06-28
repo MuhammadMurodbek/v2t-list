@@ -14,9 +14,10 @@ import {
 import Player from '../components/Player'
 import Editor from '../components/Editor'
 import Page from '../components/Page'
-import TrainingInstructions from '../components/TrainingInstructions'
-import TrainingButtonActions from '../components/TrainingButtonActions'
+import TrainingInstructions from '../components/training/TrainingInstructions'
+import TrainingButtonActions from '../components/training/TrainingButtonActions'
 import '../styles/simple-player.css'
+import TrainingHelp from '../components/training/TrainingHelp';
 
 export default class UploadPage extends Component {
   state = {
@@ -271,15 +272,7 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists && chapters.length !== 0 ? 'flex' : 'none' }}
         >
           <EuiFlexItem>
-            <TrainingInstructions />
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <TrainingButtonActions />
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <EuiSpacer size="xl" />
-            <EuiSpacer size="xl" />
-            <EuiSpacer size="xl" />
+            <TrainingHelp />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiGlobalToastList

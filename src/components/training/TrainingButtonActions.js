@@ -1,7 +1,7 @@
 // Used react synthetic event
 import React, { Fragment } from 'react'
 import { EuiBasicTable, EuiSpacer, EuiIcon } from '@elastic/eui'
-import '../App.css'
+import '../../App.css'
 
 const TrainingInstructions = () => {
   const columns = [
