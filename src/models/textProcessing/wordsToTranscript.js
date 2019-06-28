@@ -11,23 +11,31 @@ const wordsToTranscript = (receivedWords, reservedKeywords) => {
   let words = receivedWords
   words.forEach((word) => {
     // Postprocess
-    if (word === 'punkt') {
-      precessedWords.push('. ')
-    } else if (word === 'kolon' || word === ':') {
-      precessedWords.push('')
-    } else if (word === 'allmäntillstånd' || word.toLowerCase().trim() === 'at') {
-      if (allmäntillståndUsed === false) {
-        precessedWords.push('at')
-        allmäntillståndUsed = true
-      } else {
+    switch (word) {
+      case 'punkt':
+        precessedWords.push('. ')
+        break
+      case 'kolon':
+      case ':':
         precessedWords.push('')
-      }
-    } else if (word === 'trettio') {
-      precessedWords.push('30')
-    } else if (word === 'ett') {
-      precessedWords.push('1')
-    } else {
-      precessedWords.push(`${word} `)
+        break
+      case 'allmäntillstånd':
+      case 'at':
+        if (allmäntillståndUsed === false) {
+          precessedWords.push('at')
+          allmäntillståndUsed = true
+        } else {
+          precessedWords.push('')
+        }
+        break
+      case 'trettio':
+        precessedWords.push('30')
+        break
+      case 'ett':
+        precessedWords.push('1')
+        break
+      default:
+        precessedWords.push(`${word} `)
     }
   })
 
