@@ -20,11 +20,11 @@ const Mic = ({
       alt="mic"
       onClick={toggleRecord}
     />
-    <span style={microphoneBeingPressed === true ? { display: 'inline' } : { display: 'none' }}>
+    <span style={microphoneBeingPressed ? { display: 'inline' } : { display: 'none' }}>
       <img
         src={micRecording}
         className="micRecording"
-        style={microphoneBeingPressed === true ? { display: 'inline' } : { display: 'none' }}
+        style={microphoneBeingPressed ? { display: 'inline' } : { display: 'none' }}
         alt="mic"
         onClick={toggleRecord}
       />
