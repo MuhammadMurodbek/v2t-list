@@ -119,14 +119,65 @@ export default class Editor extends Component {
   }
 
   onChange = (e, chapterId) => {
-    const { updateTranscript } = this.props
-    this.stashCursor()
+    const { updateTranscript, isTraining } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, e.target.innerText)
     chapters[chapterId] = this.parseChapter(e.target, chapterId)
     const diff = this.getDiff(chapters)
     this.setState({ diff })
-    updateTranscript(chapters)
+    let updatedChapters 
+    if (isTraining) {
+      updatedChapters = this.textProcessForTraining(chapters)
+      this.stashCursor()
+      updateTranscript(updatedChapters)
+      console.log(this.cursor.offset)
+      
+    } else {
+      this.stashCursor()
+      updateTranscript(chapters)
+    }
+    
+  }
+
+  textProcessForTraining = (chapters) => {
+    if (chapters[0]) {
+      let updatedChapters = []
+      console.log('chapters[0].segments[0].words')
+      console.log(chapters[0].segments[0].words)
+      console.log('booo')
+      chapters.forEach((chapter) => {
+        let tempChapter = {}
+        let tempSegments = ''
+        chapter.segments.forEach((segment) => {
+          tempSegments += this.textReplacementForTraining(segment.words)
+        })
+        tempChapter = {
+          keyword: '',
+          segments: [
+            {
+              endTime: 0,
+              startTime: 0,
+              words: tempSegments
+            }]
+        }
+        updatedChapters.push(tempChapter)
+      })
+      // console.log('chapters')
+      // console.log(chapters)
+      // console.log('updatedChapters')
+      // console.log(updatedChapters)
+      return updatedChapters
+    }
+  }
+
+  textReplacementForTraining = (textSegment) => {
+    let updatedTextSegment = textSegment
+    updatedTextSegment = updatedTextSegment.replace(/\./g, 'punkt ')
+    // this.stashCursor(5)
+    updatedTextSegment = updatedTextSegment.replace(/:/g, 'kolon ')
+    updatedTextSegment = updatedTextSegment.replace(/%/g, 'procent ')
+    updatedTextSegment = updatedTextSegment.replace(/ny rad/g, '\n')
+    return updatedTextSegment
   }
 
   onPaste = (e, chapterId) => {

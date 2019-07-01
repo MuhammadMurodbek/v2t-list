@@ -5,10 +5,10 @@ import '../../App.css'
 
 const TrainingHelpText = () => (
   <Fragment>
-    <EuiSpacer size="s" />
-    <h1>Hur rättar jag texten?</h1>
-    <EuiSpacer size="l" />
-    <EuiText>
+    <EuiText style={{ letterSpacing: '.009em' }}>
+      <EuiSpacer size="s" />
+      <h1 style={{ letterSpacing: '.03em' }}>Hur rättar jag texten?</h1>
+      <EuiSpacer size="l" />
       Ändra så att texten stämmer ordagrant med ljudklippet, även om grammatiken blir fel.
       <EuiSpacer size="m" />
       Om orden är ”avhuggna”, (första eller sista stavelsen saknas eller är inte komplett) använd
@@ -25,7 +25,7 @@ const TrainingHelpText = () => (
       <EuiSpacer size="m" />
       Är du osäker, använd skip!
       <EuiSpacer size="m" />
-      <h2>Hantering av siffror</h2>
+      <h2 style={{ letterSpacing: '.009em' }}> Hantering av siffror </h2>
       <ul>
         <li>
           Siffror behöver ofta korrigeras.
@@ -44,7 +44,7 @@ const TrainingHelpText = () => (
         </li>
       </ul>
       <EuiSpacer size="m" />
-      <h2>Specialtecken</h2>
+      <h2 style={{ letterSpacing: '.009em' }}> Specialtecken </h2>
       <ul>
         <li>
           Om talaren säger ”punkt”, skriv ”.” (Editorn korrigerar)
@@ -74,7 +74,7 @@ const TrainingHelpText = () => (
           kan alltså bli både “u a” och “utan anmärkning”,
           <br />
           <EuiSpacer size="s" />
-          “AT” kan bli “a t” eller “allmäntillstånd”.
+          “AT” kan bli “a t” eller “allmäntillstånd”
         </li>
       </ul>
     </EuiText>

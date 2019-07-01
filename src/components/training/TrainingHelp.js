@@ -1,8 +1,8 @@
 // Used react synthetic event
 import React, { useState, Fragment } from 'react'
 import {
-    EuiBasicTable, EuiSpacer, EuiTabbedContent, EuiTitle, EuiText, EuiFlexGroup, EuiFlexItem, EuiListGroup,
-    EuiListGroupItem} from '@elastic/eui'
+  EuiSpacer, EuiTabbedContent, EuiFlexGroup, EuiFlexItem
+} from '@elastic/eui'
 import TrainingInstructions from './TrainingInstructions'
 import TrainingButtonActions from './TrainingButtonActions'
 import TrainingHelpText from './TrainingHelpText'
@@ -12,7 +12,7 @@ const TrainingHelp = () => {
   const tabsInit = [
     {
       id: 'controlreference',
-      name: 'Control Reference',
+      name: 'Snabb Kommandon',
       content: (
         <Fragment>
           <EuiSpacer size="l" />
@@ -28,7 +28,7 @@ const TrainingHelp = () => {
       )
     }, {
       id: 'instructions',
-      name: 'How to Guide',
+      name: 'Användarguide',
       content: (
         <Fragment>
           <EuiSpacer size="l" />
@@ -38,16 +38,13 @@ const TrainingHelp = () => {
     }
   ]
 
-  const [tabs, setTabs] = useState(tabsInit)
+  const [tabs] = useState(tabsInit)
   return (
     <Fragment>
       <EuiTabbedContent
         tabs={tabs}
         initialSelectedTab={tabs[0]}
         autoFocus="selected"
-        onTabClick={(tab) => {
-          console.log('clicked tab', tab)
-        }}
       />
     </Fragment>
   )

@@ -90,8 +90,55 @@ export default class UploadPage extends Component {
     })
   }
 
+  textProcess = (textSegment) => {
+    let updatedTextSegment = textSegment
+    updatedTextSegment = updatedTextSegment.replace(/\./g, ' punkt')
+    updatedTextSegment = updatedTextSegment.replace(/:/g, ' kolon')
+    updatedTextSegment = updatedTextSegment.replace(/%/g, ' procent')
+    updatedTextSegment = updatedTextSegment.replace(/ny rad/g, '\n')
+    return updatedTextSegment
+  }
+
   onUpdateTranscript = (chapters) => {
-    this.setState({ chapters })
+    // const updatedChapters = []
+    // if (chapters[0]) {
+    //   console.log('chapters[0].segments[0].words')
+    //   console.log(chapters[0].segments[0].words)
+    //   console.log('booo')
+    //   chapters.forEach((chapter) => {
+    //     let tempChapter = {}
+    //     let tempSegments = ''
+    //     chapter.segments.forEach((segment) => {
+    //       tempSegments += this.textProcess(segment.words)
+    //     })
+    //     tempChapter = {
+    //       keyword: '',
+    //       segments: [
+    //         {
+    //           endTime: 0,
+    //           startTime: 0,
+    //           words: tempSegments
+    //         }]
+    //     }
+    //     updatedChapters.push(tempChapter)
+    //   })
+    //   // console.log('chapters')
+    //   // console.log(chapters)
+    //   // console.log('updatedChapters')
+    //   // console.log(updatedChapters)
+    //   console.log('öööööö')
+    // }
+    
+    // console.log('this.state.chapters')
+    // console.log(this.state.chapters)
+    // if (this.state.chapters[0]) {
+    //   console.log(this.state.chapters[0].segments[0].words)
+    // }
+    // console.log('this.state. updated chapterss')
+    // if (updatedChapters[0]) {
+    //   console.log(updatedChapters[0].segments[0].words)
+    // }
+    this.setState({chapters})
   }
 
   completeTranscript = async () => {
@@ -240,6 +287,7 @@ export default class UploadPage extends Component {
               updateTranscript={this.onUpdateTranscript}
               validateTranscript={this.onValidateTranscript}
               isDiffVisible={false}
+              isTraining
             />
           </EuiFlexItem>
         </EuiFlexGroup>
@@ -261,7 +309,7 @@ export default class UploadPage extends Component {
         <EuiSpacer size="xxl" />
         <EuiSpacer size="m" />
         <EuiTitle size="s" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
-          <h6>Instructions</h6>
+          <h6>Instruktioner</h6>
         </EuiTitle>
         <EuiSpacer size="m" />
         <EuiFlexGroup
