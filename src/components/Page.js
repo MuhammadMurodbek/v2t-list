@@ -3,7 +3,7 @@ import {
   EuiPageBody, EuiPageContent, EuiPageContentHeader,
   EuiPageContentHeaderSection, EuiTitle, EuiPageContentBody
 } from '@elastic/eui'
-
+import PropTypes from 'prop-types'
 import Preferences from './Preferences'
 
 const Start = ({ title, children, preferences }) => (
@@ -25,5 +25,11 @@ const Start = ({ title, children, preferences }) => (
     </EuiPageContent>
   </EuiPageBody>
 )
+
+Start.propTypes = {
+  title: PropTypes.isRequired,
+  children: PropTypes.isRequired,
+  preferences: PropTypes.isRequired
+}
 
 export default Start

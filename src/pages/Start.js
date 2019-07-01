@@ -10,8 +10,12 @@ const StartPage = ({ transcripts }) => (
   </Page>
 )
 
-TranscriptionList.propTypes = {
+StartPage.propTypes = {
   transcripts: PropTypes.array
+}
+
+StartPage.defaultProps = {
+  transcripts: []
 }
 
 export default StartPage

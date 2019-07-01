@@ -8,16 +8,14 @@ import {
   EuiTitle,
   EuiGlobalToastList,
   EuiProgress,
-  EuiAvatar, EuiTextAlign, EuiIcon,
+  EuiTextAlign,
   EuiImage
 } from '@elastic/eui'
 import Player from '../components/Player'
 import Editor from '../components/Editor'
 import Page from '../components/Page'
-import TrainingInstructions from '../components/training/TrainingInstructions'
-import TrainingButtonActions from '../components/training/TrainingButtonActions'
 import '../styles/simple-player.css'
-import TrainingHelp from '../components/training/TrainingHelp';
+import TrainingHelp from '../components/training/TrainingHelp'
 
 export default class UploadPage extends Component {
   state = {
@@ -49,8 +47,6 @@ export default class UploadPage extends Component {
 
   loadCurrentTranscript = async () => {
     const status = await axios.get('/api/v1/training/')
-    console.log('status')
-    console.log(status)
     if (status.data.transcription) {
       this.setState({
         transcriptionId: status.data.transcription.transcriptionId
@@ -99,7 +95,7 @@ export default class UploadPage extends Component {
   }
 
   completeTranscript = async () => {
-  const { transcriptionId, chapters } = this.state
+    const { transcriptionId, chapters } = this.state
     this.setState({
       toasts: [{
         title: '',
@@ -170,6 +166,7 @@ export default class UploadPage extends Component {
   }
 
   onValidateTranscript = (errors) => {
+    // eslint-disable-next-line react/no-unused-state
     this.setState({ errors })
   }
 
@@ -260,7 +257,6 @@ export default class UploadPage extends Component {
             <EuiButton fill color="danger" onClick={this.rejectTranscript}>Reject</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
-        
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="m" />
