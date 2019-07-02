@@ -14,7 +14,7 @@ const TrainingHelpText = () => (
       Om orden är ”avhuggna”, (första eller sista stavelsen saknas eller är inte komplett) använd
       <br />
       <EuiSpacer size="s" />
-      skip för att markera att ljudklippet inte är lämpligt som träningsdata.
+      Reject för att markera att ljudklippet inte är lämpligt som träningsdata.
       <EuiSpacer size="m" />
       Talat språk innehåller också omstartade meningar (man sa fel, hoppade över ett ord, osv),
       <br />
