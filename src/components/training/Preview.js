@@ -9,8 +9,6 @@ const Preview = ({ contents, visible }) => (
     <EuiText>
       
       <h5>Preview</h5>
-      <EuiSpacer size="l" />
-      <EuiSpacer size="s" />
       <pre>
         <code>{contents}</code>
       </pre>

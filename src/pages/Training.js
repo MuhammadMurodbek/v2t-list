@@ -97,6 +97,7 @@ export default class UploadPage extends Component {
   textReplacementForTraining = (textSegment) => {
     let updatedTextSegment = textSegment
     updatedTextSegment = updatedTextSegment.replace(/\./g, ' punkt ')
+    updatedTextSegment = updatedTextSegment.replace(/\,/g, ' komma ')
     updatedTextSegment = updatedTextSegment.replace(/:/g, ' kolon ')
     updatedTextSegment = updatedTextSegment.replace(/%/g, ' procent ')
     updatedTextSegment = updatedTextSegment.replace(/  +/g, ' ')
