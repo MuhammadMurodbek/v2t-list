@@ -7,13 +7,13 @@ import {
 
 import { PreferenceContext } from './PreferencesProvider'
 import '../styles/editor.css'
+
 const NEW_KEYWORD = 'New Chapter'
 const KEYCODE_ENTER = 13
 const KEYCODE_BACKSPACE = 8
 const KEYCODE_DELETE = 46
 
 export default class Editor extends Component {
-
   static contextType = PreferenceContext
 
   static defaultProps = {
@@ -176,7 +176,7 @@ export default class Editor extends Component {
     // this.stashCursor(5)
     updatedTextSegment = updatedTextSegment.replace(/:/g, 'kolon ')
     updatedTextSegment = updatedTextSegment.replace(/%/g, 'procent ')
-    updatedTextSegment = updatedTextSegment.replace(/ny rad/g, '\n')
+    // updatedTextSegment = updatedTextSegment.replace(/<br>/g, 'ny rad')
     return updatedTextSegment
   }
 
