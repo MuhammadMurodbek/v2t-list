@@ -51,10 +51,6 @@ const TrainingHelpText = () => (
         </li>
         <EuiSpacer size="m" />
         <li>
-          Om talaren säger ”ny rad”, tryck ”⮐” (Editorn korrigerar)
-        </li>
-        <EuiSpacer size="m" />
-        <li>
           Om talaren säger ”procent”, skriv ”%” (Editorn korrigerar)
         </li>
         <EuiSpacer size="m" />
