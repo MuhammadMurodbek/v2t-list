@@ -399,8 +399,18 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
 }
 
 const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }) => {
+  let style
   const current = currentTime > startTime && currentTime <= endTime
-  const style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00', fontSize: context.currentFontSize } : { fontSize: context.currentFontSize }
+
+  if (context) {
+    style = current ? {
+      fontWeight: 'bold',
+      backgroundColor: '#FFFF00',
+      fontSize: context.currentFontSize
+    } : { fontSize: context.currentFontSize }
+  } else {
+    style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : { }
+  }
   return (
     <span style={style} className="editorBody" data-chapter={chapterId} data-segment={i}>
       {words}
