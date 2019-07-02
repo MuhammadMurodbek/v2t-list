@@ -9,13 +9,15 @@ import {
   EuiGlobalToastList,
   EuiProgress,
   EuiTextAlign,
-  EuiImage
+  EuiImage,
+  EuiText
 } from '@elastic/eui'
 import Player from '../components/Player'
 import Editor from '../components/Editor'
 import Page from '../components/Page'
 import '../styles/simple-player.css'
 import TrainingHelp from '../components/training/TrainingHelp'
+import Preview from '../components/training/Preview'
 
 export default class UploadPage extends Component {
   state = {
@@ -24,7 +26,9 @@ export default class UploadPage extends Component {
     chapters: [],
     transcriptionId: 0,
     toasts: [],
-    incompleteTranscriptExists: true
+    incompleteTranscriptExists: true,
+    previewContents: '',
+    isPreviewVisible: false
   }
 
   componentDidMount = async () => {
@@ -69,7 +73,7 @@ export default class UploadPage extends Component {
           words: status.data.transcription.text
         }]
     }]
-    this.setState({ chapters: tempChapter })
+    this.setState({ chapters: tempChapter, previewContents: status.data.transcription.text })
   }
 
   onTimeUpdate = () => {
@@ -90,59 +94,56 @@ export default class UploadPage extends Component {
     })
   }
 
-  textProcess = (textSegment) => {
+  textReplacementForTraining = (textSegment) => {
     let updatedTextSegment = textSegment
-    updatedTextSegment = updatedTextSegment.replace(/\./g, ' punkt')
-    updatedTextSegment = updatedTextSegment.replace(/:/g, ' kolon')
-    updatedTextSegment = updatedTextSegment.replace(/%/g, ' procent')
-    updatedTextSegment = updatedTextSegment.replace(/ny rad/g, '\n')
+    updatedTextSegment = updatedTextSegment.replace(/\./g, ' punkt ')
+    updatedTextSegment = updatedTextSegment.replace(/:/g, ' kolon ')
+    updatedTextSegment = updatedTextSegment.replace(/%/g, ' procent ')
+    updatedTextSegment = updatedTextSegment.replace(/  +/g, ' ')
     return updatedTextSegment
   }
 
   onUpdateTranscript = (chapters) => {
-    // const updatedChapters = []
-    // if (chapters[0]) {
-    //   console.log('chapters[0].segments[0].words')
-    //   console.log(chapters[0].segments[0].words)
-    //   console.log('booo')
-    //   chapters.forEach((chapter) => {
-    //     let tempChapter = {}
-    //     let tempSegments = ''
-    //     chapter.segments.forEach((segment) => {
-    //       tempSegments += this.textProcess(segment.words)
-    //     })
-    //     tempChapter = {
-    //       keyword: '',
-    //       segments: [
-    //         {
-    //           endTime: 0,
-    //           startTime: 0,
-    //           words: tempSegments
-    //         }]
-    //     }
-    //     updatedChapters.push(tempChapter)
-    //   })
-    //   // console.log('chapters')
-    //   // console.log(chapters)
-    //   // console.log('updatedChapters')
-    //   // console.log(updatedChapters)
-    //   console.log('öööööö')
-    // }
-    
-    // console.log('this.state.chapters')
-    // console.log(this.state.chapters)
-    // if (this.state.chapters[0]) {
-    //   console.log(this.state.chapters[0].segments[0].words)
-    // }
-    // console.log('this.state. updated chapterss')
-    // if (updatedChapters[0]) {
-    //   console.log(updatedChapters[0].segments[0].words)
-    // }
-    this.setState({chapters})
+    this.setState({ chapters }, () => {
+      if (chapters[0]) {
+        this.showPreview()
+      }
+    })
+  }
+
+  textProcessBeforeCompletion = () => {
+    const { chapters } = this.state
+    const updatedChapters = []
+    if (chapters[0]) {
+      chapters.forEach((chapter) => {
+        let tempChapter = {}
+        let tempSegments = ''
+        chapter.segments.forEach((segment) => {
+          tempSegments += this.textReplacementForTraining(segment.words)
+        })
+        tempChapter = {
+          keyword: '',
+          segments: [
+            {
+              endTime: 0,
+              startTime: 0,
+              words: tempSegments
+            }]
+        }
+        updatedChapters.push(tempChapter)
+      })
+    }
+    return updatedChapters
+  }
+
+  showPreview = () => {
+    const updatedChapters = this.textProcessBeforeCompletion()
+    this.setState({ previewContents: updatedChapters[0].segments[0].words })
   }
 
   completeTranscript = async () => {
-    const { transcriptionId, chapters } = this.state
+    const { transcriptionId, previewContents } = this.state
+    this.textProcessBeforeCompletion()
     this.setState({
       toasts: [{
         title: '',
@@ -158,7 +159,7 @@ export default class UploadPage extends Component {
         method: 'post',
         url: `/api/v1/training/${transcriptionId}/0/0`,
         data: {
-          text: chapters[0].segments[0].words
+          text: previewContents
         },
         contentType: 'application/json',
         acceptEncoding: 'gzip, deflate'
@@ -230,7 +231,9 @@ export default class UploadPage extends Component {
       currentTime,
       transcriptionId,
       toasts,
-      incompleteTranscriptExists
+      incompleteTranscriptExists,
+      previewContents,
+      isPreviewVisible
     } = this.state
 
     return (
@@ -274,10 +277,15 @@ export default class UploadPage extends Component {
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="m" />
+        <EuiSpacer size="m" />
+        <EuiSpacer size="m" />
         <EuiFlexGroup
           style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
           <EuiFlexItem style={{ fontSize: '22px' }}>
+            <EuiText>
+              <h5>Original</h5>
+            </EuiText>
             <Editor
               transcript={chapters}
               originalChapters={chapters}
@@ -287,8 +295,11 @@ export default class UploadPage extends Component {
               updateTranscript={this.onUpdateTranscript}
               validateTranscript={this.onValidateTranscript}
               isDiffVisible={false}
-              isTraining
             />
+          </EuiFlexItem>
+          <EuiFlexItem style={{ fontSize: '22px' }}>
+            <Preview visible={isPreviewVisible} contents={previewContents} />
+            <h1>{isPreviewVisible}</h1>
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="s" />
