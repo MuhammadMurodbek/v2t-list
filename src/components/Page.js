@@ -28,7 +28,8 @@ const Start = ({ title, children, preferences }) => (
 
 Start.propTypes = {
   title: PropTypes.string.isRequired,
-  children: PropTypes.array.isRequired,
+  // children: PropTypes.object.isRequired,
+  // children: PropTypes.oneOf(['object', 'array']).isRequired,
   preferences: PropTypes.bool.isRequired
 }
 

@@ -1,11 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { EuiI18n } from '@elastic/eui'
 import Page from '../components/Page'
 import TranscriptionList from '../components/TranscriptionList'
 
 const StartPage = ({ transcripts }) => (
-  <Page preferences title={<EuiI18n token="startTitle" default="Active Backlog" />}>
+  <Page preferences title="Active Backlog">
     <TranscriptionList transcripts={transcripts} />
   </Page>
 )
@@ -15,7 +14,7 @@ StartPage.propTypes = {
 }
 
 StartPage.defaultProps = {
-  transcripts: []
+  transcripts: PropTypes.array.isRequired
 }
 
 export default StartPage
