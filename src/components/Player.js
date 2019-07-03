@@ -96,6 +96,7 @@ class Player extends Component {
 
   getAudioData = (e) => {
     const { duration } = e.target
+    const [preferences] = this.context
     const minutes = Math.floor(duration / 60) < 10
       ? `0${Math.floor(duration / 60)}` : Math.floor(duration / 60)
     const seconds = Math.floor(duration - minutes * 60) < 10
@@ -103,6 +104,10 @@ class Player extends Component {
     const trackDuration = `${minutes}:${seconds}`
     const maxSeekValue = duration
     this.setState({ trackDuration, maxSeekValue, duration }, () => {
+      if (preferences.autoPlayStatus) {
+        const media = this.myRef && this.myRef.current ? this.myRef.current : null
+        media.play()
+      }
       this.updateTime()
     })
   }

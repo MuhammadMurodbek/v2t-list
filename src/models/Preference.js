@@ -46,6 +46,18 @@ export default class Preference {
 
   set audioOnly(v) { this._audioOnly = v }
 
+  get autoPlayStatus() {
+    return this._autoPlayStatus
+  }
+
+  set autoPlayStatus(v) {
+    if (this._autoPlayStatus === true) {
+      this._autoPlayStatus = false
+    } else {
+      this._autoPlayStatus = true
+    }
+  }
+
   get highlightMode() { return this._highlightMode }
 
   set highlightMode(v) { this._highlightMode = v }
@@ -66,6 +78,7 @@ export default class Preference {
     words: '3',
     keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
     audioOnly: false,
+    autoPlayStatus: false,
     highlightMode: false,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
     allColumns: COLUMN_OPTIONS,

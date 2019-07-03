@@ -38,6 +38,7 @@ const Flyout = ({ visible, onClose }) => {
   })
   const setKeywords = keywords => setPreferences({ keywords })
   const setAudioOnly = audioOnly => setPreferences({ audioOnly })
+  const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
   const setHighlightMode = highlightMode => setPreferences({ highlightMode })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })
 
@@ -80,8 +81,16 @@ const Flyout = ({ visible, onClose }) => {
           <EuiFormRow label="Audio only">
             <EuiSwitch
               label="Ignore any video"
-              checked={preferences.audioOnly}
+              checked={preferences.getAudioOnly}
               onChange={setAudioOnly}
+            />
+          </EuiFormRow>
+          
+          <EuiFormRow label="Autoplay mode">
+            <EuiSwitch
+              label="Enable autoplay"
+              checked={preferences.autoPlayStatus}
+              onChange={setAutoPlayStatus}
             />
           </EuiFormRow>
           <EuiFormRow label="Highlights the words">

@@ -58,7 +58,6 @@ export default class UploadPage extends Component {
         this.loadSubtitle(status)
       })
     } else {
-      // alert('Yayyyy, all transcripts have feedback now')
       this.setState({ incompleteTranscriptExists: false })
     }
   }
@@ -74,9 +73,6 @@ export default class UploadPage extends Component {
         }]
     }]
     this.setState({ chapters: tempChapter, previewContents: status.data.transcription.text })
-  }
-
-  onTimeUpdate = () => {
   }
 
   getCurrentTime = () => {
@@ -234,7 +230,8 @@ export default class UploadPage extends Component {
       toasts,
       incompleteTranscriptExists,
       previewContents,
-      isPreviewVisible
+      isPreviewVisible,
+      autoplayStatus
     } = this.state
 
     return (
@@ -269,7 +266,6 @@ export default class UploadPage extends Component {
               getCurrentTime={this.getCurrentTime}
               updateSeek={this.onTimeUpdate}
               queryTerm={queryTerm}
-              isPlaying={false}
               isContentAudio={isMediaAudio}
               ref={this.playerRef}
               searchBoxVisible={false}
