@@ -55,7 +55,6 @@ export default class LivePage extends Component {
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Live Transcript 🎤'
     this.tagsRef = React.createRef()
-    const [preferences] = this.context
     const transcriptId = await retrieveNewId()
     if (transcriptId.data.id) {
       this.setState({

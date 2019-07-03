@@ -27,9 +27,9 @@ const Start = ({ title, children, preferences }) => (
 )
 
 Start.propTypes = {
-  title: PropTypes.isRequired,
-  children: PropTypes.isRequired,
-  preferences: PropTypes.isRequired
+  title: PropTypes.string.isRequired,
+  children: PropTypes.array.isRequired,
+  preferences: PropTypes.bool.isRequired
 }
 
 export default Start

@@ -1,9 +1,7 @@
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { Component, Fragment } from 'react'
 import {
-  EuiCode,
-  EuiGlobalToastList,
-  EuiLink, EuiToast
+  EuiGlobalToastList
 } from '@elastic/eui'
 import '../styles/player.css'
 import Seek from './Seek'
@@ -37,10 +35,10 @@ class Player extends Component {
 
 
   onChangeSeek = (e) => {
-    const { duration } = this.state
+    const { duration, maxSeekValue } = this.state
     const { value } = e.target
     const media = this.myRef.current
-    media.currentTime = value * duration / 100
+    media.currentTime = value * duration / maxSeekValue
     this.setState({
       seekPosition: media.currentTime
     })
@@ -378,7 +376,7 @@ class Player extends Component {
             type="range"
             min="0"
             max="100"
-            value={(seekPosition / duration) * 100}
+            value={(seekPosition / duration) * maxSeekValue}
             className="sliderWrapper"
             id="myRange"
             onChange={this.onChangeSeek}

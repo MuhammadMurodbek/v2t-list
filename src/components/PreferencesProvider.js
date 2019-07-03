@@ -11,8 +11,8 @@ const PreferencesProvider = ({ value, children }) => (
 )
 
 PreferencesProvider.propTypes = {
-  value: PropTypes.isRequired,
-  children: PropTypes.isRequired
+  value: PropTypes.array.isRequired,
+  children: PropTypes.object.isRequired
 }
 
 export default PreferencesProvider

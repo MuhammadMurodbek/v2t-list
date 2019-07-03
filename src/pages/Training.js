@@ -36,6 +36,7 @@ export default class UploadPage extends Component {
     this.playerRef = React.createRef()
     this.setState({
       toasts: [{
+        id: 0,
         title: '',
         color: 'primary',
         text: (
@@ -93,7 +94,7 @@ export default class UploadPage extends Component {
   textReplacementForTraining = (textSegment) => {
     let updatedTextSegment = textSegment
     updatedTextSegment = updatedTextSegment.replace(/\./g, ' punkt ')
-    updatedTextSegment = updatedTextSegment.replace(/\,/g, ' komma ')
+    updatedTextSegment = updatedTextSegment.replace(/,/g, ' komma ')
     updatedTextSegment = updatedTextSegment.replace(/:/g, ' kolon ')
     updatedTextSegment = updatedTextSegment.replace(/%/g, ' procent ')
     updatedTextSegment = updatedTextSegment.replace(/  +/g, ' ')
@@ -143,6 +144,7 @@ export default class UploadPage extends Component {
     this.textProcessBeforeCompletion()
     this.setState({
       toasts: [{
+        id: 0,
         title: '',
         color: 'success',
         text: (
@@ -169,6 +171,7 @@ export default class UploadPage extends Component {
   skipTranscript = () => {
     this.setState({
       toasts: [{
+        id: 0,
         title: '',
         color: 'primary',
         text: (
@@ -186,6 +189,7 @@ export default class UploadPage extends Component {
     const { transcriptionId, chapters } = this.state
     this.setState({
       toasts: [{
+        id: 0,
         title: '',
         color: 'danger',
         text: (
@@ -235,7 +239,7 @@ export default class UploadPage extends Component {
     } = this.state
 
     return (
-      <Page preferences>
+      <Page preferences title="">
         <EuiTitle size="l" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
           <h1>Training</h1>
         </EuiTitle>
@@ -270,6 +274,7 @@ export default class UploadPage extends Component {
               ref={this.playerRef}
               searchBoxVisible={false}
               isTraining
+              autoplayEnabled={autoplayStatus}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

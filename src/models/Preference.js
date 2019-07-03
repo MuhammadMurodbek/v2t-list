@@ -1,6 +1,6 @@
 import React from 'react'
 import moment from 'moment'
-import { EuiButtonEmpty, EuiHealth } from '@elastic/eui'
+import { EuiButtonEmpty } from '@elastic/eui'
 
 export const WORD_OPTIONS = [
   { id: '1', label: '1' },
