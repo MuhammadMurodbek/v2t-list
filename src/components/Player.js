@@ -38,7 +38,7 @@ class Player extends Component {
     const { duration, maxSeekValue } = this.state
     const { value } = e.target
     const media = this.myRef.current
-    media.currentTime = value * duration / maxSeekValue
+    media.currentTime = value * duration / 100
     this.setState({
       seekPosition: media.currentTime
     })
@@ -376,7 +376,7 @@ class Player extends Component {
             type="range"
             min="0"
             max="100"
-            value={(seekPosition / duration) * maxSeekValue}
+            value={(seekPosition / duration) * 100}
             className="sliderWrapper"
             id="myRange"
             onChange={this.onChangeSeek}
