@@ -10,7 +10,8 @@ import {
   EuiProgress,
   EuiTextAlign,
   EuiImage,
-  EuiText
+  EuiText,
+  EuiButtonEmpty
 } from '@elastic/eui'
 import Player from '../components/Player'
 import Editor from '../components/Editor'
@@ -223,6 +224,13 @@ export default class UploadPage extends Component {
     this.setState({ toasts: [] })
   }
 
+  changePreviewVisibility = () => {
+    const { isPreviewVisible } = this.state
+    this.setState({
+      isPreviewVisible: !isPreviewVisible
+    })
+  }
+
 
   render() {
     const {
@@ -237,6 +245,8 @@ export default class UploadPage extends Component {
       isPreviewVisible,
       autoplayStatus
     } = this.state
+
+    const visibilityChange = isPreviewVisible ? 'Hide' : 'Show'
 
     return (
       <Page preferences title="">
@@ -285,9 +295,6 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
           <EuiFlexItem style={{ fontSize: '22px' }}>
-            <EuiText>
-              <h5>Original</h5>
-            </EuiText>
             <Editor
               transcript={chapters}
               originalChapters={chapters}
@@ -298,13 +305,21 @@ export default class UploadPage extends Component {
               validateTranscript={this.onValidateTranscript}
               isDiffVisible={false}
             />
-          </EuiFlexItem>
-          <EuiFlexItem style={{ fontSize: '22px' }}>
-            <Preview visible={isPreviewVisible} contents={previewContents} />
-            <h1>{isPreviewVisible}</h1>
+            <EuiText textAlign="right">
+              <EuiButtonEmpty onClick={this.changePreviewVisibility}>
+                {visibilityChange }
+                &nbsp;
+                Preview
+              </EuiButtonEmpty>
+            </EuiText>
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiSpacer size="s" />
+        <EuiSpacer size="m" />
+        <EuiFlexGroup>
+          <EuiFlexItem style={{ fontSize: '22px' }}>
+            <Preview visible={isPreviewVisible} contents={previewContents} />
+          </EuiFlexItem>
+        </EuiFlexGroup>
         <EuiFlexGroup
           style={{ display: incompleteTranscriptExists && chapters.length !== 0 ? 'flex' : 'none' }}
         >
