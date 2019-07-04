@@ -13,7 +13,7 @@ export const COLUMN_OPTIONS = [
     label: 'created',
     field: 'created',
     name: 'Created',
-    sortable: true,
+    // sortable: true,
     render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
   },
   { label: 'type', name: 'Type', render: () => 'voice' },
@@ -22,7 +22,7 @@ export const COLUMN_OPTIONS = [
     label: 'id',
     field: 'id',
     name: 'Id',
-    sortable: true
+    // sortable: true
   },
   {
     label: 'open',

@@ -9,7 +9,6 @@ import {
   EuiGlobalToastList,
   EuiProgress,
   EuiTextAlign,
-  EuiImage,
   EuiText,
   EuiButtonEmpty
 } from '@elastic/eui'
@@ -260,13 +259,16 @@ export default class UploadPage extends Component {
         >
           <EuiFlexItem>
             <EuiTextAlign textAlign="center">
-              <EuiImage
-                size="original"
-                hasShadow={false}
-                caption="There is nothing to train now!"
-                alt="Random nature image"
-                url="https://media.giphy.com/media/26xBy4g1eHS1vqZRS/giphy.gif"
-              />
+              <EuiText>
+                <h1 style={{ fontSize: '100px', marginTop: '30vh' }}>
+                  <span role="img" aria-label="Shortcake">
+                   🍰
+                  </span>
+                </h1>
+                <h1 style={{ fontSize: '50px', marginTop: '5vh' }}>
+                All done
+                </h1>
+              </EuiText>
             </EuiTextAlign>
           </EuiFlexItem>
         </EuiFlexGroup>
@@ -348,6 +350,7 @@ export default class UploadPage extends Component {
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiGlobalToastList
+          style={{ display: incompleteTranscriptExists && chapters.length !== 0 ? 'flex' : 'none' }}
           toasts={toasts}
           dismissToast={this.removeToast}
           toastLifeTimeMs={2000}
