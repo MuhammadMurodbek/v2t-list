@@ -216,6 +216,7 @@ class Player extends Component {
     } else if (e.altKey && e.key === 'ArrowRight') {
       this.forwardMusic()
     } else if (e.altKey && e.key === 'ArrowUp') {
+      e.preventDefault()
       let updatedCurrentVolume = currentVolumeLevel
       if (currentVolumeLevel !== 1) {
         updatedCurrentVolume = parseFloat((currentVolumeLevel + 0.20).toFixed(2))
@@ -233,6 +234,7 @@ class Player extends Component {
         })
       })
     } else if (e.altKey && e.key === 'ArrowDown') {
+      e.preventDefault()
       let updatedCurrentVolume = currentVolumeLevel
       if (currentVolumeLevel !== 0.00) {
         updatedCurrentVolume = parseFloat((currentVolumeLevel - 0.20).toFixed(2))
