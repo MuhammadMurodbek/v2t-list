@@ -91,8 +91,9 @@ export default class Editor extends Component {
   }
 
   getSelectedElement = () => {
-    if (!isNaN(this.cursor.keyword))
+    if (!isNaN(this.cursor.keyword)) {
       return this.getSelectedKeywordElement()
+    }
     const filter = `[data-chapter='${this.cursor.chapter}'][data-segment='${this.cursor.segment}']`
     const fallbackFilter = `[data-chapter='${this.cursor.chapter}']`
     return document.querySelector(filter) || document.querySelector(fallbackFilter).lastChild

@@ -1,6 +1,8 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
-import { EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton } from '@elastic/eui'
+import {
+  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton
+} from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
@@ -9,7 +11,6 @@ import Tags from '../components/Tags'
 import Player from '../components/Player'
 
 export default class EditPage extends Component {
-
   static contextType = PreferenceContext
 
   static defaultProps = {
@@ -47,7 +48,7 @@ export default class EditPage extends Component {
 
   loadSegments = async () => {
     const { transcript } = this.props
-    const [ preferences ] = this.context
+    const [preferences] = this.context
     const { words } = preferences
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${words}`
     const response = await axios.get(queryString)
@@ -127,6 +128,7 @@ export default class EditPage extends Component {
         return true
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.log(error)
       })
   }

@@ -107,7 +107,7 @@ export default class UploadPage extends Component {
       <Page preferences title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
-            <EuiFilePicker multiple onChange={this.onFilesChange} />
+            <EuiFilePicker onChange={this.onFilesChange} />
           </EuiFormRow>
           <EuiFormRow label="Choose model for the transcript">
             <EuiSuperSelect

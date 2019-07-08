@@ -18,10 +18,8 @@ class Player extends Component {
 
   state = {
     isPlaying: this.props.isPlaying,
-    media: this.props.myref,
     trackDuration: null,
     seekPosition: 0,
-    maxSeekValue: 100,
     startTimes: [],
     duration: 1,
     mediaSkipDuration: 2,
@@ -33,9 +31,8 @@ class Player extends Component {
     document.addEventListener('keydown', this.handleKeyPress)
   }
 
-
   onChangeSeek = (e) => {
-    const { duration, maxSeekValue } = this.state
+    const { duration } = this.state
     const { value } = e.target
     const media = this.myRef.current
     media.currentTime = value * duration / 100
@@ -100,8 +97,7 @@ class Player extends Component {
     const seconds = Math.floor(duration - minutes * 60) < 10
       ? `0${Math.floor(duration - minutes * 60)}` : Math.floor(duration - minutes * 60)
     const trackDuration = `${minutes}:${seconds}`
-    const maxSeekValue = duration
-    this.setState({ trackDuration, maxSeekValue, duration }, () => {
+    this.setState({ trackDuration, duration }, () => {
       if (preferences.autoPlayStatus) {
         const media = this.myRef && this.myRef.current ? this.myRef.current : null
         media.play()
@@ -271,12 +267,12 @@ class Player extends Component {
   }
 
   removeToast = () => {
-    this.setState({toasts: []})
+    this.setState({ toasts: [] })
   }
 
   render() {
     const {
-      isPlaying, trackDuration, duration, currentTime, startTimes, maxSeekValue, seekPosition, toasts
+      isPlaying, trackDuration, duration, currentTime, startTimes, seekPosition, toasts
     } = this.state
     const {
       audioTranscript,
@@ -409,7 +405,7 @@ const VirtualControl = ({ transcript, startTimes, duration }) => {
   if (!transcript) return null
   return (
     <div className="virtualControl">
-      {transcript.map(({ segments }) => segments.map((segment, i ) => {
+      {transcript.map(({ segments }) => segments.map((segment, i) => {
         if (startTimes.includes(segment.startTime)) {
           return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / duration} background="yellow" />)
         }
