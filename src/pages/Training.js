@@ -25,6 +25,7 @@ export default class UploadPage extends Component {
     queryTerm: false,
     chapters: [],
     transcriptionId: 0,
+    mediaId: 0,
     toasts: [],
     incompleteTranscriptExists: true,
     previewContents: '',
@@ -54,7 +55,8 @@ export default class UploadPage extends Component {
     const status = await axios.get('/api/v1/training/')
     if (status.data.transcription) {
       this.setState({
-        transcriptionId: status.data.transcription.transcriptionId
+        transcriptionId: status.data.transcription.transcriptionId,
+        mediaId: status.data.transcription.media
       }, () => {
         this.loadSubtitle(status)
       })
@@ -237,7 +239,7 @@ export default class UploadPage extends Component {
       queryTerm,
       chapters,
       currentTime,
-      transcriptionId,
+      mediaId,
       toasts,
       incompleteTranscriptExists,
       previewContents,
@@ -262,11 +264,11 @@ export default class UploadPage extends Component {
               <EuiText>
                 <h1 style={{ fontSize: '100px', marginTop: '30vh' }}>
                   <span role="img" aria-label="Shortcake">
-                   🍰
+                    🍰
                   </span>
                 </h1>
                 <h1 style={{ fontSize: '50px', marginTop: '5vh' }}>
-                All done
+                  All done
                 </h1>
               </EuiText>
             </EuiTextAlign>
@@ -278,7 +280,7 @@ export default class UploadPage extends Component {
         >
           <EuiFlexItem>
             <Player
-              trackId={transcriptionId}
+              trackId={mediaId}
               getCurrentTime={this.getCurrentTime}
               updateSeek={this.onTimeUpdate}
               queryTerm={queryTerm}
@@ -309,7 +311,7 @@ export default class UploadPage extends Component {
             />
             <EuiText textAlign="right">
               <EuiButtonEmpty onClick={this.changePreviewVisibility}>
-                {visibilityChange }
+                {visibilityChange}
                 &nbsp;
                 Preview
               </EuiButtonEmpty>
