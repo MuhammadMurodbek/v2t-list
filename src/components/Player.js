@@ -315,6 +315,7 @@ class Player extends Component {
           ref={this.myRef}
           src={trackUrl}
           style={{ display: !preferences.audioOnly || !isMediaAudio ? 'none' : 'block' }}
+          className="videoPlayer"
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
