@@ -1,6 +1,8 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
-import { EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton } from '@elastic/eui'
+import {
+  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton
+} from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
@@ -9,7 +11,6 @@ import Tags from '../components/Tags'
 import Player from '../components/Player'
 
 export default class EditPage extends Component {
-
   static contextType = PreferenceContext
 
   static defaultProps = {
@@ -23,10 +24,11 @@ export default class EditPage extends Component {
     tags: [],
     chapters: [],
     errors: [],
-    isMediaAudio: true, // should be prop
+    isMediaAudio: true // should be prop
   }
 
   componentDidMount() {
+    document.title = 'Inovia AI :: V2t Editor 🎤'
     const { transcript } = this.props
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
@@ -46,7 +48,7 @@ export default class EditPage extends Component {
 
   loadSegments = async () => {
     const { transcript } = this.props
-    const [ preferences ] = this.context
+    const [preferences] = this.context
     const { words } = preferences
     const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${words}`
     const response = await axios.get(queryString)
@@ -126,6 +128,7 @@ export default class EditPage extends Component {
         return true
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.log(error)
       })
   }
@@ -144,7 +147,14 @@ export default class EditPage extends Component {
 
   render() {
     const { transcript } = this.props
-    const { currentTime, originalChapters, chapters, queryTerm, tags, isMediaAudio } = this.state
+    const {
+      currentTime,
+      originalChapters,
+      chapters,
+      queryTerm,
+      tags,
+      isMediaAudio
+    } = this.state
     if (!transcript) return null
     return (
       <Page preferences title="Editor">
@@ -161,6 +171,8 @@ export default class EditPage extends Component {
                   isPlaying={false}
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
+                  searchBoxVisible
+                  isTraining={false}
                 />
                 <EuiSpacer size="m" />
                 <EuiSpacer size="m" />
@@ -189,6 +201,7 @@ export default class EditPage extends Component {
                 onSelect={this.onSelectText}
                 updateTranscript={this.onUpdateTranscript}
                 validateTranscript={this.onValidateTranscript}
+                isDiffVisible
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>

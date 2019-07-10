@@ -3,7 +3,7 @@ import '@elastic/eui/dist/eui_theme_light.css'
 
 import React, { Component } from 'react'
 import {
-  HashRouter, Switch, Route, Link
+  HashRouter, Switch, Route
 } from 'react-router-dom'
 import {
   EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
@@ -15,8 +15,10 @@ import logo from './img/medspeech+Inovia_logo_rgb.png'
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
+import LivePage from './pages/Live'
 import UploadPage from './pages/Upload'
 import AnalyticsPage from './pages/Analytics'
+import TrainingPage from './pages/Training'
 
 import Preference from './models/Preference'
 
@@ -27,8 +29,10 @@ export default class App extends Component {
       name: '',
       items: [
         { id: 1, name: 'Start', href: '/#/' },
-        { id: 2, name: 'Upload', href: '/#/upload' },
-        { id: 3, name: 'Analytics', href: '/#/analytics'}
+        { id: 2, name: 'Live Transcript', href: '/#/live' },
+        { id: 3, name: 'Upload', href: '/#/upload' },
+        { id: 4, name: 'Analytics', href: '/#/analytics' },
+        { id: 5, name: 'Training', href: '/#/training' }
       ]
     }
   ]
@@ -38,13 +42,13 @@ export default class App extends Component {
     preferences: new Preference()
   }
 
-  setPreferences = (state) => {
-    const preferences = this.state.preferences.clone().add(state)
-    this.setState({ preferences })
-  }
-
   componentDidMount() {
     this.fetchTranscripts()
+  }
+
+  setPreferences = (state) => {
+    const { preferences } = this.state
+    this.setState({ preferences: preferences.clone().add(state) })
   }
 
   fetchTranscripts = () => {
@@ -65,6 +69,10 @@ export default class App extends Component {
       })
   }
 
+  loadHomescreen = () => {
+    window.location.replace('/')
+  }
+
   render() {
     const { transcripts, preferences } = this.state
     return (
@@ -72,15 +80,14 @@ export default class App extends Component {
         <PreferencesProvider value={[preferences, this.setPreferences]}>
           <EuiPage>
             <EuiPageSideBar>
-              <Link to="/">
-                <EuiImage
-                  className="logo"
-                  size="m"
-                  alt="logo"
-                  url={logo}
-                  allowFullScreen
-                />
-              </Link>
+              <EuiImage
+                className="logo"
+                size="m"
+                alt="logo"
+                url={logo}
+                allowFullScreen
+                onClick={this.loadHomescreen}
+              />
               <EuiSideNav items={App.MENU_ITEMS} />
             </EuiPageSideBar>
             <Switch>
@@ -93,8 +100,10 @@ export default class App extends Component {
                   return <EditPage {...{ ...props, transcript }} />
                 }}
               />
+              <Route path="/live/" component={LivePage} />
               <Route path="/upload/" component={UploadPage} />
               <Route path="/analytics" component={AnalyticsPage} />
+              <Route path="/training" component={TrainingPage} />
             </Switch>
           </EuiPage>
         </PreferencesProvider>

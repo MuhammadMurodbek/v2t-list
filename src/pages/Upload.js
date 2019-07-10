@@ -29,7 +29,7 @@ export default class UploadPage extends Component {
     inputDisplay: 'Medical Transcript',
     dropdownDisplay: (
       <DropDown
-        title="Medial Transcript"
+        title="Medical Transcript"
         content="This one is used for medical records."
       />
     )
@@ -53,6 +53,10 @@ export default class UploadPage extends Component {
       />
     )
   }]
+
+  componentDidMount = async () => {
+    document.title = 'Inovia AI :: Upload'
+  }
 
   onMetadataChange = (metaData) => {
     this.setState({ metaData })
@@ -79,9 +83,9 @@ export default class UploadPage extends Component {
     const body = new FormData()
     body.append('audio', file)
     if (metadata) {
-      body.set('metadata', new Blob([JSON.stringify({'model': metadata})], {
-        type: "application/json"
-      }));
+      body.set('metadata', new Blob([JSON.stringify({ model: metadata })], {
+        type: 'application/json'
+      }))
     }
     return axios.post(API_PATH, body)
   }
@@ -103,7 +107,7 @@ export default class UploadPage extends Component {
       <Page preferences title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
-            <EuiFilePicker multiple onChange={this.onFilesChange} />
+            <EuiFilePicker onChange={this.onFilesChange} />
           </EuiFormRow>
           <EuiFormRow label="Choose model for the transcript">
             <EuiSuperSelect

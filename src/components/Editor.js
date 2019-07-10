@@ -6,6 +6,7 @@ import {
 } from '@elastic/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
+import '../styles/editor.css'
 
 const NEW_KEYWORD = 'New Chapter'
 const KEYCODE_ENTER = 13
@@ -13,7 +14,6 @@ const KEYCODE_BACKSPACE = 8
 const KEYCODE_DELETE = 46
 
 export default class Editor extends Component {
-
   static contextType = PreferenceContext
 
   static defaultProps = {
@@ -91,8 +91,9 @@ export default class Editor extends Component {
   }
 
   getSelectedElement = () => {
-    if (!isNaN(this.cursor.keyword))
+    if (!isNaN(this.cursor.keyword)) {
       return this.getSelectedKeywordElement()
+    }
     const filter = `[data-chapter='${this.cursor.chapter}'][data-segment='${this.cursor.segment}']`
     const fallbackFilter = `[data-chapter='${this.cursor.chapter}']`
     return document.querySelector(filter) || document.querySelector(fallbackFilter).lastChild
@@ -290,8 +291,9 @@ export default class Editor extends Component {
 
 
   render() {
-    const { currentTime, chapters, onSelect } = this.props
+    const { currentTime, chapters, onSelect, isDiffVisible } = this.props
     const { diff, error } = this.state
+    const [preferences] = this.context
     if (!chapters) return null
     return (
       <EuiText size="s">
@@ -305,8 +307,9 @@ export default class Editor extends Component {
           onSelect={onSelect}
           onPaste={this.onPaste}
           error={error}
+          context={preferences}
         />
-        <EuiFlexGroup>
+        <EuiFlexGroup style={{ display: isDiffVisible ? 'flex' : 'none' }}>
           <EuiFlexItem>
             <FullDiff diff={diff} />
           </EuiFlexItem>
@@ -316,7 +319,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, context }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -331,6 +334,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
       onSelect={onSelect}
       onPaste={onPaste}
       error={error}
+      context={context}
     />
   ))
   return (
@@ -340,7 +344,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error }) => {
+const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context }) => {
   const onFocus = () => {
     if (keyword === NEW_KEYWORD)
       setTimeout(() => document.execCommand('selectAll',false,null),0)
@@ -369,13 +373,14 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
         onKeyDown={onKeyDown}
         onSelect={onSelect}
         onPaste={onPaste}
+        context={context}
       />
     </Fragment>
   )
 }
 
-const Chunks = ({ segments, currentTime, chapterId, onChange, onKeyDown, onSelect, onPaste }) => {
-  const chunks = segments.map((props, i) => <Chunk key={i} {...{...props, chapterId, i, currentTime}} />)
+const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect, onPaste }) => {
+  const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context}} />)
   return (
     <pre>
       <code
@@ -394,11 +399,21 @@ const Chunks = ({ segments, currentTime, chapterId, onChange, onKeyDown, onSelec
   )
 }
 
-const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime }) => {
+const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }) => {
+  let style
   const current = currentTime > startTime && currentTime <= endTime
-  const style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : {}
+
+  if (context) {
+    style = current ? {
+      fontWeight: 'bold',
+      backgroundColor: '#FFFF00',
+      fontSize: context.currentFontSize
+    } : { fontSize: context.currentFontSize }
+  } else {
+    style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : { }
+  }
   return (
-    <span style={style} data-chapter={chapterId} data-segment={i}>
+    <span style={style} className="editorBody" data-chapter={chapterId} data-segment={i}>
       {words}
     </span>
   )

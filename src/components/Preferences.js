@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from 'react'
+import PropTypes from 'prop-types'
 import {
   EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
-  EuiTitle, EuiIcon, EuiRadioGroup, EuiSwitch
+  EuiTitle, EuiIcon, EuiRadioGroup, EuiSwitch, EuiSuperSelect
 } from '@elastic/eui'
 
 import { usePreferences } from './PreferencesProvider'
@@ -29,14 +30,21 @@ const Button = ({ onClick }) => (
 
 const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
-  const [ preferences, setPreferences ] = usePreferences()
-  const setColumns = (columns) => setPreferences({columns})
-  const setWords = (words) => setPreferences({words})
-  const onCreateKeyword = (keyword) => setPreferences({keywords: [...preferences.keywords, { label: keyword}]})
-  const setKeywords = (keywords) => setPreferences({keywords})
-  const setAudioOnly = (audioOnly) => setPreferences({audioOnly})
+  const [preferences, setPreferences] = usePreferences()
+  const setColumns = columns => setPreferences({ columns })
+  const setWords = words => setPreferences({ words })
+  const onCreateKeyword = keyword => setPreferences({
+    keywords: [...preferences.keywords, { label: keyword }]
+  })
+  const setKeywords = keywords => setPreferences({ keywords })
+  const setAudioOnly = audioOnly => setPreferences({ audioOnly })
+  const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
+  const setHighlightMode = highlightMode => setPreferences({ highlightMode })
+  const setFontSize = currentFontSize => setPreferences({ currentFontSize })
+
+
   return (
-    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle">
+    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" size="s">
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
           <h4 id="flyoutTitle">
@@ -54,29 +62,66 @@ const Flyout = ({ visible, onClose }) => {
               onChange={setColumns}
             />
           </EuiFormRow>
-            <EuiFormRow label="Highlighted words">
-              <EuiRadioGroup options={WORD_OPTIONS} idSelected={preferences.words} onChange={setWords} />
-            </EuiFormRow>
-            <EuiFormRow label="Journal inputs">
-              <EuiComboBox
-                noSuggestions
-                placeholder="Each input will be mapped to the journal system"
-                selectedOptions={preferences.keywords}
-                onCreateOption={onCreateKeyword}
-                onChange={setKeywords}
-              />
-            </EuiFormRow>
-            <EuiFormRow label="Audio only">
-              <EuiSwitch
-                label="Ignore any video"
-                checked={preferences.audioOnly}
-                onChange={setAudioOnly}
-              />
-            </EuiFormRow>
+          <EuiFormRow label="Highlighted words">
+            <EuiRadioGroup
+              options={WORD_OPTIONS}
+              idSelected={preferences.words}
+              onChange={setWords}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="Journal inputs">
+            <EuiComboBox
+              noSuggestions
+              placeholder="Each input will be mapped to the journal system"
+              selectedOptions={preferences.keywords}
+              onCreateOption={onCreateKeyword}
+              onChange={setKeywords}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="Audio only">
+            <EuiSwitch
+              label="Ignore any video"
+              checked={preferences.getAudioOnly}
+              onChange={setAudioOnly}
+            />
+          </EuiFormRow>
+          
+          <EuiFormRow label="Autoplay mode">
+            <EuiSwitch
+              label="Enable autoplay"
+              checked={preferences.autoPlayStatus}
+              onChange={setAutoPlayStatus}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="Highlights the words">
+            <EuiSwitch
+              label="Highlight"
+              checked={false}
+              onChange={setHighlightMode}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="Font size">
+            <EuiSuperSelect
+              options={preferences.fontSizeList}
+              valueOfSelected={preferences.currentFontSize}
+              onChange={setFontSize}
+              itemLayoutAlign="top"
+              hasDividers
+            />
+          </EuiFormRow>
         </Fragment>
       </EuiFlyoutBody>
     </EuiFlyout>
   )
+}
+
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired
+}
+
+Flyout.propTypes = {
+  visible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired
 }
 
 export default Preferences
