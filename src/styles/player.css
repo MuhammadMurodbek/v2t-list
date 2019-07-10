@@ -296,3 +296,18 @@ input[type=range]:focus::-ms-fill-upper {
   width: 750px;
 }
 
+#stop {
+  /* Empty div for test purpose  */
+}
+#play {
+  /* Empty div for test purpose  */
+}
+#pause {
+  /* Empty div for test purpose  */
+}
+#forward {
+  /* Empty div for test purpose  */
+}
+#backward {
+  /* Empty div for test purpose  */
+}

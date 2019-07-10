@@ -322,6 +322,7 @@ class Player extends Component {
             title="Play"
             style={{ display: isPlaying === false ? 'block' : 'none' }}
             className="play"
+            id="play"
             data-icon="P"
             aria-label="play pause toggle"
             onClick={this.playMusic}
@@ -332,6 +333,7 @@ class Player extends Component {
             title="Pause"
             style={{ display: isPlaying === true ? 'block' : 'none' }}
             className="play"
+            id="pause"
             data-icon="u"
             aria-label="play pause toggle"
             onClick={this.pauseMusic}
@@ -341,6 +343,7 @@ class Player extends Component {
           <button
             title="Stop"
             className="play"
+            id="stop"
             data-icon="S"
             aria-label="stop"
             onClick={this.stopMusic}
@@ -350,6 +353,7 @@ class Player extends Component {
           <button
             title="Backward"
             className="play"
+            id="backward"
             data-icon="B"
             aria-label="stop"
             onClick={this.backwardMusic}
@@ -359,6 +363,7 @@ class Player extends Component {
           <button
             title="Forward"
             className="play"
+            id="forward"
             data-icon="F"
             aria-label="stop"
             onClick={this.forwardMusic}
