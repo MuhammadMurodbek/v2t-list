@@ -58,10 +58,6 @@ export default class Preference {
     }
   }
 
-  get highlightMode() { return this._highlightMode }
-
-  set highlightMode(v) { this._highlightMode = v }
-
   get currentFontSize() { return this._currentFontSize }
 
   set currentFontSize(v) { this._currentFontSize = v }
@@ -79,7 +75,6 @@ export default class Preference {
     keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
     audioOnly: false,
     autoPlayStatus: false,
-    highlightMode: false,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
     allColumns: COLUMN_OPTIONS,
     fontSizeList: [{
