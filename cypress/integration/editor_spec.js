@@ -36,5 +36,13 @@ describe('Check editor component', () => {
     cy.wait(5000)
     cy.get('span.editorBody').last().type(' sample words ')
     cy.wait(1000)
-  })  
+  })
+  // Edit 
+  // Check Karaoke
+  // Update
+  // Go to home page
+  // Back to transcript 
+  // Run Karaoke 
+  // Check Cancel
+  // Check submit to coworker
 })
