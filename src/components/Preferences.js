@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import {
-  EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader,
-  EuiTitle, EuiIcon, EuiRadioGroup, EuiSwitch, EuiSuperSelect
+  EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiText,
+  EuiTitle, EuiIcon, EuiRadioGroup, EuiSwitch, EuiSuperSelect, EuiSpacer
 } from '@elastic/eui'
 
 import { usePreferences } from './PreferencesProvider'
@@ -39,7 +39,6 @@ const Flyout = ({ visible, onClose }) => {
   const setKeywords = keywords => setPreferences({ keywords })
   const setAudioOnly = audioOnly => setPreferences({ audioOnly })
   const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
-  const setHighlightMode = highlightMode => setPreferences({ highlightMode })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })
 
 
@@ -54,12 +53,27 @@ const Flyout = ({ visible, onClose }) => {
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
         <Fragment>
+          <EuiText><h5>Flux settings</h5></EuiText>
+          <EuiSpacer size="s" />
           <EuiFormRow label="Backlog columns">
             <EuiComboBox
               placeholder="Enter the columns in the order you want to display them"
               selectedOptions={preferences.columns}
               options={COLUMN_OPTIONS}
               onChange={setColumns}
+            />
+          </EuiFormRow>
+
+          <EuiSpacer size="l" />
+          <EuiText><h5>Editor settings</h5></EuiText>
+          <EuiSpacer size="s" />
+          <EuiFormRow label="Font size">
+            <EuiSuperSelect
+              options={preferences.fontSizeList}
+              valueOfSelected={preferences.currentFontSize}
+              onChange={setFontSize}
+              itemLayoutAlign="top"
+              hasDividers
             />
           </EuiFormRow>
           <EuiFormRow label="Highlighted words">
@@ -78,35 +92,22 @@ const Flyout = ({ visible, onClose }) => {
               onChange={setKeywords}
             />
           </EuiFormRow>
-          <EuiFormRow label="Audio only">
+          <EuiSpacer size="l" />
+          <EuiText><h5>Uppspelning</h5></EuiText>
+          <EuiSpacer size="s" />
+          <EuiFormRow>
             <EuiSwitch
-              label="Ignore any video"
+              label="Show video"
               checked={preferences.getAudioOnly}
               onChange={setAudioOnly}
             />
           </EuiFormRow>
-          
-          <EuiFormRow label="Autoplay mode">
+
+          <EuiFormRow label="">
             <EuiSwitch
               label="Enable autoplay"
               checked={preferences.autoPlayStatus}
               onChange={setAutoPlayStatus}
-            />
-          </EuiFormRow>
-          <EuiFormRow label="Highlights the words">
-            <EuiSwitch
-              label="Highlight"
-              checked={false}
-              onChange={setHighlightMode}
-            />
-          </EuiFormRow>
-          <EuiFormRow label="Font size">
-            <EuiSuperSelect
-              options={preferences.fontSizeList}
-              valueOfSelected={preferences.currentFontSize}
-              onChange={setFontSize}
-              itemLayoutAlign="top"
-              hasDividers
             />
           </EuiFormRow>
         </Fragment>
