@@ -29,7 +29,9 @@ export default class UploadPage extends Component {
     toasts: [],
     incompleteTranscriptExists: true,
     previewContents: '',
-    isPreviewVisible: false
+    isPreviewVisible: false,
+    revision: 0,
+    sequenceNumber: 0
   }
 
   componentDidMount = async () => {
@@ -75,7 +77,12 @@ export default class UploadPage extends Component {
           words: status.data.transcription.text
         }]
     }]
-    this.setState({ chapters: tempChapter, previewContents: status.data.transcription.text })
+    this.setState({
+      chapters: tempChapter,
+      previewContents: status.data.transcription.text,
+      revision: status.data.transcription.revision,
+      sequenceNumber: status.data.transcription.sequenceNumber
+    })
   }
 
   getCurrentTime = () => {
@@ -142,7 +149,7 @@ export default class UploadPage extends Component {
   }
 
   completeTranscript = async () => {
-    const { transcriptionId, previewContents } = this.state
+    const { transcriptionId, previewContents, revision, sequenceNumber } = this.state
     this.textProcessBeforeCompletion()
     this.setState({
       toasts: [{
@@ -158,7 +165,7 @@ export default class UploadPage extends Component {
     }, () => {
       axios({
         method: 'post',
-        url: `/api/v1/training/${transcriptionId}/0/0`,
+        url: `/api/v1/training/${transcriptionId}/${revision}/${sequenceNumber}`,
         data: {
           text: previewContents
         },
@@ -188,7 +195,13 @@ export default class UploadPage extends Component {
   }
 
   rejectTranscript = async () => {
-    const { transcriptionId, chapters } = this.state
+    const {
+      transcriptionId,
+      chapters,
+      revision,
+      sequenceNumber
+    } = this.state
+
     this.setState({
       toasts: [{
         id: 0,
@@ -203,7 +216,7 @@ export default class UploadPage extends Component {
     }, () => {
       axios({
         method: 'post',
-        url: `/api/v1/training/${transcriptionId}/0/0`,
+        url: `/api/v1/training/${transcriptionId}/${revision}/${sequenceNumber}`,
         data: {
           text: chapters[0].segments[0].words,
           status: 'REJECT'
