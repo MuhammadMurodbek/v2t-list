@@ -148,8 +148,13 @@ export default class UploadPage extends Component {
     this.setState({ previewContents: updatedChapters[0].segments[0].words })
   }
 
-  completeTranscript = async () => {
-    const { transcriptionId, previewContents, revision, sequenceNumber } = this.state
+  completeTranscript = () => {
+    const {
+      transcriptionId,
+      previewContents,
+      revision,
+      sequenceNumber
+    } = this.state
     this.textProcessBeforeCompletion()
     this.setState({
       toasts: [{
@@ -162,8 +167,8 @@ export default class UploadPage extends Component {
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
-    }, () => {
-      axios({
+    }, async () => {
+      await axios({
         method: 'post',
         url: `/api/v1/training/${transcriptionId}/${revision}/${sequenceNumber}`,
         data: {
@@ -194,7 +199,7 @@ export default class UploadPage extends Component {
     })
   }
 
-  rejectTranscript = async () => {
+  rejectTranscript = () => {
     const {
       transcriptionId,
       chapters,
@@ -213,8 +218,8 @@ export default class UploadPage extends Component {
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
-    }, () => {
-      axios({
+    }, async () => {
+      await axios({
         method: 'post',
         url: `/api/v1/training/${transcriptionId}/${revision}/${sequenceNumber}`,
         data: {
@@ -368,7 +373,7 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
           toasts={toasts}
           dismissToast={this.removeToast}
-          toastLifeTimeMs={2000}
+          toastLifeTimeMs={1000}
         />
       </Page>
     )
