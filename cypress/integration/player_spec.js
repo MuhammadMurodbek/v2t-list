@@ -57,10 +57,10 @@ describe('Check player component', () => {
 
   it('Go to training page', () => {
     cy.visit('http://localhost:3000/#/training')
-    cy.wait(1000)
   })
 
   it('Check initial time setup', () => {
+    cy.get('button#pause').click()
     cy.get('span.tidPunkt').contains('00:00/')
     cy.wait(1000)
   })

@@ -29,3 +29,12 @@ input[type=range]::-ms-thumb {
 .euiImage__caption {
   font-size: 30px;
 }
+
+.complete{
+}
+
+.skip{
+}
+
+.reject{
+}

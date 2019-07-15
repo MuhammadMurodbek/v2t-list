@@ -105,6 +105,7 @@ const Flyout = ({ visible, onClose }) => {
 
           <EuiFormRow label="">
             <EuiSwitch
+              className="autoplaySwitch"
               label="Enable autoplay"
               checked={preferences.autoPlayStatus}
               onChange={setAutoPlayStatus}

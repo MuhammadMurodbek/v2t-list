@@ -145,6 +145,10 @@ export default class EditPage extends Component {
     this.setState({ errors })
   }
 
+  cancel = () => {
+    window.location.reload()
+  }
+
   render() {
     const { transcript } = this.props
     const {

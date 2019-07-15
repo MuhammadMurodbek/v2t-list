@@ -346,13 +346,13 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
         >
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="secondary" onClick={this.completeTranscript}>Complete</EuiButton>
+            <EuiButton className="complete" fill color="secondary" onClick={this.completeTranscript}>Complete</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton color="warning" onClick={this.skipTranscript}>Skip</EuiButton>
+            <EuiButton className="skip" color="warning" onClick={this.skipTranscript}>Skip</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger" onClick={this.rejectTranscript}>Reject</EuiButton>
+            <EuiButton className="reject" fill color="danger" onClick={this.rejectTranscript}>Reject</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xxl" />
