@@ -92,7 +92,7 @@ export default class EditPage extends Component {
 
   finalize = async () => {
     const { transcript } = this.props
-    const finalizeURL = `/api/v1/workflow/finish/${transcript.id}`
+    const finalizeURL = `/api/v1/transcription/${transcript.id}/approve`
     const success = await this.save()
     if (success) {
       await axios.get(finalizeURL).catch(this.trowAsyncError)
