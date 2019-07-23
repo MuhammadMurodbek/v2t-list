@@ -54,8 +54,10 @@ export default class App extends Component {
   fetchTranscripts = () => {
     axios.get('/api/v1/workflow', {
       params: {
-        pageStart: 1,
-        pageEnd: 10
+        pageStart: 0,
+        pageSize: 10,
+        type: 'VOICE',
+        sortBy: 'CREATED_DESC'
       }
     })
       .then((data) => {

@@ -83,7 +83,7 @@ export default class UploadPage extends Component {
     const body = new FormData()
     body.append('audio', file)
     if (metadata) {
-      body.set('metadata', new Blob([JSON.stringify({ model: metadata })], {
+      body.set('metadata', new Blob([JSON.stringify({ transcription: { model: metadata } })], {
         type: 'application/json'
       }))
     }
