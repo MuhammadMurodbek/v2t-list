@@ -95,7 +95,7 @@ export default class EditPage extends Component {
     const finalizeURL = `/api/v1/transcription/${transcript.id}/approve`
     const success = await this.save()
     if (success) {
-      await axios.get(finalizeURL).catch(this.trowAsyncError)
+      await axios.post(finalizeURL).catch(this.trowAsyncError)
       window.location = '/'
     } else {
       alert('Illegal keyword usage')
