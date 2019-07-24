@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from 'react'
 import moment from 'moment'
 import { EuiButtonEmpty } from '@elastic/eui'
@@ -53,8 +54,20 @@ export default class Preference {
   set autoPlayStatus(v) {
     if (this._autoPlayStatus === true) {
       this._autoPlayStatus = false
-    } else {
+      this.setCookie('autoPlayStatus', this._autoPlayStatus, 365)
+    } else if (this._autoPlayStatus === false) {
       this._autoPlayStatus = true
+      this.setCookie('autoPlayStatus', this._autoPlayStatus, 365)
+    } else {
+      const autoPlayStatusFromCookie = this.getCookie('autoPlayStatus')
+      if (autoPlayStatusFromCookie === 'true') {
+        this._autoPlayStatus = true
+      } else if (autoPlayStatusFromCookie === 'false') {
+        this._autoPlayStatus = false
+      } else {
+        this._autoPlayStatus = true
+      }
+      this.setCookie('autoPlayStatus', this._autoPlayStatus, 365)
     }
   }
 
@@ -74,7 +87,7 @@ export default class Preference {
     words: '3',
     keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
     audioOnly: false,
-    autoPlayStatus: false,
+    autoPlayStatus: true,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
     allColumns: COLUMN_OPTIONS,
     fontSizeList: [{
@@ -106,5 +119,27 @@ export default class Preference {
   clone(additionalState) {
     const { __proto__, ...state } = this
     return new Preference({ ...state, ...additionalState })
+  }
+
+  getCookie = (cname) => {
+    let name = `${cname}=`
+    let ca = document.cookie.split(';')
+    for (let i = 0; i < ca.length; i += 1) {
+      let c = ca[i]
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1)
+      }
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length)
+      }
+    }
+    return ''
+  }
+
+  setCookie = (cname, cvalue, exdays) => {
+    let d = new Date()
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
+    const expires = `expires=${d.toUTCString()}`
+    document.cookie = `${cname}=${cvalue};${expires};path=/`
   }
 }
