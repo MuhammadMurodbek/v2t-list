@@ -73,7 +73,28 @@ export default class Preference {
 
   get currentFontSize() { return this._currentFontSize }
 
-  set currentFontSize(v) { this._currentFontSize = v }
+  set currentFontSize(v) {
+    const currentFontSize = this.getCookie('currentFontSize')
+    if (this._fontSizeIteration === undefined) {
+      this._fontSizeIteration = 0
+    }
+    if (currentFontSize !== '') {
+      if (this._fontSizeIteration === 0) {
+        this._currentFontSize = currentFontSize
+      } else {
+        this._currentFontSize = v
+      }
+    } else {
+      this._currentFontSize = v
+    }
+    this.setCookie('currentFontSize', this._currentFontSize, 365)
+    this.setCookie('fontSizeInitialized', 'true', 365)
+    this._fontSizeIteration = this._fontSizeIteration + 1
+  }
+
+  get fontSizeIteration() { return this._fontSizeIteration }
+
+  set fontSizeIteration(v) { this._fontSizeIteration = v }
 
   get columns() { return this._columns }
 
@@ -102,11 +123,13 @@ export default class Preference {
       value: '20px',
       inputDisplay: 'Large'
     }],
-    currentFontSize: '15px'
+    currentFontSize: '15px',
+    fontSizeIteration: 0
   }
 
   constructor(state = Preference.defaultState) {
     this.add(state)
+    this._fontSizeIteration = this._fontSizeIteration + 1
   }
 
   add(state) {
