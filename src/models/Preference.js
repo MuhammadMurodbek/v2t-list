@@ -41,7 +41,26 @@ export default class Preference {
 
   get keywords() { return this._keywords }
 
-  set keywords(v) { this._keywords = v }
+  set keywords(v) {
+    let keywordsFromCookies = this.getCookie('keywords')
+    if (keywordsFromCookies) {
+      keywordsFromCookies = JSON.parse(keywordsFromCookies)
+    }
+
+    if (keywordsFromCookies !== '') {
+      if (this._keywordInit === true || this._keywordInit === undefined) {
+        this._keywords = keywordsFromCookies
+        this.setCookie('keywords', JSON.stringify(this._keywords), 365)
+      } else {
+        this._keywords = v
+        this.setCookie('keywords', JSON.stringify(this._keywords), 365)
+      }
+    } else {
+      this._keywords = v
+      this.setCookie('keywords', JSON.stringify(this._keywords), 365)
+    }
+    this._keywordInit = false
+  }
 
   get audioOnly() { return this._audioOnly }
 
@@ -96,6 +115,10 @@ export default class Preference {
 
   set fontSizeIteration(v) { this._fontSizeIteration = v }
 
+  get keywordInit() { return this._keywordInit }
+
+  set keywordInit(v) { this._keywordInit = v }
+
   get columns() { return this._columns }
 
   set columns(v) { this._columns = v }
@@ -124,12 +147,14 @@ export default class Preference {
       inputDisplay: 'Large'
     }],
     currentFontSize: '15px',
-    fontSizeIteration: 0
+    fontSizeIteration: 0,
+    keywordInit: true
   }
 
   constructor(state = Preference.defaultState) {
     this.add(state)
     this._fontSizeIteration = this._fontSizeIteration + 1
+    this._keywordInit = false
   }
 
   add(state) {
