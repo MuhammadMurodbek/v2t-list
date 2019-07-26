@@ -84,7 +84,7 @@ export default class UploadPage extends Component {
     body.append('audio', file)
     if (metadata) {
       body.set('metadata', new Blob([JSON.stringify({ transcription: { model: metadata } })], {
-        type: 'application/json'
+        type: 'audio/wav'
       }))
     }
     return axios.post(API_PATH, body)
