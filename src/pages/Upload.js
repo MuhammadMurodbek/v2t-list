@@ -8,7 +8,9 @@ import {
   EuiFlexItem,
   EuiFilePicker,
   EuiButton,
-  EuiSuperSelect, EuiSpacer, EuiText
+  EuiSuperSelect, EuiSpacer, EuiText,
+  EuiGlobalToastList,
+  EuiProgress
 } from '@elastic/eui'
 import Page from '../components/Page'
 
@@ -19,6 +21,7 @@ export default class UploadPage extends Component {
     files: [],
     loading: false,
     message: '',
+    toasts: [],
     metaData: 'medical'
   }
 
@@ -91,8 +94,21 @@ export default class UploadPage extends Component {
   }
 
   onUploaded = () => {
-    const message = 'Successfully uploaded files'
-    this.setState({ ...this.DEFAULT_STATE, message })
+    this.setState({
+      ...this.DEFAULT_STATE,
+      toasts: [{
+        id: '0',
+        title: '',
+        color: 'primary',
+        text: (
+          <Fragment>
+            <h3>Successfully uploaded files</h3>
+            <EuiProgress size="s" color="subdued" />
+          </Fragment>)
+      }]
+    })
+    // const message = 'Successfully uploaded files'
+    // this.setState({ ...this.DEFAULT_STATE, message })
   }
 
   onUploadFailed = (e) => {
@@ -101,8 +117,18 @@ export default class UploadPage extends Component {
     throw e
   }
 
+  removeToast = () => {
+    this.setState({ toasts: [] })
+  }
+
   render() {
-    const { message, loading, metaData } = this.state
+    const {
+      message,
+      loading,
+      metaData,
+      toasts,
+      initialPromptText
+    } = this.state
     return (
       <Page preferences title="Upload">
         <EuiForm>
@@ -124,11 +150,17 @@ export default class UploadPage extends Component {
                 Send
               </EuiButton>
             </EuiFlexItem>
-            <EuiFlexItem>
+            {/* <EuiFlexItem>
               {message}
-            </EuiFlexItem>
+            </EuiFlexItem> */}
           </EuiFlexGroup>
         </EuiForm>
+        <EuiGlobalToastList
+          // style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
+          toasts={toasts}
+          dismissToast={this.removeToast}
+          toastLifeTimeMs={1000}
+        />
       </Page>
     )
   }
