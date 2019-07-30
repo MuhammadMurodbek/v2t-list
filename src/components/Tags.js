@@ -29,14 +29,14 @@ export default class Tags extends Component {
   }
 
   loadIcdCodes = async (searchTerm) => {
-    const codeData = await axios.post('/api/v1/code-service/search', {
+    const codeData = await axios.post('/api/v1/search/icd-10', {
       text: searchTerm
     })
 
     // Purpose of doing this is to use free text search
     if (codeData.data !== null) {
       const options = codeData.data.map((code) => {
-        const label = `${code._source.Code}: ${code._source.CodeText}`
+        const label = `${code.word}: ${code.description}`
         return { ...code, label }
       })
       this.setState({ options })
