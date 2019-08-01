@@ -36,7 +36,7 @@ export default class Tags extends Component {
     // Purpose of doing this is to use free text search
     if (codeData.data !== null) {
       const options = codeData.data.map((code) => {
-        const label = `${code.word}: ${code.description}`
+        const label = `${code.value}: ${code.description}`
         return { ...code, label }
       })
       this.setState({ options })
