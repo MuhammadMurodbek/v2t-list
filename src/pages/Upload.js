@@ -123,11 +123,9 @@ export default class UploadPage extends Component {
 
   render() {
     const {
-      message,
       loading,
       metaData,
-      toasts,
-      initialPromptText
+      toasts
     } = this.state
     return (
       <Page preferences title="Upload">

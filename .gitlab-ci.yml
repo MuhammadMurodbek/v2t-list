@@ -1,11 +1,49 @@
 stages:
+  - build
   - package
 #  - review
 #  - development
   - upload
 
+### stage: build
+##################################################
+build-static:
+  image: node:10-jessie
+  stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+    - node_modules/
+    - .yarn
+  before_script:
+    - yarn config set cache-folder .yarn
+    - yarn install
+  script:
+    - yarn build
+  only:
+    - branches
+    - web
+  artifacts:
+    name: static-site
+    paths:
+      - ./build/
+    expire_in: 1 week
+
 ### stage: package
 ##################################################
+docker-static:
+  image: docker:stable
+  stage: package
+  script:
+    - init_docker
+    - docker_build_static
+  only:
+    - branches
+    - web
+  dependencies:
+    - build-static
+
+
 docker:
   image: docker:stable
   stage: package
@@ -213,6 +251,17 @@ upload-chart:
     for tag in $(get_other_image_tags); do \
       docker tag "$commit_image_name" "$tag"
       docker push "$tag"
+    done
+  }
+
+  function docker_build_static() {
+    commit_image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:$CI_COMMIT_SHA-static"
+    docker build --pull --build-arg version="$VERSION" -t "$commit_image_name" -f nginx/Dockerfile .
+    docker push "$commit_image_name"
+
+    for tag in $(get_other_image_tags); do \
+      docker tag "$commit_image_name" "$tag-static"
+      docker push "$tag-static"
     done
   }
 
