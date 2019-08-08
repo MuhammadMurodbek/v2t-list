@@ -6,7 +6,7 @@ import {
   HashRouter, Switch, Route
 } from 'react-router-dom'
 import {
-  EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
+  EuiPage, EuiPageSideBar, EuiImage, EuiSideNav, EuiIcon
 } from '@elastic/eui'
 import axios from 'axios'
 
@@ -37,9 +37,48 @@ export default class App extends Component {
     }
   ]
 
+  static ADVANCED_MENU_ITEMS = [
+    {
+      name: 'Kibana',
+      id: 0,
+      items: [
+        {
+          name: 'Advanced settings',
+          id: 1,
+          onClick: () => {
+            window.alert('Advanced settings');
+          },
+        },
+        {
+          name: 'Index Patterns (link)',
+          id: 2,
+          href: 'http://www.elastic.co',
+        },
+        {
+          name: 'Saved Objects',
+          id: 3,
+          onClick: () => {
+            window.alert('Saved Objects');
+          },
+          isSelected: true,
+        },
+        {
+          name: 'Reporting',
+          id: 4,
+          onClick: () => {
+            window.alert('Reporting');
+          },
+        },
+      ],
+    },
+  ];
+
+
   state = {
     transcripts: [],
-    preferences: new Preference()
+    preferences: new Preference(),
+    isSideNavOpenOnMobile: false,
+    selectedItemName: 'lungor'
   }
 
   componentDidMount() {
@@ -75,8 +114,67 @@ export default class App extends Component {
     window.location.replace('/')
   }
 
+  selectItem = (name) => {
+    this.setState({
+      selectedItemName: name
+    })
+  };
+
+  createItem = (name, data = {}) => {
+    // NOTE: Duplicate `name` values will cause `id` collisions.
+    return {
+      ...data,
+      id: name,
+      name,
+      isSelected: this.state.selectedItemName === name,
+      onClick: () => this.selectItem(name),
+    }
+  }
+
   render() {
     const { transcripts, preferences } = this.state
+    const sideNav = [
+      this.createItem('', {
+        // icon: <EuiIcon type="logoKibana" />,
+        items: [
+          this.createItem('Jobs', {
+            items: [
+              this.createItem('Karolinska Sjukhuset', {
+                items: [
+                  this.createItem('hjärta', { href: '/#/' }),
+                  this.createItem('lungor', { href: '/#/' })
+                ]
+              }),
+              this.createItem('Sahlgrenska Universitetssjukhuset', {
+                items: [
+                  this.createItem('ögon', { href: '/#/' }),
+                  this.createItem('hjärna', { href: '/#/' })
+                ]
+              })
+            ]
+          }),
+          this.createItem('Live Transcript', { href: '/#/live' }),
+          this.createItem('Upload', { href: '/#/upload' }),
+          this.createItem('Analytics', { href: '/#/analytics' }),
+          this.createItem('Training', {
+            items: [
+              this.createItem('KS', {
+                items: [
+                  this.createItem('Träna hjärta', { href: '/#/training' }),
+                  this.createItem('Träna lungor', { href: '/#/training' })
+                ]
+              }),
+              this.createItem('SU', {
+                items: [
+                  this.createItem('Träna ögon', { href: '/#/training' }),
+                  this.createItem('Träna hjärna', { href: '/#/training' })
+                ]
+              })
+            ]
+          })]
+      })
+    ]
+
     return (
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>
@@ -90,7 +188,15 @@ export default class App extends Component {
                 allowFullScreen
                 onClick={this.loadHomescreen}
               />
-              <EuiSideNav items={App.MENU_ITEMS} />
+              {/* <EuiSideNav items={App.MENU_ITEMS} /> */}
+              <EuiSideNav
+                mobileTitle="Navigate within $APP_NAME"
+                toggleOpenOnMobile={false}
+                isOpenOnMobile={false}
+                style={{ width: 300 }}
+                // items={App.ADVANCED_MENU_ITEMS}
+                items={sideNav}
+              />
             </EuiPageSideBar>
             <Switch>
               <Route exact path="/" render={props => <StartPage {...{ ...props, transcripts }} />} />

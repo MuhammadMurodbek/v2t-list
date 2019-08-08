@@ -8,7 +8,7 @@ import Preferences from './Preferences'
 
 const Start = ({ title, children, preferences }) => (
   <EuiPageBody style={{ minHeight: '100vh', margin: '-16px', paddingLeft: '16px' }}>
-    <EuiPageContent style={{ borderRadius: 0 }}>
+    <EuiPageContent style={{ borderRadius: 0, marginLeft: 100 }}>
       <EuiPageContentHeader>
         <EuiPageContentHeaderSection>
           <EuiTitle>
