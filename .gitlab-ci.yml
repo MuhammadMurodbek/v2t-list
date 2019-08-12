@@ -85,7 +85,7 @@ deploy-to-dev:
   variables:
     GIT_STRATEGY: none
   only:
-    - master
+    - test
   dependencies:
     - docker-static
 
