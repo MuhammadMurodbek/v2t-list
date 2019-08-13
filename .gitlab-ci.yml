@@ -1,6 +1,3 @@
-variables:
-  HELM_KUBECTL_TAG: "2.14.2"
-
 stages:
   - build
   - package
@@ -76,11 +73,12 @@ package-chart:
 ##################################################
 deploy-to-dev:
   cache: {}
-  image: dtzar/helm-kubectl:$HELM_KUBECTL_TAG
+  image: dtzar/helm-kubectl:2.14.2
   stage: deploy
   before_script:
     - mkdir -p ~/.kube && echo "$KUBE_CONFIG_DEV" > ~/.kube/config
   script:
+    - cat ~/.kube/config
     - kubectl rollout restart deployment/ui --namespace=v2t
   variables:
     GIT_STRATEGY: none
