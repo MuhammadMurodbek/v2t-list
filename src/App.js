@@ -137,20 +137,12 @@ export default class App extends Component {
       this.createItem('', {
         // icon: <EuiIcon type="logoKibana" />,
         items: [
-          this.createItem('Jobs', {
+          this.createItem('V2T Jobs', {
             items: [
-              this.createItem('Karolinska Sjukhuset', {
-                items: [
-                  this.createItem('hjärta', { href: '/#/' }),
-                  this.createItem('lungor', { href: '/#/' })
-                ]
-              }),
-              this.createItem('Sahlgrenska Universitetssjukhuset', {
-                items: [
-                  this.createItem('ögon', { href: '/#/' }),
-                  this.createItem('hjärna', { href: '/#/' })
-                ]
-              })
+              this.createItem('KS hjärta', { href: '/#/' }),
+              this.createItem('KS lungor', { href: '/#/' }),
+              this.createItem('SU ögon', { href: '/#/' }),
+              this.createItem('SU hjärna', { href: '/#/' })
             ]
           }),
           this.createItem('Live Transcript', { href: '/#/live' }),
@@ -158,18 +150,10 @@ export default class App extends Component {
           this.createItem('Analytics', { href: '/#/analytics' }),
           this.createItem('Training', {
             items: [
-              this.createItem('KS', {
-                items: [
-                  this.createItem('Träna hjärta', { href: '/#/training' }),
-                  this.createItem('Träna lungor', { href: '/#/training' })
-                ]
-              }),
-              this.createItem('SU', {
-                items: [
-                  this.createItem('Träna ögon', { href: '/#/training' }),
-                  this.createItem('Träna hjärna', { href: '/#/training' })
-                ]
-              })
+              this.createItem('Träna KS hjärta', { href: '/#/' }),
+              this.createItem('Träna KS lungor', { href: '/#/' }),
+              this.createItem('Träna SU ögon', { href: '/#/' }),
+              this.createItem('Träna SU hjärna', { href: '/#/' })
             ]
           })]
       })
