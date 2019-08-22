@@ -1,5 +1,15 @@
 /* eslint-disable no-undef */
 
+/*
+  use cypress.env.json as the configuration file in the root folder.
+  Sample configuration
+  {
+    "host": "http://localhost:3000/"
+  }
+  Environment variable documentation for Cypress:
+  https://docs.cypress.io/guides/guides/environment-variables.html#Option-2-cypress-env-json
+*/
+
 describe('Check page loading', () => {
   it('Loading Home Page', () => {
     cy.visit(Cypress.env('host'))
