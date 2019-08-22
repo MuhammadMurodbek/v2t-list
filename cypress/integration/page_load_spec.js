@@ -1,34 +1,33 @@
-
-
 /* eslint-disable no-undef */
+
 describe('Check page loading', () => {
   it('Loading Home Page', () => {
-    cy.visit('http://localhost:3000')
+    cy.visit(Cypress.env('host'))
     cy.wait(1000)
   })
 
   it('Loading live transcript', () => {
-    cy.visit('http://localhost:3000/#/live')
+    cy.visit(`${Cypress.env('host')}#/live`)
     cy.wait(1000)
   })
   it('Get back to the home page', () => {
-    cy.visit('http://localhost:3000')
+    cy.visit(Cypress.env('host'))
     cy.wait(1000)
   })
   it('Loading upload page', () => {
-    cy.visit('http://localhost:3000/#/upload')
+    cy.visit(`${Cypress.env('host')}#/upload`)
     cy.wait(1000)
   })
   it('Loading analytics page', () => {
-    cy.visit('http://localhost:3000/#/training')
+    cy.visit(`${Cypress.env('host')}#/analytics`)
     cy.wait(1000)
   })
   it('Loading training page', () => {
-    cy.visit('http://localhost:3000/#/training')
+    cy.visit(`${Cypress.env('host')}#/training`)
     cy.wait(1000)
   })
   it('Loading Home Page', () => {
-    cy.visit('http://localhost:3000')
+    cy.visit(Cypress.env('host'))
     cy.wait(1000)
   })
   it('Presence of a list', () => {
