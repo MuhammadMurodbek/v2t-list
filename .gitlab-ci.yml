@@ -1,9 +1,8 @@
 stages:
   - build
   - package
-#  - review
-#  - development
   - upload
+  - deploy
 
 ### stage: build
 ##################################################
@@ -69,6 +68,23 @@ package-chart:
       - ./chart/*.tgz
       - ./values.yaml
     expire_in: 1 week
+
+### stage: deploy
+##################################################
+deploy-to-dev:
+  cache: {}
+  image: dtzar/helm-kubectl:2.14.2
+  stage: deploy
+  before_script:
+    - mkdir -p ~/.kube && echo "$KUBE_CONFIG_DEV" > ~/.kube/config
+  script:
+    - kubectl rollout restart deployment/ui --namespace=v2t
+  variables:
+    GIT_STRATEGY: none
+  only:
+    - test
+  dependencies:
+    - docker-static
 
 ### stage: development
 ##################################################
