@@ -123,7 +123,6 @@ export default class Tags extends Component {
           render: (item) => {
             return (
               <EuiButtonIcon
-                style={{ display: 'contents' }}
                 iconSize="l"
                 color="danger"
                 onClick={() => this.deleteRow(item)}
@@ -174,7 +173,6 @@ export default class Tags extends Component {
 const AddButton = props => (
   <Fragment>
     <EuiButtonIcon
-      style={{ display: 'contents' }}
       iconSize="xl"
       color="subdued"
       onClick={props.onClick}
