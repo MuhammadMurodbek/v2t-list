@@ -38,6 +38,10 @@ export default class App extends Component {
   }
 
   fetchTranscripts = () => {
+    axios.get('/api/v1/tickets')
+      .then((data) => {
+        this.setState({ transcripts: data.data })
+      })
     axios.get('/api/v1/tickets/tags/active', {
       params: {
         pageStart: 0,
@@ -125,7 +129,6 @@ export default class App extends Component {
 
   render() {
     const { transcripts, preferences, sidenav } = this.state
-
     return (
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>

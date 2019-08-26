@@ -2,11 +2,11 @@ import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import {
   EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiText,
-  EuiTitle, EuiIcon, EuiRadioGroup, EuiSwitch, EuiSuperSelect, EuiSpacer
+  EuiTitle, EuiIcon, EuiSwitch, EuiSuperSelect, EuiSpacer
 } from '@elastic/eui'
 
 import { usePreferences } from './PreferencesProvider'
-import { COLUMN_OPTIONS, WORD_OPTIONS } from '../models/Preference'
+import { COLUMN_OPTIONS } from '../models/Preference'
 
 const Preferences = () => {
   const [visible, setVisible] = useState(false)
@@ -32,7 +32,6 @@ const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
   const [preferences, setPreferences] = usePreferences()
   const setColumns = columns => setPreferences({ columns })
-  const setWords = words => setPreferences({ words })
   const onCreateKeyword = keyword => setPreferences({
     keywords: [...preferences.keywords, { label: keyword }]
   })
@@ -76,13 +75,13 @@ const Flyout = ({ visible, onClose }) => {
               hasDividers
             />
           </EuiFormRow>
-          <EuiFormRow label="Highlighted words">
+          {/* <EuiFormRow label="Highlighted words">
             <EuiRadioGroup
               options={WORD_OPTIONS}
               idSelected={preferences.words}
               onChange={setWords}
             />
-          </EuiFormRow>
+          </EuiFormRow> */}
           <EuiFormRow label="Journal inputs">
             <EuiComboBox
               noSuggestions

@@ -48,18 +48,10 @@ export default class EditPage extends Component {
 
   loadSegments = async () => {
     const { transcript } = this.props
-    const [preferences] = this.context
-    const { words } = preferences
+    // const [preferences] = this.context
+    // const { words } = preferences
     const queryString = `/api/v1/transcription/${transcript.external_id}`
-    // const queryString = '/api/v1/transcription/3db7df72-eef2-4b54-b0b0-d33589a406a7'
     const response = await axios.get(queryString)
-    if (response) {
-      console.log('hola')
-      console.log(response)
-      console.log('hola')
-    } else {
-      console.log('err')
-    }
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags } = response.data
     if (tags) {
