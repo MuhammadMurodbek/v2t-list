@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
+// eslint-disable-next-line no-console
 import './App.css'
 import '@elastic/eui/dist/eui_theme_light.css'
-
 import React, { Component } from 'react'
 import {
   HashRouter, Switch, Route
@@ -9,9 +10,7 @@ import {
   EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
 } from '@elastic/eui'
 import axios from 'axios'
-
 import logo from './img/medspeech+Inovia_logo_rgb.png'
-
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
@@ -23,23 +22,10 @@ import TrainingPage from './pages/Training'
 import Preference from './models/Preference'
 
 export default class App extends Component {
-  static MENU_ITEMS = [
-    {
-      id: 0,
-      name: '',
-      items: [
-        { id: 1, name: 'Start', href: '/#/' },
-        { id: 2, name: 'Live Transcript', href: '/#/live' },
-        { id: 3, name: 'Upload', href: '/#/upload' },
-        { id: 4, name: 'Analytics', href: '/#/analytics' },
-        { id: 5, name: 'Training', href: '/#/training' }
-      ]
-    }
-  ]
-
   state = {
     transcripts: [],
-    preferences: new Preference()
+    preferences: new Preference(),
+    selectedItemName: 'lungor'
   }
 
   componentDidMount() {
@@ -52,7 +38,7 @@ export default class App extends Component {
   }
 
   fetchTranscripts = () => {
-    axios.get('/api/v1/workflow', {
+    axios.get('/api/v1/tickets/tags/active', {
       params: {
         pageStart: 0,
         pageSize: 10,
@@ -61,12 +47,68 @@ export default class App extends Component {
       }
     })
       .then((data) => {
-        // const transcripts = data
-        // const transcripts = this.parseTranscripts(data)
-        this.setState({ transcripts: data.data })
+        const activeTags = data.data
+        const { selectedItemName } = this.state
+        const sideBar = []
+        activeTags.forEach((tag) => {
+          const temp = {
+            id: tag.value,
+            name: tag.value,
+            isSelected: selectedItemName === tag.value,
+            onClick: () => {
+              this.selectItem(tag.value)
+              axios.get(`/api/v1/tickets?tags=${tag.value}`).then((receivedData) => {
+                this.setState({ transcripts: receivedData.data })
+              })
+            },
+            href: '/#/'
+          }
+          sideBar.push(temp)
+        })
+
+        const parentSideBar = [
+          {
+            id: '',
+            isSelected: false,
+            items: [
+              {
+                id: 'V2T Jobs',
+                items: sideBar,
+                isSelected: true,
+                name: 'V2T Jobs',
+                onClick: () => this.selectItem('V2T Jobs')
+              }, {
+                href: '/#/live',
+                id: 2,
+                isSelected: selectedItemName === 'Live Transcript',
+                name: 'Live Transcript',
+                onClick: () => this.selectItem('Live Transcript')
+              }, {
+                href: '/#/upload',
+                id: 3,
+                isSelected: selectedItemName === 'Upload',
+                name: 'Upload',
+                onClick: () => this.selectItem('Upload')
+              }, {
+                href: '/#/analytics',
+                id: 4,
+                isSelected: selectedItemName === 'Analytics',
+                name: 'Analytics',
+                onClick: () => this.selectItem('Analytics')
+              }, {
+                href: '/#/training',
+                id: 5,
+                isSelected: selectedItemName === 'Training',
+                name: 'Training',
+                onClick: () => this.selectItem('Training')
+              }
+            ],
+            name: ''
+          }
+        ]
+        this.setState({ sidenav: parentSideBar })
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
         console.log(error)
       })
   }
@@ -75,8 +117,15 @@ export default class App extends Component {
     window.location.replace('/')
   }
 
+  selectItem = (name) => {
+    this.setState({
+      selectedItemName: name
+    })
+  }
+
   render() {
-    const { transcripts, preferences } = this.state
+    const { transcripts, preferences, sidenav } = this.state
+
     return (
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>
@@ -90,7 +139,13 @@ export default class App extends Component {
                 allowFullScreen
                 onClick={this.loadHomescreen}
               />
-              <EuiSideNav items={App.MENU_ITEMS} />
+              <EuiSideNav
+                mobileTitle="Navigate within $APP_NAME"
+                // toggleOpenOnMobile={false}
+                isOpenOnMobile={false}
+                style={{ width: 300 }}
+                items={sidenav}
+              />
             </EuiPageSideBar>
             <Switch>
               <Route exact path="/" render={props => <StartPage {...{ ...props, transcripts }} />} />

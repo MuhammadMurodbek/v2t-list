@@ -5,3 +5,9 @@
 p {
   line-height: 2;
 }
+.euiPageContentBody {
+  width: 85%;
+}
+.euiPageContentHeader {
+  width: 85%;
+}

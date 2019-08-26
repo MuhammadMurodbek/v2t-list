@@ -8,7 +8,6 @@ import axios from 'axios'
 import '../styles/tags.css'
 
 export default class Tags extends Component {
-
   state = {
     tableOfCodes: [],
     isLoading: false,
@@ -46,7 +45,7 @@ export default class Tags extends Component {
   deleteRow = (item) => {
     const { tableOfCodes } = this.state
     const remainingCodes = tableOfCodes.filter(el => el.id !== item.id)
-    this.setState({ tableOfCodes: remainingCodes },()=>{
+    this.setState({ tableOfCodes: remainingCodes }, () => {
       this.props.updateTags(this.state.tableOfCodes)
     })
   }
