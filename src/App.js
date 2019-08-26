@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+// eslint-disable-next-line no-console
 import './App.css'
 import '@elastic/eui/dist/eui_theme_light.css'
 
@@ -6,7 +8,7 @@ import {
   HashRouter, Switch, Route
 } from 'react-router-dom'
 import {
-  EuiPage, EuiPageSideBar, EuiImage, EuiSideNav, EuiIcon
+  EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
 } from '@elastic/eui'
 import axios from 'axios'
 
@@ -46,38 +48,37 @@ export default class App extends Component {
           name: 'Advanced settings',
           id: 1,
           onClick: () => {
-            window.alert('Advanced settings');
-          },
+            // window.alert('Advanced settings');
+          }
         },
         {
           name: 'Index Patterns (link)',
           id: 2,
-          href: 'http://www.elastic.co',
+          href: 'http://www.elastic.co'
         },
         {
           name: 'Saved Objects',
           id: 3,
           onClick: () => {
-            window.alert('Saved Objects');
+            // window.alert('Saved Objects');
           },
-          isSelected: true,
+          isSelected: true
         },
         {
           name: 'Reporting',
           id: 4,
           onClick: () => {
-            window.alert('Reporting');
-          },
-        },
-      ],
-    },
-  ];
+            // window.alert('Reporting');
+          }
+        }
+      ]
+    }
+  ]
 
 
   state = {
     transcripts: [],
     preferences: new Preference(),
-    isSideNavOpenOnMobile: false,
     selectedItemName: 'lungor'
   }
 
@@ -91,7 +92,9 @@ export default class App extends Component {
   }
 
   fetchTranscripts = () => {
-    axios.get('/api/v1/workflow', {
+    // axios.get('/api/v1/workflow', {
+    // axios.get('/api/v1/tickets', {
+    axios.get('/api/v1/tickets/tags/active', {
       params: {
         pageStart: 0,
         pageSize: 10,
@@ -100,12 +103,89 @@ export default class App extends Component {
       }
     })
       .then((data) => {
-        // const transcripts = data
-        // const transcripts = this.parseTranscripts(data)
-        this.setState({ transcripts: data.data })
+        console.log('data')
+        console.log(data.data)
+        let activeTags = data.data
+        const { selectedItemName } = this.state
+        let sideBar = []
+        activeTags.forEach((tag) => {
+          let temp = {
+            id: tag.value,
+            name: tag.value,
+            isSelected: selectedItemName === tag.value,
+            onClick: () => {
+              this.selectItem(tag.value)
+              // change the value of transcript
+              axios.get(`http://localhost:3000/api/v1/tickets?tags=${tag.value}`).then((receivedData) => {
+                this.setState({transcripts: receivedData.data})
+              })
+            },
+            href: '/#/'
+            // href: `/`
+          }
+          sideBar.push(temp)
+        })
+
+        console.log('sidebar')
+        console.log(sideBar)
+        let parentSideBar = [
+          {
+            id: '',
+            isSelected: false,
+            items: [
+              {
+                id: 'V2T Jobs',
+                items: sideBar,
+                isSelected: true,
+                name: 'V2T Jobs',
+                onClick: () => this.selectItem('V2T Jobs')
+              }, {
+                href: '/#/live',
+                id: 2,
+                isSelected: selectedItemName === 'Live Transcript',
+                name: 'Live Transcript',
+                onClick: () => this.selectItem('Live Transcript')
+              }, {
+                href: '/#/upload',
+                id: 3,
+                isSelected: selectedItemName === 'Upload',
+                name: 'Upload',
+                onClick: () => this.selectItem('Upload')
+              }, {
+                href: '/#/analytics',
+                id: 4,
+                isSelected: selectedItemName === 'Analytics',
+                name: 'Analytics',
+                onClick: () => this.selectItem('Analytics')
+              }, {
+                href: '/#/training',
+                id: 5,
+                isSelected: selectedItemName === 'Training',
+                name: 'Training',
+                onClick: () => this.selectItem('Training')
+              }
+            ],
+            name: ''
+          }
+        ]
+
+        console.log('parent sidebar')
+        console.log(parentSideBar)
+        // this.setState({ sidenav: parentSideBar })
+        this.setState({ sidenav: parentSideBar })
+        // this.setState({ transcripts: data.data })
+        // Create side nav
+        
+        // data.data.forEach((ticket) => {
+        //   let temp = {
+        //     id: name,
+        //     name,
+        //     isSelected: selectedItemName === name,
+        //     onClick: () => this.selectItem(name)
+        //   }
+        // })
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
         console.log(error)
       })
   }
@@ -117,17 +197,21 @@ export default class App extends Component {
   selectItem = (name) => {
     this.setState({
       selectedItemName: name
+    }, () => {
+      console.log('this.state.selectedItemName')
+      console.log(this.state.selectedItemName)
     })
-  };
+  }
 
   createItem = (name, data = {}) => {
     // NOTE: Duplicate `name` values will cause `id` collisions.
+    const { selectedItemName } = this.state
     return {
       ...data,
       id: name,
       name,
-      isSelected: this.state.selectedItemName === name,
-      onClick: () => this.selectItem(name),
+      isSelected: selectedItemName === name,
+      onClick: () => this.selectItem(name)
     }
   }
 
@@ -148,16 +232,12 @@ export default class App extends Component {
           this.createItem('Live Transcript', { href: '/#/live' }),
           this.createItem('Upload', { href: '/#/upload' }),
           this.createItem('Analytics', { href: '/#/analytics' }),
-          this.createItem('Training', {
-            items: [
-              this.createItem('Träna KS hjärta', { href: '/#/' }),
-              this.createItem('Träna KS lungor', { href: '/#/' }),
-              this.createItem('Träna SU ögon', { href: '/#/' }),
-              this.createItem('Träna SU hjärna', { href: '/#/' })
-            ]
-          })]
+          this.createItem('Training', { href: '/#/training' })
+        ]
       })
     ]
+    console.log('previous sidenav')
+    console.log(sideNav)
 
     return (
       <HashRouter>
@@ -175,11 +255,12 @@ export default class App extends Component {
               {/* <EuiSideNav items={App.MENU_ITEMS} /> */}
               <EuiSideNav
                 mobileTitle="Navigate within $APP_NAME"
-                toggleOpenOnMobile={false}
+                // toggleOpenOnMobile={false}
                 isOpenOnMobile={false}
                 style={{ width: 300 }}
                 // items={App.ADVANCED_MENU_ITEMS}
-                items={sideNav}
+                // items={sideNav}
+                items={this.state.sidenav}
               />
             </EuiPageSideBar>
             <Switch>

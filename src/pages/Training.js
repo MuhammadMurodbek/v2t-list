@@ -328,7 +328,7 @@ export default class UploadPage extends Component {
               isDiffVisible={false}
             />
             <EuiText textAlign="right">
-              <EuiButtonEmpty onClick={this.changePreviewVisibility}>
+              <EuiButtonEmpty onClick={this.changePreviewVisibility} style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}>
                 {visibilityChange}
                 &nbsp;
                 Preview
