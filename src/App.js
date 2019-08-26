@@ -57,7 +57,7 @@ export default class App extends Component {
         activeTags.forEach((tag) => {
           const temp = {
             id: tag.value,
-            name: tag.value,
+            name: `${tag.value} (${tag.count})`,
             isSelected: selectedItemName === tag.value,
             onClick: () => {
               this.selectItem(tag.value)
