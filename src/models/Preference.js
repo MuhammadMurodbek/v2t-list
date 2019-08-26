@@ -12,7 +12,7 @@ export const WORD_OPTIONS = [
 export const COLUMN_OPTIONS = [
   {
     label: 'created',
-    field: 'created',
+    field: 'created_time',
     name: 'Created',
     // sortable: true,
     render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
