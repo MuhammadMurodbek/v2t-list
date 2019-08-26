@@ -40,8 +40,8 @@ export default class EditPage extends Component {
 
   componentDidUpdate(prevProps) {
     const { transcript } = this.props
-    const prevId = prevProps.transcript && prevProps.transcript.id
-    if (transcript && transcript.id !== prevId) {
+    const prevId = prevProps.transcript && prevProps.transcript.external_id
+    if (transcript && transcript.external_id !== prevId) {
       this.loadSegments()
     }
   }
@@ -50,8 +50,16 @@ export default class EditPage extends Component {
     const { transcript } = this.props
     const [preferences] = this.context
     const { words } = preferences
-    const queryString = `/api/v1/transcription/${transcript.id}?segmentLength=${words}`
+    const queryString = `/api/v1/transcription/${transcript.external_id}`
+    // const queryString = '/api/v1/transcription/3db7df72-eef2-4b54-b0b0-d33589a406a7'
     const response = await axios.get(queryString)
+    if (response) {
+      console.log('hola')
+      console.log(response)
+      console.log('hola')
+    } else {
+      console.log('err')
+    }
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags } = response.data
     if (tags) {
@@ -92,7 +100,7 @@ export default class EditPage extends Component {
 
   finalize = async () => {
     const { transcript } = this.props
-    const finalizeURL = `/api/v1/transcription/${transcript.id}/approve`
+    const finalizeURL = `/api/v1/transcription/${transcript.external_id}/approve`
     const success = await this.save()
     if (success) {
       await axios.post(finalizeURL).catch(this.trowAsyncError)
@@ -116,7 +124,7 @@ export default class EditPage extends Component {
       }
     })
 
-    const updateURL = `/api/v1/transcription/${transcript.id}`
+    const updateURL = `/api/v1/transcription/${transcript.external_id}`
     if (errors.length) return false
     return axios.put(updateURL,
       {
@@ -168,7 +176,7 @@ export default class EditPage extends Component {
               <figure>
                 <Player
                   audioTranscript={originalChapters}
-                  trackId={transcript.id}
+                  trackId={transcript.external_id}
                   getCurrentTime={this.getCurrentTime}
                   updateSeek={this.onTimeUpdate}
                   queryTerm={queryTerm}

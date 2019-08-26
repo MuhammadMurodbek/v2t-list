@@ -22,7 +22,8 @@ export default class UploadPage extends Component {
     loading: false,
     message: '',
     toasts: [],
-    metaData: 'medical'
+    metaData: 'medical',
+    selectedJob: 'ks_ögon'
   }
 
   state = this.DEFAULT_STATE
@@ -57,12 +58,45 @@ export default class UploadPage extends Component {
     )
   }]
 
+  jobs = [{
+    value: 'ks_ögon',
+    inputDisplay: 'KS - Ögon',
+    dropdownDisplay: (
+      <DropDown
+        title="Karolinska Sjukhuset :: Ögon"
+        content="Upload the medical transcript as KS-Ögon"
+      />
+    )
+  }, {
+    value: 'ks_hjärta',
+    inputDisplay: 'KS - Hjärta',
+    dropdownDisplay: (
+      <DropDown
+        title="Karolinska Sjukhuset :: Hjärta"
+        content="Upload the medical transcript as KS-Hjärta"
+      />
+    )
+  }, {
+    value: 'su_hjärna',
+    inputDisplay: 'SU - hjärna',
+    dropdownDisplay: (
+      <DropDown
+        title="Sahlgrenska Universitetssjukhuset :: Hjärna"
+        content="Upload the medical transcript as SU- Hjärna"
+      />
+    )
+  }]
+
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Upload'
   }
 
   onMetadataChange = (metaData) => {
     this.setState({ metaData })
+  }
+
+  onJobChange = (selectedJob) => {
+    this.setState({ selectedJob })
   }
 
   onFilesChange = (files) => {
@@ -76,17 +110,17 @@ export default class UploadPage extends Component {
   }
 
   uploadFiles = async () => {
-    const { files, metaData } = this.state
-    const requests = Array.from(files).map(file => this.uploadFile(file, metaData))
+    const { files, metaData, selectedJob } = this.state
+    const requests = Array.from(files).map(file => this.uploadFile(file, metaData, selectedJob))
     await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
   }
 
-  uploadFile = (file, metadata) => {
+  uploadFile = (file, metadata, selectedJob) => {
     const body = new FormData()
     body.append('audio', file)
     if (metadata) {
-      body.set('metadata', new Blob([JSON.stringify({ transcription: { model: metadata, "tags": ["apple"] } })], {
+      body.set('metadata', new Blob([JSON.stringify({ transcription: { model: metadata, tags: [selectedJob] } })], {
         type: 'audio/wav'
       }))
     }
@@ -112,8 +146,7 @@ export default class UploadPage extends Component {
   }
 
   onUploadFailed = (e) => {
-    const message = `An error accured during file upload. ${e.message}`
-    this.setState({ ...this.DEFAULT_STATE, message })
+    this.setState({ ...this.DEFAULT_STATE })
     throw e
   }
 
@@ -123,11 +156,10 @@ export default class UploadPage extends Component {
 
   render() {
     const {
-      message,
       loading,
       metaData,
       toasts,
-      initialPromptText
+      selectedJob
     } = this.state
     return (
       <Page preferences title="Upload">
@@ -140,6 +172,15 @@ export default class UploadPage extends Component {
               options={this.options}
               valueOfSelected={metaData}
               onChange={this.onMetadataChange}
+              itemLayoutAlign="top"
+              hasDividers
+            />
+          </EuiFormRow>
+          <EuiFormRow label="Choose jobs for the transcript">
+            <EuiSuperSelect
+              options={this.jobs}
+              valueOfSelected={selectedJob}
+              onChange={this.onJobChange}
               itemLayoutAlign="top"
               hasDividers
             />
