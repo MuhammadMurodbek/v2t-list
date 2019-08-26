@@ -80,7 +80,12 @@ export default class App extends Component {
                 items: sideBar,
                 isSelected: true,
                 name: 'V2T Jobs',
-                onClick: () => this.selectItem('V2T Jobs')
+                onClick: () => {
+                  this.selectItem('V2T Jobs')
+                  axios.get('/api/v1/tickets').then((receivedData) => {
+                    this.setState({ transcripts: receivedData.data })
+                  })
+                }
               }, {
                 href: '/#/live',
                 id: 2,
