@@ -78,7 +78,7 @@ deploy-to-dev:
   before_script:
     - mkdir -p ~/.kube && echo "$KUBE_CONFIG_DEV" > ~/.kube/config
   script:
-    - kubectl rollout restart deployment/webdoc-ui --namespace=v2t
+    - kubectl rollout restart deployment/ui --namespace=v2t
   variables:
     GIT_STRATEGY: none
   only:
