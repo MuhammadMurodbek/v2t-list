@@ -1,7 +1,8 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton, EuiFormRow, EuiForm, EuiText
+  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton,
+  EuiForm, EuiText, EuiButtonIcon, EuiFieldText, EuiButtonEmpty
 } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
@@ -24,7 +25,9 @@ export default class EditPage extends Component {
     tags: [],
     chapters: [],
     errors: [],
-    isMediaAudio: true // should be prop
+    isMediaAudio: true, // should be prop
+    personnummer: '19121212-1212',
+    isPersonnummerEditable: false
   }
 
   componentDidMount() {
@@ -149,6 +152,15 @@ export default class EditPage extends Component {
     window.location.reload()
   }
 
+  changePersonnummmerEditStatus = () => {
+    const { isPersonnummerEditable } = this.state
+    this.setState({ isPersonnummerEditable: !isPersonnummerEditable })
+  }
+
+  onPersonnumerChange = (e) => {
+    this.setState({ personnummer: e.target.value })
+  }
+
   render() {
     const { transcript } = this.props
     const {
@@ -157,7 +169,9 @@ export default class EditPage extends Component {
       chapters,
       queryTerm,
       tags,
-      isMediaAudio
+      isMediaAudio,
+      personnummer,
+      isPersonnummerEditable
     } = this.state
     if (!transcript) return null
     return (
@@ -187,7 +201,35 @@ export default class EditPage extends Component {
                       <h2>
                         <span> Personnummer</span>
                       </h2>
-                      <EuiText size="l">19121212-1212</EuiText>
+                      <EuiText size="m">
+                        <span
+                          style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
+                        >
+                          {personnummer}
+                          &nbsp;
+                          <EuiButtonIcon
+                            style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
+                            iconType="pencil"
+                            aria-label="Next"
+                            color="danger"
+                            onClick={this.changePersonnummmerEditStatus}
+                          />
+                        </span>
+                      </EuiText>
+                      <EuiFieldText
+                        style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
+                        onChange={this.onPersonnumerChange}
+                        value={personnummer}
+                        placeholder={personnummer}
+                        aria-label="Use aria labels when no actual label is in use"
+                      />
+                      <EuiSpacer size="s" />
+                      <EuiButtonEmpty
+                        style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
+                        onClick={this.changePersonnummmerEditStatus}
+                      >
+                        Save
+                      </EuiButtonEmpty>
                     </div>
                   </div>
                 </EuiForm>
