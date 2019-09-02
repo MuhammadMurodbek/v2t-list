@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton
+  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton, EuiFormRow, EuiForm, EuiText
 } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
@@ -178,9 +178,19 @@ export default class EditPage extends Component {
                   searchBoxVisible
                   isTraining={false}
                 />
-                <EuiSpacer size="m" />
-                <EuiSpacer size="m" />
-                <EuiSpacer size="m" />
+                <EuiSpacer size="l" />
+                <EuiSpacer size="l" />
+
+                <EuiForm>
+                  <div className="euiText euiText--small">
+                    <div>
+                      <h2>
+                        <span> Personnummer</span>
+                      </h2>
+                      <EuiText size="l">19121212-1212</EuiText>
+                    </div>
+                  </div>
+                </EuiForm>
                 {/* <audio
                   controls
                   src={`/api/v1/transcription/${transcript.id}/audio`}
@@ -195,6 +205,9 @@ export default class EditPage extends Component {
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
+          <EuiSpacer size="l" />
+          <EuiSpacer size="l" />
+
           <EuiFlexGroup wrap>
             <EuiFlexItem>
               <Editor
