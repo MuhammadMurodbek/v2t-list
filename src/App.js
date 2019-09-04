@@ -45,7 +45,7 @@ export default class App extends Component {
     axios.get('/api/v1/tickets/tags/active', {
       params: {
         pageStart: 0,
-        pageSize: 10,
+        pageSize: 10000,
         type: 'VOICE',
         sortBy: 'CREATED_DESC'
       }

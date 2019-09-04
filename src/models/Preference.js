@@ -22,7 +22,7 @@ export const COLUMN_OPTIONS = [
   {
     label: 'id',
     field: 'id',
-    name: 'Id',
+    name: 'Id'
     // sortable: true
   },
   {
@@ -129,7 +129,7 @@ export default class Preference {
 
   static defaultState = {
     words: '3',
-    keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }],
+    keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }, { label: 'AT' }],
     audioOnly: false,
     autoPlayStatus: true,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
@@ -170,8 +170,8 @@ export default class Preference {
   }
 
   getCookie = (cname) => {
-    let name = `${cname}=`
-    let ca = document.cookie.split(';')
+    const name = `${cname}=`
+    const ca = document.cookie.split(';')
     for (let i = 0; i < ca.length; i += 1) {
       let c = ca[i]
       while (c.charAt(0) === ' ') {
@@ -185,7 +185,7 @@ export default class Preference {
   }
 
   setCookie = (cname, cvalue, exdays) => {
-    let d = new Date()
+    const d = new Date()
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
     const expires = `expires=${d.toUTCString()}`
     document.cookie = `${cname}=${cvalue};${expires};path=/`

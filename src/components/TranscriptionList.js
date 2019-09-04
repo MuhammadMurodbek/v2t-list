@@ -10,7 +10,6 @@ export default class TranscriptionList extends Component {
     document.title = 'Inovia AI :: All Transcripts'
   }
 
-
   render() {
     const { transcripts } = this.props
     const [preferences] = this.context
@@ -26,7 +25,6 @@ export default class TranscriptionList extends Component {
     )
   }
 }
-
 
 TranscriptionList.propTypes = {
   transcripts: PropTypes.array
