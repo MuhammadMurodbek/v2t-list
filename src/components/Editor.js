@@ -405,7 +405,8 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
 const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }) => {
   let style
   const current = currentTime > startTime && currentTime <= endTime
-
+  if (words.indexOf('\n') > -1) { words = '\n' }
+  words = words.replace(/ +$/, " ")
   if (context) {
     style = current ? {
       fontWeight: 'bold',
