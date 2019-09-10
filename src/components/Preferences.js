@@ -32,10 +32,6 @@ const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
   const [preferences, setPreferences] = usePreferences()
   const setColumns = columns => setPreferences({ columns })
-  const onCreateKeyword = keyword => setPreferences({
-    keywords: [...preferences.keywords, { label: keyword }]
-  })
-  const setKeywords = keywords => setPreferences({ keywords })
   const setAudioOnly = audioOnly => setPreferences({ audioOnly })
   const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })

@@ -10,6 +10,7 @@ import { PreferenceContext } from '../components/PreferencesProvider'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Player from '../components/Player'
+import Info from '../components/Info'
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -154,24 +155,6 @@ export default class EditPage extends Component {
     window.location.reload()
   }
 
-  changePersonnummmerEditStatus = () => {
-    const { isPersonnummerEditable } = this.state
-    this.setState({ isPersonnummerEditable: !isPersonnummerEditable })
-  }
-
-  onPersonnumerChange = (e) => {
-    this.setState({ personnummer: e.target.value })
-  }
-
-  changePatientNameEditStatus = () => {
-    const { isPatientNameEditable } = this.state
-    this.setState({ isPatientNameEditable: !isPatientNameEditable })
-  }
-
-  onPatientNameChange = (e) => {
-    this.setState({ patientName: e.target.value })
-  }
-
   render() {
     const { transcript } = this.props
     const {
@@ -207,98 +190,7 @@ export default class EditPage extends Component {
                 />
                 <EuiSpacer size="l" />
                 <EuiSpacer size="l" />
-
-                <EuiForm>
-                  <EuiFlexGroup>
-                    <EuiFlexItem>
-                      <div className="euiText euiText--small">
-                        <div>
-                          <h2>
-                            <span> Personnummer</span>
-                          </h2>
-                          <EuiText size="m">
-                            <span
-                              style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
-                            >
-                              {personnummer}
-                              &nbsp;
-                              <EuiButtonIcon
-                                style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
-                                iconType="pencil"
-                                aria-label="Next"
-                                color="danger"
-                                onClick={this.changePersonnummmerEditStatus}
-                              />
-                            </span>
-                          </EuiText>
-                          <EuiFieldText
-                            style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
-                            onChange={this.onPersonnumerChange}
-                            value={personnummer}
-                            placeholder={personnummer}
-                            aria-label="Use aria labels when no actual label is in use"
-                          />
-                          <EuiSpacer size="s" />
-                          <EuiButtonEmpty
-                            style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
-                            onClick={this.changePersonnummmerEditStatus}
-                          >
-                          Save
-                          </EuiButtonEmpty>
-                        </div>
-                      </div>
-                    </EuiFlexItem>
-                    <EuiFlexItem>
-                      <div className="euiText euiText--small">
-                        <div>
-                          <h2>
-                            <span>Patientnamn</span>
-                          </h2>
-                          <EuiText size="m">
-                            <span
-                              style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
-                            >
-                              {patientName}
-                              &nbsp;
-                              <EuiButtonIcon
-                                style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
-                                iconType="pencil"
-                                aria-label="Next"
-                                color="danger"
-                                onClick={this.changePatientNameEditStatus}
-                              />
-                            </span>
-                          </EuiText>
-                          <EuiFieldText
-                            style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
-                            onChange={this.onPatientNameChange}
-                            value={patientName}
-                            placeholder={patientName}
-                            aria-label="Use aria labels when no actual label is in use"
-                          />
-                          <EuiSpacer size="s" />
-                          <EuiButtonEmpty
-                            style={{ display:  isPatientNameEditable ? 'flex' : 'none' }}
-                            onClick={this.changePatientNameEditStatus}
-                          >
-                          Save
-                          </EuiButtonEmpty>
-                        </div>
-                      </div>
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                </EuiForm>
-                {/* <audio
-                  controls
-                  src={`/api/v1/transcription/${transcript.id}/audio`}
-                  ref={this.ref}
-                  onTimeUpdate={this.onTimeUpdate}
-                  style={{ width: '100%' }}
-                >
-                  Your browser does not support the
-                  <code>audio</code>
-                  element.
-                </audio> */}
+                <Info />      
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
