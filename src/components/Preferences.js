@@ -75,22 +75,6 @@ const Flyout = ({ visible, onClose }) => {
               hasDividers
             />
           </EuiFormRow>
-          {/* <EuiFormRow label="Highlighted words">
-            <EuiRadioGroup
-              options={WORD_OPTIONS}
-              idSelected={preferences.words}
-              onChange={setWords}
-            />
-          </EuiFormRow> */}
-          <EuiFormRow label="Journal inputs">
-            <EuiComboBox
-              noSuggestions
-              placeholder="Each input will be mapped to the journal system"
-              selectedOptions={preferences.keywords}
-              onCreateOption={onCreateKeyword}
-              onChange={setKeywords}
-            />
-          </EuiFormRow>
           <EuiSpacer size="l" />
           <EuiText><h5>Uppspelning</h5></EuiText>
           <EuiSpacer size="s" />
