@@ -278,14 +278,17 @@ export default class Editor extends Component {
 
 
   validate = () => {
-    const { chapters } = this.props
-    const [ preferences ] = this.context
-    const keywords = preferences.keywords.map(keyword => keyword.label.toLowerCase())
-    const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
-    const error = invalidChapters.map(({ keyword }) => keyword)
-    this.setState({ error }, ()=> {
-      this.props.validateTranscript(error)
-    })
+    // const { chapters } = this.props
+    // const [ preferences ] = this.context
+    // const keywords = preferences.keywords.map(keyword => keyword.label.toLowerCase())
+    // const invalidChapters = chapters.filter(chapter => !keywords.includes(chapter.keyword.toLowerCase()))
+    // const error = invalidChapters.map(({ keyword }) => keyword)
+    const { validateTranscript } = this.props
+    // There should be a validation to check the used keywords are authorized from the backend. Now it is disabled.
+    const error = []
+    // this.setState({ error }, () => {
+    validateTranscript(error)
+    // })
     return !error.length
   }
 
