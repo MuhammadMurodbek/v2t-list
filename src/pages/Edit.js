@@ -69,7 +69,7 @@ export default class EditPage extends Component {
   parseTranscriptions = (transcriptions) => {
     if (transcriptions) {
       return transcriptions.map((transcript) => {
-        const keyword = transcript.keyword.length ? transcript.keyword : 'general'
+        const keyword = transcript.keyword.length ? transcript.keyword : 'Kontaktorsak'
         const segments = transcript.segments.map((chunk, i) => {
           const words = i >= transcript.segments.length - 1 ? chunk.words : `${chunk.words} `
           return { ...chunk, words }

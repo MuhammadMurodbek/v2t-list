@@ -128,7 +128,7 @@ export default class LivePage extends Component {
     receivedTranscriptsWithTimeInfo.forEach((receivedTranscript) => {
       let currentKeyword = ''
       if (receivedTranscript.keyword === '' && updatedTranscript.length === 0) {
-        currentKeyword = 'general'
+        currentKeyword = 'Kontaktorsak'
       } else {
         currentKeyword = receivedTranscript.keyword
       }

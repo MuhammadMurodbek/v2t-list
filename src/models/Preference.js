@@ -129,7 +129,7 @@ export default class Preference {
 
   static defaultState = {
     words: '3',
-    keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }, { label: 'AT' }],
+    keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }, { label: 'Kontaktorsak' }, { label: 'AT' }],
     audioOnly: false,
     autoPlayStatus: true,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
