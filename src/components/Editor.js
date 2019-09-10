@@ -46,7 +46,15 @@ export default class Editor extends Component {
   initChapters = () => {
     const { originalChapters, updateTranscript } = this.props
     const chapters = originalChapters
-    updateTranscript(chapters)
+    if (chapters) {
+      chapters.forEach((chapter) => {
+        chapter.segments.forEach((segment) => {
+          if (segment.words.indexOf('\n') > -1) { segment.words = '\n' }
+          segment.words = segment.words.replace(/ +$/, ' ')
+        })
+      })
+      updateTranscript(chapters)
+    }
   }
 
   updateCursor = () => {
@@ -405,8 +413,6 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
 const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }) => {
   let style
   const current = currentTime > startTime && currentTime <= endTime
-  if (words.indexOf('\n') > -1) { words = '\n' }
-  words = words.replace(/ +$/, " ")
   if (context) {
     style = current ? {
       fontWeight: 'bold',
