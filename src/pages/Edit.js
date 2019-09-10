@@ -162,11 +162,7 @@ export default class EditPage extends Component {
       chapters,
       queryTerm,
       tags,
-      isMediaAudio,
-      personnummer,
-      isPersonnummerEditable,
-      patientName,
-      isPatientNameEditable
+      isMediaAudio
     } = this.state
     if (!transcript) return null
     return (
