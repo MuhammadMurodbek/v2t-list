@@ -1,8 +1,7 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton,
-  EuiForm, EuiText, EuiButtonIcon, EuiFieldText, EuiButtonEmpty
+  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton
 } from '@elastic/eui'
 import axios from 'axios'
 import Page from '../components/Page'
