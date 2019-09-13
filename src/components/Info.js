@@ -19,22 +19,9 @@ export default class Info extends Component {
     console.log(personnummer)
     console.log('patientName')
     console.log(patientName)
+    
     this.setState({ patientId: personnummer })
     this.setState({ patientNamn: patientName })
-  }
-
-  componentDidUpdate(prevProps) {
-    const { personnummer, patientName } = this.props
-    const pnummer = prevProps.personnummer 
-    const pName = prevProps.patientName
-    if (personnummer !== pName || personnummer !== pnummer) {
-      console.log('personnummer2')
-      console.log(personnummer)
-      console.log('patientName2')
-      console.log(patientName)
-      this.setState({ patientId: personnummer })
-      this.setState({ patientNamn: patientName })
-    }
   }
 
   changePersonnummmerEditStatus = () => {
