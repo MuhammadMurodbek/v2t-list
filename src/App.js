@@ -38,7 +38,7 @@ export default class App extends Component {
   }
 
   fetchTranscripts = () => {
-    axios.get('/api/v1/tickets')
+    axios.get('/api/v2/tickets')
       .then((data) => {
         this.setState({ transcripts: data.data })
       })
@@ -61,7 +61,7 @@ export default class App extends Component {
             isSelected: selectedItemName === tag.value,
             onClick: () => {
               this.selectItem(tag.value)
-              axios.get(`/api/v1/tickets?tags=${tag.value}`).then((receivedData) => {
+              axios.get(`/api/v2/tickets?tags=${tag.value}`).then((receivedData) => {
                 this.setState({ transcripts: receivedData.data })
               })
             },
@@ -82,7 +82,7 @@ export default class App extends Component {
                 name: 'V2T Jobs',
                 onClick: () => {
                   this.selectItem('V2T Jobs')
-                  axios.get('/api/v1/tickets').then((receivedData) => {
+                  axios.get('/api/v2/tickets').then((receivedData) => {
                     this.setState({ transcripts: receivedData.data })
                   })
                 }
