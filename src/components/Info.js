@@ -35,33 +35,6 @@ export default class Info extends Component {
       this.setState({ patientId: personnummer })
       this.setState({ patientNamn: patientName })
     }
-    
-
-
-  }
-
-  loadSegments = async () => {
-    const { personnummer, patientName } = this.props
-    const queryString = `/api/v1/transcription/${transcript.external_id}`
-    const response = await axios.get(queryString)
-    const originalChapters = this.parseTranscriptions(response.data.transcriptions)
-    const { tags, fields } = response.data
-    if (tags) {
-      this.setState({ originalChapters, tags })
-    } else {
-      this.setState({ originalChapters, tags: [] })
-    }
-
-    if (fields) {
-      this.setState({ fields })
-    } else {
-      this.setState({
-        fields: {
-          patient_id: '',
-          patient_full_name: ''
-        }
-      })
-    }
   }
 
   changePersonnummmerEditStatus = () => {
