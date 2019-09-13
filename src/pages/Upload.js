@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-alert */
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import PropTypes from 'prop-types'
@@ -8,11 +10,13 @@ import {
   EuiFlexItem,
   EuiFilePicker,
   EuiButton,
-  EuiSuperSelect, EuiSpacer, EuiText,
+  EuiSpacer, EuiText,
   EuiGlobalToastList,
   EuiProgress
 } from '@elastic/eui'
 import Page from '../components/Page'
+import '../styles/upload.css'
+
 
 export const API_PATH = '/api/v1/transcription/'
 
@@ -23,7 +27,9 @@ export default class UploadPage extends Component {
     message: '',
     toasts: [],
     metaData: 'medical',
-    selectedJob: 'ks_ögon'
+    selectedJob: 'ss',
+    fileReset: 0,
+    patientID: ''
   }
 
   state = this.DEFAULT_STATE
@@ -100,7 +106,29 @@ export default class UploadPage extends Component {
   }
 
   onFilesChange = (files) => {
-    this.setState({ files })
+    let audioFile
+    let metadataFile
+
+    if (files[0].name.split('.').pop() === 'wav' && files[1].name.split('.').pop() === 'json') {
+      [audioFile, metadataFile] = [files[0], files[1]]
+    } else if (files[0].name.split('.').pop() === 'json' && files[1].name.split('.').pop() === 'wav') {
+      [audioFile, metadataFile] = [files[1], files[0]]
+    } else {
+      alert('There has to be one audio file and another metadata file')
+    }
+
+    if (files.length === 2 && (audioFile && metadataFile)) {
+      const fileReader = new FileReader()
+      fileReader.readAsText(metadataFile)
+      fileReader.onload = (e) => {
+        const { patientID } = JSON.parse(e.target.result)
+        const { shortName } = JSON.parse(e.target.result).department
+        this.setState({ patientID, selectedJob: shortName })
+      }
+      this.setState({ files })
+    } else {
+      alert('Select one audio file with corresponding metadata file.')
+    }
   }
 
   onSubmit = () => {
@@ -140,9 +168,10 @@ export default class UploadPage extends Component {
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
+    }, () => {
+      const fileInput = document.querySelector('.euiFilePicker__input')
+      fileInput.files = null
     })
-    // const message = 'Successfully uploaded files'
-    // this.setState({ ...this.DEFAULT_STATE, message })
   }
 
   onUploadFailed = (e) => {
@@ -157,17 +186,29 @@ export default class UploadPage extends Component {
   render() {
     const {
       loading,
-      metaData,
       toasts,
-      selectedJob
+      selectedJob,
+      files,
+      patientID
     } = this.state
     return (
       <Page preferences title="Upload">
+        <EuiSpacer size="l" />
         <EuiForm>
-          <EuiFormRow label="Attach files">
-            <EuiFilePicker onChange={this.onFilesChange} />
+          <EuiFormRow label="Personnummer" style={files.length !== 0 ? { display: 'inline' } : { display: 'none' }}>
+            <EuiText>
+              <h2>{patientID}</h2>
+            </EuiText>
           </EuiFormRow>
-          <EuiFormRow label="Choose model for the transcript">
+          <EuiFormRow label="Attach files">
+            <EuiFilePicker
+              multiple
+              initialPromptText="Click here to upload a media file"
+              onChange={this.onFilesChange}
+            // className="lol"
+            />
+          </EuiFormRow>
+          {/* <EuiFormRow label="Choose model for the transcript">
             <EuiSuperSelect
               options={this.options}
               valueOfSelected={metaData}
@@ -175,8 +216,13 @@ export default class UploadPage extends Component {
               itemLayoutAlign="top"
               hasDividers
             />
+          </EuiFormRow> */}
+          <EuiFormRow label="Job of this transcript" style={files.length !== 0 ? { display: 'inline' } : { display: 'none' }}>
+            <EuiText>
+              <h2>{selectedJob}</h2>
+            </EuiText>
           </EuiFormRow>
-          <EuiFormRow label="Choose jobs for the transcript">
+          {/* <EuiFormRow label="Choose a job for the transcript">
             <EuiSuperSelect
               options={this.jobs}
               valueOfSelected={selectedJob}
@@ -184,11 +230,11 @@ export default class UploadPage extends Component {
               itemLayoutAlign="top"
               hasDividers
             />
-          </EuiFormRow>
+          </EuiFormRow> */}
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
-              <EuiButton fill onClick={this.onSubmit} isLoading={loading}>
-                Send
+              <EuiButton fill onClick={this.onSubmit} isLoading={loading} style={files.length !== 0 ? { display: 'inline' } : { display: 'none' }}>
+                Upload
               </EuiButton>
             </EuiFlexItem>
             {/* <EuiFlexItem>
