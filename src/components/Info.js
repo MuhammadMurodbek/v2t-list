@@ -14,39 +14,28 @@ export default class Info extends Component {
   }
 
   componentDidMount() {
-    const { personnummer, patientName } = this.props
-    console.log('personnummer')
-    console.log(personnummer)
-    console.log('patientName')
-    console.log(patientName)
-    
-    this.setState({ patientId: personnummer })
-    this.setState({ patientNamn: patientName } ,()=> {
-      console.log('personnummer')
-      console.log(personnummer)
-      console.log('patientName')
-      console.log(patientName)
-
-    })
+    const { fields } = this.props
+    console.log('fields prop')
+    console.log(fields)
+    console.log('fields prop end')
+    this.setState({ patientId: fields.patient_id })
+    this.setState({ patientNamn: fields.patient_full_name })
   }
 
   componentDidUpdate(prevProps) {
-    const { personnummer, patientName } = this.props
-    if (prevProps.personnummer !== personnummer) {
-      this.setPatientNumber(personnummer)
-    }
+    const { fields } = this.props
 
-    if (prevProps.patientName !== patientName) {
-      this.setPatientName(patientName)
+    if (prevProps.fields !== fields) {
+      this.setFields(fields)
     }
   }
 
-  setPatientNumber = (personnummer) => {
-    this.setState({ patientId: personnummer })
-  }
-
-  setPatientName = (patientName) => {
-    this.setState({ patientNamn: patientName })
+  setFields = (fields) => {
+    console.log('fields after prop')
+    console.log(fields)
+    console.log('fields after prop end')
+    this.setState({ patientId: fields.patient_id })
+    this.setState({ patientNamn: fields.patient_full_name })
   }
 
   changePersonnummmerEditStatus = () => {

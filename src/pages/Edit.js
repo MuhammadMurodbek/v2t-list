@@ -200,7 +200,7 @@ export default class EditPage extends Component {
                 />
                 <EuiSpacer size="l" />
                 <EuiSpacer size="l" />
-                <Info personnummer={fields.patient_id} patientName={fields.patient_full_name} />
+                <Info fields={fields} />
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
