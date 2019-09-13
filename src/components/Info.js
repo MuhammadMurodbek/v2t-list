@@ -15,6 +15,11 @@ export default class Info extends Component {
 
   componentDidMount() {
     const { personnummer, patientName } = this.props
+    console.log('personnummer')
+    console.log(personnummer)
+    console.log('patientName')
+    console.log(patientName)
+
     this.setState({ patientId: personnummer })
     this.setState({ patientNamn: patientName })
   }
