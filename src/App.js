@@ -82,7 +82,7 @@ export default class App extends Component {
                 name: 'V2T Jobs',
                 onClick: () => {
                   this.selectItem('V2T Jobs')
-                  axios.get('/api/v1/tickets').then((receivedData) => {
+                  axios.get('/api/v2/tickets').then((receivedData) => {
                     this.setState({ transcripts: receivedData.data })
                   })
                 }
