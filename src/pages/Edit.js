@@ -25,7 +25,7 @@ export default class EditPage extends Component {
     tags: [],
     chapters: [],
     errors: [],
-    fields: { personnummer: '', patientName: '' },
+    fields: { patient_id: '', patient_full_name: '' },
     isMediaAudio: true
   }
 
@@ -67,8 +67,8 @@ export default class EditPage extends Component {
     } else {
       this.setState({
         fields: {
-          personnummer: '',
-          patientName: ''
+          patient_id: '',
+          patient_full_name: ''
         }
       })
     }
@@ -111,7 +111,7 @@ export default class EditPage extends Component {
       await axios.post(finalizeURL).catch(this.trowAsyncError)
       window.location = '/'
     } else {
-      alert('Illegal keyword usage')
+      alert('Unable to finalize')
     }
   }
 
@@ -194,7 +194,7 @@ export default class EditPage extends Component {
                 />
                 <EuiSpacer size="l" />
                 <EuiSpacer size="l" />
-                <Info personnummer={fields.personnummer} patientName={fields.patientName} />
+                <Info personnummer={fields.patient_id} patientName={fields.patient_full_name} />
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
