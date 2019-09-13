@@ -25,7 +25,7 @@ export default class Info extends Component {
   }
 
   onPersonnumerChange = (e) => {
-    this.setState({ personnummer: e.target.value })
+    this.setState({ patientId: e.target.value })
   }
 
   changePatientNameEditStatus = () => {
@@ -34,7 +34,7 @@ export default class Info extends Component {
   }
 
   onPatientNameChange = (e) => {
-    this.setState({ patientName: e.target.value })
+    this.setState({ patientNamn: e.target.value })
   }
 
   render() {
