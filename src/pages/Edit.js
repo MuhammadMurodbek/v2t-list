@@ -25,8 +25,11 @@ export default class EditPage extends Component {
     tags: [],
     chapters: [],
     errors: [],
-    fields: { personnummer: '', patientName: '' },
-    isMediaAudio: true
+    isMediaAudio: true, // should be prop
+    personnummer: '19121212-1212',
+    patientName: 'Tolvan Tolvasson',
+    isPersonnummerEditable: false,
+    isPatientNameEditable: false
   }
 
   componentDidMount() {
@@ -55,22 +58,11 @@ export default class EditPage extends Component {
     const queryString = `/api/v1/transcription/${transcript.external_id}`
     const response = await axios.get(queryString)
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
-    const { tags, fields } = response.data
+    const { tags } = response.data
     if (tags) {
       this.setState({ originalChapters, tags })
     } else {
       this.setState({ originalChapters, tags: [] })
-    }
-
-    if (fields) {
-      this.setState({ fields })
-    } else {
-      this.setState({
-        fields: {
-          personnummer: '',
-          patientName: ''
-        }
-      })
     }
   }
 
@@ -170,8 +162,7 @@ export default class EditPage extends Component {
       chapters,
       queryTerm,
       tags,
-      isMediaAudio,
-      fields
+      isMediaAudio
     } = this.state
     if (!transcript) return null
     return (
@@ -194,7 +185,7 @@ export default class EditPage extends Component {
                 />
                 <EuiSpacer size="l" />
                 <EuiSpacer size="l" />
-                <Info personnummer={fields.personnummer} patientName={fields.patientName} />
+                <Info />      
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
