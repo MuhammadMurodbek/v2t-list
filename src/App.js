@@ -38,11 +38,11 @@ export default class App extends Component {
   }
 
   fetchTranscripts = () => {
-    axios.get('/api/v1/tickets')
+    axios.get('/api/v2/tickets')
       .then((data) => {
         this.setState({ transcripts: data.data })
       })
-    axios.get('/api/v1/tickets/tags/active', {
+    axios.get('/api/v2/tickets/tags/active', {
       params: {
         pageStart: 0,
         pageSize: 10000,
@@ -61,7 +61,7 @@ export default class App extends Component {
             isSelected: selectedItemName === tag.value,
             onClick: () => {
               this.selectItem(tag.value)
-              axios.get(`/api/v1/tickets?tags=${tag.value}`).then((receivedData) => {
+              axios.get(`/api/v2/tickets?tags=${tag.value}`).then((receivedData) => {
                 this.setState({ transcripts: receivedData.data })
               })
             },
