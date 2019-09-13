@@ -42,7 +42,7 @@ export default class App extends Component {
       .then((data) => {
         this.setState({ transcripts: data.data })
       })
-    axios.get('/api/v2/tickets/tags/active', {
+    axios.get('/api/v1/tickets/tags/active', {
       params: {
         pageStart: 0,
         pageSize: 10000,
