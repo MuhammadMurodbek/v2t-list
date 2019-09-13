@@ -33,11 +33,20 @@ export default class Info extends Component {
   componentDidUpdate(prevProps) {
     const { personnummer, patientName } = this.props
     if (prevProps.personnummer !== personnummer) {
-      this.setState({ patientId: personnummer }))
+      this.setPatientNumber(personnummer)
     }
+
     if (prevProps.patientName !== patientName) {
-      this.setState({ patientNamn: patientName })
+      this.setPatientName(patientName)
     }
+  }
+
+  setPatientNumber = (personnummer) => {
+    this.setState({ patientId: personnummer })
+  }
+
+  setPatientName = (patientName) => {
+    this.setState({ patientNamn: patientName })
   }
 
   changePersonnummmerEditStatus = () => {
