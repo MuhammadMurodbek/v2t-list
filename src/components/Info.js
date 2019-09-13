@@ -7,14 +7,16 @@ import '../styles/editor.css'
 
 export default class Info extends Component {
   state = {
+    patientId: '',
+    patientNamn: '',
     isPersonnummerEditable: false,
     isPatientNameEditable: false
   }
 
   componentDidMount() {
     const { personnummer, patientName } = this.props
-    this.setState({ personnummer })
-    this.setState({ patientName })
+    this.setState({ patientId: personnummer })
+    this.setState({ patientNamn: patientName })
   }
 
   changePersonnummmerEditStatus = () => {
@@ -37,8 +39,8 @@ export default class Info extends Component {
 
   render() {
     const {
-      personnummer,
-      patientName,
+      patientId,
+      patientNamn,
       isPatientNameEditable,
       isPersonnummerEditable
     } = this.state
@@ -56,7 +58,7 @@ export default class Info extends Component {
                   <span
                     style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
                   >
-                    {personnummer}
+                    {patientId}
                     &nbsp;
                     <EuiButtonIcon
                       style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
@@ -70,8 +72,8 @@ export default class Info extends Component {
                 <EuiFieldText
                   style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
                   onChange={this.onPersonnumerChange}
-                  value={personnummer}
-                  placeholder={personnummer}
+                  value={patientId}
+                  placeholder={patientId}
                   aria-label="Use aria labels when no actual label is in use"
                 />
                 <EuiSpacer size="s" />
@@ -94,7 +96,7 @@ export default class Info extends Component {
                   <span
                     style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
                   >
-                    {patientName}
+                    {patientNamn}
                     &nbsp;
                     <EuiButtonIcon
                       style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
@@ -108,8 +110,8 @@ export default class Info extends Component {
                 <EuiFieldText
                   style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
                   onChange={this.onPatientNameChange}
-                  value={patientName}
-                  placeholder={patientName}
+                  value={patientNamn}
+                  placeholder={patientNamn}
                   aria-label="Use aria labels when no actual label is in use"
                 />
                 <EuiSpacer size="s" />
