@@ -19,7 +19,7 @@ export const COLUMN_OPTIONS = [
   },
   { label: 'type', name: 'Type', render: () => 'voice' },
   { label: 'name', name: 'Doctor name', render: () => 'Maria S' },
-  { label: 'doctorsName', name: 'Name of the Doctor', render: tarnscript => `${tarnscript.fields.doctor_full_name}` },
+  { label: 'doctorsName', name: 'Name of the Doctor', render: tarnscript => `${tarnscript.fields.external_id}` },
   {
     label: 'id',
     field: 'id',
