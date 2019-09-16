@@ -18,10 +18,10 @@ export const COLUMN_OPTIONS = [
     render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
   },
   { label: 'type', name: 'Type', render: () => 'voice' },
-  { label: 'doctorsName', name: 'Doctor\'s name', render: tarnscript => `${tarnscript.fields.doctor_full_name}` },
-  { label: 'patientsName', name: 'Patient\'s name', render: tarnscript => `${tarnscript.fields.patient_full_name}` },
-  { label: 'patientId', name: 'Patient\'s Personal Number', render: tarnscript => `${tarnscript.fields.patient_id}` },
-  { label: 'departmentName', name: 'Name of the Department', render: tarnscript => `${tarnscript.fields.department_name}` },
+  { label: 'doctorsName', name: 'Doctor\'s name', render: transcript => `${transcript.fields.doctor_full_name ? transcript.fields.doctor_full_name : ''}` },
+  { label: 'patientsName', name: 'Patient\'s name', render: transcript => `${transcript.fields.patient_full_name ? transcript.fields.patient_full_name : ''}` },
+  { label: 'patientId', name: 'Patient\'s Personal Number', render: transcript => `${transcript.fields.patient_id ? transcript.fields.patient_id : ''}` },
+  { label: 'departmentName', name: 'Name of the Department', render: transcript => `${transcript.fields.department_name ? transcript.fields.department_name : ''}` },
   {
     label: 'id',
     field: 'id',
