@@ -2,7 +2,6 @@
 import React from 'react'
 import moment from 'moment'
 import { EuiButtonEmpty } from '@elastic/eui'
-import { EuiText } from '@elastic/eui'
 
 export const WORD_OPTIONS = [
   { id: '1', label: '1' },
