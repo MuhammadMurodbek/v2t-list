@@ -41,6 +41,7 @@ export default class App extends Component {
     axios.get('/api/v2/tickets')
       .then((data) => {
         this.setState({ transcripts: data.data })
+        console.log(data.data)
       })
     axios.get('/api/v1/tickets/tags/active', {
       params: {
