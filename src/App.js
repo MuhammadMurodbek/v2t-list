@@ -62,7 +62,7 @@ export default class App extends Component {
             isSelected: selectedItemName === tag.value,
             onClick: () => {
               this.selectItem(tag.value)
-              axios.get(`/api/v1/tickets?tags=${tag.value}`).then((receivedData) => {
+              axios.get(`/api/v2/tickets?tags=${tag.value}`).then((receivedData) => {
                 this.setState({ transcripts: receivedData.data })
               })
             },
