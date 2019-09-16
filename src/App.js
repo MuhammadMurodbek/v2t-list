@@ -110,6 +110,12 @@ export default class App extends Component {
                 isSelected: selectedItemName === 'Training',
                 name: 'Training',
                 onClick: () => this.selectItem('Training')
+              }, {
+                href: '/',
+                id: 6,
+                isSelected: selectedItemName === 'Co-worker',
+                name: 'Co-worker',
+                onClick: () => this.selectItem('Co-worker')
               }
             ],
             name: ''
