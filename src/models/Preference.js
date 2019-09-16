@@ -20,6 +20,8 @@ export const COLUMN_OPTIONS = [
   { label: 'type', name: 'Type', render: () => 'voice' },
   { label: 'doctorsName', name: 'Doctor\'s name', render: tarnscript => `${tarnscript.fields.doctor_full_name}` },
   { label: 'patientsName', name: 'Patient\'s name', render: tarnscript => `${tarnscript.fields.patient_full_name}` },
+  { label: 'patientId', name: 'Patient\'s Personal Number', render: tarnscript => `${tarnscript.fields.patient_id}` },
+  { label: 'departmentName', name: 'Name of the Department', render: tarnscript => `${tarnscript.fields.department_name}` },
   {
     label: 'id',
     field: 'id',
