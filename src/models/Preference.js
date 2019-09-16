@@ -18,8 +18,8 @@ export const COLUMN_OPTIONS = [
     render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
   },
   { label: 'type', name: 'Type', render: () => 'voice' },
-  { label: 'name', name: 'Doctor name', render: () => 'Maria S' },
-  { label: 'doctorsName', name: 'Name of the Doctor', render: tarnscript => `${tarnscript.fields.doctor_full_name}` },
+  { label: 'doctorsName', name: 'Doctor\'s name', render: tarnscript => `${tarnscript.fields.doctor_full_name}` },
+  { label: 'patientsName', name: 'Patient\'s name', render: tarnscript => `${tarnscript.fields.patient_full_name}` },
   {
     label: 'id',
     field: 'id',
