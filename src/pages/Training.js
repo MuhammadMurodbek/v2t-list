@@ -110,7 +110,7 @@ export default class UploadPage extends Component {
     updatedTextSegment = updatedTextSegment.replace(/\?/g, ' frågetecken ')
     updatedTextSegment = updatedTextSegment.replace(/!/g, ' utropstecken ')
     updatedTextSegment = updatedTextSegment.replace(/\(/g, ' parentes ')
-    updatedTextSegment = updatedTextSegment.replace(/\)/g, ' slutparentes ')
+    updatedTextSegment = updatedTextSegment.replace(/\)/g, ' slut parentes ')
     return updatedTextSegment
   }
 

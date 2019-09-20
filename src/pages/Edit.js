@@ -144,7 +144,7 @@ export default class EditPage extends Component {
         segment.words = segment.words.replace(/\?/g, ' frågetecken ')
         segment.words = segment.words.replace(/!/g, ' utropstecken ')
         segment.words = segment.words.replace(/\(/g, ' parentes ')
-        segment.words = segment.words.replace(/\)/g, ' slutparentes ')
+        segment.words = segment.words.replace(/\)/g, ' slut parentes ')
       })
     })
 
