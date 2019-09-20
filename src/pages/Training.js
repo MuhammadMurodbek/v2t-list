@@ -107,6 +107,8 @@ export default class UploadPage extends Component {
     updatedTextSegment = updatedTextSegment.replace(/:/g, ' kolon ')
     updatedTextSegment = updatedTextSegment.replace(/%/g, ' procent ')
     updatedTextSegment = updatedTextSegment.replace(/  +/g, ' ')
+    segment.words = segment.words.replace(/\?/g, ' frågetecken ')
+    segment.words = segment.words.replace(/\!/g, ' utropstecken ')
     return updatedTextSegment
   }
 
