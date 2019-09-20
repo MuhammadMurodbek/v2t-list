@@ -142,7 +142,7 @@ export default class EditPage extends Component {
         segment.words = segment.words.replace(/:/g, ' kolon ')
         segment.words = segment.words.replace(/%/g, ' procent ')
         segment.words = segment.words.replace(/\?/g, ' frågetecken ')
-        segment.words = segment.words.replace(/\!/g, ' utropstecken ')
+        segment.words = segment.words.replace(/!/g, ' utropstecken ')
       })
     })
 
