@@ -69,11 +69,14 @@ export default class Editor extends Component {
     }
   }
 
+  escapeRegExp = string => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
+
   stashCursor = (offset = 0) => {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
     const dataset = this.getClosestDataset(node)
-    const siblingOffset = node.wholeText ? node.wholeText.replace(new RegExp(`${node.textContent}$`), '').length : 0
+    const escapedTextContent = this.escapeRegExp(node.textContent)
+    const siblingOffset = node.wholeText ? node.wholeText.replace(new RegExp(`${escapedTextContent}$`), '').length : 0
     this.cursor = {
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
