@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 // eslint-disable-next-line no-console
-import './App.css'
-import '@elastic/eui/dist/eui_theme_light.css'
 import React, { Component } from 'react'
 import {
   HashRouter, Switch, Route
@@ -18,9 +16,8 @@ import LivePage from './pages/Live'
 import UploadPage from './pages/Upload'
 import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
-
 import Preference from './models/Preference'
-
+import './App.css'
 export default class App extends Component {
   state = {
     transcripts: [],

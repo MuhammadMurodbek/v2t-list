@@ -11,3 +11,40 @@ p {
 .euiPageContentHeader {
   width: 85%;
 }
+
+.euiPage {
+  /* background-color: green; */
+  background-image: url("./img/sidebar.png");
+}
+.euiSideNavItemButton__label {
+  font-size: 1.3em;
+  color: rgb(255,255,255);
+}
+
+.euiSideNavItemButton.euiSideNavItemButton-isSelected .euiSideNavItemButton__label {
+  text-decoration: none;
+  color: rgb(255,255,255);
+  cursor: not-allowed;
+}
+.euiSideNavItemButton.euiSideNavItemButton-isSelected .euiSideNavItemButton__label:hover {
+  text-decoration: none;
+  /* color: #fff; */
+  cursor: not-allowed;
+}
+/* .euiSideNavItem__items:after {
+    position: absolute;
+    content: '';
+    top: 0;
+    bottom: 12px;
+    width: 1px;
+    background: green;
+    left: 0;
+}
+.euiSideNavItem--branch > .euiSideNavItemButton:after {
+    background: #fff;
+} */
+
+.euiSideNavItem__items:after {
+  background: #fff;
+}
+
