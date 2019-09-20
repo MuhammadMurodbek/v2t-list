@@ -135,6 +135,16 @@ export default class EditPage extends Component {
       }
     })
 
+    chapters.forEach((chapter) => {
+      chapter.segments.forEach((segment) => {
+        segment.words = segment.words.replace(/\./g, ' punkt ')
+        segment.words = segment.words.replace(/,/g, ' komma ')
+        segment.words = segment.words.replace(/:/g, ' kolon ')
+        segment.words = segment.words.replace(/%/g, ' procent ')
+        segment.words = segment.words.replace(/\?/g, ' frågatecken ')
+      })
+    })
+
     const updateURL = `/api/v1/transcription/${transcript.external_id}`
     if (errors.length) return false
     return axios.put(updateURL,
