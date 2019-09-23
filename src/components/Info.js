@@ -17,7 +17,7 @@ const Info = ({ fields }) => {
   })
 
   function changePatientNameEditStatus() {
-    setIsPatientNameEditable(isPatientNameEditable)
+    setIsPatientNameEditable(!isPatientNameEditable)
   }
 
   function onPatientNameChange(e) {
