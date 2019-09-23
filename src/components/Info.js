@@ -1,143 +1,127 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import {
   EuiButtonEmpty, EuiSpacer, EuiFieldText, EuiButtonIcon,
   EuiFlexGroup, EuiFlexItem, EuiText, EuiForm
 } from '@elastic/eui'
 import '../styles/editor.css'
 
-export default class Info extends Component {
-  state = {
-    patientId: '',
-    patientNamn: '',
-    isPersonnummerEditable: false,
-    isPatientNameEditable: false
+const Info = ({ fields }) => {
+  const [patientId, setPatientId] = useState(fields.patient_id)
+  const [patientNamn, setPatientNamn] = useState(fields.patient_full_name)
+  const [isPersonnummerEditable, setIsPersonnummerEditable] = useState(false)
+  const [isPatientNameEditable, setIsPatientNameEditable] = useState(false)
+
+  function changePersonnummmerEditStatus() {
+    setIsPersonnummerEditable(!isPersonnummerEditable)
   }
 
-  componentDidMount() {
-    const { fields } = this.props
-    this.setState({ patientId: fields.patient_id })
-    this.setState({ patientNamn: fields.patient_full_name })
+  function onPersonnumerChange(e) {
+    setPatientId(e.target.value)
   }
 
-  componentDidUpdate(prevProps) {
-    const { fields } = this.props
-    if (prevProps.fields !== fields) {
-      this.setFields(fields)
-    }
+  function changePatientNameEditStatus() {
+    setIsPatientNameEditable(isPatientNameEditable)
   }
 
-  setFields = (fields) => {
-    this.setState({ patientId: fields.patient_id })
-    this.setState({ patientNamn: fields.patient_full_name })
+  function onPatientNameChange(e) {
+    setPatientNamn(e.target.value)
   }
 
-  changePersonnummmerEditStatus = () => {
-    const { isPersonnummerEditable } = this.state
-    this.setState({ isPersonnummerEditable: !isPersonnummerEditable })
-  }
 
-  onPersonnumerChange = (e) => {
-    this.setState({ patientId: e.target.value })
-  }
-
-  changePatientNameEditStatus = () => {
-    const { isPatientNameEditable } = this.state
-    this.setState({ isPatientNameEditable: !isPatientNameEditable })
-  }
-
-  onPatientNameChange = (e) => {
-    this.setState({ patientNamn: e.target.value })
-  }
-
-  render() {
-    const {
-      patientId,
-      patientNamn,
-      isPatientNameEditable,
-      isPersonnummerEditable
-    } = this.state
-
-    return (
-      <EuiForm>
-        <EuiFlexGroup>
-          <EuiFlexItem>
-            <div className="euiText euiText--small">
-              <div>
-                <h2>
-                  <span> Personnummer</span>
-                </h2>
-                <EuiText size="m">
-                  <span
+  return (
+    <EuiForm>
+      <EuiFlexGroup>
+        <EuiFlexItem>
+          <div className="euiText euiText--small">
+            <div>
+              <h2>
+                <span> Personnummer</span>
+              </h2>
+              <EuiText size="m">
+                <span
+                  style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
+                >
+                  {patientId}
+                  &nbsp;
+                  <EuiButtonIcon
                     style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
-                  >
-                    {patientId}
-                    &nbsp;
-                    <EuiButtonIcon
-                      style={{ display: isPersonnummerEditable ? 'none' : 'flex' }}
-                      iconType="pencil"
-                      aria-label="Next"
-                      color="danger"
-                      onClick={this.changePersonnummmerEditStatus}
-                    />
-                  </span>
-                </EuiText>
-                <EuiFieldText
-                  style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
-                  onChange={this.onPersonnumerChange}
-                  value={patientId}
-                  placeholder={patientId}
-                  aria-label="Use aria labels when no actual label is in use"
-                />
-                <EuiSpacer size="s" />
-                <EuiButtonEmpty
-                  style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
-                  onClick={this.changePersonnummmerEditStatus}
-                >
-                  Save
-                </EuiButtonEmpty>
-              </div>
+                    iconType="pencil"
+                    aria-label="Next"
+                    color="danger"
+                    onClick={changePersonnummmerEditStatus}
+                  />
+                </span>
+              </EuiText>
+              <EuiFieldText
+                style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
+                onChange={onPersonnumerChange}
+                value={patientId}
+                placeholder={patientId}
+                aria-label="Use aria labels when no actual label is in use"
+              />
+              <EuiSpacer size="s" />
+              <EuiButtonEmpty
+                style={{ display: isPersonnummerEditable ? 'flex' : 'none' }}
+                onClick={changePersonnummmerEditStatus}
+              >
+                Save
+              </EuiButtonEmpty>
             </div>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <div className="euiText euiText--small">
-              <div>
-                <h2>
-                  <span>Patientnamn</span>
-                </h2>
-                <EuiText size="m">
-                  <span
+          </div>
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <div className="euiText euiText--small">
+            <div>
+              <h2>
+                <span>Patientnamn</span>
+              </h2>
+              <EuiText size="m">
+                <span
+                  style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
+                >
+                  {patientNamn}
+                  &nbsp;
+                  <EuiButtonIcon
                     style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
-                  >
-                    {patientNamn}
-                    &nbsp;
-                    <EuiButtonIcon
-                      style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
-                      iconType="pencil"
-                      aria-label="Next"
-                      color="danger"
-                      onClick={this.changePatientNameEditStatus}
-                    />
-                  </span>
-                </EuiText>
-                <EuiFieldText
-                  style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
-                  onChange={this.onPatientNameChange}
-                  value={patientNamn}
-                  placeholder={patientNamn}
-                  aria-label="Use aria labels when no actual label is in use"
-                />
-                <EuiSpacer size="s" />
-                <EuiButtonEmpty
-                  style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
-                  onClick={this.changePatientNameEditStatus}
-                >
-                  Save
-                </EuiButtonEmpty>
-              </div>
+                    iconType="pencil"
+                    aria-label="Next"
+                    color="danger"
+                    onClick={changePatientNameEditStatus}
+                  />
+                </span>
+              </EuiText>
+              <EuiFieldText
+                style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
+                onChange={onPatientNameChange}
+                value={patientNamn}
+                placeholder={patientNamn}
+                aria-label="Use aria labels when no actual label is in use"
+              />
+              <EuiSpacer size="s" />
+              <EuiButtonEmpty
+                style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
+                onClick={changePatientNameEditStatus}
+              >
+                Save
+              </EuiButtonEmpty>
             </div>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-      </EuiForm>
-    )
+          </div>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiForm>
+  )
+}
+
+Info.propTypes = {
+  fields: PropTypes.object
+}
+
+Info.defaultProps = {
+  fields: {
+    patient_id: '',
+    patient_full_name: ''
   }
 }
+
+export default Info
