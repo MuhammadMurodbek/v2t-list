@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect  } from 'react'
 import PropTypes from 'prop-types'
 import {
   EuiButtonEmpty, EuiSpacer, EuiFieldText, EuiButtonIcon,
@@ -7,12 +7,16 @@ import {
 import '../styles/editor.css'
 
 const Info = ({ fields }) => {
-  console.log('fields11')
-  console.log(fields)
   const [patientId, setPatientId] = useState(fields.patient_id)
   const [patientNamn, setPatientNamn] = useState(fields.patient_full_name)
   const [isPersonnummerEditable, setIsPersonnummerEditable] = useState(false)
   const [isPatientNameEditable, setIsPatientNameEditable] = useState(false)
+  
+  useEffect(() => {
+    setPatientId(fields.patient_id)
+    setPatientNamn(fields.patient_full_name)
+  })
+
 
   function changePersonnummmerEditStatus() {
     setIsPersonnummerEditable(!isPersonnummerEditable)
