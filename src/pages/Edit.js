@@ -63,19 +63,13 @@ export default class EditPage extends Component {
     }
 
     if (fields) {
-      this.setState({ fields }, () => {
-        console.log('fields')
-        console.log(this.state.fields)
-      })
+      this.setState({ fields })
     } else {
       this.setState({
         fields: {
           patient_id: '',
           patient_full_name: ''
         }
-      }, () => {
-        console.log('fields2')
-        console.log(this.state.fields)
       })
     }
   }

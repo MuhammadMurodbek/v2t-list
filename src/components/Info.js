@@ -7,7 +7,7 @@ import {
 import '../styles/editor.css'
 
 const Info = ({ fields }) => {
-  console.log('fields')
+  console.log('fields11')
   console.log(fields)
   const [patientId, setPatientId] = useState(fields.patient_id)
   const [patientNamn, setPatientNamn] = useState(fields.patient_full_name)
