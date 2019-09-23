@@ -15,25 +15,18 @@ export default class Info extends Component {
 
   componentDidMount() {
     const { fields } = this.props
-    console.log('fields prop')
-    console.log(fields)
-    console.log('fields prop end')
     this.setState({ patientId: fields.patient_id })
     this.setState({ patientNamn: fields.patient_full_name })
   }
 
   componentDidUpdate(prevProps) {
     const { fields } = this.props
-
     if (prevProps.fields !== fields) {
       this.setFields(fields)
     }
   }
 
   setFields = (fields) => {
-    console.log('fields after prop')
-    console.log(fields)
-    console.log('fields after prop end')
     this.setState({ patientId: fields.patient_id })
     this.setState({ patientNamn: fields.patient_full_name })
   }
