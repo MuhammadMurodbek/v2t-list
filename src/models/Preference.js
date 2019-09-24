@@ -65,10 +65,6 @@ export default class Preference {
     this._keywordInit = false
   }
 
-  get audioOnly() { return this._audioOnly }
-
-  set audioOnly(v) { this._audioOnly = v }
-
   get autoPlayStatus() {
     return this._autoPlayStatus
   }
@@ -90,6 +86,30 @@ export default class Preference {
         this._autoPlayStatus = true
       }
       this.setCookie('autoPlayStatus', this._autoPlayStatus, 365)
+    }
+  }
+
+  get showVideo() {
+    return this._showVideo
+  }
+
+  set showVideo(v) {
+    if (this._showVideo === true) {
+      this._showVideo = false
+      this.setCookie('showVideo', this._showVideo, 365)
+    } else if (this._showVideo === false) {
+      this._showVideo = true
+      this.setCookie('showVideo', this._showVideo, 365)
+    } else {
+      const showVideoFromCookie = this.getCookie('showVideo')
+      if (showVideoFromCookie === 'true') {
+        this._showVideo = true
+      } else if (showVideoFromCookie === 'false') {
+        this._showVideo = false
+      } else {
+        this._showVideo = true
+      }
+      this.setCookie('showVideo', this._showVideo, 365)
     }
   }
 
@@ -133,7 +153,7 @@ export default class Preference {
   static defaultState = {
     words: '3',
     keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }, { label: 'Kontaktorsak' }, { label: 'AT' }],
-    audioOnly: false,
+    showVideo: true,
     autoPlayStatus: true,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
     allColumns: COLUMN_OPTIONS,

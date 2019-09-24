@@ -32,8 +32,8 @@ const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
   const [preferences, setPreferences] = usePreferences()
   const setColumns = columns => setPreferences({ columns })
-  const setAudioOnly = audioOnly => setPreferences({ audioOnly })
   const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
+  const setShowVideo = showVideo => setPreferences({ showVideo })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })
 
 
@@ -74,20 +74,20 @@ const Flyout = ({ visible, onClose }) => {
           <EuiSpacer size="l" />
           <EuiText><h5>Uppspelning</h5></EuiText>
           <EuiSpacer size="s" />
-          <EuiFormRow>
-            <EuiSwitch
-              label="Show video"
-              checked={preferences.getAudioOnly}
-              onChange={setAudioOnly}
-            />
-          </EuiFormRow>
-
           <EuiFormRow label="">
             <EuiSwitch
               className="autoplaySwitch"
               label="Enable autoplay"
               checked={preferences.autoPlayStatus}
               onChange={setAutoPlayStatus}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="">
+            <EuiSwitch
+              className="videoSwitch"
+              label="Show Video"
+              checked={preferences.showVideo}
+              onChange={setShowVideo}
             />
           </EuiFormRow>
         </Fragment>

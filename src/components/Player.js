@@ -295,7 +295,7 @@ class Player extends Component {
         <audio
           ref={this.myRef}
           src={trackUrl}
-          style={{ display: preferences.audioOnly || isContentAudio ? 'block' : 'none' }}
+          style={{ display: preferences.showVideo || isContentAudio ? 'block' : 'none' }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
@@ -305,11 +305,11 @@ class Player extends Component {
         </audio>
 
         <video
-          width="500" 
+          width="500"
           height="500"
           ref={this.myRef}
           src={trackUrl}
-          style={{ display: !preferences.audioOnly || !isContentAudio ? 'none' : 'block' }}
+          style={{ display: !preferences.showVideo || !isContentAudio ? 'none' : 'block' }}
           className="videoPlayer"
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
