@@ -271,7 +271,7 @@ class Player extends Component {
       audioTranscript,
       trackId,
       getCurrentTime,
-      isContentAudio,
+      // isContentAudio,
       searchBoxVisible
     } = this.props
 
