@@ -10,17 +10,22 @@ const Info = ({ fields }) => {
   const [patientId, setPatientId] = useState(fields.patient_id)
   const [patientNamn, setPatientNamn] = useState(fields.patient_full_name)
   const [isPatientNameEditable, setIsPatientNameEditable] = useState(false)
+  const [propsNotLoaded, setPropsNotLoaded] = useState(true)
 
   useEffect(() => {
-    setPatientId(fields.patient_id)
-    setPatientNamn(fields.patient_full_name)
-  })
+    if(propsNotLoaded && (fields.patient_id !== '' || fields.patient_full_name !== '')) {
+      setPatientId(fields.patient_id)
+      setPatientNamn(fields.patient_full_name)
+      setPropsNotLoaded(false)
+    }
+ })
 
   function changePatientNameEditStatus() {
     setIsPatientNameEditable(!isPatientNameEditable)
   }
 
   function onPatientNameChange(e) {
+    console.log(e.target.value)
     setPatientNamn(e.target.value)
   }
 
