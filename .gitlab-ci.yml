@@ -200,6 +200,8 @@ docker:
   only:
     - branches
     - web
+  except:
+    - tags
 
 ### stage: deploy
 ##################################################
