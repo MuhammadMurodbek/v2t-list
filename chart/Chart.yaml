@@ -1,8 +1,0 @@
-name: v2t-list
-version: 1.0.0-SNAPSHOT
-description: test
-keywords:
-  - v2t-list
-sources:
-  - https://gitlab.inoviagroup.se/patronum/v2t/ui/v2t-list
-engine: gotpl

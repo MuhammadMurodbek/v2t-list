@@ -1,172 +1,30 @@
 stages:
+  - prepare release
   - build
   - package
-  - upload
   - deploy
 
-### stage: build
-##################################################
-build-static:
-  image: node:10-jessie
-  stage: build
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-    - node_modules/
-    - .yarn
-  before_script:
-    - yarn config set cache-folder .yarn
-    - yarn install
-  script:
-    - yarn build
-  only:
-    - branches
-    - web
-  artifacts:
-    name: static-site
-    paths:
-      - ./build/
-    expire_in: 1 week
+.common_scripts: &common_scripts |
+  set -e
 
-### stage: package
-##################################################
-docker-static:
-  image: docker:stable
-  stage: package
-  script:
-    - init_docker
-    - docker_build_static
-  only:
-    - branches
-    - web
-  dependencies:
-    - build-static
-
-
-docker:
-  image: docker:stable
-  stage: package
-  script:
-    - init_docker
-    - docker_build
-  only:
-    - branches
-    - web
-
-package-chart:
-  image: dtzar/helm-kubectl:2.9.1
-  stage: package
-  script:
-    - helm_init
-    - helm_package_chart
-  only:
-    - branches
-    - web
-  artifacts:
-    name: helm-chart
-    paths:
-      - ./chart/*.tgz
-      - ./values.yaml
-    expire_in: 1 week
-
-### stage: deploy
-##################################################
-deploy-to-dev:
-  cache: {}
-  image: dtzar/helm-kubectl:2.14.2
-  stage: deploy
-  before_script:
-    - mkdir -p ~/.kube && echo "$KUBE_CONFIG_DEV" > ~/.kube/config
-  script:
-    - kubectl rollout restart deployment/ui --namespace=v2t
-  variables:
-    GIT_STRATEGY: none
-  only:
-    - test
-  dependencies:
-    - docker-static
-
-### stage: development
-##################################################
-#development:
-#  stage: development
-#  image: dtzar/helm-kubectl:2.9.1
-#  script:
-#    - kube_init
-#    - helm_deploy_service
-#  variables:
-#    GIT_STRATEGY: none
-#  dependencies:
-#    - package-chart
-#  environment:
-#    name: development
-#  only:
-#    - master
-#
-#purge-development:
-#  stage: development
-#  image: dtzar/helm-kubectl:2.9.1
-#  variables:
-#    GIT_STRATEGY: none
-#  script:
-#    - kube_init
-#    - helm_purge
-#  environment:
-#    name: development
-#    action: stop
-#  only:
-#    - master
-#  when: manual
-#  allow_failure: true
-#  dependencies: []
-
-### stage: upload
-##################################################
-upload-chart:
-  image: dtzar/helm-kubectl:2.9.1
-  stage: upload
-  script:
-    - helm_init
-    - init_git
-    - helm_upload_chart
-  variables:
-    GIT_STRATEGY: none
-  only:
-    - master
-  dependencies:
-    - package-chart
-
-### Scripts
-##################################################
-.scripts: &scripts |
   if [[ -n "${DEBUG_CI+x}" ]] ; then
     set -x
   fi
 
-  function get_version() {
-    cat version 2> /dev/null \
-      || echo "0.0.1-SNAPSHOT"
-  }
-
-  function shell_bump_version_to_release() {
-    sed -i 's/-SNAPSHOT//g' version
-  }
-
-  function shell_bump_version_to_next_snapshot() {
-    sed -ri 's/([0-9])\.([0-9])\.([0-9])/echo -n "\1.\2.$((\3+1))-SNAPSHOT"/ge' version
-  }
-
   function is_snapshot() {
-    echo "$VERSION" | grep -qe  '-SNAPSHOT$'
+    # This is compatible way to verify that $CI_COMMIT_TAG is empty or $VERSION contains SNAPSHOT
+    [ -z "$CI_COMMIT_TAG" ] || [ -z "${VERSION##*SNAPSHOT*}" ]
   }
 
-  function init_npm() {
-    echo "$NPM_AUTH" >> ~/.npmrc
+  function get_version() {
+    jq '.version' -c -r -M package.json | tee version
   }
+
+  export VERSION="$(get_version)"
 
   function init_git() {
-    apk update
-    apk add -y git openssh-client
+    apt-get update
+    apt-get install -y --no-upgrade --no-install-recommends git openssh-client
     mkdir -p ~/.ssh
     chmod 700 ~/.ssh
     echo -e 'Host *\n\tStrictHostKeyChecking no\n\n' > ~/.ssh/config
@@ -175,68 +33,47 @@ upload-chart:
     git config --global user.name "$GIT_USER"
   }
 
-  function is_master_branch() {
-    [[ "$CI_COMMIT_REF_NAME" == "master" ]]
-  }
-
-  function ensure_master_branch() {
-    if ! is_master_branch ; then
-      echo "Release only allowed for master branch"
-      exit 1
-    fi
-  }
-
   function get_git_url() {
     echo $CI_PROJECT_URL | sed 's!https://\([^/]*\)/\(.*\)$!git@\1:\2.git!g'
   }
 
-  function git_tag_and_push() {
-    GIT_URL="$(get_git_url)"
-    git add -u
-    git commit -m "Released version $VERSION"
-    git tag "$VERSION"
-    git push "$GIT_URL" "$VERSION"
+  function init_npm() {
+    echo "$NPM_AUTH" >> ~/.npmrc
   }
 
-  function git_commit_and_push() {
-    GIT_URL="$(get_git_url)"
-    git add -u
-    git commit -m "Prepare next snapshot version $(get_version)"
-    git push "$GIT_URL" HEAD:master
+
+.release_scripts: &release_scripts |
+  function increment_version() {
+    current_version_str=$1
+    current_date_prefix=$(date '+%y%m.%d.')
+    if [[ "$current_version_str" == $current_date_prefix* ]]; then
+      # Increment only last part
+      current_version_arr=(${current_version_str//./ })
+      new_minor=$((current_version_arr[2]+1))
+      new_version="${current_date_prefix}${new_minor}"
+    else
+      # Make new version string
+      new_version="${current_date_prefix}0"
+    fi
+
+    echo "${new_version}"
   }
 
-  export VERSION="$(get_version)"
+  function make_release() {
+    git checkout -B "$CI_BUILD_REF_NAME"
+    git remote set-url origin "$(get_git_url)"
 
-  function get_version() {
-    cat version 2> /dev/null \
-      || node -p "require('$dir/package.json').version" 2> /dev/null | tee version \
-      || echo "0.0.1-SNAPSHOT"
+    new_version = $(increment_version "VERSION")
+    jq ".version=\"${new_version}\"" package.json > package.json.tmp && mv package.json.tmp package.json
+
+    git commit -m "Released version ${new_version}"
+    git tag "${new_version}"
+    git push "${new_version}"
   }
 
+.docker_scripts: &docker_scripts |
   function init_docker() {
     mkdir -p ~/.docker && echo "$DOCKER_AUTH_CONFIG" > ~/.docker/config.json
-  }
-
-  function docker_add_jq() {
-    apk update
-    apk add jq
-  }
-
-  function docker_build_all_versions() {
-    for idx in $(seq 0 $(($(jq '. | length' versions.json) - 1))); do
-      first_tag=$(jq -r ".[$idx].tags[0]" versions.json)
-      other_tags=$(jq -r ".[$idx].tags[1:] | .[]" versions.json)
-      build_args=$(jq -r ".[$idx].args[] | to_entries | map(\"--build-arg \" + .key + \"=\" + .value) | .[]" versions.json)
-
-      image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME"
-      docker build --pull $build_args -t "$image_name:$first_tag" .
-      docker push "$image_name:$first_tag"
-
-      for tag in ; do
-        docker tag "$image_name:$first_tag" "$image_name:$tag"
-        docker push "$image_name:$tag"
-      done
-    done
   }
 
   function get_other_image_tags() {
@@ -245,17 +82,6 @@ upload-chart:
       echo -n "$latest_branch_tag"
     else
       echo -n "$latest_branch_tag" "$DOCKER_RELEASE_REGISTRY/$IMAGE_NAME:$VERSION"
-    fi
-  }
-
-  function docker_build_tool() {
-    if [[ -f versions.json ]] ; then
-      docker_add_jq
-      docker_build_all_versions
-    else
-      image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:latest"
-      docker build --pull -t "$image_name" .
-      docker push "$image_name"
     fi
   }
 
@@ -283,89 +109,112 @@ upload-chart:
 
   export IMAGE_NAME="${IMAGE_NAME-$CI_PROJECT_NAMESPACE/${CI_PROJECT_NAME#docker-}}"
 
-  function kube_init() {
-    mkdir -p ~/.kube && echo "$KUBE_AUTH_CONFIG" > ~/.kube/config
-  }
 
-  function kube_namespace() {
-    echo "${KUBE_NAMESPACE-$PATRONUM_DEV_NAMESPACE}"
-  }
+.release_condition: &release_condition
+  only:
+    refs:
+      - master
+  except:
+    variables:
+      - $RELEASE == null
 
-  function helm_init() {
-    helm init --client-only
-    helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
-    helm repo add inovia-snapshot "$HELM_SNAPSHOT_REPO" --username "$HELM_USER" --password "$HELM_PASSWORD"
-    helm repo add inovia-release "$HELM_RELEASE_REPO" --username "$HELM_USER" --password "$HELM_PASSWORD"
-  }
+.not_release_condition: &not_release_condition
+  except:
+    variables:
+      - $RELEASE
 
-  function helm_update_version() {
-    version="${1-$(get_version)}"
-    sed -i "s/^version: .*\$/version: $version/" "$HELM_CHART/Chart.yaml"
-  }
-
-  function helm_release_name() {
-    reversed_path_slug="$(echo $CI_PROJECT_PATH | tr '/' '\n' | tac | tr '\n' '/' | head -c -1 | tr -c '[:alnum:]' '-')"
-    release_name="${CI_ENVIRONMENT_SLUG}-${reversed_path_slug}"
-    echo -n "${release_name:0:43}"
-  }
-
-  function helm_deploy_infra() {
-    helm upgrade --install --wait \
-         --namespace="$(kube_namespace)" \
-          --values values.yml \
-         "$HELM_RELEASE_NAME" "$HELM_CHART"
-  }
-
-  function helm_deploy_service() {
-    values_arg=""
-    if [[ -f values.yaml ]] ; then
-      values_arg="--values values.yaml"
-    fi
-    tag="${1-latest-master}"
-    replicas="${2-2}"
-
-    helm upgrade --install --wait \
-         --namespace="$(kube_namespace)" \
-         --set "global.namePrefix=${1-false}" \
-         --set "image.tag=$tag" \
-         --set "deployment.replicas=$replicas" \
-         --set "branch=$CI_COMMIT_REF_NAME" \
-         --set "commitHash=$CI_COMMIT_SHA" \
-         $values_arg \
-         "$HELM_RELEASE_NAME" "$HELM_CHART"/*.tgz
-  }
-
-  function helm_purge() {
-    helm delete --purge "$HELM_RELEASE_NAME"
-  }
-
-  function helm_get_chart_name() {
-    helm inspect chart "$HELM_CHART" | grep -e '^name:' | sed 's/name: //'
-  }
-
-  function helm_package_chart() {
-    chart_name="$(helm_get_chart_name)"
-    cp -R ./chart "./$chart_name"
-    helm package "./$chart_name" --version "$VERSION"
-    mv ./$chart_name*.tgz "$HELM_CHART"
-  }
-
-  function helm_upload_chart() {
-    helm plugin install https://github.com/chartmuseum/helm-push
-    helm push ./chart/*.tgz "$(helm_repo_name)"
-  }
-
-  function helm_repo_name() {
-    if is_snapshot ; then
-      echo -n "inovia-snapshot"
-    else
-      echo -n "inovia-release"
-    fi
-  }
-
-  export HELM_CHART="${HELM_CHART-./chart}"
-  export HELM_RELEASE_NAME="${HELM_RELEASE_NAME-$(helm_release_name)}"
+### stage: prepare-release
+##################################################
+bump-version:
+  <<: *release_condition
+  image: node:lts-jessie
+  stage: prepare release
+  before_script:
+    - *common_scripts
+    - *release_scripts
+    - apt install -y jq
+  script:
+    - init_git
+    - make_release
+  allow_failure: false
 
 
-before_script:
-  - *scripts
+### stage: build
+##################################################
+build-static:
+  <<: *not_release_condition
+  image: node:lts-jessie
+  stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+    - node_modules/
+    - .yarn
+  before_script:
+    - *common_scripts
+    - apt install -y jq
+    - yarn config set cache-folder .yarn
+    - yarn install
+  script:
+    - yarn build
+  only:
+    - branches
+    - web
+  artifacts:
+    name: static-site
+    paths:
+      - ./build/
+    expire_in: 1 week
+
+### stage: package
+##################################################
+docker-static:
+  <<: *not_release_condition
+  image: docker:stable
+  stage: package
+  before_script:
+    - *common_scripts
+    - *docker_scripts
+    - apk add --no-cache bash jq
+  script:
+    - init_docker
+    - docker_build_static
+  only:
+    - branches
+    - web
+  dependencies:
+    - build-static
+
+
+docker:
+  <<: *not_release_condition
+  image: docker:stable
+  stage: package
+  before_script:
+    - *common_scripts
+    - *docker_scripts
+    - apk add --no-cache bash jq
+  script:
+    - init_docker
+    - docker_build
+  only:
+    - branches
+    - web
+
+### stage: deploy
+##################################################
+deploy-to-dev:
+  <<: *not_release_condition
+  cache: {}
+  image: dtzar/helm-kubectl:2.14.3
+  stage: deploy
+  before_script:
+    - mkdir -p ~/.kube && echo "$KUBE_CONFIG_DEV" > ~/.kube/config
+  script:
+    - kubectl rollout restart deployment/ui --namespace=v2t
+  variables:
+    GIT_STRATEGY: none
+  only:
+    - test
+  dependencies:
+    - docker-static
