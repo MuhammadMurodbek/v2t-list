@@ -113,7 +113,7 @@ stages:
 .release_condition: &release_condition
   only:
     refs:
-      - master
+      - test
   except:
     variables:
       - $RELEASE == null
