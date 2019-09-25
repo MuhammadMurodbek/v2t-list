@@ -130,9 +130,9 @@ bump-version:
   image: node:lts-jessie
   stage: prepare release
   before_script:
+    - apt update && apt install -y jq
     - *common_scripts
     - *release_scripts
-    - apt update && apt install -y jq
   script:
     - init_git
     - make_release
@@ -151,10 +151,10 @@ build-static:
     - node_modules/
     - .yarn
   before_script:
-    - *common_scripts
     - apt update && apt install -y jq
     - yarn config set cache-folder .yarn
     - yarn install
+    - *common_scripts
   script:
     - yarn build
   only:
@@ -173,14 +173,15 @@ docker-static:
   image: docker:stable
   stage: package
   before_script:
+    - apk add --no-cache bash jq
     - *common_scripts
     - *docker_scripts
-    - apk add --no-cache bash jq
   script:
     - init_docker
     - docker_build_static
   only:
     - branches
+    - tags
     - web
   dependencies:
     - build-static
@@ -191,17 +192,17 @@ docker:
   image: docker:stable
   stage: package
   before_script:
+    - apk add --no-cache bash jq
     - *common_scripts
     - *docker_scripts
-    - apk add --no-cache bash jq
   script:
     - init_docker
     - docker_build
+  except:
+    - tags
   only:
     - branches
     - web
-  except:
-    - tags
 
 ### stage: deploy
 ##################################################
