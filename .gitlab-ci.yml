@@ -63,7 +63,7 @@ stages:
     git checkout -B "$CI_BUILD_REF_NAME"
     git remote set-url origin "$(get_git_url)"
 
-    new_version = "$(increment_version "$VERSION")"
+    new_version="$(increment_version "$VERSION")"
     jq ".version=\"${new_version}\"" package.json > package.json.tmp && mv package.json.tmp package.json
 
     git commit -m "Released version ${new_version}"
