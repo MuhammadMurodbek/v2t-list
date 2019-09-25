@@ -160,6 +160,7 @@ build-static:
     - yarn build
   only:
     - branches
+    - tags
     - web
   artifacts:
     name: static-site
