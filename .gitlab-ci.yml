@@ -132,7 +132,7 @@ bump-version:
   before_script:
     - *common_scripts
     - *release_scripts
-    - apt install -y jq
+    - apt update && apt install -y jq
   script:
     - init_git
     - make_release
@@ -152,7 +152,7 @@ build-static:
     - .yarn
   before_script:
     - *common_scripts
-    - apt install -y jq
+    - apt update && apt install -y jq
     - yarn config set cache-folder .yarn
     - yarn install
   script:
