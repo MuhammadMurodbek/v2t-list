@@ -37,11 +37,6 @@ stages:
     echo $CI_PROJECT_URL | sed 's!https://\([^/]*\)/\(.*\)$!git@\1:\2.git!g'
   }
 
-  function init_npm() {
-    echo "$NPM_AUTH" >> ~/.npmrc
-  }
-
-
 .release_scripts: &release_scripts |
   function increment_version() {
     current_version_str=$1
