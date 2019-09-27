@@ -59,7 +59,7 @@ export default class App extends Component {
       .then((data) => {
         const activeTags = data.data
         // Count number of active tags
-        const { selectedItemName } = this.state
+        const { selectedItemName, transcripts } = this.state
         const sideBar = []
         activeTags.forEach((tag) => {
           const temp = {
@@ -72,14 +72,22 @@ export default class App extends Component {
                 // transcripts after job selection
                 // Check which one are audio and which are video
                 const updatedTranscripts = receivedData.data
-                receivedData.data.forEach((transcript, i) => {
-                  axios
-                    .get(`/api/v1/transcription/${transcript.external_id}/audio`)
-                    .then((content) => {
-                      // updatedTranscripts[i].contentType = content.headers['content-type']
-                      updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
-                    })
+                updatedTranscripts.forEach((activeJob, i) => {
+                  if (transcripts.external_id === activeJob.external_id) {
+                    updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: transcripts[i].contentType } }
+                  }
                 })
+                // console.log('ååååå')
+                // console.log(updatedTranscripts)
+                // console.log('ååååå')
+                // receivedData.data.forEach((transcript, i) => {
+                //   axios
+                //     .get(`/api/v1/transcription/${transcript.external_id}/audio`)
+                //     .then((content) => {
+                //       // updatedTranscripts[i].contentType = content.headers['content-type']
+                //       updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
+                //     })
+                // })
                 this.setState({ transcripts: updatedTranscripts })
               })
             },
