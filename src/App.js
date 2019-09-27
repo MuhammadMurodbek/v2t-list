@@ -102,13 +102,13 @@ export default class App extends Component {
                 href: '/#/live',
                 id: 2,
                 isSelected: selectedItemName === 'Live Transcript',
-                name: 'Live Transcript',
+                name: 'Live Diktering',
                 onClick: () => this.selectItem('Live Transcript')
               }, {
                 href: '/#/upload',
                 id: 3,
                 isSelected: selectedItemName === 'Upload',
-                name: 'Upload',
+                name: 'Ladda Upp',
                 onClick: () => this.selectItem('Upload')
               }, {
                 href: '/#/analytics',
@@ -120,7 +120,7 @@ export default class App extends Component {
                 href: '/#/training',
                 id: 5,
                 isSelected: selectedItemName === 'Training',
-                name: 'Training',
+                name: 'Träning',
                 onClick: () => this.selectItem('Training')
               }, {
                 href: '/',
