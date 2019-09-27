@@ -72,7 +72,8 @@ export default class EditPage extends Component {
         }
       })
     }
-
+    console.log('content ---- ')
+    console.log(transcript)
     if (!transcript.contentType) {
       axios
         .get(`/api/v1/transcription/${transcript.external_id}/audio`)
