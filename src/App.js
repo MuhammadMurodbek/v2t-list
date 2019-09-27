@@ -41,7 +41,7 @@ export default class App extends Component {
         const updatedTranscripts = data.data
         data.data.forEach((transcript, i) => {
           axios
-            .get(`http://localhost:3000/api/v1/transcription/${transcript.external_id}/audio`)
+            .get(`/api/v1/transcription/${transcript.external_id}/audio`)
             .then((content) => {
               updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
             })
@@ -74,7 +74,7 @@ export default class App extends Component {
                 const updatedTranscripts = receivedData.data
                 receivedData.data.forEach((transcript, i) => {
                   axios
-                    .get(`http://localhost:3000/api/v1/transcription/${transcript.external_id}/audio`)
+                    .get(`/api/v1/transcription/${transcript.external_id}/audio`)
                     .then((content) => {
                       // updatedTranscripts[i].contentType = content.headers['content-type']
                       updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
