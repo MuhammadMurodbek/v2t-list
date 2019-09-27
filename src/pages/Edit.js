@@ -80,11 +80,11 @@ export default class EditPage extends Component {
           console.log('content')
           console.log(content.headers)
           if (content.headers['content-type'].match(/^video/) !== null) {
-            this.setState({ isMediaAudio: false }, () => { console.log('Media is set to video') })    
+            this.setState({ isMediaAudio: false }, () => { console.log('Media is set to video now') })    
           }
         })
     } else if (transcript.contentType.match(/^video/) !== null) {
-      this.setState({ isMediaAudio: false }, () => { console.log('Media is set to video') })
+      this.setState({ isMediaAudio: false }, () => { console.log('Media is set to video beforehand') })
     }
   }
 
