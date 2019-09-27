@@ -271,7 +271,7 @@ class Player extends Component {
       audioTranscript,
       trackId,
       getCurrentTime,
-      // isContentAudio,
+      isContentAudio,
       searchBoxVisible
     } = this.props
 
@@ -295,8 +295,7 @@ class Player extends Component {
         <audio
           ref={this.myRef}
           src={trackUrl}
-          // style={{ display: preferences.showVideo || isContentAudio ? 'block' : 'none' }}
-          style={{ display: preferences.showVideo ? 'block' : 'none' }}
+          style={{ display: (preferences.showVideo && isContentAudio) === false ? 'block' : 'none' }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
@@ -310,8 +309,7 @@ class Player extends Component {
           height="500"
           ref={this.myRef}
           src={trackUrl}
-          // style={{ display: !preferences.showVideo || !isContentAudio ? 'none' : 'block' }}
-          style={{ display: !preferences.showVideo ? 'none' : 'block' }}
+          style={{ display: preferences.showVideo && !isContentAudio ? 'block' : 'none' }}
           className="videoPlayer"
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}

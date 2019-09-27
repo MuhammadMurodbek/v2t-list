@@ -37,7 +37,16 @@ export default class App extends Component {
   fetchTranscripts = () => {
     axios.get('/api/v2/tickets?pageSize=200')
       .then((data) => {
-        this.setState({ transcripts: data.data })
+        // Check which one are audio and which are video before loading all active jobs
+        const updatedTranscripts = data.data
+        data.data.forEach((transcript, i) => {
+          axios
+            .get(`http://localhost:3000/api/v1/transcription/${transcript.external_id}/audio`)
+            .then((content) => {
+              updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
+            })
+        })
+        this.setState({ transcripts: updatedTranscripts })
       })
     axios.get('/api/v1/tickets/tags/active', {
       params: {
@@ -49,6 +58,7 @@ export default class App extends Component {
     })
       .then((data) => {
         const activeTags = data.data
+        // Count number of active tags
         const { selectedItemName } = this.state
         const sideBar = []
         activeTags.forEach((tag) => {
@@ -59,7 +69,18 @@ export default class App extends Component {
             onClick: () => {
               this.selectItem(tag.value)
               axios.get(`/api/v2/tickets?tags=${tag.value}&pageSize=200`).then((receivedData) => {
-                this.setState({ transcripts: receivedData.data })
+                // transcripts after job selection
+                // Check which one are audio and which are video
+                const updatedTranscripts = receivedData.data
+                receivedData.data.forEach((transcript, i) => {
+                  axios
+                    .get(`http://localhost:3000/api/v1/transcription/${transcript.external_id}/audio`)
+                    .then((content) => {
+                      // updatedTranscripts[i].contentType = content.headers['content-type']
+                      updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
+                    })
+                })
+                this.setState({ transcripts: updatedTranscripts })
               })
             },
             href: '/#/'
