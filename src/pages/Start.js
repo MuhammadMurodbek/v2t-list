@@ -4,7 +4,7 @@ import Page from '../components/Page'
 import TranscriptionList from '../components/TranscriptionList'
 
 const StartPage = ({ transcripts }) => (
-  <Page preferences title="Active Backlog">
+  <Page preferences title="Aktivitiets Lista">
     <TranscriptionList transcripts={transcripts} />
   </Page>
 )
