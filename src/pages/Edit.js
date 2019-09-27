@@ -77,6 +77,8 @@ export default class EditPage extends Component {
       axios
         .get(`/api/v1/transcription/${transcript.external_id}/audio`)
         .then((content) => {
+          console.log('content')
+          console.log(content.headers)
           if (content.headers['content-type'].match(/^video/) !== null) {
             this.setState({ isMediaAudio: false }, () => { console.log('Media is set to video') })    
           }
