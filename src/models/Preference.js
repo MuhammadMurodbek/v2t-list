@@ -17,7 +17,7 @@ export const COLUMN_OPTIONS = [
     // sortable: true,
     render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
   },
-  { label: 'type', name: 'Typ', render: transcript => `${((transcript || {}).media_content_type || {}) ? transcript.media_content_type : 'voice'}` },
+  { label: 'type', name: 'Typ', render: transcript => `${(transcript || {}).media_content_type ? transcript.media_content_type : 'voice'}` },
   { label: 'doctorsName', name: 'Doktor', render: transcript => `${((transcript || {}).fields || {}).doctor_full_name ? transcript.fields.doctor_full_name : ''}` },
   { label: 'patientsName', name: 'Patient', render: transcript => `${((transcript || {}).fields || {}).patient_full_name ? transcript.fields.patient_full_name : ''}` },
   { label: 'patientId', name: 'Patients Personnummer', render: transcript => `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}` },
