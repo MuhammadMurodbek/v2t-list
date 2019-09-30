@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import {
@@ -55,7 +56,7 @@ export default class EditPage extends Component {
     const queryString = `/api/v1/transcription/${transcript.external_id}`
     const response = await axios.get(queryString)
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
-    const { tags, fields } = response.data
+    const { tags, fields, media_content_type } = response.data
     if (tags) {
       this.setState({ originalChapters, tags })
     } else {
@@ -72,20 +73,11 @@ export default class EditPage extends Component {
         }
       })
     }
-    console.log('content ---- ')
-    console.log(transcript)
-    if (!transcript.contentType) {
-      axios
-        .get(`/api/v1/transcription/${transcript.external_id}/audio`)
-        .then((content) => {
-          console.log('content')
-          console.log(content.headers)
-          if (content.headers['content-type'].match(/^video/) !== null) {
-            this.setState({ isMediaAudio: false }, () => { console.log('Media is set to video now') })    
-          }
-        })
-    } else if (transcript.contentType.match(/^video/) !== null) {
-      this.setState({ isMediaAudio: false }, () => { console.log('Media is set to video beforehand') })
+
+    if (media_content_type) {
+      if (media_content_type.match(/^video/) !== null) {
+        this.setState({ isMediaAudio: false })
+      }
     }
   }
 

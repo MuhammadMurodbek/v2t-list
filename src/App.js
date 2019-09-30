@@ -18,6 +18,7 @@ import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
 import Preference from './models/Preference'
 import './App.css'
+
 export default class App extends Component {
   state = {
     transcripts: [],
@@ -38,15 +39,7 @@ export default class App extends Component {
     axios.get('/api/v2/tickets?pageSize=200')
       .then((data) => {
         // Check which one are audio and which are video before loading all active jobs
-        const updatedTranscripts = data.data
-        data.data.forEach((transcript, i) => {
-          axios
-            .get(`/api/v1/transcription/${transcript.external_id}/audio`)
-            .then((content) => {
-              updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
-            })
-        })
-        this.setState({ transcripts: updatedTranscripts })
+        this.setState({ transcripts: data.data })
       })
     axios.get('/api/v1/tickets/tags/active', {
       params: {
@@ -71,24 +64,7 @@ export default class App extends Component {
               axios.get(`/api/v2/tickets?tags=${tag.value}&pageSize=200`).then((receivedData) => {
                 // transcripts after job selection
                 // Check which one are audio and which are video
-                const updatedTranscripts = receivedData.data
-                updatedTranscripts.forEach((activeJob, i) => {
-                  if (transcripts.external_id === activeJob.external_id) {
-                    updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: transcripts[i].contentType } }
-                  }
-                })
-                // console.log('ååååå')
-                // console.log(updatedTranscripts)
-                // console.log('ååååå')
-                // receivedData.data.forEach((transcript, i) => {
-                //   axios
-                //     .get(`/api/v1/transcription/${transcript.external_id}/audio`)
-                //     .then((content) => {
-                //       // updatedTranscripts[i].contentType = content.headers['content-type']
-                //       updatedTranscripts[i] = { ...updatedTranscripts[i], ...{ contentType: content.headers['content-type'] } }
-                //     })
-                // })
-                this.setState({ transcripts: updatedTranscripts })
+                this.setState({ transcripts: receivedData.data })
               })
             },
             href: '/#/'
