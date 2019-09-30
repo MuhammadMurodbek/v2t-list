@@ -52,7 +52,7 @@ export default class App extends Component {
       .then((data) => {
         const activeTags = data.data
         // Count number of active tags
-        const { selectedItemName, transcripts } = this.state
+        const { selectedItemName } = this.state
         const sideBar = []
         activeTags.forEach((tag) => {
           const temp = {
