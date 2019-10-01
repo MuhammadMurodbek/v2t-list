@@ -41,7 +41,7 @@ const Info = ({ fields }) => {
           </div>
         </EuiFlexItem>
         <EuiFlexItem>
-          <div className="euiText euiText--small" style={{ display: patientNamn === '' ? 'none' : 'flex' }}>
+          <div className="euiText euiText--small" style={{ display: patientNamn === '' ? 'flex' : 'none' }}>
             <div>
               <h2>
                 <span>Patientnamn</span>
