@@ -9,25 +9,19 @@ import '../styles/editor.css'
 const Info = ({ fields }) => {
   const [patientId, setPatientId] = useState(fields.patient_id)
   const [patientNamn, setPatientNamn] = useState(fields.patient_full_name)
-  const [isPatientNameEditable, setIsPatientNameEditable] = useState(false)
   const [propsNotLoaded, setPropsNotLoaded] = useState(true)
 
   useEffect(() => {
-    if(propsNotLoaded && (fields.patient_id !== '' || fields.patient_full_name !== '')) {
+    if (propsNotLoaded && (fields.patient_id !== '' || fields.patient_full_name !== '')) {
       setPatientId(fields.patient_id)
       setPatientNamn(fields.patient_full_name)
       setPropsNotLoaded(false)
+    } else { 
+      setPatientId('PatientId är inte tillgänglig')
+      setPatientNamn('Patientnamn är inte tillgänglig')
+      setPropsNotLoaded(false)
     }
- })
-
-  function changePatientNameEditStatus() {
-    setIsPatientNameEditable(!isPatientNameEditable)
-  }
-
-  function onPatientNameChange(e) {
-    console.log(e.target.value)
-    setPatientNamn(e.target.value)
-  }
+  })
 
 
   return (
@@ -54,34 +48,10 @@ const Info = ({ fields }) => {
                 <span>Patientnamn</span>
               </h2>
               <EuiText size="m">
-                <span
-                  style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
-                >
+                <span>
                   {patientNamn}
-                  &nbsp;
-                  <EuiButtonIcon
-                    style={{ display: isPatientNameEditable ? 'none' : 'flex' }}
-                    iconType="pencil"
-                    aria-label="Next"
-                    color="danger"
-                    onClick={changePatientNameEditStatus}
-                  />
                 </span>
               </EuiText>
-              <EuiFieldText
-                style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
-                onChange={onPatientNameChange}
-                value={patientNamn}
-                placeholder={patientNamn}
-                aria-label="Use aria labels when no actual label is in use"
-              />
-              <EuiSpacer size="s" />
-              <EuiButtonEmpty
-                style={{ display: isPatientNameEditable ? 'flex' : 'none' }}
-                onClick={changePatientNameEditStatus}
-              >
-                Save
-              </EuiButtonEmpty>
             </div>
           </div>
         </EuiFlexItem>
