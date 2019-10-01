@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable camelcase */
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
@@ -27,7 +28,8 @@ export default class EditPage extends Component {
     chapters: [],
     errors: [],
     fields: { patient_id: '', patient_full_name: '' },
-    isMediaAudio: true
+    isMediaAudio: true,
+    originalTags: []
   }
 
   componentDidMount() {
@@ -58,7 +60,7 @@ export default class EditPage extends Component {
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags, fields, media_content_type } = response.data
     if (tags) {
-      this.setState({ originalChapters, tags })
+      this.setState({ originalChapters, tags, originalTags: tags })
     } else {
       this.setState({ originalChapters, tags: [] })
     }
@@ -111,14 +113,32 @@ export default class EditPage extends Component {
   }
 
   finalize = async () => {
+    const {
+      originalChapters,
+      chapters,
+      tags,
+      originalTags
+    } = this.state
+    if (originalChapters === chapters && tags === originalTags) {
+      this.sendToCoworker()
+    } else {
+      const success = await this.save()
+      if (success) {
+        this.sendToCoworker()
+      } else {
+        alert('Can\t save the update')
+      }
+    }
+  }
+
+  sendToCoworker = async () => {
     const { transcript } = this.props
     const finalizeURL = `/api/v1/transcription/${transcript.external_id}/approve`
-    const success = await this.save()
-    if (success) {
-      await axios.post(finalizeURL).catch(this.trowAsyncError)
+    const sendingToCoworker = await axios.post(finalizeURL).catch(this.trowAsyncError)
+    if (sendingToCoworker) {
       window.location = '/'
     } else {
-      alert('Unable to finalize')
+      alert('Unable to send to the co-worker')
     }
   }
 
@@ -129,7 +149,12 @@ export default class EditPage extends Component {
 
   save = async () => {
     const { transcript } = this.props
-    const { chapters, tags, errors } = this.state
+    const { originalChapters, chapters, tags, errors, originalTags} = this.state
+    if (originalChapters === chapters && tags === originalTags) {
+      alert('Nothing to update')
+      return
+    }
+
     chapters.forEach((chapter) => {
       if (!chapter.segments[0].words.includes(chapter.keyword)) {
         chapter.segments[0].words = `${chapter.keyword} ${chapter.segments[0].words}`
