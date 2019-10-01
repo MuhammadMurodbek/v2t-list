@@ -15,10 +15,6 @@ const Info = ({ fields }) => {
       setPatientId(fields.patient_id)
       setPatientNamn(fields.patient_full_name)
       setPropsNotLoaded(false)
-    } else {
-      setPatientId('')
-      setPatientNamn('')
-      setPropsNotLoaded(false)
     }
   })
 
@@ -27,7 +23,8 @@ const Info = ({ fields }) => {
     <EuiForm>
       <EuiFlexGroup>
         <EuiFlexItem>
-          <div className="euiText euiText--small" style={{ display: patientId === '' ? 'none' : 'flex' }}>
+          {/* <div className="euiText euiText--small" style={{ display: patientId === '' ? 'none' : 'flex' }}> */}
+          <div className="euiText euiText--small">
             <div>
               <h2>
                 <span> Personnummer</span>
@@ -41,7 +38,7 @@ const Info = ({ fields }) => {
           </div>
         </EuiFlexItem>
         <EuiFlexItem>
-          <div className="euiText euiText--small" style={{ display: patientNamn === '' ? 'flex' : 'none' }}>
+          <div className="euiText euiText--small">
             <div>
               <h2>
                 <span>Patientnamn</span>
