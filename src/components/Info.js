@@ -23,7 +23,6 @@ const Info = ({ fields }) => {
     <EuiForm>
       <EuiFlexGroup>
         <EuiFlexItem>
-          {/* <div className="euiText euiText--small"> */}
           <div className="euiText euiText--small" style={{ display: patientId === '' ? 'none' : 'flex' }}>
             <div>
               <h2>
