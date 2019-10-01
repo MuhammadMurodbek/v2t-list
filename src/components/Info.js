@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import {
-  EuiButtonEmpty, EuiSpacer, EuiFieldText, EuiButtonIcon,
   EuiFlexGroup, EuiFlexItem, EuiText, EuiForm
 } from '@elastic/eui'
 import '../styles/editor.css'
@@ -16,9 +15,9 @@ const Info = ({ fields }) => {
       setPatientId(fields.patient_id)
       setPatientNamn(fields.patient_full_name)
       setPropsNotLoaded(false)
-    } else { 
-      setPatientId('PatientId är inte tillgänglig')
-      setPatientNamn('Patientnamn är inte tillgänglig')
+    } else {
+      setPatientId('')
+      setPatientNamn('')
       setPropsNotLoaded(false)
     }
   })
@@ -28,7 +27,7 @@ const Info = ({ fields }) => {
     <EuiForm>
       <EuiFlexGroup>
         <EuiFlexItem>
-          <div className="euiText euiText--small">
+          <div className="euiText euiText--small" style={{ display: patientId === '' ? 'none' : 'flex' }}>
             <div>
               <h2>
                 <span> Personnummer</span>
@@ -42,7 +41,7 @@ const Info = ({ fields }) => {
           </div>
         </EuiFlexItem>
         <EuiFlexItem>
-          <div className="euiText euiText--small">
+          <div className="euiText euiText--small" style={{ display: patientNamn === '' ? 'none' : 'flex' }}>
             <div>
               <h2>
                 <span>Patientnamn</span>
