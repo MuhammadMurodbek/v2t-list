@@ -119,7 +119,8 @@ export default class EditPage extends Component {
       tags,
       originalTags
     } = this.state
-    if (originalChapters === chapters && tags === originalTags) {
+    
+    if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       this.sendToCoworker()
     } else {
       const success = await this.save()
@@ -150,7 +151,7 @@ export default class EditPage extends Component {
   save = async () => {
     const { transcript } = this.props
     const { originalChapters, chapters, tags, errors, originalTags} = this.state
-    if (originalChapters === chapters && tags === originalTags) {
+    if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       alert('Nothing to update')
       return
     }
