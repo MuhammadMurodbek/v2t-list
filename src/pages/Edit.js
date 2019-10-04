@@ -123,12 +123,8 @@ export default class EditPage extends Component {
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       this.sendToCoworker()
     } else {
-      const success = await this.save()
-      if (success) {
-        this.sendToCoworker()
-      } else {
-        alert('Can\t save the update')
-      }
+      await this.save()
+      this.sendToCoworker()
     }
   }
 
@@ -177,7 +173,7 @@ export default class EditPage extends Component {
 
     const updateURL = `/api/v1/transcription/${transcript.external_id}`
     if (errors.length) return false
-    return axios.put(updateURL,
+    axios.put(updateURL,
       {
         tags,
         transcriptions: chapters
@@ -191,6 +187,7 @@ export default class EditPage extends Component {
       .catch((error) => {
         // eslint-disable-next-line no-console
         console.log(error)
+        return false
       })
   }
 
