@@ -182,8 +182,10 @@ export default class EditPage extends Component {
         transcriptions: chapters
       })
       .then(() => {
-        alert('Transcript is updated')
-        return true
+        this.setState({ originalChapters: chapters, originalTags: tags }, () => {
+          alert('Transcript is updated')
+          return true
+        })
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
