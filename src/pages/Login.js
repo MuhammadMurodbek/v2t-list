@@ -12,8 +12,8 @@ import { usePreferences } from '../components/PreferencesProvider'
 import Page from '../components/Page'
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('test')
+  const [password, setPassword] = useState('test')
   // const [authtoken, setAuthtoken] = useState('')
   const [preferences, setPreferences] = usePreferences()
   const setToken = authtoken => {
