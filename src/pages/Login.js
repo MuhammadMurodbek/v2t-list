@@ -14,8 +14,8 @@ import Page from '../components/Page'
 const LoginPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [authtoken, setAuthtoken] = useState('')
-  const [preferences, setPreferences] = usePreferences()
+  const [setAuthtoken] = useState('')
+  const [setPreferences] = usePreferences()
   const setToken = authtoken => {
     setPreferences({ token: authtoken })
   }
@@ -38,7 +38,6 @@ const LoginPage = () => {
         contentType: 'application/json'
       }).then((response) => {
         const { token } = response.data
-        console.log(token)
         setAuthtoken(token)
         setUsername('')
         setPassword('')
