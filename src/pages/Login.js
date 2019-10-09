@@ -14,8 +14,8 @@ import Page from '../components/Page'
 const LoginPage = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [setAuthtoken] = useState('')
-  const [setPreferences] = usePreferences()
+  // const [authtoken, setAuthtoken] = useState('')
+  const [preferences, setPreferences] = usePreferences()
   const setToken = authtoken => {
     setPreferences({ token: authtoken })
   }
@@ -38,13 +38,14 @@ const LoginPage = () => {
         contentType: 'application/json'
       }).then((response) => {
         const { token } = response.data
-        setAuthtoken(token)
+        // setAuthtoken(token)
         setUsername('')
         setPassword('')
         setToken(token)
         window.location.replace('/')
       }).catch(() => {
         alert('Unauthorized access')
+        console.log(preferences)
       })
     }
   }
