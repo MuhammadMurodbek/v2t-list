@@ -118,7 +118,7 @@ export default class UploadPage extends Component {
 
   uploadFile = (file, metadata, selectedJob) => {
     const body = new FormData()
-    body.append('audio', file)
+    body.append('media', file)
     if (metadata) {
       body.set('metadata', new Blob([JSON.stringify({ transcription: { model: metadata, tags: [selectedJob] } })], {
         type: 'audio/wav'
