@@ -64,10 +64,19 @@ export default class Preference {
     }
     this._keywordInit = false
   }
+  get token() {
+    return this._token
+  }
+
+  set token(v) {
+    this._token = v
+    this.setCookie('token', this._token, 365)
+  }
 
   get autoPlayStatus() {
     return this._autoPlayStatus
   }
+  
 
   set autoPlayStatus(v) {
     if (this._autoPlayStatus === true) {

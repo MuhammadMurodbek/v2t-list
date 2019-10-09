@@ -16,6 +16,7 @@ import LivePage from './pages/Live'
 import UploadPage from './pages/Upload'
 import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
+import LoginPage from './pages/Login'
 import Preference from './models/Preference'
 import './App.css'
 
@@ -23,10 +24,11 @@ export default class App extends Component {
   state = {
     transcripts: [],
     preferences: new Preference(),
-    selectedItemName: 'lungor'
+    selectedItemName: 'lungor',
+    isLoggedIn: false
   }
 
-  componentDidMount() {
+  componentDidMount() { 
     this.fetchTranscripts()
   }
 
@@ -35,7 +37,26 @@ export default class App extends Component {
     this.setState({ preferences: preferences.clone().add(state) })
   }
 
+  getCookie = (cname) => {
+    const name = `${cname}=`
+    const ca = document.cookie.split(';')
+    for (let i = 0; i < ca.length; i += 1) {
+      let c = ca[i]
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1)
+      }
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length)
+      }
+    }
+    return ''
+  }
+
   fetchTranscripts = () => {
+    if (this.getCookie('token')) {
+      this.setState({isLoggedIn: true})
+      // set token to axios
+    } 
     axios.get('/api/v2/tickets?pageSize=200')
       .then((data) => {
         // Check which one are audio and which are video before loading all active jobs
@@ -135,12 +156,12 @@ export default class App extends Component {
   }
 
   render() {
-    const { transcripts, preferences, sidenav } = this.state
+    const { transcripts, preferences, sidenav, isLoggedIn } = this.state
     return (
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>
           <EuiPage>
-            <EuiPageSideBar>
+            <EuiPageSideBar style={{ display: isLoggedIn? 'inline-block': 'none' }}>
               <EuiImage
                 className="logo"
                 size="m"
@@ -149,7 +170,7 @@ export default class App extends Component {
                 allowFullScreen
                 onClick={this.loadHomescreen}
               />
-              <EuiSideNav
+              <EuiSideNav 
                 mobileTitle="Navigate within $APP_NAME"
                 // toggleOpenOnMobile={false}
                 isOpenOnMobile={false}
@@ -158,7 +179,7 @@ export default class App extends Component {
               />
             </EuiPageSideBar>
             <Switch>
-              <Route exact path="/" render={props => <StartPage {...{ ...props, transcripts }} />} />
+              <Route exact path="/" render={props => isLoggedIn ? <StartPage {...{ ...props, transcripts }} />: <LoginPage />} />
               <Route
                 path="/edit/:id"
                 render={(props) => {
@@ -167,10 +188,12 @@ export default class App extends Component {
                   return <EditPage {...{ ...props, transcript }} />
                 }}
               />
-              <Route path="/live/" component={LivePage} />
-              <Route path="/upload/" component={UploadPage} />
-              <Route path="/analytics" component={AnalyticsPage} />
-              <Route path="/training" component={TrainingPage} />
+              <Route path="/live/" render={props => isLoggedIn ? <LivePage /> : <LoginPage />} />
+              <Route path="/upload/" render={props => isLoggedIn ? <UploadPage /> : <LoginPage />} />
+              <Route path="/analytics/" render={props => isLoggedIn ? <AnalyticsPage /> : <LoginPage />} />
+              <Route path="/training/" render={props => isLoggedIn ? <TrainingPage /> : <LoginPage />} />
+              <Route path="/training/" render={props => isLoggedIn ? <TrainingPage /> : <LoginPage />} />
+              <Route path="/login" component={LoginPage} />
             </Switch>
           </EuiPage>
         </PreferencesProvider>

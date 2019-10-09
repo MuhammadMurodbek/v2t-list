@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import {
   EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiText,
-  EuiTitle, EuiIcon, EuiSwitch, EuiSuperSelect, EuiSpacer
+  EuiTitle, EuiIcon, EuiSwitch, EuiSuperSelect, EuiSpacer, EuiButtonEmpty
 } from '@elastic/eui'
 
 import { usePreferences } from './PreferencesProvider'
@@ -35,6 +35,10 @@ const Flyout = ({ visible, onClose }) => {
   const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
   const setShowVideo = showVideo => setPreferences({ showVideo })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })
+  const logout = () => {
+    setPreferences({ token: '' })
+    window.location.replace('/')
+  }
 
 
   return (
@@ -91,6 +95,19 @@ const Flyout = ({ visible, onClose }) => {
             />
           </EuiFormRow>
         </Fragment>
+        <EuiSpacer size="l" />
+        <EuiSpacer size="l" />
+        <EuiFormRow label="">
+          <EuiButtonEmpty
+            size="s"
+            color= "danger"
+            onClick={logout}
+            iconType="kqlFunction"
+            iconSide="right">
+            Logga ut
+          </EuiButtonEmpty>
+        </EuiFormRow>
+    
       </EuiFlyoutBody>
     </EuiFlyout>
   )
