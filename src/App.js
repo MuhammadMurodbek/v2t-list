@@ -55,6 +55,7 @@ export default class App extends Component {
   fetchTranscripts = () => {
     if (this.getCookie('token')) {
       this.setState({isLoggedIn: true})
+      axios.defaults.headers.common['Authorization'] = this.getCookie('token') 
       // set token to axios
     } 
     axios.get('/api/v2/tickets?pageSize=200')
