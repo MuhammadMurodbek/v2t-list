@@ -54,7 +54,7 @@ export default class UploadPage extends Component {
   }
 
   loadCurrentTranscript = async () => {
-    const status = await axios.get('/api/v1/training/')
+    const status = await axios.get('/api/training/v1')
     if (status.data.transcription) {
       this.setState({
         transcriptionId: status.data.transcription.transcriptionId,
@@ -156,7 +156,6 @@ export default class UploadPage extends Component {
     const {
       transcriptionId,
       previewContents,
-      revision,
       sequenceNumber
     } = this.state
     this.textProcessBeforeCompletion()
@@ -173,8 +172,8 @@ export default class UploadPage extends Component {
       }]
     }, async () => {
       await axios({
-        method: 'post',
-        url: `/api/v1/training/${transcriptionId}/${revision}/${sequenceNumber}`,
+        method: 'put',
+        url: `/api/training/v1/${transcriptionId}/${sequenceNumber}`,
         data: {
           text: previewContents
         },
@@ -207,7 +206,6 @@ export default class UploadPage extends Component {
     const {
       transcriptionId,
       chapters,
-      revision,
       sequenceNumber
     } = this.state
 
@@ -224,8 +222,8 @@ export default class UploadPage extends Component {
       }]
     }, async () => {
       await axios({
-        method: 'post',
-        url: `/api/v1/training/${transcriptionId}/${revision}/${sequenceNumber}`,
+        method: 'put',
+        url: `/api/training/v1/${transcriptionId}/${sequenceNumber}`,
         data: {
           text: chapters[0].segments[0].words,
           status: 'REJECT'

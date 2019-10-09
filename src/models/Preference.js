@@ -2,6 +2,7 @@
 import React from 'react'
 import moment from 'moment'
 import { EuiButtonEmpty } from '@elastic/eui'
+import axios from 'axios'
 
 export const WORD_OPTIONS = [
   { id: '1', label: '1' },
@@ -71,12 +72,17 @@ export default class Preference {
   set token(v) {
     this._token = v
     this.setCookie('token', this._token, 365)
+    if (this._token === '') {
+      axios.defaults.headers.common.Authorization = undefined
+    } else {
+      axios.defaults.headers.common.Authorization = `Bearer ${this._token}`
+    }
   }
 
   get autoPlayStatus() {
     return this._autoPlayStatus
   }
-  
+
 
   set autoPlayStatus(v) {
     if (this._autoPlayStatus === true) {

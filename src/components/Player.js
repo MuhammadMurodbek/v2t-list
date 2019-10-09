@@ -276,10 +276,10 @@ class Player extends Component {
     } = this.props
 
     const [preferences] = this.context
-    let trackUrl = `/api/v1/transcription/${trackId}/audio`
+    let trackUrl = `/api/transcriptions/v1/${trackId}/media`
     const isTraining = this.props
     if (isTraining) {
-      trackUrl = `/api/v1/training/media/${trackId}`
+      trackUrl = `/api/training/v1/media/${trackId}`
     }
     return (
       <Fragment>
