@@ -14,7 +14,7 @@ import {
 } from '@elastic/eui'
 import Page from '../components/Page'
 
-export const API_PATH = '/api/v1/transcription/'
+export const API_PATH = '/api/transcriptions/v1'
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {

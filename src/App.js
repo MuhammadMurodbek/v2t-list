@@ -28,13 +28,16 @@ export default class App extends Component {
     isLoggedIn: false
   }
 
-  componentDidMount() { 
+  componentDidMount() {
     this.fetchTranscripts()
   }
 
   setPreferences = (state) => {
     const { preferences } = this.state
-    this.setState({ preferences: preferences.clone().add(state) })
+    this.setState({
+      preferences: preferences.clone()
+        .add(state)
+    })
   }
 
   getCookie = (cname) => {
@@ -53,96 +56,99 @@ export default class App extends Component {
   }
 
   fetchTranscripts = () => {
-    if (this.getCookie('token')) {
-      this.setState({isLoggedIn: true})
-      // set token to axios
-    } 
-    axios.get('/api/v2/tickets?pageSize=200')
-      .then((data) => {
-        // Check which one are audio and which are video before loading all active jobs
-        this.setState({ transcripts: data.data })
-      })
-    axios.get('/api/v1/tickets/tags/active', {
-      params: {
-        pageStart: 0,
-        pageSize: 10000,
-        type: 'VOICE',
-        sortBy: 'CREATED_DESC'
-      }
-    })
-      .then((data) => {
-        const activeTags = data.data
-        // Count number of active tags
-        const { selectedItemName } = this.state
-        const sideBar = []
-        activeTags.forEach((tag) => {
-          const temp = {
-            id: tag.value,
-            name: `${tag.value} (${tag.count})`,
-            isSelected: selectedItemName === tag.value,
-            onClick: () => {
-              this.selectItem(tag.value)
-              axios.get(`/api/v2/tickets?tags=${tag.value}&pageSize=200`).then((receivedData) => {
-                // transcripts after job selection
-                // Check which one are audio and which are video
-                this.setState({ transcripts: receivedData.data })
-              })
-            },
-            href: '/#/'
-          }
-          sideBar.push(temp)
-        })
+    const token = this.getCookie('token')
+    if (token) {
+      this.setState({ isLoggedIn: true })
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`
 
-        const parentSideBar = [
-          {
-            id: '',
-            isSelected: false,
-            items: [
-              {
-                id: 'V2T Jobs',
-                items: sideBar,
-                isSelected: true,
-                name: 'V2T Jobs'
-              }, {
-                href: '/#/live',
-                id: 2,
-                isSelected: selectedItemName === 'Live Transcript',
-                name: 'Live Diktering',
-                onClick: () => this.selectItem('Live Transcript')
-              }, {
-                href: '/#/upload',
-                id: 3,
-                isSelected: selectedItemName === 'Upload',
-                name: 'Ladda Upp',
-                onClick: () => this.selectItem('Upload')
-              }, {
-                href: '/#/analytics',
-                id: 4,
-                isSelected: selectedItemName === 'Analytics',
-                name: 'Analytics',
-                onClick: () => this.selectItem('Analytics')
-              }, {
-                href: '/#/training',
-                id: 5,
-                isSelected: selectedItemName === 'Training',
-                name: 'Träning',
-                onClick: () => this.selectItem('Training')
-              }, {
-                href: '/',
-                id: 6,
-                isSelected: selectedItemName === 'Co-worker',
-                name: 'Co-worker',
-                onClick: () => this.selectItem('Co-worker')
-              }
-            ],
-            name: ''
-          }
-        ]
-        this.setState({ sidenav: parentSideBar })
+      axios.get('/api/tickets/v1?pageSize=200')
+        .then((data) => {
+          // Check which one are audio and which are video before loading all active jobs
+          this.setState({ transcripts: data.data })
+        })
+      axios.get('/api/tickets/v1/tags/active', {
+        params: {
+          pageStart: 0,
+          pageSize: 10000,
+          type: 'VOICE',
+          sortBy: 'CREATED_DESC'
+        }
       })
-      .catch((error) => {
-        console.log(error)
-      })
+        .then((data) => {
+          const activeTags = data.data
+          // Count number of active tags
+          const { selectedItemName } = this.state
+          const sideBar = []
+          activeTags.forEach((tag) => {
+            const temp = {
+              id: tag.value,
+              name: `${tag.value} (${tag.count})`,
+              isSelected: selectedItemName === tag.value,
+              onClick: () => {
+                this.selectItem(tag.value)
+                axios.get(`/api/tickets/v1?tags=${tag.value}&pageSize=200`)
+                  .then((receivedData) => {
+                    // transcripts after job selection
+                    // Check which one are audio and which are video
+                    this.setState({ transcripts: receivedData.data })
+                  })
+              },
+              href: '/#/'
+            }
+            sideBar.push(temp)
+          })
+
+          const parentSideBar = [
+            {
+              id: '',
+              isSelected: false,
+              items: [
+                {
+                  id: 'V2T Jobs',
+                  items: sideBar,
+                  isSelected: true,
+                  name: 'V2T Jobs'
+                }, {
+                  href: '/#/live',
+                  id: 2,
+                  isSelected: selectedItemName === 'Live Transcript',
+                  name: 'Live Diktering',
+                  onClick: () => this.selectItem('Live Transcript')
+                }, {
+                  href: '/#/upload',
+                  id: 3,
+                  isSelected: selectedItemName === 'Upload',
+                  name: 'Ladda Upp',
+                  onClick: () => this.selectItem('Upload')
+                }, {
+                  href: '/#/analytics',
+                  id: 4,
+                  isSelected: selectedItemName === 'Analytics',
+                  name: 'Analytics',
+                  onClick: () => this.selectItem('Analytics')
+                }, {
+                  href: '/#/training',
+                  id: 5,
+                  isSelected: selectedItemName === 'Training',
+                  name: 'Träning',
+                  onClick: () => this.selectItem('Training')
+                }, {
+                  href: '/',
+                  id: 6,
+                  isSelected: selectedItemName === 'Co-worker',
+                  name: 'Co-worker',
+                  onClick: () => this.selectItem('Co-worker')
+                }
+              ],
+              name: ''
+            }
+          ]
+          this.setState({ sidenav: parentSideBar })
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
   }
 
   loadHomescreen = () => {
@@ -161,7 +167,7 @@ export default class App extends Component {
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>
           <EuiPage>
-            <EuiPageSideBar style={{ display: isLoggedIn? 'inline-block': 'none' }}>
+            <EuiPageSideBar style={{ display: isLoggedIn ? 'inline-block' : 'none' }}>
               <EuiImage
                 className="logo"
                 size="m"
@@ -170,7 +176,7 @@ export default class App extends Component {
                 allowFullScreen
                 onClick={this.loadHomescreen}
               />
-              <EuiSideNav 
+              <EuiSideNav
                 mobileTitle="Navigate within $APP_NAME"
                 // toggleOpenOnMobile={false}
                 isOpenOnMobile={false}
@@ -179,21 +185,30 @@ export default class App extends Component {
               />
             </EuiPageSideBar>
             <Switch>
-              <Route exact path="/" render={props => isLoggedIn ? <StartPage {...{ ...props, transcripts }} />: <LoginPage />} />
+              <Route exact path="/" render={props => isLoggedIn ? <StartPage {...{
+                ...props,
+                transcripts
+              }} /> : <LoginPage/>}/>
               <Route
                 path="/edit/:id"
                 render={(props) => {
                   const transcript = transcripts
                     .find(currentTranscript => currentTranscript.id === props.match.params.id)
-                  return <EditPage {...{ ...props, transcript }} />
+                  return <EditPage {...{
+                    ...props,
+                    transcript
+                  }} />
                 }}
               />
-              <Route path="/live/" render={props => isLoggedIn ? <LivePage /> : <LoginPage />} />
-              <Route path="/upload/" render={props => isLoggedIn ? <UploadPage /> : <LoginPage />} />
-              <Route path="/analytics/" render={props => isLoggedIn ? <AnalyticsPage /> : <LoginPage />} />
-              <Route path="/training/" render={props => isLoggedIn ? <TrainingPage /> : <LoginPage />} />
-              <Route path="/training/" render={props => isLoggedIn ? <TrainingPage /> : <LoginPage />} />
-              <Route path="/login" component={LoginPage} />
+              <Route path="/live/" render={props => isLoggedIn ? <LivePage/> : <LoginPage/>}/>
+              <Route path="/upload/" render={props => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
+              <Route path="/analytics/"
+                     render={props => isLoggedIn ? <AnalyticsPage/> : <LoginPage/>}/>
+              <Route path="/training/"
+                     render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
+              <Route path="/training/"
+                     render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
+              <Route path="/login" component={LoginPage}/>
             </Switch>
           </EuiPage>
         </PreferencesProvider>

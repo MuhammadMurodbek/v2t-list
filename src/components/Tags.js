@@ -28,7 +28,7 @@ export default class Tags extends Component {
   }
 
   loadIcdCodes = async (searchTerm) => {
-    const codeData = await axios.post('/api/v1/search/icd-10', {
+    const codeData = await axios.post('/api/keywords/v1/icd-10/search', {
       text: searchTerm
     })
 

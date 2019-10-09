@@ -55,7 +55,7 @@ export default class EditPage extends Component {
     const { transcript } = this.props
     // const [preferences] = this.context
     // const { words } = preferences
-    const queryString = `/api/v1/transcription/${transcript.external_id}`
+    const queryString = `/api/transcriptions/v1/${transcript.external_id}`
     const response = await axios.get(queryString)
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags, fields, media_content_type } = response.data
@@ -119,7 +119,7 @@ export default class EditPage extends Component {
       tags,
       originalTags
     } = this.state
-    
+
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       this.sendToCoworker()
     } else {
@@ -130,7 +130,7 @@ export default class EditPage extends Component {
 
   sendToCoworker = async () => {
     const { transcript } = this.props
-    const finalizeURL = `/api/v1/transcription/${transcript.external_id}/approve`
+    const finalizeURL = `/api/transcriptions/v1/${transcript.external_id}/approve`
     const sendingToCoworker = await axios.post(finalizeURL).catch(this.trowAsyncError)
     if (sendingToCoworker) {
       window.location = '/'
@@ -171,7 +171,7 @@ export default class EditPage extends Component {
       })
     })
 
-    const updateURL = `/api/v1/transcription/${transcript.external_id}`
+    const updateURL = `/api/transcriptions/v1/${transcript.external_id}`
     if (errors.length) return false
     axios.put(updateURL,
       {
