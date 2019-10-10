@@ -197,7 +197,6 @@ export default class UploadPage extends Component {
   rejectTranscript = () => {
     const {
       transcriptionId,
-      chapters,
       sequenceNumber
     } = this.state
 
