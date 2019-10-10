@@ -1,10 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 import React, { Component, Fragment } from 'react'
 import {
-  EuiSpacer, EuiText, EuiBasicTable, EuiComboBox, EuiButtonIcon, EuiFlexItem
+  EuiBasicTable,
+  EuiButtonIcon,
+  EuiComboBox,
+  EuiFlexItem,
+  EuiSpacer,
+  EuiText
 } from '@elastic/eui'
-import axios from 'axios'
-
+import api from '../api'
 import '../styles/tags.css'
 
 export default class Tags extends Component {
@@ -13,7 +17,7 @@ export default class Tags extends Component {
     isLoading: false,
     selectedOption: [],
     options: []
-  };
+  }
 
   componentDidUpdate(prevProps) {
     const { tags } = this.props
@@ -28,15 +32,16 @@ export default class Tags extends Component {
   }
 
   loadIcdCodes = async (searchTerm) => {
-    const codeData = await axios.post('/api/keywords/v1/icd-10/search', {
-      text: searchTerm
-    })
+    const codeData = await api.keywordsSearch(searchTerm)
 
     // Purpose of doing this is to use free text search
     if (codeData.data !== null) {
       const options = codeData.data.map((code) => {
         const label = `${code.value}: ${code.description}`
-        return { ...code, label }
+        return {
+          ...code,
+          label
+        }
       })
       this.setState({ options })
     }
@@ -138,9 +143,13 @@ export default class Tags extends Component {
         <EuiText size="xs">
           {label}
         </EuiText>
-        <EuiSpacer size="m" />
+        <EuiSpacer size="m"/>
         <div className="searchKoder" style={{ display: 'flex' }}>
-          <span style={{ width: 344, marginRight: 20, marginBottom: 25 }}>
+          <span style={{
+            width: 344,
+            marginRight: 20,
+            marginBottom: 25
+          }}>
             <EuiComboBox
               placeholder="Search ICD-10 Codes"
               async
@@ -153,7 +162,7 @@ export default class Tags extends Component {
             />
           </span>
           <span style={{ marginTop: '4px' }}>
-            <AddButton onClick={this.addCode} />
+            <AddButton onClick={this.addCode}/>
           </span>
         </div>
         <EuiFlexItem grow={false} style={{ width: 380 }}>

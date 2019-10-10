@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton
 } from '@elastic/eui'
-import axios from 'axios'
+import api from '../api'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
 import Editor from '../components/Editor'
@@ -27,7 +27,10 @@ export default class EditPage extends Component {
     tags: [],
     chapters: [],
     errors: [],
-    fields: { patient_id: '', patient_full_name: '' },
+    fields: {
+      patient_id: '',
+      patient_full_name: ''
+    },
     isMediaAudio: true,
     originalTags: []
   }
@@ -55,14 +58,20 @@ export default class EditPage extends Component {
     const { transcript } = this.props
     // const [preferences] = this.context
     // const { words } = preferences
-    const queryString = `/api/transcriptions/v1/${transcript.external_id}`
-    const response = await axios.get(queryString)
+    const response = await api.loadTranscription(transcript.external_id)
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags, fields, media_content_type } = response.data
     if (tags) {
-      this.setState({ originalChapters, tags, originalTags: tags })
+      this.setState({
+        originalChapters,
+        tags,
+        originalTags: tags
+      })
     } else {
-      this.setState({ originalChapters, tags: [] })
+      this.setState({
+        originalChapters,
+        tags: []
+      })
     }
 
     if (fields) {
@@ -89,9 +98,16 @@ export default class EditPage extends Component {
         const keyword = transcript.keyword.length ? transcript.keyword : 'Kontaktorsak'
         const segments = transcript.segments.map((chunk, i) => {
           const words = i >= transcript.segments.length - 1 ? chunk.words : `${chunk.words} `
-          return { ...chunk, words }
+          return {
+            ...chunk,
+            words
+          }
         })
-        return { ...transcript, keyword, segments }
+        return {
+          ...transcript,
+          keyword,
+          segments
+        }
       })
     }
     return []
@@ -106,7 +122,8 @@ export default class EditPage extends Component {
   }
 
   onSelectText = () => {
-    const selctedText = window.getSelection().toString()
+    const selctedText = window.getSelection()
+      .toString()
     this.setState({ queryTerm: selctedText }, () => {
       this.playerRef.current.searchKeyword()
     })
@@ -130,8 +147,8 @@ export default class EditPage extends Component {
 
   sendToCoworker = async () => {
     const { transcript } = this.props
-    const finalizeURL = `/api/transcriptions/v1/${transcript.external_id}/approve`
-    const sendingToCoworker = await axios.post(finalizeURL).catch(this.trowAsyncError)
+    const sendingToCoworker = await api.approveTranscription(transcript.external_id)
+      .catch(this.trowAsyncError)
     if (sendingToCoworker) {
       window.location = '/'
     } else {
@@ -146,7 +163,7 @@ export default class EditPage extends Component {
 
   save = async () => {
     const { transcript } = this.props
-    const { originalChapters, chapters, tags, errors, originalTags} = this.state
+    const { originalChapters, chapters, tags, errors, originalTags } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       alert('Nothing to update')
       return
@@ -171,15 +188,13 @@ export default class EditPage extends Component {
       })
     })
 
-    const updateURL = `/api/transcriptions/v1/${transcript.external_id}`
     if (errors.length) return false
-    axios.put(updateURL,
-      {
-        tags,
-        transcriptions: chapters
-      })
+    api.updateTranscription(transcript.external_id, tags, chapters)
       .then(() => {
-        this.setState({ originalChapters: chapters, originalTags: tags }, () => {
+        this.setState({
+          originalChapters: chapters,
+          originalTags: tags
+        }, () => {
           alert('Transcript is updated')
           return true
         })
@@ -237,14 +252,14 @@ export default class EditPage extends Component {
                   searchBoxVisible
                   isTraining={false}
                 />
-                <EuiSpacer size="l" />
-                <EuiSpacer size="l" />
-                <Info fields={fields} />
+                <EuiSpacer size="l"/>
+                <EuiSpacer size="l"/>
+                <Info fields={fields}/>
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
-          <EuiSpacer size="l" />
-          <EuiSpacer size="l" />
+          <EuiSpacer size="l"/>
+          <EuiSpacer size="l"/>
 
           <EuiFlexGroup wrap>
             <EuiFlexItem>
@@ -268,7 +283,8 @@ export default class EditPage extends Component {
           </EuiFlexGroup>
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="secondary" onClick={this.finalize}>Submit to Co-worker</EuiButton>
+              <EuiButton fill color="secondary" onClick={this.finalize}>Submit to
+                Co-worker</EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>

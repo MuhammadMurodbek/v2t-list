@@ -1,13 +1,8 @@
 /* eslint-disable no-console */
 // eslint-disable-next-line no-console
 import React, { Component } from 'react'
-import {
-  HashRouter, Switch, Route
-} from 'react-router-dom'
-import {
-  EuiPage, EuiPageSideBar, EuiImage, EuiSideNav
-} from '@elastic/eui'
-import axios from 'axios'
+import { HashRouter, Route, Switch } from 'react-router-dom'
+import { EuiImage, EuiPage, EuiPageSideBar, EuiSideNav } from '@elastic/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
@@ -19,6 +14,7 @@ import TrainingPage from './pages/Training'
 import LoginPage from './pages/Login'
 import Preference from './models/Preference'
 import './App.css'
+import api from './api'
 
 export default class App extends Component {
   state = {
@@ -59,23 +55,16 @@ export default class App extends Component {
     const token = this.getCookie('token')
     if (token) {
       this.setState({ isLoggedIn: true })
-      axios.defaults.headers.common.Authorization = `Bearer ${token}`
+      api.setToken(token)
 
-      axios.get('/api/tickets/v1?pageSize=200')
-        .then((data) => {
+      api.loadTickets(undefined, 0, 200)
+        .then((tickets) => {
           // Check which one are audio and which are video before loading all active jobs
-          this.setState({ transcripts: data.data })
+          this.setState({ transcripts: tickets })
         })
-      axios.get('/api/tickets/v1/tags/active', {
-        params: {
-          pageStart: 0,
-          pageSize: 10000,
-          type: 'VOICE',
-          sortBy: 'CREATED_DESC'
-        }
-      })
-        .then((data) => {
-          const activeTags = data.data
+
+      api.loadTags()
+        .then((activeTags) => {
           // Count number of active tags
           const { selectedItemName } = this.state
           const sideBar = []
@@ -86,11 +75,11 @@ export default class App extends Component {
               isSelected: selectedItemName === tag.value,
               onClick: () => {
                 this.selectItem(tag.value)
-                axios.get(`/api/tickets/v1?tags=${tag.value}&pageSize=200`)
-                  .then((receivedData) => {
+                api.loadTickets(tag.value, 0, 200)
+                  .then((tickets) => {
                     // transcripts after job selection
                     // Check which one are audio and which are video
-                    this.setState({ transcripts: receivedData.data })
+                    this.setState({ transcripts: tickets })
                   })
               },
               href: '/#/'
@@ -109,23 +98,16 @@ export default class App extends Component {
                   isSelected: true,
                   name: 'V2T Jobs'
                 }, {
-                  href: '/#/live',
-                  id: 2,
-                  isSelected: selectedItemName === 'Live Transcript',
-                  name: 'Live Diktering',
-                  onClick: () => this.selectItem('Live Transcript')
-                }, {
                   href: '/#/upload',
                   id: 3,
                   isSelected: selectedItemName === 'Upload',
                   name: 'Ladda Upp',
                   onClick: () => this.selectItem('Upload')
                 }, {
-                  href: '/#/analytics',
+                  href: `http://${window.location.hostname.replace('www', 'kibana')}`,
                   id: 4,
                   isSelected: selectedItemName === 'Analytics',
-                  name: 'Analytics',
-                  onClick: () => this.selectItem('Analytics')
+                  name: 'Analytics'
                 }, {
                   href: '/#/training',
                   id: 5,
