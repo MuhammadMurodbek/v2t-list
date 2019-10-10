@@ -17,7 +17,6 @@ const LoginPage = () => {
   // const [authtoken, setAuthtoken] = useState('')
   const [preferences, setPreferences] = usePreferences()
   const setToken = (authtoken) => {
-    console.log(preferences)
     setPreferences({ token: authtoken })
   }
 
@@ -41,6 +40,7 @@ const LoginPage = () => {
         .catch((error) => {
           alert('Unauthorized access')
           console.log(error)
+          console.log(preferences)
         })
     }
   }
