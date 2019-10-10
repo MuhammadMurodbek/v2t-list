@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react'
-import axios from 'axios'
 import PropTypes from 'prop-types'
 import {
-  EuiForm,
-  EuiFormRow,
+  EuiButton,
+  EuiFilePicker,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiFilePicker,
-  EuiButton,
-  EuiSuperSelect, EuiSpacer, EuiText,
+  EuiForm,
+  EuiFormRow,
   EuiGlobalToastList,
-  EuiProgress
+  EuiProgress,
+  EuiSpacer,
+  EuiSuperSelect,
+  EuiText
 } from '@elastic/eui'
+import api from '../api'
 import Page from '../components/Page'
-
-export const API_PATH = '/api/transcriptions/v1'
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
@@ -47,16 +47,16 @@ export default class UploadPage extends Component {
       />
     )
   },
-  {
-    value: 'option_three',
-    inputDisplay: 'Legal Documents',
-    dropdownDisplay: (
-      <DropDown
-        title="Legal Documents"
-        content="Select this one for legal interrogations."
-      />
-    )
-  }]
+    {
+      value: 'option_three',
+      inputDisplay: 'Legal Documents',
+      dropdownDisplay: (
+        <DropDown
+          title="Legal Documents"
+          content="Select this one for legal interrogations."
+        />
+      )
+    }]
 
   jobs = [{
     value: 'ks_ögon',
@@ -111,20 +111,11 @@ export default class UploadPage extends Component {
 
   uploadFiles = async () => {
     const { files, metaData, selectedJob } = this.state
-    const requests = Array.from(files).map(file => this.uploadFile(file, metaData, selectedJob))
-    await Promise.all(requests).catch(this.onUploadFailed)
+    const requests = Array.from(files)
+      .map(file => api.uploadMedia(file, metaData, selectedJob))
+    await Promise.all(requests)
+      .catch(this.onUploadFailed)
     return this.onUploaded()
-  }
-
-  uploadFile = (file, metadata, selectedJob) => {
-    const body = new FormData()
-    body.append('media', file)
-    if (metadata) {
-      body.set('metadata', new Blob([JSON.stringify({ transcription: { model: metadata, tags: [selectedJob] } })], {
-        type: 'audio/wav'
-      }))
-    }
-    return axios.post(API_PATH, body)
   }
 
   onUploaded = () => {
@@ -137,7 +128,7 @@ export default class UploadPage extends Component {
         text: (
           <Fragment>
             <h3>Successfully uploaded files</h3>
-            <EuiProgress size="s" color="subdued" />
+            <EuiProgress size="s" color="subdued"/>
           </Fragment>)
       }]
     })
@@ -165,7 +156,7 @@ export default class UploadPage extends Component {
       <Page preferences title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
-            <EuiFilePicker onChange={this.onFilesChange} />
+            <EuiFilePicker onChange={this.onFilesChange}/>
           </EuiFormRow>
           <EuiFormRow label="Choose model for the transcript">
             <EuiSuperSelect
@@ -210,7 +201,7 @@ export default class UploadPage extends Component {
 const DropDown = ({ title, content }) => (
   <Fragment>
     <strong>{title}</strong>
-    <EuiSpacer size="xs" />
+    <EuiSpacer size="xs"/>
     <EuiText size="s" color="subdued">
       <p className="euiTextColor--subdued">
         {content}

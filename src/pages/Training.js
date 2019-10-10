@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import axios from 'axios'
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -12,6 +11,7 @@ import {
   EuiText,
   EuiButtonEmpty
 } from '@elastic/eui'
+import api from '../api'
 import Player from '../components/Player'
 import Editor from '../components/Editor'
 import Page from '../components/Page'
@@ -54,7 +54,7 @@ export default class UploadPage extends Component {
   }
 
   loadCurrentTranscript = async () => {
-    const status = await axios.get('/api/training/v1')
+    const status = await api.trainingGetNext()
     if (status.data.transcription) {
       this.setState({
         transcriptionId: status.data.transcription.transcriptionId,
@@ -171,15 +171,7 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, async () => {
-      await axios({
-        method: 'put',
-        url: `/api/training/v1/${transcriptionId}/${sequenceNumber}`,
-        data: {
-          text: previewContents
-        },
-        contentType: 'application/json',
-        acceptEncoding: 'gzip, deflate'
-      })
+      await api.trainingUpdate(transcriptionId, sequenceNumber, previewContents)
 
       this.loadCurrentTranscript()
     })
@@ -221,16 +213,7 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, async () => {
-      await axios({
-        method: 'put',
-        url: `/api/training/v1/${transcriptionId}/${sequenceNumber}`,
-        data: {
-          text: chapters[0].segments[0].words,
-          status: 'REJECT'
-        },
-        contentType: 'application/json',
-        acceptEncoding: 'gzip, deflate'
-      })
+      await api.trainingReject(transcriptionId, sequenceNumber)
 
       this.loadCurrentTranscript()
     })

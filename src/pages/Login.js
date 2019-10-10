@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import {
+  EuiButtonEmpty,
+  EuiFieldPassword,
+  EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSpacer,
-  EuiFieldText,
-  EuiFieldPassword,
-  EuiButtonEmpty
+  EuiSpacer
 } from '@elastic/eui'
 import { usePreferences } from '../components/PreferencesProvider'
 import Page from '../components/Page'
+import api from '../api'
 
 const LoginPage = () => {
   const [username, setUsername] = useState('test')
   const [password, setPassword] = useState('test')
   // const [authtoken, setAuthtoken] = useState('')
   const [preferences, setPreferences] = usePreferences()
-  const setToken = authtoken => {
+  const setToken = (authtoken) => {
     setPreferences({ token: authtoken })
   }
 
@@ -26,27 +26,21 @@ const LoginPage = () => {
 
 
   const login = () => {
-    
     if (username === '' || password === '') {
       alert('Invalid username or password')
-      return
     } else {
-      axios({
-        method: 'post',
-        url: '/api/login/v1',
-        data: { username, password },
-        contentType: 'application/json'
-      }).then((response) => {
-        const { token } = response.data
-        // setAuthtoken(token)
-        setUsername('')
-        setPassword('')
-        setToken(token)
-        window.location.replace('/')
-      }).catch(() => {
-        alert('Unauthorized access')
-        console.log(preferences)
-      })
+      api.login(username, password)
+        .then((token) => {
+          // setAuthtoken(token)
+          setUsername('')
+          setPassword('')
+          setToken(token)
+          window.location.replace('/')
+        })
+        .catch(() => {
+          alert('Unauthorized access')
+          console.log(preferences)
+        })
     }
   }
 
@@ -60,7 +54,7 @@ const LoginPage = () => {
 
   return (
     <Page title="Logga In">
-      <EuiSpacer size="m" />
+      <EuiSpacer size="m"/>
       <EuiFlexGroup>
         <EuiFlexItem>
           <EuiFieldText

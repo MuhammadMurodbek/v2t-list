@@ -2,12 +2,21 @@
 import React from 'react'
 import moment from 'moment'
 import { EuiButtonEmpty } from '@elastic/eui'
-import axios from 'axios'
+import api from '../api'
 
 export const WORD_OPTIONS = [
-  { id: '1', label: '1' },
-  { id: '3', label: '3' },
-  { id: '5', label: '5' }
+  {
+    id: '1',
+    label: '1'
+  },
+  {
+    id: '3',
+    label: '3'
+  },
+  {
+    id: '5',
+    label: '5'
+  }
 ]
 
 export const COLUMN_OPTIONS = [
@@ -16,13 +25,34 @@ export const COLUMN_OPTIONS = [
     field: 'created_time',
     name: 'Skapad',
     // sortable: true,
-    render: created => moment(created).format('YYYY-MM-DD HH:mm:ss')
+    render: created => moment(created)
+      .format('YYYY-MM-DD HH:mm:ss')
   },
-  { label: 'type', name: 'Typ', render: transcript => `${(transcript || {}).media_content_type ? transcript.media_content_type : 'voice'}` },
-  { label: 'doctorsName', name: 'Doktor', render: transcript => `${((transcript || {}).fields || {}).doctor_full_name ? transcript.fields.doctor_full_name : ''}` },
-  { label: 'patientsName', name: 'Patient', render: transcript => `${((transcript || {}).fields || {}).patient_full_name ? transcript.fields.patient_full_name : ''}` },
-  { label: 'patientId', name: 'Patients Personnummer', render: transcript => `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}` },
-  { label: 'departmentName', name: 'Avdelning', render: transcript => `${((transcript || {}).fields || {}).department_name ? transcript.fields.department_name : ''}` },
+  {
+    label: 'type',
+    name: 'Typ',
+    render: transcript => `${(transcript || {}).media_content_type ? transcript.media_content_type : 'voice'}`
+  },
+  {
+    label: 'doctorsName',
+    name: 'Doktor',
+    render: transcript => `${((transcript || {}).fields || {}).doctor_full_name ? transcript.fields.doctor_full_name : ''}`
+  },
+  {
+    label: 'patientsName',
+    name: 'Patient',
+    render: transcript => `${((transcript || {}).fields || {}).patient_full_name ? transcript.fields.patient_full_name : ''}`
+  },
+  {
+    label: 'patientId',
+    name: 'Patients Personnummer',
+    render: transcript => `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}`
+  },
+  {
+    label: 'departmentName',
+    name: 'Avdelning',
+    render: transcript => `${((transcript || {}).fields || {}).department_name ? transcript.fields.department_name : ''}`
+  },
   {
     label: 'id',
     field: 'id',
@@ -39,11 +69,17 @@ export const COLUMN_OPTIONS = [
 ]
 
 export default class Preference {
-  get words() { return this._words }
+  get words() {
+    return this._words
+  }
 
-  set words(v) { this._words = v }
+  set words(v) {
+    this._words = v
+  }
 
-  get keywords() { return this._keywords }
+  get keywords() {
+    return this._keywords
+  }
 
   set keywords(v) {
     let keywordsFromCookies = this.getCookie('keywords')
@@ -65,6 +101,7 @@ export default class Preference {
     }
     this._keywordInit = false
   }
+
   get token() {
     return this._token
   }
@@ -72,11 +109,7 @@ export default class Preference {
   set token(v) {
     this._token = v
     this.setCookie('token', this._token, 365)
-    if (this._token === '') {
-      axios.defaults.headers.common.Authorization = undefined
-    } else {
-      axios.defaults.headers.common.Authorization = `Bearer ${this._token}`
-    }
+    api.setToken(this._token)
   }
 
   get autoPlayStatus() {
@@ -128,7 +161,9 @@ export default class Preference {
     }
   }
 
-  get currentFontSize() { return this._currentFontSize }
+  get currentFontSize() {
+    return this._currentFontSize
+  }
 
   set currentFontSize(v) {
     const currentFontSize = this.getCookie('currentFontSize')
@@ -149,21 +184,37 @@ export default class Preference {
     this._fontSizeIteration = this._fontSizeIteration + 1
   }
 
-  get fontSizeIteration() { return this._fontSizeIteration }
+  get fontSizeIteration() {
+    return this._fontSizeIteration
+  }
 
-  set fontSizeIteration(v) { this._fontSizeIteration = v }
+  set fontSizeIteration(v) {
+    this._fontSizeIteration = v
+  }
 
-  get keywordInit() { return this._keywordInit }
+  get keywordInit() {
+    return this._keywordInit
+  }
 
-  set keywordInit(v) { this._keywordInit = v }
+  set keywordInit(v) {
+    this._keywordInit = v
+  }
 
-  get columns() { return this._columns }
+  get columns() {
+    return this._columns
+  }
 
-  set columns(v) { this._columns = v }
+  set columns(v) {
+    this._columns = v
+  }
 
-  get allColumns() { return this._allColumns }
+  get allColumns() {
+    return this._allColumns
+  }
 
-  set allColumns(v) { this._allColumns = v }
+  set allColumns(v) {
+    this._allColumns = v
+  }
 
   static defaultState = {
     words: '3',
@@ -176,14 +227,14 @@ export default class Preference {
       value: '15px',
       inputDisplay: 'Small'
     },
-    {
-      value: '18px',
-      inputDisplay: 'Medium'
-    },
-    {
-      value: '20px',
-      inputDisplay: 'Large'
-    }],
+      {
+        value: '18px',
+        inputDisplay: 'Medium'
+      },
+      {
+        value: '20px',
+        inputDisplay: 'Large'
+      }],
     currentFontSize: '15px',
     fontSizeIteration: 0,
     keywordInit: true
@@ -196,9 +247,10 @@ export default class Preference {
   }
 
   add(state) {
-    Object.entries(state).forEach(([key, value]) => {
-      this[key] = value
-    })
+    Object.entries(state)
+      .forEach(([key, value]) => {
+        this[key] = value
+      })
     return this
   }
 
