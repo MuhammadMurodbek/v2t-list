@@ -77,7 +77,7 @@ const LoginPage = () => {
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
           <EuiButtonEmpty
-            size="xl"
+            size="l"
             color="primary"
             onClick={() => login()}
           >
