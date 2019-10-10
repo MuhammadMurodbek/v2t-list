@@ -37,9 +37,9 @@ const LoginPage = () => {
           setToken(token)
           window.location.replace('/')
         })
-        .catch(() => {
+        .catch((error) => {
           alert('Unauthorized access')
-          console.log(preferences)
+          console.log(error)
         })
     }
   }
