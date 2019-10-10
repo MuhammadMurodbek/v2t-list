@@ -5,7 +5,7 @@ const headers = {
 }
 
 function setToken(token) {
-  if (this.token !== '') {
+  if (token !== '') {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`
   } else {
     axios.defaults.headers.common.Authorization = undefined
