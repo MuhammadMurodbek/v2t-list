@@ -15,8 +15,9 @@ const LoginPage = () => {
   const [username, setUsername] = useState('test')
   const [password, setPassword] = useState('test')
   // const [authtoken, setAuthtoken] = useState('')
-  const [setPreferences] = usePreferences()
+  const [preferences, setPreferences] = usePreferences()
   const setToken = (authtoken) => {
+    console.log(preferences)
     setPreferences({ token: authtoken })
   }
 
