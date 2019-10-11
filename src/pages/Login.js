@@ -5,9 +5,7 @@ import {
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSpacer,
-  EuiImage,
-  EuiText
+  EuiImage
 } from '@elastic/eui'
 import { usePreferences } from '../components/PreferencesProvider'
 import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
