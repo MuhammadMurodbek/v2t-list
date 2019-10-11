@@ -5,10 +5,10 @@ import {
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSpacer,
-  EuiText
+  EuiImage
 } from '@elastic/eui'
 import { usePreferences } from '../components/PreferencesProvider'
+import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import Page from '../components/Page'
 import api from '../api'
 
@@ -26,8 +26,15 @@ const LoginPage = () => {
 
   useEffect(() => {
     document.title = 'Inovia AI :: Log in 🗝'
+    document.addEventListener('keydown', handleKeyPress)
   })
 
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      login()
+    }
+  }
 
   const login = () => {
     if (username === '' || password === '') {
@@ -58,12 +65,14 @@ const LoginPage = () => {
   }
 
   return (
-    <Page>
+    <Page title="">
       <div className="login"></div>
-      <EuiText>
-        <h1>Logga In</h1>
-      </EuiText>
-      <EuiSpacer size="m"/>
+        <EuiImage
+          className="logo"
+          size="m"
+          alt="logo"
+          url={logo}
+        />
       <EuiFlexGroup>
         <EuiFlexItem>
           <EuiFieldText
