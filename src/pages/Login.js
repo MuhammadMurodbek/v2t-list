@@ -16,9 +16,9 @@ import api from '../api'
 
 
 const LoginPage = () => {
+  
   const [username, setUsername] = useState('test')
   const [password, setPassword] = useState('test')
-  // const [authtoken, setAuthtoken] = useState('')
   const [preferences, setPreferences] = usePreferences()
   const setToken = (authtoken) => {
     setPreferences({ token: authtoken })
@@ -26,15 +26,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     document.title = 'Inovia AI :: Log in 🗝'
-    document.addEventListener('keydown', handleKeyPress)
   })
-
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      login()
-    }
-  }
 
   const login = () => {
     if (username === '' || password === '') {
@@ -42,7 +34,6 @@ const LoginPage = () => {
     } else {
       api.login(username, password)
         .then((token) => {
-          // setAuthtoken(token)
           setUsername('')
           setPassword('')
           setToken(token)
@@ -73,6 +64,7 @@ const LoginPage = () => {
           alt="logo"
           url={logo}
         />
+      
       <EuiFlexGroup>
         <EuiFlexItem>
           <EuiFieldText
@@ -96,6 +88,7 @@ const LoginPage = () => {
           <EuiButtonEmpty
             size="l"
             color="primary"
+            type="submit"
             onClick={() => login()}
           >
             Logga In
