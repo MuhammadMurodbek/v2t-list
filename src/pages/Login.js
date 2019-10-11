@@ -5,11 +5,15 @@ import {
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSpacer
+  EuiSpacer,
+  EuiText
 } from '@elastic/eui'
 import { usePreferences } from '../components/PreferencesProvider'
 import Page from '../components/Page'
 import api from '../api'
+
+
+
 
 const LoginPage = () => {
   const [username, setUsername] = useState('test')
@@ -40,6 +44,7 @@ const LoginPage = () => {
         .catch((error) => {
           alert('Unauthorized access')
           console.log(error)
+          console.log(preferences)
         })
     }
   }
@@ -53,7 +58,11 @@ const LoginPage = () => {
   }
 
   return (
-    <Page title="Logga In">
+    <Page>
+      <div className="login"></div>
+      <EuiText>
+        <h1>Logga In</h1>
+      </EuiText>
       <EuiSpacer size="m"/>
       <EuiFlexGroup>
         <EuiFlexItem>
@@ -76,7 +85,7 @@ const LoginPage = () => {
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
           <EuiButtonEmpty
-            size="xl"
+            size="l"
             color="primary"
             onClick={() => login()}
           >

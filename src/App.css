@@ -13,9 +13,15 @@ p {
 }
 
 .euiPage {
-  /* background-color: green; */
   background-image: url("./img/sidebar.png");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
+
+.login{
+  margin-top: 35vh;
+}
+
 .euiSideNavItemButton__label {
   font-size: 1.3em;
   color: rgb(255,255,255);

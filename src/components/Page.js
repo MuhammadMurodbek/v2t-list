@@ -30,7 +30,7 @@ Start.propTypes = {
   title: PropTypes.string.isRequired,
   // children: PropTypes.object.isRequired,
   // children: PropTypes.oneOf(['object', 'array']).isRequired,
-  preferences: PropTypes.bool.isRequired
+  // preferences: PropTypes.bool.isRequired
 }
 
 export default Start

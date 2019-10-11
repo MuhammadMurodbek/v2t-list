@@ -190,7 +190,11 @@ export default class App extends Component {
                      render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
               <Route path="/training/"
                      render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
-              <Route path="/login" component={LoginPage}/>
+              <Route path="/login" 
+                render={props => isLoggedIn ? <StartPage {...{
+                  ...props,
+                  transcripts
+                }} /> : <LoginPage/>}/>
             </Switch>
           </EuiPage>
         </PreferencesProvider>
