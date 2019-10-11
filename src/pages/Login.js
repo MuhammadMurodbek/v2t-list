@@ -26,8 +26,15 @@ const LoginPage = () => {
 
   useEffect(() => {
     document.title = 'Inovia AI :: Log in 🗝'
+    document.addEventListener('keydown', handleKeyPress)
   })
 
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      login()
+    }
+  }
 
   const login = () => {
     if (username === '' || password === '') {
