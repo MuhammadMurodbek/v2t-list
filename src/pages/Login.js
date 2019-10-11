@@ -6,9 +6,11 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
+  EuiImage,
   EuiText
 } from '@elastic/eui'
 import { usePreferences } from '../components/PreferencesProvider'
+import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import Page from '../components/Page'
 import api from '../api'
 
@@ -65,12 +67,14 @@ const LoginPage = () => {
   }
 
   return (
-    <Page>
+    <Page title="">
       <div className="login"></div>
-      <EuiText>
-        <h1>Logga In</h1>
-      </EuiText>
-      <EuiSpacer size="m"/>
+        <EuiImage
+          className="logo"
+          size="m"
+          alt="logo"
+          url={logo}
+        />
       <EuiFlexGroup>
         <EuiFlexItem>
           <EuiFieldText
