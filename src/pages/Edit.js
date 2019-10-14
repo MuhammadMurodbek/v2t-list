@@ -11,6 +11,7 @@ import { PreferenceContext } from '../components/PreferencesProvider'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Player from '../components/Player'
+import Templates from '../components/Templates'
 import Info from '../components/Info'
 
 export default class EditPage extends Component {
@@ -275,10 +276,22 @@ export default class EditPage extends Component {
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <Tags
-                tags={tags}
-                updateTags={this.onUpdateTags}
-              />
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <Tags
+                    tags={tags}
+                    updateTags={this.onUpdateTags}
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <EuiSpacer size="m" />
+                  <EuiSpacer size="m" />
+                  <EuiSpacer size="m" />
+                  <Templates />
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup>
