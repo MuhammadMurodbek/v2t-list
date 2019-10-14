@@ -262,7 +262,7 @@ export default class EditPage extends Component {
           <EuiSpacer size="l"/>
           <EuiSpacer size="l"/>
 
-          <EuiFlexGroup wrap>
+          <EuiFlexGroup wrap gutterSize="xl">
             <EuiFlexItem>
               <Editor
                 transcript={transcript}
@@ -286,9 +286,7 @@ export default class EditPage extends Component {
               </EuiFlexGroup>
               <EuiFlexGroup>
                 <EuiFlexItem>
-                  <EuiSpacer size="m" />
-                  <EuiSpacer size="m" />
-                  <EuiSpacer size="m" />
+                  <EuiSpacer size="xxl" />
                   <Templates />
                 </EuiFlexItem>
               </EuiFlexGroup>

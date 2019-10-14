@@ -1,5 +1,5 @@
 // Used react synthetic event
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import DropDown from './Dropdown'
 import {
     EuiSpacer,
@@ -9,10 +9,9 @@ import '../App.css'
 
 
 const Templates = ({ listOfTemplates }) => {
-  let selectedTemplate = 'telefonanteckning'
+  const [selectedTemplate, setSelectedTemplate] = useState('telefonanteckning')
   const onTemplateChange = (e) => {
-    selectedTemplate = e
-    console.log(selectedTemplate)
+    setSelectedTemplate(e)
   }
   const templateOptions = [{
     value: 'telefonanteckning',

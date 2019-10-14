@@ -2,13 +2,10 @@ import React, { Component, Fragment } from 'react'
 import Diff from 'text-diff'
 
 import {
-  EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor, EuiSpacer
+  EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor
 } from '@elastic/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
-import SectionHeader from './SectionHeader'
-import DropDown from './DropDown'
-
 import '../styles/editor.css'
 
 const NEW_KEYWORD = 'New Chapter'
@@ -125,7 +122,7 @@ export default class Editor extends Component {
     cursor.segment--
     if (cursor.segment < 0) {
       cursor.chapter--
-      cursor.segment = chapters[cursor.chapter].segments.length -1
+      cursor.segment = chapters[cursor.chapter].segments.length - 1
     }
     const newSegment = chapters[cursor.chapter].segments[cursor.segment]
     cursor.offset = newSegment ? newSegment.words.length : 0
@@ -163,7 +160,7 @@ export default class Editor extends Component {
     const endSegmentId = Number(this.getClosestDataset(range.endContainer).segment || 0)
     const endSegment = chapters[chapterId].segments[endSegmentId]
     endSegment.words = endSegment.words.slice(range.endOffset)
-    for (let segmentId = endSegmentId -1; segmentId > startSegmentId; segmentId--)
+    for (let segmentId = endSegmentId - 1; segmentId > startSegmentId; segmentId--)
       chapters[chapterId].segments.splice(segmentId, 1)
     chapters[chapterId].segments[startSegmentId].words = words
     this.stashCursor(offset)
@@ -172,19 +169,19 @@ export default class Editor extends Component {
     updateTranscript(chapters)
   }
 
-   onKeyDown = (e, chapterId) => {
-     const selection = window.getSelection()
-     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
-     if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
-       this.splitChapter(e, chapterId, segmentId)
-     }
-     if (e.keyCode === KEYCODE_BACKSPACE) {
-       this.mergeWithPreviousChapter(e, chapterId, segmentId)
-     }
-     if (e.keyCode === KEYCODE_DELETE) {
-       this.mergeWithNextChapter(e, chapterId, segmentId)
-     }
-   }
+  onKeyDown = (e, chapterId) => {
+    const selection = window.getSelection()
+    const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
+    if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
+      this.splitChapter(e, chapterId, segmentId)
+    }
+    if (e.keyCode === KEYCODE_BACKSPACE) {
+      this.mergeWithPreviousChapter(e, chapterId, segmentId)
+    }
+    if (e.keyCode === KEYCODE_DELETE) {
+      this.mergeWithNextChapter(e, chapterId, segmentId)
+    }
+  }
 
   updateKeyword = (id, value) => {
     const { updateTranscript } = this.props
@@ -201,18 +198,18 @@ export default class Editor extends Component {
     const chapter = chapters[chapterId]
     const segment = chapter.segments[segmentId]
     if (!segment) return
-    const nextSegment = {...segment}
+    const nextSegment = { ...segment }
     nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
     const nextChapter = {
       keyword: NEW_KEYWORD,
-      segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId+1)]
+      segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
         .filter(segment => segment.words.length)
     }
-    const prevSegment = {...segment}
+    const prevSegment = { ...segment }
     prevSegment.words = prevSegment.words.slice(0, range.startOffset).trimEnd()
     chapters[chapterId].segments = [...chapter.segments.slice(0, segmentId), prevSegment]
       .filter(segment => segment.words.length)
-    chapters.splice(chapterId+1, 0, nextChapter)
+    chapters.splice(chapterId + 1, 0, nextChapter)
     updateTranscript(chapters)
   }
 
@@ -228,12 +225,12 @@ export default class Editor extends Component {
     const { chapters } = this.props
     const selection = window.getSelection()
     const chapter = chapters[chapterId]
-    const isLastSegment = chapter.segments.length -1 <= segmentId
+    const isLastSegment = chapter.segments.length - 1 <= segmentId
     const segment = chapter.segments[segmentId]
     const wordsLength = segment ? segment.words.length : 0
     const endingSelected = isLastSegment && wordsLength === selection.getRangeAt(0).startOffset
     if (endingSelected)
-      this.mergeChapter(e, chapterId+1, chapterId)
+      this.mergeChapter(e, chapterId + 1, chapterId)
   }
 
   mergeChapter = (e, fromChapterId, toChapterId, cursorOffset) => {
@@ -243,9 +240,9 @@ export default class Editor extends Component {
     if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     this.stashCursor(cursorOffset)
     const toSegments = chapters[toChapterId].segments
-    const lastToSegment = toSegments[toSegments.length-1]
+    const lastToSegment = toSegments[toSegments.length - 1]
     if (lastToSegment)
-      chapters[toChapterId].segments[toSegments.length-1].words = `${lastToSegment.words.trimEnd()} `
+      chapters[toChapterId].segments[toSegments.length - 1].words = `${lastToSegment.words.trimEnd()} `
     chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
     chapters.splice(fromChapterId, 1)
     updateTranscript(chapters)
@@ -362,44 +359,13 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
 }
 
 const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context }) => {
-  const kprops = [{
-    value: 'KONTAKTORSAK',
-    inputDisplay: 'KONTAKTORSAK',
-    dropdownDisplay: (
-      <DropDown title="KONTAKTORSAK" />
-    )
-  }, {
-      value: 'AT',
-      inputDisplay: 'AT',
-    dropdownDisplay: (
-      <DropDown title="AT" />
-    )
-  }, {
-      value: 'LUNGOR',
-      inputDisplay: 'LUNGOR',
-    dropdownDisplay: (
-      <DropDown title="LUNGOR" />
-    )
-  }, {
-      value: 'DIAGNOS',
-      inputDisplay: 'DIAGNOS',
-    dropdownDisplay: (
-      <DropDown title="DIAGNOS" />
-    )
-  }, {
-      value: 'BUK',
-      inputDisplay: 'BUK',
-    dropdownDisplay: (
-      <DropDown title="BUK" />
-    )
-  }]
   const onFocus = () => {
     if (keyword === NEW_KEYWORD)
-      setTimeout(() => document.execCommand('selectAll',false,null),0)
+      setTimeout(() => document.execCommand('selectAll', false, null), 0)
   }
   return (
     <Fragment>
-      {/* <h2
+      <h2
         key={keyword}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => { if (e.keyCode === 13) e.preventDefault() }}
@@ -412,8 +378,7 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
         <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
           {keyword}
         </EuiTextColor>
-      </h2> */}
-      <SectionHeader isVisible keywords={kprops} selectedHeader={keyword}/>
+      </h2>
       <Chunks
         segments={segments}
         currentTime={currentTime}
@@ -429,7 +394,7 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
 }
 
 const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect, onPaste }) => {
-  const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context}} />)
+  const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
     <pre>
       <code
@@ -458,7 +423,7 @@ const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }
       fontSize: context.currentFontSize
     } : { fontSize: context.currentFontSize }
   } else {
-    style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : { }
+    style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : {}
   }
   return (
     <span style={style} className="editorBody" data-chapter={chapterId} data-segment={i}>
@@ -474,7 +439,7 @@ const FallbackChunk = ({ chapterId }) => (
 const FullDiff = ({ diff }) => {
   if (diff === null || diff.length === 0) return null
   return <pre><code>{diff}</code></pre>
-} 
+}
 
 const RemovedLine = ({ diff, prevDiff, nextDiff }) => (
   <div>
