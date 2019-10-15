@@ -1,6 +1,6 @@
 // Used react synthetic event
 import React, { Fragment, useState } from 'react'
-import DropDown from './Dropdown'
+import DropDown from './DropDown'
 import {
     EuiSpacer,
     EuiText, EuiForm, EuiFormRow, EuiSuperSelect
