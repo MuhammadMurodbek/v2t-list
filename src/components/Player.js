@@ -382,7 +382,7 @@ class Player extends Component {
           />
           <span aria-label="tidpunkt" className="tidPunkt">
             {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
-            /
+            &nbsp;/&nbsp;
             {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
           </span>
         </div>
