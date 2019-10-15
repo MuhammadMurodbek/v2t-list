@@ -115,7 +115,7 @@ export default class App extends Component {
                   name: 'Träning',
                   onClick: () => this.selectItem('Training')
                 }, {
-                  href: '/',
+                  href: `http://${window.location.hostname.replace('www', 'webdoc')}`,
                   id: 6,
                   isSelected: selectedItemName === 'Co-worker',
                   name: 'Co-worker',
