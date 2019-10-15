@@ -54,3 +54,7 @@ p {
   background: #fff;
 }
 
+.euiSideNavItemButton.euiSideNavItemButton--isClickable:focus {
+    background-color: transparent !important;
+}
+
