@@ -155,7 +155,6 @@ export default class App extends Component {
                 size="m"
                 alt="logo"
                 url={logo}
-                allowFullScreen
                 onClick={this.loadHomescreen}
               />
               <EuiSideNav
