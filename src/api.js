@@ -4,7 +4,7 @@ const headers = {
   'Content-Type': 'application/json'
 }
 
-function setToken(token) {
+const setToken = (token) => {
   if (token !== '') {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`
   } else {
@@ -12,13 +12,13 @@ function setToken(token) {
   }
 }
 
-function logout() {
+const logout = () => {
   axios.defaults.headers.common.Authorization = undefined
   document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
   window.location.replace('/')
 }
 
-function login(username, password) {
+const login = (username, password) => {
   return axios.post('/api/login/v1', {
     username,
     password
@@ -31,7 +31,7 @@ function login(username, password) {
     })
 }
 
-function loadTags() {
+const loadTags = () => {
   return axios.get('/api/tickets/v1/tags/active')
     .then(response => response.data)
     .catch((error) => {
@@ -39,7 +39,7 @@ function loadTags() {
     })
 }
 
-function loadTickets(tag, pageIndex, pageSize) {
+const loadTickets = (tag, pageIndex, pageSize) => {
   let tagParams = ''
   if (tag) {
     tagParams = `&tags=${tag}`
@@ -51,7 +51,7 @@ function loadTickets(tag, pageIndex, pageSize) {
     })
 }
 
-function keywordsSearch(searchTerm) {
+const keywordsSearch = (searchTerm) => {
   return axios.post('/api/keywords/v1/icd-10/search', {
     text: searchTerm
   })
@@ -60,7 +60,7 @@ function keywordsSearch(searchTerm) {
     })
 }
 
-function uploadMedia(file, metadata, selectedJob) {
+const uploadMedia = (file, metadata, selectedJob) => {
   const body = new FormData()
   body.append('media', file)
   if (metadata) {
@@ -79,21 +79,21 @@ function uploadMedia(file, metadata, selectedJob) {
     })
 }
 
-function loadTranscription(transcriptionId) {
+const loadTranscription = (transcriptionId) => {
   return axios.get(`/api/transcriptions/v1/${transcriptionId}`)
     .catch((error) => {
       logout()
     })
 }
 
-function approveTranscription(transcriptionId) {
+const approveTranscription = (transcriptionId) => {
   return axios.post(`/api/transcriptions/v1/${transcriptionId}/approve`)
     .catch((error) => {
       logout()
     })
 }
 
-function updateTranscription(transcriptionId, tags, chapters) {
+const updateTranscription = (transcriptionId, tags, chapters) => {
   return axios.put(`/api/transcriptions/v1/${transcriptionId}`,
     {
       tags,
@@ -104,14 +104,14 @@ function updateTranscription(transcriptionId, tags, chapters) {
     })
 }
 
-function trainingGetNext() {
+const  trainingGetNext = () => {
   return axios.get('/api/training/v1')
     .catch((error) => {
       logout()
     })
 }
 
-function trainingUpdate(transcriptionId, sequenceNumber, updatedText) {
+const trainingUpdate = (transcriptionId, sequenceNumber, updatedText) => {
   return axios.put(`/api/training/v1/${transcriptionId}/${sequenceNumber}`,
     {
       text: updatedText
@@ -121,7 +121,7 @@ function trainingUpdate(transcriptionId, sequenceNumber, updatedText) {
     })
 }
 
-function trainingReject(transcriptionId, sequenceNumber) {
+const trainingReject = (transcriptionId, sequenceNumber) => {
   return axios.put(`/api/training/v1/${transcriptionId}/${sequenceNumber}`,
     {
       status: 'REJECT'
