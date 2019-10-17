@@ -18,7 +18,7 @@ const logout = () => {
   window.location.replace('/')
 }
 
-const login = (username, password) => {
+const login = (username, password) => { 
   return axios.post('/api/login/v1', {
     username,
     password
