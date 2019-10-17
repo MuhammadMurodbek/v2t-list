@@ -106,9 +106,7 @@ const updateTranscription = (transcriptionId, tags, chapters) => {
 
 const  trainingGetNext = () => {
   return axios.get('/api/training/v1')
-    .catch((error) => {
-      logout()
-    })
+    .catch(error => error)
 }
 
 const trainingUpdate = (transcriptionId, sequenceNumber, updatedText) => {
@@ -131,6 +129,9 @@ const trainingReject = (transcriptionId, sequenceNumber) => {
     })
 }
 
+const getSectionTemplates = () => {
+  return axios.get(`/api/sections/v1`).catch(error => error)
+}
 
 export default {
   approveTranscription,
@@ -145,5 +146,6 @@ export default {
   trainingReject,
   trainingUpdate,
   updateTranscription,
-  uploadMedia
+  uploadMedia,
+  getSectionTemplates
 }

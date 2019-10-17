@@ -1,5 +1,5 @@
 // Used react synthetic event
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import DropDown from './DropDown'
 import {
     EuiSpacer,
@@ -8,36 +8,37 @@ import {
 import '../App.css'
 
 
-const Templates = ({ listOfTemplates }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState('telefonanteckning')
+const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader }) => {
+  
+  const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate)
+  
+  useEffect(()=>{
+    updateSectionHeader(sectionNames)
+  }, [selectedTemplate])
+
   const onTemplateChange = (e) => {
     setSelectedTemplate(e)
   }
-  const templateOptions = [{
-    value: 'telefonanteckning',
-    inputDisplay: 'Telefonanteckning',
-    dropdownDisplay: (
-      <DropDown
-        title="Telefonanteckning"
-      />
-    )
-  }, {
-    value: 'remiss',
-    inputDisplay: 'Remiss',
-    dropdownDisplay: (
-      <DropDown
-        title="Remiss"
-      />
-    )
-  },{
-    value: 'Journal 2',
-    inputDisplay: 'Journal 2',
-    dropdownDisplay: (
-      <DropDown
-        title="Journal 2"
-      />
-    )
-  }]
+  
+  const templateOptions = listOfTemplates.map((template) => {
+    return {
+      value: template.id,
+      inputDisplay: template.name,
+      dropdownDisplay: (
+        <DropDown
+          title={template.name}
+        />
+      )
+    }}
+  )
+
+  const template = listOfTemplates.find(template => template.id === selectedTemplate)
+  const sections = template ? template.sections : []
+  const sectionNames = sections.reduce((store, section) => {
+    const synonyms = section.synonyms || []
+    return [...store, section.name, ...synonyms]
+  }, [])
+  
   return (  
     <Fragment>
       <EuiText size="xs">

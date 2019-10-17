@@ -33,7 +33,12 @@ export default class EditPage extends Component {
       patient_full_name: ''
     },
     isMediaAudio: true,
-    originalTags: []
+    originalTags: [],
+    templates: {
+      templates: []
+    },
+    // defaultTemplate: '',
+    sectionHeaders: []
   }
 
   componentDidMount() {
@@ -60,6 +65,7 @@ export default class EditPage extends Component {
     // const [preferences] = this.context
     // const { words } = preferences
     const response = await api.loadTranscription(transcript.external_id)
+    const templates = await api.getSectionTemplates()
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags, fields, media_content_type } = response.data
     if (tags) {
@@ -90,6 +96,24 @@ export default class EditPage extends Component {
       if (media_content_type.match(/^video/) !== null) {
         this.setState({ isMediaAudio: false })
       }
+    }
+
+    if (templates) {
+      const { data } = templates
+      this.setState({ 
+        templates: data, 
+        defaultTemplate: 'ext1', 
+        }, () => {
+          const { templates } = this.state
+          const { defaultTemplate } = this.state
+          const template = templates.templates.find(template => template.id === defaultTemplate)
+          const sections = template ? template.sections : []
+          const sectionHeaders = sections.reduce((store, section) => {
+            const synonyms = section.synonyms || []
+            return [...store, section.name, ...synonyms]
+          }, [])
+          this.setState({ sectionHeaders })
+        })
     }
   }
 
@@ -162,7 +186,7 @@ export default class EditPage extends Component {
     throw new Error(e)
   }
 
-  save = async () => {
+  save = async () => {    
     const { transcript } = this.props
     const { originalChapters, chapters, tags, errors, originalTags } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
@@ -211,6 +235,10 @@ export default class EditPage extends Component {
     this.setState({ tags })
   }
 
+  updateSectionHeader = (sectionHeaders) => {
+    this.setState({ sectionHeaders })
+  }
+
   onUpdateTranscript = (chapters) => {
     this.setState({ chapters })
   }
@@ -232,7 +260,10 @@ export default class EditPage extends Component {
       queryTerm,
       tags,
       isMediaAudio,
-      fields
+      fields,
+      templates,
+      // defaultTemplate,
+      sectionHeaders
     } = this.state
     if (!transcript) return null
     return (
@@ -273,6 +304,7 @@ export default class EditPage extends Component {
                 updateTranscript={this.onUpdateTranscript}
                 validateTranscript={this.onValidateTranscript}
                 isDiffVisible
+                sectionHeaders={sectionHeaders}
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -287,7 +319,11 @@ export default class EditPage extends Component {
               <EuiFlexGroup>
                 <EuiFlexItem>
                   <EuiSpacer size="xxl" />
-                  <Templates />
+                  <Templates 
+                    listOfTemplates={templates.templates}
+                    defaultTemplate='ext1'
+                    updateSectionHeader={this.updateSectionHeader}
+                  />
                 </EuiFlexItem>
               </EuiFlexGroup>
             </EuiFlexItem>
