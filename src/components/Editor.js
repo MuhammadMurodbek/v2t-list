@@ -6,6 +6,8 @@ import {
 } from '@elastic/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
+import DropDown from '../components/DropDown'
+import SectionHeader from '../components/SectionHeader'
 import '../styles/editor.css'
 
 const NEW_KEYWORD = 'New Chapter'
@@ -355,13 +357,45 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
 }
 
 const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context }) => {
+  const kprops = [{
+    value: 'KONTAKTORSAK',
+    inputDisplay: 'KONTAKTORSAK',
+    dropdownDisplay: (
+      <DropDown title="KONTAKTORSAK" />
+    )
+  }, {
+    value: 'AT',
+    inputDisplay: 'AT',
+    dropdownDisplay: (
+      <DropDown title="AT" />
+    )
+  }, {
+    value: 'LUNGOR',
+    inputDisplay: 'LUNGOR',
+    dropdownDisplay: (
+      <DropDown title="LUNGOR" />
+    )
+  }, {
+    value: 'DIAGNOS',
+    inputDisplay: 'DIAGNOS',
+    dropdownDisplay: (
+      <DropDown title="DIAGNOS" />
+    )
+  }, {
+    value: 'BUK',
+    inputDisplay: 'BUK',
+    dropdownDisplay: (
+      <DropDown title="BUK" />
+    )
+  }]
+
   const onFocus = () => {
     if (keyword === NEW_KEYWORD)
       setTimeout(() => document.execCommand('selectAll', false, null), 0)
   }
   return (
     <Fragment>
-      <h2
+      {/* <h2
         key={keyword}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => { if (e.keyCode === 13) e.preventDefault() }}
@@ -374,7 +408,8 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
         <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
           {keyword}
         </EuiTextColor>
-      </h2>
+      </h2> */}
+      <SectionHeader isVisible keywords={kprops} selectedHeader={keyword} />
       <Chunks
         segments={segments}
         currentTime={currentTime}
