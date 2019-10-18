@@ -6,7 +6,6 @@ import {
 } from '@elastic/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
-import DropDown from '../components/DropDown'
 import SectionHeader from '../components/SectionHeader'
 import '../styles/editor.css'
 
@@ -359,10 +358,10 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
 }
 
 const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders }) => {
-  const onFocus = () => {
-    if (keyword === NEW_KEYWORD)
-      setTimeout(() => document.execCommand('selectAll', false, null), 0)
-  }
+  // const onFocus = () => {
+  // if (keyword === NEW_KEYWORD)
+  //    setTimeout(() => document.execCommand('selectAll', false, null), 0)
+  // }
   return (
     <Fragment>
       {/* <h2
