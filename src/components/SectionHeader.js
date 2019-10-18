@@ -14,6 +14,7 @@ import {
     EuiGlobalToastList,
     EuiProgress
 } from '@elastic/eui'
+import DropDown from '../components/DropDown'
 
 const SectionHeader = ({ isVisible, keywords, selectedHeader}) => {
   const [selectedKeyword, setSelectedKeyword] = useState(selectedHeader)
@@ -21,10 +22,23 @@ const SectionHeader = ({ isVisible, keywords, selectedHeader}) => {
     setSelectedKeyword(k)
   }
 
+  const keywordsOptions = keywords.map((keyword) => {
+    return {
+      value: keyword,
+      inputDisplay: keyword,
+      dropdownDisplay: (
+        <DropDown
+          title={keyword}
+        />
+      )
+    }
+  }
+  )
+
   return (
     <EuiFormRow label="Name of the Section">
       <EuiSuperSelect
-        options={keywords}
+        options={keywordsOptions}
         valueOfSelected={selectedKeyword}
         onChange={onKeywordChange}
         itemLayoutAlign="top"

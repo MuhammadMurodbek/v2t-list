@@ -106,12 +106,10 @@ export default class EditPage extends Component {
         }, () => {
           const { templates } = this.state
           const { defaultTemplate } = this.state
+          
           const template = templates.templates.find(template => template.id === defaultTemplate)
           const sections = template ? template.sections : []
-          const sectionHeaders = sections.reduce((store, section) => {
-            const synonyms = section.synonyms || []
-            return [...store, section.name, ...synonyms]
-          }, [])
+          const sectionHeaders = sections.map(section => section.name)
           this.setState({ sectionHeaders })
         })
     }

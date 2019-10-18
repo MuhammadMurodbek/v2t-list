@@ -303,7 +303,7 @@ export default class Editor extends Component {
 
 
   render() {
-    const { currentTime, chapters, onSelect, isDiffVisible } = this.props
+    const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
@@ -320,6 +320,7 @@ export default class Editor extends Component {
           onPaste={this.onPaste}
           error={error}
           context={preferences}
+          sectionHeaders={sectionHeaders}
         />
         <EuiFlexGroup style={{ display: isDiffVisible ? 'flex' : 'none' }}>
           <EuiFlexItem>
@@ -331,7 +332,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, context }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, context, sectionHeaders }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -347,6 +348,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
       onPaste={onPaste}
       error={error}
       context={context}
+      sectionHeaders={sectionHeaders}
     />
   ))
   return (
@@ -356,39 +358,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context }) => {
-  const kprops = [{
-    value: 'KONTAKTORSAK',
-    inputDisplay: 'KONTAKTORSAK',
-    dropdownDisplay: (
-      <DropDown title="KONTAKTORSAK" />
-    )
-  }, {
-    value: 'AT',
-    inputDisplay: 'AT',
-    dropdownDisplay: (
-      <DropDown title="AT" />
-    )
-  }, {
-    value: 'LUNGOR',
-    inputDisplay: 'LUNGOR',
-    dropdownDisplay: (
-      <DropDown title="LUNGOR" />
-    )
-  }, {
-    value: 'DIAGNOS',
-    inputDisplay: 'DIAGNOS',
-    dropdownDisplay: (
-      <DropDown title="DIAGNOS" />
-    )
-  }, {
-    value: 'BUK',
-    inputDisplay: 'BUK',
-    dropdownDisplay: (
-      <DropDown title="BUK" />
-    )
-  }]
-
+const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders }) => {
   const onFocus = () => {
     if (keyword === NEW_KEYWORD)
       setTimeout(() => document.execCommand('selectAll', false, null), 0)
@@ -409,7 +379,7 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
           {keyword}
         </EuiTextColor>
       </h2> */}
-      <SectionHeader isVisible keywords={kprops} selectedHeader={keyword} />
+      <SectionHeader isVisible keywords={sectionHeaders} selectedHeader={keyword} />
       <Chunks
         segments={segments}
         currentTime={currentTime}
