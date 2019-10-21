@@ -192,7 +192,7 @@ export default class Editor extends Component {
   }
 
   splitChapter = (e, chapterId, segmentId) => {
-    const { updateTranscript } = this.props
+    const { updateTranscript, sectionHeaders } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     e.preventDefault()
     const range = window.getSelection().getRangeAt(0)
@@ -201,8 +201,13 @@ export default class Editor extends Component {
     if (!segment) return
     const nextSegment = { ...segment }
     nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
+    // const nextChapter = {
+    //   keyword: NEW_KEYWORD,
+    //   segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
+    //     .filter(segment => segment.words.length)
+    // }
     const nextChapter = {
-      keyword: NEW_KEYWORD,
+      keyword: sectionHeaders[sectionHeaders.length-1],
       segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
         .filter(segment => segment.words.length)
     }
@@ -378,7 +383,11 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
           {keyword}
         </EuiTextColor>
       </h2> */}
-      <SectionHeader isVisible keywords={sectionHeaders} selectedHeader={keyword} />
+      <SectionHeader
+        isVisible
+        keywords={sectionHeaders}
+        selectedHeader={keyword}
+      />
       <Chunks
         segments={segments}
         currentTime={currentTime}
