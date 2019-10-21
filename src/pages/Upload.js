@@ -47,16 +47,16 @@ export default class UploadPage extends Component {
       />
     )
   },
-    {
-      value: 'option_three',
-      inputDisplay: 'Legal Documents',
-      dropdownDisplay: (
-        <DropDown
-          title="Legal Documents"
-          content="Select this one for legal interrogations."
-        />
-      )
-    }]
+  {
+    value: 'option_three',
+    inputDisplay: 'Legal Documents',
+    dropdownDisplay: (
+      <DropDown
+        title="Legal Documents"
+        content="Select this one for legal interrogations."
+      />
+    )
+  }]
 
   jobs = [{
     value: 'ks_ögon',
@@ -128,7 +128,7 @@ export default class UploadPage extends Component {
         text: (
           <Fragment>
             <h3>Successfully uploaded files</h3>
-            <EuiProgress size="s" color="subdued"/>
+            <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
     })
@@ -156,7 +156,7 @@ export default class UploadPage extends Component {
       <Page preferences title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
-            <EuiFilePicker onChange={this.onFilesChange}/>
+            <EuiFilePicker onChange={this.onFilesChange} />
           </EuiFormRow>
           <EuiFormRow label="Choose model for the transcript">
             <EuiSuperSelect
@@ -201,7 +201,7 @@ export default class UploadPage extends Component {
 const DropDown = ({ title, content }) => (
   <Fragment>
     <strong>{title}</strong>
-    <EuiSpacer size="xs"/>
+    <EuiSpacer size="xs" />
     <EuiText size="s" color="subdued">
       <p className="euiTextColor--subdued">
         {content}
