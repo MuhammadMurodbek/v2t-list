@@ -8,10 +8,11 @@ import {
 } from '@elastic/eui'
 import DropDown from '../components/DropDown'
 
-const SectionHeader = ({ isVisible, keywords, selectedHeader}) => {
+const SectionHeader = ({ isVisible, keywords, selectedHeader, updateKey, chapterId}) => {
   const [selectedKeyword, setSelectedKeyword] = useState(selectedHeader)
   const onKeywordChange = (k) => {
     setSelectedKeyword(k)
+    updateKey(k, chapterId)
   }
 
   const keywordsOptions = keywords.map((keyword) => {

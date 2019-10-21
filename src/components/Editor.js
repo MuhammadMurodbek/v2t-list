@@ -304,7 +304,10 @@ export default class Editor extends Component {
     })
     return !error.length
   }
-
+  
+  setKeyword = (keywordValue, chapterId) => {
+    this.updateKeyword(chapterId, keywordValue)
+  }
 
   render() {
     const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
@@ -325,6 +328,7 @@ export default class Editor extends Component {
           error={error}
           context={preferences}
           sectionHeaders={sectionHeaders}
+          setKeyword={this.setKeyword}
         />
         <EuiFlexGroup style={{ display: isDiffVisible ? 'flex' : 'none' }}>
           <EuiFlexItem>
@@ -336,7 +340,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, context, sectionHeaders }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -353,6 +357,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
       error={error}
       context={context}
       sectionHeaders={sectionHeaders}
+      setKeyword={setKeyword}
     />
   ))
   return (
@@ -362,7 +367,9 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders }) => {
+
+
+const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
   // const onFocus = () => {
   // if (keyword === NEW_KEYWORD)
   //    setTimeout(() => document.execCommand('selectAll', false, null), 0)
@@ -387,6 +394,8 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
         isVisible
         keywords={sectionHeaders}
         selectedHeader={keyword}
+        updateKey={setKeyword}
+        chapterId={chapterId}
       />
       <Chunks
         segments={segments}
