@@ -3,7 +3,7 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton
+  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton, EuiHorizontalRule
 } from '@elastic/eui'
 import api from '../api'
 import Page from '../components/Page'
@@ -289,6 +289,7 @@ export default class EditPage extends Component {
                 <EuiSpacer size="l"/>
                 <EuiSpacer size="l"/>
                 <Info fields={fields}/>
+                <EuiHorizontalRule margin="xs" />
               </figure>
             </EuiFlexItem>
           </EuiFlexGroup>
@@ -309,24 +310,16 @@ export default class EditPage extends Component {
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiFlexGroup>
-                <EuiFlexItem>
                   <Tags
                     tags={tags}
                     updateTags={this.onUpdateTags}
                   />
-                </EuiFlexItem>
-              </EuiFlexGroup>
-              <EuiFlexGroup>
-                <EuiFlexItem>
                   <EuiSpacer size="xxl" />
                   <Templates 
                     listOfTemplates={templates.templates}
                     defaultTemplate='ext1'
                     updateSectionHeader={this.updateSectionHeader}
                   />
-                </EuiFlexItem>
-              </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup>
