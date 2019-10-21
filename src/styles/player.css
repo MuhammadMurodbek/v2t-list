@@ -34,7 +34,6 @@
 
 .controls {
   width: 750px;
-  border-radius: 5px;
   bottom: 20px;
   background-color:  #f1f3f4;
   transition: 1s all;
@@ -294,6 +293,7 @@ input[type=range]:focus::-ms-fill-upper {
 
 .videoPlayer {
   width: 750px;
+  background: #f1f3f4;
 }
 
 #stop {
