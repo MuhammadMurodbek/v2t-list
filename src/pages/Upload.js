@@ -1,29 +1,25 @@
 import React, { Component, Fragment } from 'react'
+import axios from 'axios'
 import PropTypes from 'prop-types'
 import {
-  EuiButton,
-  EuiFilePicker,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiForm,
   EuiFormRow,
-  EuiGlobalToastList,
-  EuiProgress,
-  EuiSpacer,
-  EuiSuperSelect,
-  EuiText
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiFilePicker,
+  EuiButton,
+  EuiSuperSelect, EuiSpacer, EuiText
 } from '@elastic/eui'
-import api from '../api'
 import Page from '../components/Page'
+
+export const API_PATH = '/api/v1/transcription/'
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
     files: [],
     loading: false,
     message: '',
-    toasts: [],
-    metaData: 'medical',
-    selectedJob: 'ks_ögon'
+    metaData: 'medical'
   }
 
   state = this.DEFAULT_STATE
@@ -33,7 +29,7 @@ export default class UploadPage extends Component {
     inputDisplay: 'Medical Transcript',
     dropdownDisplay: (
       <DropDown
-        title="Medical Transcript"
+        title="Medial Transcript"
         content="This one is used for medical records."
       />
     )
@@ -47,56 +43,19 @@ export default class UploadPage extends Component {
       />
     )
   },
-    {
-      value: 'option_three',
-      inputDisplay: 'Legal Documents',
-      dropdownDisplay: (
-        <DropDown
-          title="Legal Documents"
-          content="Select this one for legal interrogations."
-        />
-      )
-    }]
-
-  jobs = [{
-    value: 'ks_ögon',
-    inputDisplay: 'KS - Ögon',
+  {
+    value: 'option_three',
+    inputDisplay: 'Legal Documents',
     dropdownDisplay: (
       <DropDown
-        title="Karolinska Sjukhuset :: Ögon"
-        content="Upload the medical transcript as KS-Ögon"
-      />
-    )
-  }, {
-    value: 'ks_hjärta',
-    inputDisplay: 'KS - Hjärta',
-    dropdownDisplay: (
-      <DropDown
-        title="Karolinska Sjukhuset :: Hjärta"
-        content="Upload the medical transcript as KS-Hjärta"
-      />
-    )
-  }, {
-    value: 'su_hjärna',
-    inputDisplay: 'SU - hjärna',
-    dropdownDisplay: (
-      <DropDown
-        title="Sahlgrenska Universitetssjukhuset :: Hjärna"
-        content="Upload the medical transcript as SU- Hjärna"
+        title="Legal Documents"
+        content="Select this one for legal interrogations."
       />
     )
   }]
 
-  componentDidMount = async () => {
-    document.title = 'Inovia AI :: Upload'
-  }
-
   onMetadataChange = (metaData) => {
     this.setState({ metaData })
-  }
-
-  onJobChange = (selectedJob) => {
-    this.setState({ selectedJob })
   }
 
   onFilesChange = (files) => {
@@ -110,53 +69,41 @@ export default class UploadPage extends Component {
   }
 
   uploadFiles = async () => {
-    const { files, metaData, selectedJob } = this.state
-    const requests = Array.from(files)
-      .map(file => api.uploadMedia(file, metaData, selectedJob))
-    await Promise.all(requests)
-      .catch(this.onUploadFailed)
+    const { files, metaData } = this.state
+    const requests = Array.from(files).map(file => this.uploadFile(file, metaData))
+    await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
   }
 
+  uploadFile = (file, metadata) => {
+    const body = new FormData()
+    body.append('audio', file)
+    if (metadata) {
+      body.set('metadata', new Blob([JSON.stringify({ 'transcription': { 'model': metadata } })], {
+        type: "application/json"
+      }));
+    }
+    return axios.post(API_PATH, body)
+  }
+
   onUploaded = () => {
-    this.setState({
-      ...this.DEFAULT_STATE,
-      toasts: [{
-        id: '0',
-        title: '',
-        color: 'primary',
-        text: (
-          <Fragment>
-            <h3>Successfully uploaded files</h3>
-            <EuiProgress size="s" color="subdued"/>
-          </Fragment>)
-      }]
-    })
-    // const message = 'Successfully uploaded files'
-    // this.setState({ ...this.DEFAULT_STATE, message })
+    const message = 'Successfully uploaded files'
+    this.setState({ ...this.DEFAULT_STATE, message })
   }
 
   onUploadFailed = (e) => {
-    this.setState({ ...this.DEFAULT_STATE })
+    const message = `An error accured during file upload. ${e.message}`
+    this.setState({ ...this.DEFAULT_STATE, message })
     throw e
   }
 
-  removeToast = () => {
-    this.setState({ toasts: [] })
-  }
-
   render() {
-    const {
-      loading,
-      metaData,
-      toasts,
-      selectedJob
-    } = this.state
+    const { message, loading, metaData } = this.state
     return (
       <Page preferences title="Upload">
         <EuiForm>
           <EuiFormRow label="Attach files">
-            <EuiFilePicker onChange={this.onFilesChange}/>
+            <EuiFilePicker multiple onChange={this.onFilesChange} />
           </EuiFormRow>
           <EuiFormRow label="Choose model for the transcript">
             <EuiSuperSelect
@@ -167,32 +114,17 @@ export default class UploadPage extends Component {
               hasDividers
             />
           </EuiFormRow>
-          <EuiFormRow label="Choose jobs for the transcript">
-            <EuiSuperSelect
-              options={this.jobs}
-              valueOfSelected={selectedJob}
-              onChange={this.onJobChange}
-              itemLayoutAlign="top"
-              hasDividers
-            />
-          </EuiFormRow>
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
               <EuiButton fill onClick={this.onSubmit} isLoading={loading}>
                 Send
               </EuiButton>
             </EuiFlexItem>
-            {/* <EuiFlexItem>
+            <EuiFlexItem>
               {message}
-            </EuiFlexItem> */}
+            </EuiFlexItem>
           </EuiFlexGroup>
         </EuiForm>
-        <EuiGlobalToastList
-          // style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
-          toasts={toasts}
-          dismissToast={this.removeToast}
-          toastLifeTimeMs={1000}
-        />
       </Page>
     )
   }
@@ -201,7 +133,7 @@ export default class UploadPage extends Component {
 const DropDown = ({ title, content }) => (
   <Fragment>
     <strong>{title}</strong>
-    <EuiSpacer size="xs"/>
+    <EuiSpacer size="xs" />
     <EuiText size="s" color="subdued">
       <p className="euiTextColor--subdued">
         {content}
