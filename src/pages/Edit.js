@@ -27,7 +27,6 @@ export default class EditPage extends Component {
     queryTerm: '',
     tags: [],
     chapters: [],
-    errors: [],
     fields: {
       patient_id: '',
       patient_full_name: ''
@@ -189,7 +188,7 @@ export default class EditPage extends Component {
 
   save = async () => {    
     const { transcript } = this.props
-    const { originalChapters, chapters, tags, errors, originalTags } = this.state
+    const { originalChapters, chapters, tags, originalTags } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       alert('Nothing to update')
       return
@@ -213,8 +212,13 @@ export default class EditPage extends Component {
         segment.words = segment.words.replace(/\)/g, ' slut parentes ')
       })
     })
+    const headers = chapters.map(chapter => chapter.keyword)
+    const uniqueHeaders = Array.from(new Set(headers))
+    if (headers.length !== uniqueHeaders.length) {
+      alert('Duplicate section header found')
+      return
+    }
 
-    if (errors.length) return false
     api.updateTranscription(transcript.external_id, tags, chapters)
       .then(() => {
         this.setState({
@@ -241,11 +245,8 @@ export default class EditPage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
+    console.log(chapters)
     this.setState({ chapters })
-  }
-
-  onValidateTranscript = (errors) => {
-    this.setState({ errors })
   }
 
   cancel = () => {
@@ -303,7 +304,6 @@ export default class EditPage extends Component {
                 currentTime={currentTime}
                 onSelect={this.onSelectText}
                 updateTranscript={this.onUpdateTranscript}
-                validateTranscript={this.onValidateTranscript}
                 isDiffVisible
                 sectionHeaders={sectionHeaders}
               />

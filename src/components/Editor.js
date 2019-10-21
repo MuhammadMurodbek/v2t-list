@@ -293,19 +293,9 @@ export default class Editor extends Component {
     return null
   }
 
-
-  validate = () => {
-    const { chapters, sectionHeaders } = this.props
-    const invalidChapters = chapters.filter(chapter => !sectionHeaders.includes(chapter.keyword))
-    const error = invalidChapters.map(({ keyword }) => keyword)
-    const { validateTranscript } = this.props
-    this.setState({ error }, () => {
-      validateTranscript(error)
-    })
-    return !error.length
-  }
-  
   setKeyword = (keywordValue, chapterId) => {
+    console.log('keywordValue')
+    console.log(keywordValue)
     this.updateKeyword(chapterId, keywordValue)
   }
 
@@ -321,7 +311,6 @@ export default class Editor extends Component {
           inputRef={this.inputRef}
           currentTime={currentTime}
           onChange={this.onChange}
-          validate={this.validate}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
           onPaste={this.onPaste}
@@ -340,7 +329,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -350,7 +339,6 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
       segments={chapter.segments}
       currentTime={currentTime}
       onChange={onChange}
-      validate={validate}
       onKeyDown={onKeyDown}
       onSelect={onSelect}
       onPaste={onPaste}
@@ -367,9 +355,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
   )
 }
 
-
-
-const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
+const EditableChapter = ({ chapterId, keyword, segments, onChange, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
   // const onFocus = () => {
   // if (keyword === NEW_KEYWORD)
   //    setTimeout(() => document.execCommand('selectAll', false, null), 0)
