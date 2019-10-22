@@ -36,7 +36,6 @@ export default class EditPage extends Component {
     templates: {
       templates: []
     },
-    templateId: 'ext1',
     // defaultTemplate: '',
     sectionHeaders: []
   }
@@ -72,8 +71,7 @@ export default class EditPage extends Component {
       this.setState({
         originalChapters,
         tags,
-        originalTags: tags,
-        templateId: template_id
+        originalTags: tags
       }, ()=>{ 
         console.log('this.state.templateId')
         console.log(this.state.templateId)
@@ -81,8 +79,7 @@ export default class EditPage extends Component {
     } else {
       this.setState({
         originalChapters,
-        tags: [],
-        templateId: template_id
+        tags: []
       })
     }
 
@@ -107,7 +104,8 @@ export default class EditPage extends Component {
       const { data } = templates
       this.setState({ 
         templates: data, 
-        defaultTemplate: 'ext1', 
+        defaultTemplate: template_id, 
+        templateId: template_id
         }, () => {
           const { templates } = this.state
           const { defaultTemplate } = this.state
@@ -115,10 +113,7 @@ export default class EditPage extends Component {
           const template = templates.templates.find(template => template.id === defaultTemplate)
           const sections = template ? template.sections : []
           const sectionHeaders = sections.map(section => section.name)
-          this.setState({ sectionHeaders}, ()=>{
-            console.log('äkkkk')
-            console.log(this.state.sectionHeaders)
-          } )
+          this.setState({ sectionHeaders})
         })
     }
   }

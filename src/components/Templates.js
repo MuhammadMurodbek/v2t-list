@@ -41,14 +41,14 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, upda
   return (  
     <Fragment>
       <EuiText size="xs">
-        <h2>Journalmaller {defaultTemplate}</h2>
+        <h2>Journalmaller</h2>
       </EuiText>
       <EuiSpacer size="m" />
       <EuiForm>
         <EuiFormRow label="Choose template for the transcript">
           <EuiSuperSelect
             options={templateOptions}
-            valueOfSelected={selectedTemplate}
+            valueOfSelected={defaultTemplate}
             onChange={onTemplateChange}
             itemLayoutAlign="top"
           />
