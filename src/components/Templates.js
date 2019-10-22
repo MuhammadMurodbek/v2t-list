@@ -8,15 +8,17 @@ import {
 import '../App.css'
 
 
-const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader }) => {
-  
+const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, updateTemplateId }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate)
+  const [templateId, setTemplateId] = useState(defaultTemplate)
   
   useEffect(()=>{
     updateSectionHeader(sectionNames)
+    updateTemplateId(templateId)
   }, [selectedTemplate])
 
   const onTemplateChange = (e) => {
+    setTemplateId(e)
     setSelectedTemplate(e)
   }
   
@@ -39,7 +41,7 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader }) =>
   return (  
     <Fragment>
       <EuiText size="xs">
-        <h2>Journalmaller</h2>
+        <h2>Journalmaller {defaultTemplate}</h2>
       </EuiText>
       <EuiSpacer size="m" />
       <EuiForm>

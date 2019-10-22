@@ -36,6 +36,7 @@ export default class EditPage extends Component {
     templates: {
       templates: []
     },
+    templateId: 'ext1',
     // defaultTemplate: '',
     sectionHeaders: []
   }
@@ -66,17 +67,22 @@ export default class EditPage extends Component {
     const response = await api.loadTranscription(transcript.external_id)
     const templates = await api.getSectionTemplates()
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
-    const { tags, fields, media_content_type } = response.data
+    const { tags, fields, media_content_type, template_id } = response.data
     if (tags) {
       this.setState({
         originalChapters,
         tags,
-        originalTags: tags
+        originalTags: tags,
+        templateId: template_id
+      }, ()=>{ 
+        console.log('this.state.templateId')
+        console.log(this.state.templateId)
       })
     } else {
       this.setState({
         originalChapters,
-        tags: []
+        tags: [],
+        templateId: template_id
       })
     }
 
@@ -188,7 +194,7 @@ export default class EditPage extends Component {
 
   save = async () => {    
     const { transcript } = this.props
-    const { originalChapters, chapters, tags, originalTags } = this.state
+    const { originalChapters, chapters, tags, originalTags, templateId } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       alert('Nothing to update')
       return
@@ -219,7 +225,7 @@ export default class EditPage extends Component {
       return
     }
 
-    api.updateTranscription(transcript.external_id, tags, chapters)
+    api.updateTranscription(transcript.external_id, tags, chapters, templateId)
       .then(() => {
         this.setState({
           originalChapters: chapters,
@@ -244,6 +250,10 @@ export default class EditPage extends Component {
     this.setState({ sectionHeaders })
   }
 
+  updateTemplateId = (templateId) => {
+    this.setState({ templateId })
+  }
+
   onUpdateTranscript = (chapters) => {
     console.log(chapters)
     this.setState({ chapters })
@@ -264,6 +274,7 @@ export default class EditPage extends Component {
       isMediaAudio,
       fields,
       templates,
+      templateId,
       // defaultTemplate,
       sectionHeaders
     } = this.state
@@ -317,8 +328,9 @@ export default class EditPage extends Component {
                   <EuiSpacer size="xxl" />
                   <Templates 
                     listOfTemplates={templates.templates}
-                    defaultTemplate='ext1'
+                    defaultTemplate={templateId}
                     updateSectionHeader={this.updateSectionHeader}
+                    updateTemplateId={this.updateTemplateId}
                   />
             </EuiFlexItem>
           </EuiFlexGroup>
