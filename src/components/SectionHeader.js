@@ -3,28 +3,35 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useState } from 'react'
 import {
-    EuiTextAlign, 
-    EuiForm,
     EuiFormRow,
-    EuiFlexGroup,
-    EuiFlexItem,
-    EuiFilePicker,
-    EuiButton,
-    EuiSuperSelect, EuiSpacer, EuiText,
-    EuiGlobalToastList,
-    EuiProgress
+    EuiSuperSelect
 } from '@elastic/eui'
+import DropDown from '../components/DropDown'
 
-const SectionHeader = ({ isVisible, keywords, selectedHeader}) => {
+const SectionHeader = ({ isVisible, keywords, selectedHeader, updateKey, chapterId}) => {
   const [selectedKeyword, setSelectedKeyword] = useState(selectedHeader)
   const onKeywordChange = (k) => {
     setSelectedKeyword(k)
+    updateKey(k, chapterId)
   }
+
+  const keywordsOptions = keywords.map((keyword) => {
+    return {
+      value: keyword,
+      inputDisplay: keyword,
+      dropdownDisplay: (
+        <DropDown
+          title={keyword}
+        />
+      )
+    }
+  }
+  )
 
   return (
     <EuiFormRow label="Name of the Section">
       <EuiSuperSelect
-        options={keywords}
+        options={keywordsOptions}
         valueOfSelected={selectedKeyword}
         onChange={onKeywordChange}
         itemLayoutAlign="top"
