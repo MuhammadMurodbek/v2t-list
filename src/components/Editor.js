@@ -6,6 +6,7 @@ import {
 } from '@elastic/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
+import SectionHeader from '../components/SectionHeader'
 import '../styles/editor.css'
 
 const NEW_KEYWORD = 'New Chapter'
@@ -191,7 +192,7 @@ export default class Editor extends Component {
   }
 
   splitChapter = (e, chapterId, segmentId) => {
-    const { updateTranscript } = this.props
+    const { updateTranscript, sectionHeaders } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     e.preventDefault()
     const range = window.getSelection().getRangeAt(0)
@@ -200,8 +201,13 @@ export default class Editor extends Component {
     if (!segment) return
     const nextSegment = { ...segment }
     nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
+    // const nextChapter = {
+    //   keyword: NEW_KEYWORD,
+    //   segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
+    //     .filter(segment => segment.words.length)
+    // }
     const nextChapter = {
-      keyword: NEW_KEYWORD,
+      keyword: sectionHeaders[sectionHeaders.length-1],
       segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
         .filter(segment => segment.words.length)
     }
@@ -287,21 +293,14 @@ export default class Editor extends Component {
     return null
   }
 
-
-  validate = () => {
-    const { chapters, sectionHeaders } = this.props
-    const invalidChapters = chapters.filter(chapter => !sectionHeaders.includes(chapter.keyword))
-    const error = invalidChapters.map(({ keyword }) => keyword)
-    const { validateTranscript } = this.props
-    this.setState({ error }, () => {
-      validateTranscript(error)
-    })
-    return !error.length
+  setKeyword = (keywordValue, chapterId) => {
+    console.log('keywordValue')
+    console.log(keywordValue)
+    this.updateKeyword(chapterId, keywordValue)
   }
 
-
   render() {
-    const { currentTime, chapters, onSelect, isDiffVisible } = this.props
+    const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
@@ -312,12 +311,13 @@ export default class Editor extends Component {
           inputRef={this.inputRef}
           currentTime={currentTime}
           onChange={this.onChange}
-          validate={this.validate}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
           onPaste={this.onPaste}
           error={error}
           context={preferences}
+          sectionHeaders={sectionHeaders}
+          setKeyword={this.setKeyword}
         />
         <EuiFlexGroup style={{ display: isDiffVisible ? 'flex' : 'none' }}>
           <EuiFlexItem>
@@ -329,7 +329,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate, onKeyDown, onSelect, onPaste, error, context }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -339,12 +339,13 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
       segments={chapter.segments}
       currentTime={currentTime}
       onChange={onChange}
-      validate={validate}
       onKeyDown={onKeyDown}
       onSelect={onSelect}
       onPaste={onPaste}
       error={error}
       context={context}
+      sectionHeaders={sectionHeaders}
+      setKeyword={setKeyword}
     />
   ))
   return (
@@ -354,14 +355,14 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, validate,
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onKeyDown, currentTime, onSelect, onPaste, error, context }) => {
-  const onFocus = () => {
-    if (keyword === NEW_KEYWORD)
-      setTimeout(() => document.execCommand('selectAll', false, null), 0)
-  }
+const EditableChapter = ({ chapterId, keyword, segments, onChange, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
+  // const onFocus = () => {
+  // if (keyword === NEW_KEYWORD)
+  //    setTimeout(() => document.execCommand('selectAll', false, null), 0)
+  // }
   return (
     <Fragment>
-      <h2
+      {/* <h2
         key={keyword}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => { if (e.keyCode === 13) e.preventDefault() }}
@@ -374,7 +375,14 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, validate, onK
         <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
           {keyword}
         </EuiTextColor>
-      </h2>
+      </h2> */}
+      <SectionHeader
+        isVisible
+        keywords={sectionHeaders}
+        selectedHeader={keyword}
+        updateKey={setKeyword}
+        chapterId={chapterId}
+      />
       <Chunks
         segments={segments}
         currentTime={currentTime}

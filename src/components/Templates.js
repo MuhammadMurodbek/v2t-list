@@ -34,10 +34,7 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader }) =>
 
   const template = listOfTemplates.find(template => template.id === selectedTemplate)
   const sections = template ? template.sections : []
-  const sectionNames = sections.reduce((store, section) => {
-    const synonyms = section.synonyms || []
-    return [...store, section.name, ...synonyms]
-  }, [])
+  const sectionNames = sections.map(section => section.name)
   
   return (  
     <Fragment>
