@@ -68,6 +68,8 @@ const uploadMedia = (file, metadata, selectedJob) => {
       transcription: {
         model: metadata,
         tags: [selectedJob]
+      }, word_spotter: {
+        section_template: 'ext1'
       }
     })], {
       type: 'audio/wav'
@@ -93,11 +95,12 @@ const approveTranscription = (transcriptionId) => {
     })
 }
 
-const updateTranscription = (transcriptionId, tags, chapters) => {
+const updateTranscription = (transcriptionId, tags, chapters, template_id) => {
   return axios.put(`/api/transcriptions/v1/${transcriptionId}`,
     {
       tags,
-      transcriptions: chapters
+      transcriptions: chapters,
+      template_id
     })
     .catch((error) => {
       logout()

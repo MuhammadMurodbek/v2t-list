@@ -15,6 +15,9 @@ import {
 } from '@elastic/eui'
 import api from '../api'
 import Page from '../components/Page'
+export const API_PATH = '/api/v1/transcription/'
+
+
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
@@ -92,7 +95,9 @@ export default class UploadPage extends Component {
   }
 
   onMetadataChange = (metaData) => {
-    this.setState({ metaData })
+    this.setState({ metaData }, ()=> {
+      console.log(this.state.metaData)
+    })
   }
 
   onJobChange = (selectedJob) => {

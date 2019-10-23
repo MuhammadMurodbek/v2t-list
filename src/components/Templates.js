@@ -8,15 +8,17 @@ import {
 import '../App.css'
 
 
-const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader }) => {
-  
+const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, updateTemplateId }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate)
+  const [templateId, setTemplateId] = useState(defaultTemplate)
   
   useEffect(()=>{
     updateSectionHeader(sectionNames)
+    updateTemplateId(templateId)
   }, [selectedTemplate])
 
   const onTemplateChange = (e) => {
+    setTemplateId(e)
     setSelectedTemplate(e)
   }
   
@@ -46,7 +48,7 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader }) =>
         <EuiFormRow label="Choose template for the transcript">
           <EuiSuperSelect
             options={templateOptions}
-            valueOfSelected={selectedTemplate}
+            valueOfSelected={defaultTemplate}
             onChange={onTemplateChange}
             itemLayoutAlign="top"
           />
