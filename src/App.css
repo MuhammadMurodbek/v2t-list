@@ -58,3 +58,6 @@ p {
     background-color: transparent !important;
 }
 
+.euiButtonEmpty--danger:focus {
+    background-color: transparent;
+}

@@ -65,6 +65,17 @@ export const COLUMN_OPTIONS = [
     name: '',
     width: '100px',
     render: id => <EuiButtonEmpty iconType="play" href={`/#edit/${id}`}>Open</EuiButtonEmpty>
+  },
+  {
+    label: 'delete',
+    field: 'id',
+    name: 'delete',
+    width: '100px',
+    render: id => <EuiButtonEmpty iconType="trash" color='danger' onClick={()=>{
+      if (window.confirm("Do you really want to delete this transcript?")) {
+        // This code should delete the transcript
+      } 
+    }}></EuiButtonEmpty>
   }
 ]
 

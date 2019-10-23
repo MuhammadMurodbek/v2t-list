@@ -294,7 +294,6 @@ export default class EditPage extends Component {
                 />
                 <EuiSpacer size="l"/>
                 <EuiSpacer size="l"/>
-                <Info fields={fields}/>
                 <EuiHorizontalRule margin="xs" />
               </figure>
             </EuiFlexItem>
@@ -316,6 +315,8 @@ export default class EditPage extends Component {
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
+                  <Info fields={fields} />
+                  <EuiSpacer size="xxl" />
                   <Tags
                     tags={tags}
                     updateTags={this.onUpdateTags}

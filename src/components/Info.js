@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiText, EuiForm, EuiSpacer
+  EuiFlexGroup, EuiFlexItem, EuiText, EuiForm, EuiBasicTable
 } from '@elastic/eui'
 import '../styles/editor.css'
+import '../styles/tags.css'
 
 const Info = ({ fields }) => {
   const [patientId, setPatientId] = useState(fields.patient_id)
@@ -18,47 +19,43 @@ const Info = ({ fields }) => {
     }
   })
 
+  const metaData = [{
+    patientNamn,
+    patientId
+  }]
 
+
+  const COLUMNS = [
+    {
+      field: 'patientNamn',
+      name: 'Patientnamn',
+      sortable: true,
+      width: '200px'
+    },
+    {
+      field: 'patientId',
+      name: 'Personnummer',
+      width: '100px'
+    }]
+
+  
   return (
     <EuiForm>
-      <EuiSpacer size="l" />
-      <EuiSpacer size="l" />
       <div className="euiText euiText--small" style={{ display: patientId === '' ? 'none' : 'flex' }}>
         <div>
-          <h2>
-            <span> MetaData </span>
-          </h2>
+          <EuiText size="xs">
+            <h2>Information</h2>
+          </EuiText>
         </div>
       </div>
-      <EuiSpacer size="l" />
       <EuiFlexGroup>
-        <EuiFlexItem>
-          <div className="euiText euiText--small" style={{ display: patientId === '' ? 'none' : 'flex' }}>
-            <div>
-              <h5>
-                <span> Personnummer</span>
-              </h5>
-              <EuiText size="m">
-                <span>
-                  {patientId}
-                </span>
-              </EuiText> 
-            </div>
-          </div>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <div className="euiText euiText--small" style={{ display: patientNamn === '' ? 'none' : 'flex' }}>
-            <div>
-              <h5>
-                <span>Patientnamn</span>
-              </h5>
-              <EuiText size="m">
-                <span>
-                  {patientNamn}
-                </span>
-              </EuiText>
-            </div>
-          </div>
+        <EuiFlexItem grow={false} style={{ width: 380 }}>
+          <EuiBasicTable
+            className="transcript"
+            items={metaData}
+            columns={COLUMNS}
+            hasActions
+          />
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiForm>
