@@ -159,22 +159,26 @@ export default class UploadPage extends Component {
       sequenceNumber
     } = this.state
     this.textProcessBeforeCompletion()
-    this.setState({
-      toasts: [{
-        id: 0,
-        title: '',
-        color: 'success',
-        text: (
-          <Fragment>
-            <h3>Saving training data</h3>
-            <EuiProgress size="s" color="subdued" />
-          </Fragment>)
-      }]
-    }, async () => {
-      await api.trainingUpdate(transcriptionId, sequenceNumber, previewContents)
-
-      this.loadCurrentTranscript()
-    })
+    let reg = /^[A-Za-z åäöé]+$/
+    if (previewContents.match(reg)) {
+      this.setState({
+        toasts: [{
+          id: 0,
+          title: '',
+          color: 'success',
+          text: (
+            <Fragment>
+              <h3>Saving training data</h3>
+              <EuiProgress size="s" color="subdued" />
+            </Fragment>)
+        }]
+      }, async () => {
+        await api.trainingUpdate(transcriptionId, sequenceNumber, previewContents)
+        this.loadCurrentTranscript()
+      })
+    } else {
+      alert("Please only use characters, see the instruction for list of valid characters")
+    }
   }
 
   skipTranscript = () => {
