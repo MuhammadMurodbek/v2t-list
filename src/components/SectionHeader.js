@@ -29,7 +29,7 @@ const SectionHeader = ({ isVisible, keywords, selectedHeader, updateKey, chapter
   )
 
   return (
-    <EuiFormRow label="Name of the Section">
+    <EuiFormRow label="Name of the Section" style={{ display: keywords.length>0 ? 'flex' : 'none' }}>
       <EuiSuperSelect
         options={keywordsOptions}
         valueOfSelected={selectedKeyword}

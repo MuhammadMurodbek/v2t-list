@@ -310,6 +310,7 @@ export default class UploadPage extends Component {
               updateTranscript={this.onUpdateTranscript}
               validateTranscript={this.onValidateTranscript}
               isDiffVisible={false}
+              sectionHeaders={[]}
             />
             <EuiText textAlign="right">
               <EuiButtonEmpty onClick={this.changePreviewVisibility} style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}>
