@@ -197,7 +197,7 @@ export default class EditPage extends Component {
 
     chapters.forEach((chapter) => {
       if (!chapter.segments[0].words.includes(chapter.keyword)) {
-        chapter.segments[0].words = `${chapter.keyword} ${chapter.segments[0].words} `
+        chapter.segments[0].words = `${chapter.keyword} ${chapter.segments[0].words}`
       }
     })
 
