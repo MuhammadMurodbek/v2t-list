@@ -8,6 +8,7 @@ import {
   EuiSpacer,
   EuiText
 } from '@elastic/eui'
+import swal from 'sweetalert'
 import api from '../api'
 import '../styles/tags.css'
 
@@ -68,7 +69,12 @@ export default class Tags extends Component {
 
       if (tableOfCodes.some(e => e.id === data[0])) {
         // eslint-disable-next-line no-alert
-        alert('Item already exists on the list')
+        swal({
+          title: 'ICD koden får endast förekomma 1 gång',
+          text: '',
+          icon: 'info',
+          button: 'Avbryt'
+        })
         this.emptySelectedOption()
       } else {
         const temp = tableOfCodes

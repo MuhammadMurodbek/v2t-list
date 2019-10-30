@@ -7,6 +7,7 @@ import {
   EuiFlexItem,
   EuiImage
 } from '@elastic/eui'
+import swal from 'sweetalert'
 import { usePreferences } from '../components/PreferencesProvider'
 import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import Page from '../components/Page'
@@ -30,7 +31,12 @@ const LoginPage = () => {
 
   const login = () => {
     if (username === '' || password === '') {
-      alert('Invalid username or password')
+      swal({
+        title: 'Felaktigt användarnamn eller lösenord',
+        text: '',
+        icon: 'error',
+        button: 'Avbryt'
+      })
     } else {
       api.login(username, password)
         .then((token) => {
@@ -40,7 +46,12 @@ const LoginPage = () => {
           window.location.replace('/')
         })
         .catch((error) => {
-          alert('Unauthorized access')
+          swal({
+            title: 'Nekad åtkomst, behörighet saknas',
+            text: '',
+            icon: 'error',
+            button: 'Avbryt'
+          })
           console.log(error)
           console.log(preferences)
         })

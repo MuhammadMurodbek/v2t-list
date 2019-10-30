@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton, EuiHorizontalRule
 } from '@elastic/eui'
+import swal from 'sweetalert'
 import api from '../api'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
@@ -178,7 +179,12 @@ export default class EditPage extends Component {
     if (sendingToCoworker) {
       window.location = '/'
     } else {
-      alert('Unable to send to the co-worker')
+      swal({
+        title: 'Det är inte möjligt att skicka till Co-Worker, vänligen prova igen senare.',
+        text: '',
+        icon: 'error',
+        button: 'Avbryt'
+      })
     }
   }
 
@@ -191,7 +197,12 @@ export default class EditPage extends Component {
     const { transcript } = this.props
     const { originalChapters, chapters, tags, originalTags, templateId } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
-      alert('Nothing to update')
+      swal({
+        title: 'Det finns inget att uppdatera!',
+        text: 'Diktatet är inte ändrat',
+        icon: 'info',
+        button: 'Avbryt'
+      })
       return
     }
 
@@ -216,7 +227,12 @@ export default class EditPage extends Component {
     const headers = chapters.map(chapter => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
     if (headers.length !== uniqueHeaders.length) {
-      alert('Duplicate section header found')
+      swal({
+        title: 'Inte möjligt att spara diktatet',
+        text: 'Journalrubrik får endast förekomma 1 gång',
+        icon: 'info',
+        button: 'Avbryt'
+      })
       return
     }
 
@@ -226,7 +242,12 @@ export default class EditPage extends Component {
           originalChapters: chapters,
           originalTags: tags
         }, () => {
-          alert('Transcript is updated')
+          swal({
+            title: 'Diktatet är uppdaterat',
+            text: '',
+            icon: 'success',
+            button: 'Avbryt'
+          })
           return true
         })
       })
