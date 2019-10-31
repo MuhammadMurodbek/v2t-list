@@ -169,6 +169,12 @@ docker-static:
   <<: *not_release_condition
   image: docker:stable
   stage: package
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+  services:
+    - docker:stable-dind
   before_script:
     - apk add --no-cache bash jq
     - *common_scripts
@@ -188,6 +194,12 @@ docker:
   <<: *not_release_condition
   image: docker:stable
   stage: package
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+  services:
+    - docker:stable-dind
   before_script:
     - apk add --no-cache bash jq
     - *common_scripts
