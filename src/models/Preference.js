@@ -88,39 +88,14 @@ export default class Preference {
     this._words = v
   }
 
-  get keywords() {
-    return this._keywords
-  }
-
-  set keywords(v) {
-    let keywordsFromCookies = this.getCookie('keywords')
-    if (keywordsFromCookies) {
-      keywordsFromCookies = JSON.parse(keywordsFromCookies)
-    }
-
-    if (keywordsFromCookies !== '') {
-      if (this._keywordInit === true || this._keywordInit === undefined) {
-        this._keywords = keywordsFromCookies
-        this.setCookie('keywords', JSON.stringify(this._keywords), 365)
-      } else {
-        this._keywords = v
-        this.setCookie('keywords', JSON.stringify(this._keywords), 365)
-      }
-    } else {
-      this._keywords = v
-      this.setCookie('keywords', JSON.stringify(this._keywords), 365)
-    }
-    this._keywordInit = false
-  }
-
   get token() {
     return this._token
   }
 
   set token(v) {
     this._token = v
-    this.setCookie('token', this._token, 365)
     api.setToken(this._token)
+    localStorage.setItem('token', this._token)
   }
 
   get autoPlayStatus() {
@@ -131,20 +106,20 @@ export default class Preference {
   set autoPlayStatus(v) {
     if (this._autoPlayStatus === true) {
       this._autoPlayStatus = false
-      this.setCookie('autoPlayStatus', this._autoPlayStatus, 365)
+      localStorage.setItem('autoPlayStatus', this._autoPlayStatus)
     } else if (this._autoPlayStatus === false) {
       this._autoPlayStatus = true
-      this.setCookie('autoPlayStatus', this._autoPlayStatus, 365)
+      localStorage.setItem('autoPlayStatus', this._autoPlayStatus)
     } else {
-      const autoPlayStatusFromCookie = this.getCookie('autoPlayStatus')
-      if (autoPlayStatusFromCookie === 'true') {
+      const autoPlayStatusFromStorage = localStorage.getItem('autoPlayStatus')
+      if (autoPlayStatusFromStorage === 'true') {
         this._autoPlayStatus = true
-      } else if (autoPlayStatusFromCookie === 'false') {
+      } else if (autoPlayStatusFromStorage === 'false') {
         this._autoPlayStatus = false
       } else {
         this._autoPlayStatus = true
       }
-      this.setCookie('autoPlayStatus', this._autoPlayStatus, 365)
+      localStorage.setItem('autoPlayStatus', this._autoPlayStatus)
     }
   }
 
@@ -155,20 +130,20 @@ export default class Preference {
   set showVideo(v) {
     if (this._showVideo === true) {
       this._showVideo = false
-      this.setCookie('showVideo', this._showVideo, 365)
+      localStorage.setItem('showVideo', this._showVideo)
     } else if (this._showVideo === false) {
-      this._showVideo = true
-      this.setCookie('showVideo', this._showVideo, 365)
+      this._showVideo = true      
+      localStorage.setItem('showVideo', this._showVideo)
     } else {
-      const showVideoFromCookie = this.getCookie('showVideo')
-      if (showVideoFromCookie === 'true') {
+      const showVideoFromStorage = localStorage.getItem('showVideo')
+      if (showVideoFromStorage === 'true') {
         this._showVideo = true
-      } else if (showVideoFromCookie === 'false') {
+      } else if (showVideoFromStorage === 'false') {
         this._showVideo = false
       } else {
         this._showVideo = true
       }
-      this.setCookie('showVideo', this._showVideo, 365)
+      localStorage.setItem('showVideo', this._showVideo)
     }
   }
 
@@ -177,21 +152,22 @@ export default class Preference {
   }
 
   set currentFontSize(v) {
-    const currentFontSize = this.getCookie('currentFontSize')
-    if (this._fontSizeIteration === undefined) {
+    let currentFontSize = localStorage.getItem('currentFontSize')
+    if (currentFontSize==='null') {
+      currentFontSize='18px'
+    }
+
+    if (this._fontSizeIteration === undefined ) {
       this._fontSizeIteration = 0
     }
-    if (currentFontSize !== '') {
-      if (this._fontSizeIteration === 0) {
+
+    if (this._fontSizeIteration === 0) {
         this._currentFontSize = currentFontSize
-      } else {
-        this._currentFontSize = v
-      }
     } else {
-      this._currentFontSize = v
+        this._currentFontSize = v
     }
-    this.setCookie('currentFontSize', this._currentFontSize, 365)
-    this.setCookie('fontSizeInitialized', 'true', 365)
+
+    localStorage.setItem('currentFontSize', v)
     this._fontSizeIteration = this._fontSizeIteration + 1
   }
 
@@ -229,7 +205,6 @@ export default class Preference {
 
   static defaultState = {
     words: '3',
-    keywords: [{ label: 'Symptom' }, { label: 'Status' }, { label: 'Diagnos' }, { label: 'General' }, { label: 'Kontaktorsak' }, { label: 'AT' }],
     showVideo: true,
     autoPlayStatus: true,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
@@ -246,7 +221,7 @@ export default class Preference {
         value: '20px',
         inputDisplay: 'Large'
       }],
-    currentFontSize: '15px',
+    currentFontSize: '18px',
     fontSizeIteration: 0,
     keywordInit: true
   }
@@ -268,27 +243,5 @@ export default class Preference {
   clone(additionalState) {
     const { __proto__, ...state } = this
     return new Preference({ ...state, ...additionalState })
-  }
-
-  getCookie = (cname) => {
-    const name = `${cname}=`
-    const ca = document.cookie.split(';')
-    for (let i = 0; i < ca.length; i += 1) {
-      let c = ca[i]
-      while (c.charAt(0) === ' ') {
-        c = c.substring(1)
-      }
-      if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length)
-      }
-    }
-    return ''
-  }
-
-  setCookie = (cname, cvalue, exdays) => {
-    const d = new Date()
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
-    const expires = `expires=${d.toUTCString()}`
-    document.cookie = `${cname}=${cvalue};${expires};path=/`
   }
 }

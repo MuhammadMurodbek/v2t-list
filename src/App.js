@@ -36,23 +36,8 @@ export default class App extends Component {
     })
   }
 
-  getCookie = (cname) => {
-    const name = `${cname}=`
-    const ca = document.cookie.split(';')
-    for (let i = 0; i < ca.length; i += 1) {
-      let c = ca[i]
-      while (c.charAt(0) === ' ') {
-        c = c.substring(1)
-      }
-      if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length)
-      }
-    }
-    return ''
-  }
-
   fetchTranscripts = () => {
-    const token = this.getCookie('token')
+    const token = localStorage.getItem('token')
     if (token) {
       this.setState({ isLoggedIn: true })
       api.setToken(token)
