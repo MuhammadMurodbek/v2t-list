@@ -206,24 +206,6 @@ export default class EditPage extends Component {
       return
     }
 
-    chapters.forEach((chapter) => {
-      if (!chapter.segments[0].words.includes(chapter.keyword)) {
-        chapter.segments[0].words = `${chapter.keyword} ${chapter.segments[0].words}`
-      }
-    })
-
-    chapters.forEach((chapter) => {
-      chapter.segments.forEach((segment) => {
-        segment.words = segment.words.replace(/\./g, ' punkt ')
-        segment.words = segment.words.replace(/,/g, ' komma ')
-        segment.words = segment.words.replace(/:/g, ' kolon ')
-        segment.words = segment.words.replace(/%/g, ' procent ')
-        segment.words = segment.words.replace(/\?/g, ' frågetecken ')
-        segment.words = segment.words.replace(/!/g, ' utropstecken ')
-        segment.words = segment.words.replace(/\(/g, ' parentes ')
-        segment.words = segment.words.replace(/\)/g, ' slut parentes ')
-      })
-    })
     const headers = chapters.map(chapter => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
     if (headers.length !== uniqueHeaders.length) {

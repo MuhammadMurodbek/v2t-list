@@ -177,7 +177,7 @@ export default class Editor extends Component {
       this.splitChapter(e, chapterId, segmentId)
     }
     if (e.keyCode === KEYCODE_BACKSPACE) {
-      this.mergeWithPreviousChapter(e, chapterId, segmentId)
+      this.handleWordChange(e, chapterId, segmentId)
     }
     if (e.keyCode === KEYCODE_DELETE) {
       this.mergeWithNextChapter(e, chapterId, segmentId)
@@ -219,12 +219,23 @@ export default class Editor extends Component {
     updateTranscript(chapters)
   }
 
-  mergeWithPreviousChapter = (e, chapterId, segmentId) => {
+  handleWordChange = (e, chapterId, segmentId) => {
     const selection = window.getSelection()
-    const beginningSelected = segmentId === 0 && selection.getRangeAt(0).endOffset === 0
-    if (beginningSelected) {
-      this.mergeChapter(e, chapterId, chapterId - 1, -1)
+    const isBeginningSelected = segmentId === 0 && selection.getRangeAt(0).endOffset === 0
+    const range = selection.getRangeAt(0)
+    const textContent = e.target.childNodes[segmentId].textContent
+    const isSegmentMerge = /\s$/.test(textContent)
+      && textContent.length === range.endOffset
+      && range.startContainer.isSameNode(range.endContainer)
+    if (isBeginningSelected) {
+      this.mergeWithPreviousChapter(e, chapterId)
+    } else if(isSegmentMerge){
+      this.mergeSegment(e, chapterId, segmentId)
     }
+  }
+
+  mergeWithPreviousChapter = (e, chapterId) => {
+    this.mergeChapter(e, chapterId, chapterId - 1, -1)
   }
 
   mergeWithNextChapter = (e, chapterId, segmentId) => {
@@ -251,6 +262,21 @@ export default class Editor extends Component {
       chapters[toChapterId].segments[toSegments.length - 1].words = `${lastToSegment.words.trimEnd()} `
     chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
     chapters.splice(fromChapterId, 1)
+    updateTranscript(chapters)
+  }
+
+  mergeSegment = (e, chapterId, segmentId) => {
+    const { updateTranscript } = this.props
+    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
+    e.preventDefault()
+    const nextSegmentWords = e.target.childNodes[segmentId + 1].textContent
+    const selfWords = e.target.childNodes[segmentId].textContent
+    const mergedWords = selfWords.slice(0, -1).concat(nextSegmentWords)
+    chapters[chapterId].segments[segmentId].words = mergedWords
+    chapters[chapterId].segments.splice(segmentId + 1, 1)
+    this.stashCursor(-1)
+    const diff = this.getDiff(chapters)
+    this.setState({ diff })
     updateTranscript(chapters)
   }
 
