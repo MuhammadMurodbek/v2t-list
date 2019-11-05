@@ -14,11 +14,11 @@ const setToken = (token) => {
 
 const logout = () => {
   axios.defaults.headers.common.Authorization = undefined
-  localStorage.setItem('token','')
+  localStorage.setItem('token', '')
   window.location.replace('/')
 }
 
-const login = (username, password) => { 
+const login = (username, password) => {
   return axios.post('/api/login/v1', {
     username,
     password
@@ -64,16 +64,19 @@ const uploadMedia = (file, metadata, selectedJob) => {
   const body = new FormData()
   body.append('media', file)
   if (metadata) {
-    body.set('metadata', new Blob([JSON.stringify({
+    const metadataPart = new Blob([JSON.stringify({
       transcription: {
         model: metadata,
         tags: [selectedJob]
-      }, word_spotter: {
+      },
+      word_spotter: {
         section_template: 'ext1'
       }
     })], {
-      type: 'audio/wav'
-    }))
+      type: 'application/json'
+    })
+
+    body.set('metadata', metadataPart)
   }
   return axios.post('/api/transcriptions/v1', body)
     .catch((error) => {
@@ -107,7 +110,7 @@ const updateTranscription = (transcriptionId, tags, chapters, template_id) => {
     })
 }
 
-const  trainingGetNext = () => {
+const trainingGetNext = () => {
   return axios.get('/api/training/v1')
     .catch(error => error)
 }
@@ -133,7 +136,8 @@ const trainingReject = (transcriptionId, sequenceNumber) => {
 }
 
 const getSectionTemplates = () => {
-  return axios.get(`/api/sections/v1`).catch(error => error)
+  return axios.get(`/api/sections/v1`)
+    .catch(error => error)
 }
 
 export default {
