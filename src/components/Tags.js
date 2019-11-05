@@ -124,7 +124,7 @@ export default class Tags extends Component {
       },
       {
         field: 'description',
-        name: 'Description',
+        name: 'Beskrivning',
         width: '300px'
       },
       {
@@ -157,7 +157,7 @@ export default class Tags extends Component {
             marginBottom: 25
           }}>
             <EuiComboBox
-              placeholder="Search ICD-10 Codes"
+              placeholder="Sök ICD-10 kod"
               async
               options={options}
               selectedOptions={selectedOption}

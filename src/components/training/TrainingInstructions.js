@@ -45,7 +45,7 @@ const TrainingInstructions = () => {
 
   return (
     <Fragment>
-      Player Shortcuts
+      Snabb kommandon
       <EuiSpacer size="s" />
       <EuiBasicTable
         items={items}

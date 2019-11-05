@@ -18,26 +18,26 @@ const TrainingInstructions = () => {
 
   const items = [
     {
-      button: 'Complete',
-      usage: 'Complete the transcript.'
+      button: 'Godkänn',
+      usage: 'Slutför transkriberingen.'
     },
     {
-      button: 'Skip',
-      usage: 'Skip the transcript. If you use this option, this text might come up again later.'
+      button: 'Hoppa över',
+      usage: 'Hoppa över transkriptet. Om Du hoppar över transkriptet så kan det komma upp vid ett senare tillfälle.'
     },
     {
       button: 'Reject',
-      usage: 'Mark this transcript as a bad one.'
+      usage: 'Markera transkriptet som felaktigt.'
     },
     {
       button: '⚙️',
-      usage: 'Use this button for additional configuration.'
+      usage: 'Avancerad konfiguration.'
     }
   ]
 
   return (
     <Fragment>
-        Button Reference
+        Knapp referens
       <EuiSpacer size="s" />
       <EuiBasicTable
         items={items}

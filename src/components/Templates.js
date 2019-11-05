@@ -45,7 +45,7 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, upda
       </EuiText>
       <EuiSpacer size="m" />
       <EuiForm>
-        <EuiFormRow label="Choose template for the transcript">
+        <EuiFormRow label="Välj journalmall">
           <EuiSuperSelect
             options={templateOptions}
             valueOfSelected={defaultTemplate}

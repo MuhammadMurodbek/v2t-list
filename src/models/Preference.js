@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React from 'react'
 import moment from 'moment'
+import swal from 'sweetalert'
 import { EuiButtonEmpty } from '@elastic/eui'
 import api from '../api'
 
@@ -24,6 +25,7 @@ export const COLUMN_OPTIONS = [
     label: 'created',
     field: 'created_time',
     name: 'Skapad',
+    width: '170px',
     // sortable: true,
     render: created => moment(created)
       .format('YYYY-MM-DD HH:mm:ss')
@@ -31,26 +33,31 @@ export const COLUMN_OPTIONS = [
   {
     label: 'type',
     name: 'Typ',
+    width: '70px',
     render: transcript => `${(transcript || {}).media_content_type ? transcript.media_content_type : 'voice'}`
   },
   {
     label: 'doctorsName',
     name: 'Doktor',
+    width: '140px',
     render: transcript => `${((transcript || {}).fields || {}).doctor_full_name ? transcript.fields.doctor_full_name : ''}`
   },
   {
     label: 'patientsName',
     name: 'Patient',
+    width: '140px',
     render: transcript => `${((transcript || {}).fields || {}).patient_full_name ? transcript.fields.patient_full_name : ''}`
   },
   {
     label: 'patientId',
     name: 'Patients Personnummer',
+    width: '150px',
     render: transcript => `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}`
   },
   {
     label: 'departmentName',
     name: 'Avdelning',
+    width: '200px',
     render: transcript => `${((transcript || {}).fields || {}).department_name ? transcript.fields.department_name : ''}`
   },
   {
@@ -64,18 +71,29 @@ export const COLUMN_OPTIONS = [
     field: 'id',
     name: '',
     width: '100px',
-    render: id => <EuiButtonEmpty iconType="play" href={`/#edit/${id}`}>Open</EuiButtonEmpty>
+    render: id => <EuiButtonEmpty href={`/#edit/${id}`}>Oppna</EuiButtonEmpty>
   },
   {
     label: 'delete',
     field: 'id',
-    name: 'delete',
+    name: '',
     width: '100px',
-    render: id => <EuiButtonEmpty iconType="trash" color='danger' onClick={()=>{
-      if (window.confirm("Do you really want to delete this transcript?")) {
-        // This code should delete the transcript
-      } 
-    }}></EuiButtonEmpty>
+    render: id => <EuiButtonEmpty color='danger' onClick={()=>{
+      swal({
+        title: "Vill du verkligen ta bort diktatet?",
+        text: "",
+        icon: "warning",
+        buttons: ["Avbryt","OK"],
+        dangerMode: true
+      })
+        .then((willDelete) => {
+          if (willDelete) {
+            swal("Diktatet tas bort!", {
+              icon: "success",
+            })
+          }
+        })
+    }}>Ta bort</EuiButtonEmpty>
   }
 ]
 

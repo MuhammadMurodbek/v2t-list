@@ -81,7 +81,7 @@ export default class App extends Component {
                   id: 'V2T Jobs',
                   items: sideBar,
                   isSelected: true,
-                  name: 'V2T Jobs'
+                  name: 'V2T Jobb'
                 }, {
                   href: '/#/upload',
                   id: 3,

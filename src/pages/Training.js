@@ -11,6 +11,7 @@ import {
   EuiText,
   EuiButtonEmpty
 } from '@elastic/eui'
+import swal from 'sweetalert'
 import api from '../api'
 import Player from '../components/Player'
 import Editor from '../components/Editor'
@@ -176,8 +177,13 @@ export default class UploadPage extends Component {
         await api.trainingUpdate(transcriptionId, sequenceNumber, previewContents)
         this.loadCurrentTranscript()
       })
-    } else {
-      alert("Please only use characters, see the instruction for list of valid characters")
+    } else {      
+      swal({
+        title: '',
+        text: 'Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!',
+        icon: 'warning',
+        button: 'Avbryt'
+      })
     }
   }
 
@@ -253,7 +259,7 @@ export default class UploadPage extends Component {
       autoplayStatus
     } = this.state
 
-    const visibilityChange = isPreviewVisible ? 'Hide' : 'Show'
+    const visibilityChange = isPreviewVisible ? 'Dolj' : 'Visa'
 
     return (
       <Page preferences title="">
@@ -320,7 +326,7 @@ export default class UploadPage extends Component {
               <EuiButtonEmpty onClick={this.changePreviewVisibility} style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}>
                 {visibilityChange}
                 &nbsp;
-                Preview
+                Förhandsvisning
               </EuiButtonEmpty>
             </EuiText>
           </EuiFlexItem>
@@ -335,10 +341,10 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
         >
           <EuiFlexItem grow={false}>
-            <EuiButton className="complete" fill color="secondary" onClick={this.completeTranscript}>Complete</EuiButton>
+            <EuiButton className="complete" fill color="secondary" onClick={this.completeTranscript}>Godkänn</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton className="skip" color="warning" onClick={this.skipTranscript}>Skip</EuiButton>
+            <EuiButton className="skip" color="warning" onClick={this.skipTranscript}>Hoppa över</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton className="reject" fill color="danger" onClick={this.rejectTranscript}>Reject</EuiButton>

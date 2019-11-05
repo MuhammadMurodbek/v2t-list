@@ -462,7 +462,7 @@ export default class LivePage extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup style={originalChapters.length !== 0 ? { display: 'flex' } : { display: 'none' }}>
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="secondary" onClick={this.save}>Submit to Co-worker</EuiButton>
+            <EuiButton fill color="secondary" onClick={this.save}>Skicka till Co-Worker</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton fill color="danger" onClick={this.showHideCancelBox}>Cancel</EuiButton>

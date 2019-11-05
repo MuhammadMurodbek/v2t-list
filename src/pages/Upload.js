@@ -33,30 +33,30 @@ export default class UploadPage extends Component {
 
   options = [{
     value: 'medical',
-    inputDisplay: 'Medical Transcript',
+    inputDisplay: 'Medicinskt transkript',
     dropdownDisplay: (
       <DropDown
-        title="Medical Transcript"
-        content="This one is used for medical records."
+        title="Medicinskt transkript"
+        content="Den används för medicinsk uppgifter."
       />
     )
   }, {
     value: 'option_one',
-    inputDisplay: 'Financial logs',
+      inputDisplay: 'Finansiella loggar',
     dropdownDisplay: (
       <DropDown
-        title="Financial logs"
-        content="This one is used for financial records."
+        title="Finansiella loggar"
+        content="Den används för finansiella loggar."
       />
     )
   },
   {
     value: 'option_three',
-    inputDisplay: 'Legal Documents',
+    inputDisplay: 'Juridiska dokument',
     dropdownDisplay: (
       <DropDown
-        title="Legal Documents"
-        content="Select this one for legal interrogations."
+        title="Juridiska dokument"
+        content="Den används för juridiska undersökningar."
       />
     )
   }]
@@ -67,7 +67,7 @@ export default class UploadPage extends Component {
     dropdownDisplay: (
       <DropDown
         title="Karolinska Sjukhuset :: Ögon"
-        content="Upload the medical transcript as KS-Ögon"
+        content="Ladda upp medicinskt transkript som KS-Ögon"
       />
     )
   }, {
@@ -76,7 +76,7 @@ export default class UploadPage extends Component {
     dropdownDisplay: (
       <DropDown
         title="Karolinska Sjukhuset :: Hjärta"
-        content="Upload the medical transcript as KS-Hjärta"
+        content="Ladda upp medicinskt transkript som KS-Hjärta"
       />
     )
   }, {
@@ -85,13 +85,13 @@ export default class UploadPage extends Component {
     dropdownDisplay: (
       <DropDown
         title="Sahlgrenska Universitetssjukhuset :: Hjärna"
-        content="Upload the medical transcript as SU- Hjärna"
+        content="Ladda upp medicinskt transkript som SU- Hjärna"
       />
     )
   }]
 
   componentDidMount = async () => {
-    document.title = 'Inovia AI :: Upload'
+    document.title = 'Inovia AI :: Ladda Upp'
   }
 
   onMetadataChange = (metaData) => {
@@ -160,10 +160,10 @@ export default class UploadPage extends Component {
     return (
       <Page preferences title="Upload">
         <EuiForm>
-          <EuiFormRow label="Attach files">
+          <EuiFormRow label="Ladda upp filer">
             <EuiFilePicker onChange={this.onFilesChange} />
           </EuiFormRow>
-          <EuiFormRow label="Choose model for the transcript">
+          <EuiFormRow label="Välj AI modell för transkriberingen">
             <EuiSuperSelect
               options={this.options}
               valueOfSelected={metaData}
@@ -172,7 +172,7 @@ export default class UploadPage extends Component {
               hasDividers
             />
           </EuiFormRow>
-          <EuiFormRow label="Choose jobs for the transcript">
+          <EuiFormRow label="Välj job för transkriptet">
             <EuiSuperSelect
               options={this.jobs}
               valueOfSelected={selectedJob}
@@ -184,7 +184,7 @@ export default class UploadPage extends Component {
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
               <EuiButton fill onClick={this.onSubmit} isLoading={loading}>
-                Send
+                Ladda Upp
               </EuiButton>
             </EuiFlexItem>
             {/* <EuiFlexItem>

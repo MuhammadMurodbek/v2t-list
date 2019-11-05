@@ -81,7 +81,7 @@ const Flyout = ({ visible, onClose }) => {
           <EuiFormRow label="">
             <EuiSwitch
               className="autoplaySwitch"
-              label="Enable autoplay"
+              label="Aktivera autostart"
               checked={preferences.autoPlayStatus}
               onChange={setAutoPlayStatus}
             />
@@ -89,7 +89,7 @@ const Flyout = ({ visible, onClose }) => {
           <EuiFormRow label="">
             <EuiSwitch
               className="videoSwitch"
-              label="Show Video"
+              label="Visa video"
               checked={preferences.showVideo}
               onChange={setShowVideo}
             />

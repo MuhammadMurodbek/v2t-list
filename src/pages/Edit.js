@@ -339,10 +339,10 @@ export default class EditPage extends Component {
                 Co-worker</EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton color="secondary" onClick={this.save}>Save Changes</EuiButton>
+              <EuiButton color="secondary" onClick={this.save}>Spara ändringar</EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="danger" onClick={this.cancel}>Cancel</EuiButton>
+              <EuiButton fill color="danger" onClick={this.cancel}>Avbryt</EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>

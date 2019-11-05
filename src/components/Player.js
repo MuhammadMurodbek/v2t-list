@@ -287,7 +287,7 @@ class Player extends Component {
           <input
             type="text"
             className="searchBox"
-            placeholder="Search a keyword ..."
+            placeholder="Leta ord ..."
             onChange={this.searchKeyword}
           />
         </span>
