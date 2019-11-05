@@ -15,8 +15,8 @@ import {
 } from '@elastic/eui'
 import api from '../api'
 import Page from '../components/Page'
-export const API_PATH = '/api/v1/transcription/'
 
+export const API_PATH = '/api/v1/transcription/'
 
 
 export default class UploadPage extends Component {
@@ -25,38 +25,28 @@ export default class UploadPage extends Component {
     loading: false,
     message: '',
     toasts: [],
-    metaData: 'medical',
+    metaData: 'default',
     selectedJob: 'ks_ögon'
   }
 
   state = this.DEFAULT_STATE
 
   options = [{
-    value: 'medical',
-    inputDisplay: 'Medicinskt transkript',
+    value: 'default',
+    inputDisplay: 'Default',
     dropdownDisplay: (
       <DropDown
-        title="Medicinskt transkript"
-        content="Den används för medicinsk uppgifter."
+        title="Default"
+        content="Wave2Letter(19 layers)"
       />
     )
   }, {
-    value: 'option_one',
-      inputDisplay: 'Finansiella loggar',
+    value: 'jasper',
+    inputDisplay: 'Jasper model',
     dropdownDisplay: (
       <DropDown
-        title="Finansiella loggar"
-        content="Den används för finansiella loggar."
-      />
-    )
-  },
-  {
-    value: 'option_three',
-    inputDisplay: 'Juridiska dokument',
-    dropdownDisplay: (
-      <DropDown
-        title="Juridiska dokument"
-        content="Den används för juridiska undersökningar."
+        title="Jasper model"
+        content="JASPER(24 layers)"
       />
     )
   }]
@@ -95,8 +85,8 @@ export default class UploadPage extends Component {
   }
 
   onMetadataChange = (metaData) => {
-    this.setState({ metaData }, ()=> {
-      console.log(this.state.metaData)
+    this.setState({ metaData }, () => {
+      // console.log(this.state.metaData)
     })
   }
 
@@ -133,7 +123,7 @@ export default class UploadPage extends Component {
         text: (
           <Fragment>
             <h3>Successfully uploaded files</h3>
-            <EuiProgress size="s" color="subdued" />
+            <EuiProgress size="s" color="subdued"/>
           </Fragment>)
       }]
     })
@@ -160,8 +150,8 @@ export default class UploadPage extends Component {
     return (
       <Page preferences title="Upload">
         <EuiForm>
-          <EuiFormRow label="Ladda upp filer">
-            <EuiFilePicker onChange={this.onFilesChange} />
+          <EuiFormRow label="Attach files">
+            <EuiFilePicker onChange={this.onFilesChange}/>
           </EuiFormRow>
           <EuiFormRow label="Välj AI modell för transkriberingen">
             <EuiSuperSelect
@@ -206,7 +196,7 @@ export default class UploadPage extends Component {
 const DropDown = ({ title, content }) => (
   <Fragment>
     <strong>{title}</strong>
-    <EuiSpacer size="xs" />
+    <EuiSpacer size="xs"/>
     <EuiText size="s" color="subdued">
       <p className="euiTextColor--subdued">
         {content}
