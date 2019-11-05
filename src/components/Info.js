@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiText, EuiForm, EuiBasicTable
+  EuiFlexGroup, EuiFlexItem, EuiText, EuiForm, EuiBasicTable, EuiSpacer
 } from '@elastic/eui'
 import '../styles/editor.css'
 import '../styles/tags.css'
@@ -40,14 +40,15 @@ const Info = ({ fields }) => {
 
   
   return (
-    <EuiForm>
-      <div className="euiText euiText--small" style={{ display: patientId === '' ? 'none' : 'flex' }}>
+    <EuiForm style={{ display: patientId === '' ? 'none' : 'block' }}>
+      <div className="euiText euiText--small">
         <div>
           <EuiText size="xs">
             <h2>Information</h2>
           </EuiText>
         </div>
       </div>
+      <EuiSpacer size="m" />
       <EuiFlexGroup>
         <EuiFlexItem grow={false} style={{ width: 380 }}>
           <EuiBasicTable

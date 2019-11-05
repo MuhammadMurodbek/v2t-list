@@ -1,6 +1,9 @@
 .euiImage.logo {
   margin-bottom: 5vh;
 }
+.euiTableCellContent {
+    padding: 4px;
+}
 
 p {
   line-height: 2;

@@ -14,6 +14,10 @@ export default class TranscriptionList extends Component {
   render() {
     const { transcripts } = this.props
     const [preferences] = this.context
+    const pagination = {
+      initialPageSize: 20,
+      pageSizeOptions: [20, 50, 100]
+    };
 
     return (
       <Fragment>
@@ -25,7 +29,7 @@ export default class TranscriptionList extends Component {
       />
       <EuiSpacer size="l" />
       <EuiInMemoryTable
-        pagination
+        pagination={pagination}
         columns={preferences.columns}
         items={transcripts}
       />

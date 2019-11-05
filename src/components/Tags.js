@@ -171,7 +171,7 @@ export default class Tags extends Component {
             <AddButton onClick={this.addCode}/>
           </span>
         </div>
-        <EuiFlexItem grow={false} style={{ width: 380 }}>
+        <EuiFlexItem grow={false} style={{ width: 380, display: tableOfCodes.length>0? 'block':'none' }}>
           <EuiBasicTable
             className="transcript"
             items={tableOfCodes}
