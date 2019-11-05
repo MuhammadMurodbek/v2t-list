@@ -36,7 +36,7 @@ export default class UploadPage extends Component {
   }
 
   componentDidMount = async () => {
-    document.title = 'Inovia AI :: Training ⛷'
+    document.title = 'Inovia AI :: Träning ⛷'
     this.playerRef = React.createRef()
     this.setState({
       toasts: [{
@@ -45,7 +45,7 @@ export default class UploadPage extends Component {
         color: 'primary',
         text: (
           <Fragment>
-            <h3>Loading new training data</h3>
+            <h3>Träningdata kommer</h3>
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
@@ -169,7 +169,7 @@ export default class UploadPage extends Component {
           color: 'success',
           text: (
             <Fragment>
-              <h3>Saving training data</h3>
+              <h3>Träningdata sparar</h3>
               <EuiProgress size="s" color="subdued" />
             </Fragment>)
         }]
@@ -195,7 +195,7 @@ export default class UploadPage extends Component {
         color: 'primary',
         text: (
           <Fragment>
-            <h3>Loading new training data</h3>
+            <h3>Träningdata kommer</h3>
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
@@ -217,7 +217,7 @@ export default class UploadPage extends Component {
         color: 'danger',
         text: (
           <Fragment>
-            <h3>Rejecting training data</h3>
+            <h3>Träningdata hoppas över</h3>
             <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
@@ -264,7 +264,7 @@ export default class UploadPage extends Component {
     return (
       <Page preferences title="">
         <EuiTitle size="l" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
-          <h1>Training</h1>
+          <h1>Träning</h1>
         </EuiTitle>
         <EuiSpacer size="s" />
         <EuiFlexGroup

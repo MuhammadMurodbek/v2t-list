@@ -110,7 +110,7 @@ export default class Tags extends Component {
   }
 
   render() {
-    const label = (<h2>Codes</h2>)
+    const label = (<h2>Kod</h2>)
     const {
       options, isLoading, selectedOption, tableOfCodes
     } = this.state
@@ -118,7 +118,7 @@ export default class Tags extends Component {
     const COLUMNS = [
       {
         field: 'id',
-        name: 'Code',
+        name: 'Kod',
         sortable: true,
         width: '80px'
       },
