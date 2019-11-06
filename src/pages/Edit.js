@@ -218,10 +218,16 @@ export default class EditPage extends Component {
       return
     }
 
+    chapters.forEach((chapter) => {
+      chapter.segments.forEach((segment) => {
+        if(/\s$/.test(segment.words)){ segment.words = segment.words.slice(0, -1)}
+      })
+    })
+
     api.updateTranscription(transcript.external_id, tags, chapters, templateId)
       .then(() => {
         this.setState({
-          originalChapters: chapters,
+          originalChapters: this.parseTranscriptions(chapters),
           originalTags: tags
         }, () => {
           swal({
