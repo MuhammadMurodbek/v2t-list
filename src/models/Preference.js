@@ -71,7 +71,7 @@ export const COLUMN_OPTIONS = [
     field: 'id',
     name: '',
     width: '100px',
-    render: id => <EuiButtonEmpty href={`/#edit/${id}`}>Oppna</EuiButtonEmpty>
+    render: id => <EuiButtonEmpty href={`/#edit/${id}`}>Öppna</EuiButtonEmpty>
   },
   {
     label: 'delete',
