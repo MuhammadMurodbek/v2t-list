@@ -92,10 +92,18 @@ export default class Editor extends Component {
     const range = document.createRange()
     if (selection.rangeCount > 0) selection.removeAllRanges()
     const container = this.getSelectedElement()
-    range.setStart(container.firstChild || container, this.cursor.offset)
-    range.setEnd(container.firstChild || container, this.cursor.offset)
-    selection.addRange(range)
-    this.cursor = null
+    if (this.cursor.offset <= container.firstChild.length) {
+      range.setStart(container.firstChild || container, this.cursor.offset)
+      range.setEnd(container.firstChild || container, this.cursor.offset)
+      selection.addRange(range)
+      this.cursor = null
+    } else {
+      range.setStart(container.firstChild || container, container.firstChild.length)
+      range.setEnd(container.firstChild || container, container.firstChild.length)
+      selection.addRange(range)
+      this.cursor = null
+    }
+     
   }
 
   getClosestDataset = (node) => {
@@ -338,8 +346,6 @@ export default class Editor extends Component {
   }
 
   setKeyword = (keywordValue, chapterId) => {
-    console.log('keywordValue')
-    console.log(keywordValue)
     this.updateKeyword(chapterId, keywordValue)
   }
 
