@@ -11,7 +11,8 @@ import {
   EuiProgress,
   EuiSpacer,
   EuiSuperSelect,
-  EuiText
+  EuiText,
+  EuiFieldText
 } from '@elastic/eui'
 import api from '../api'
 import Page from '../components/Page'
@@ -26,6 +27,10 @@ export default class UploadPage extends Component {
     message: '',
     toasts: [],
     metaData: 'default',
+    patientsnamn: '',
+    patientnummer: '',
+    doktorsnamn: '',
+    avdelning: '',
     selectedJob: 'ks_ögon'
   }
 
@@ -105,9 +110,18 @@ export default class UploadPage extends Component {
   }
 
   uploadFiles = async () => {
-    const { files, metaData, selectedJob } = this.state
+    const {
+      files,
+      metaData,
+      selectedJob,
+      patientsnamn,
+      patientnummer,
+      doktorsnamn,
+      avdelning
+    } = this.state
+
     const requests = Array.from(files)
-      .map(file => api.uploadMedia(file, metaData, selectedJob))
+      .map(file => api.uploadMedia(file, metaData, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning))
     await Promise.all(requests)
       .catch(this.onUploadFailed)
     return this.onUploaded()
@@ -127,15 +141,29 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     })
-    // const message = 'Successfully uploaded files'
-    // this.setState({ ...this.DEFAULT_STATE, message })
   }
 
   onUploadFailed = (e) => {
     this.setState({ ...this.DEFAULT_STATE })
     throw e
   }
-
+  
+  onPatientNameChange = (e) => {
+    this.setState({ patientsnamn: e.target.value })
+  }
+  
+  onPatientNumberChange = (e) => {
+    this.setState({ patientnummer: e.target.value })
+  }
+  
+  onDoctorsNameChange = (e) => {
+    this.setState({ doktorsnamn: e.target.value })
+  }
+  
+  onDepartmentChange = (e) => {
+    this.setState({ avdelning: e.target.value })
+  }
+  
   removeToast = () => {
     this.setState({ toasts: [] })
   }
@@ -148,14 +176,14 @@ export default class UploadPage extends Component {
       selectedJob
     } = this.state
     return (
-      <Page preferences title="Upload">
+      <Page preferences title="Ladda Upp">
         <EuiForm>
-          <EuiFormRow label="Attach files">
+          <EuiFormRow label="Välj fil">
             <EuiFilePicker 
-              multiple 
-              initialPromptText="Ladda upp filer"
+              initialPromptText="Ladda upp fil"
               onChange={this.onFilesChange}/>
           </EuiFormRow>
+          <EuiSpacer size="xs" />
           <EuiFormRow label="Välj AI modell för transkriberingen">
             <EuiSuperSelect
               options={this.options}
@@ -165,6 +193,7 @@ export default class UploadPage extends Component {
               hasDividers
             />
           </EuiFormRow>
+          <EuiSpacer size="l" />
           <EuiFormRow label="Välj job för transkriptet">
             <EuiSuperSelect
               options={this.jobs}
@@ -174,6 +203,43 @@ export default class UploadPage extends Component {
               hasDividers
             />
           </EuiFormRow>
+          <EuiSpacer size="l" />
+          <EuiFormRow label="Patients Namn">
+            <EuiFieldText
+              placeholder="Patients Namn"
+              value={this.state.patientsnamn}
+              onChange={this.onPatientNameChange}
+              aria-label="Use aria labels when no actual label is in use"
+            />
+          </EuiFormRow>
+          <EuiSpacer size="l" />
+          <EuiFormRow label="Patients Personnummer">
+          <EuiFieldText
+            placeholder="Patients Personnummer"
+            value={this.state.patientnummer}
+            onChange={this.onPatientNumberChange}
+            aria-label="Use aria labels when no actual label is in use"
+          />
+          </EuiFormRow>
+            <EuiSpacer size="l" />
+          <EuiFormRow label="Doktors Namn">
+            <EuiFieldText
+              placeholder="Doktors Namn"
+              value={this.state.doktorsnamn}
+              onChange={this.onDoctorsNameChange}
+              aria-label="Use aria labels when no actual label is in use"
+            />
+          </EuiFormRow>
+          <EuiSpacer size="l" />
+          <EuiFormRow label="Avdelning">
+            <EuiFieldText
+              placeholder="Avdelning"
+              value={this.state.avdelning}
+              onChange={this.onDepartmentChange}
+              aria-label="Use aria labels when no actual label is in use"
+            />
+          </EuiFormRow>
+          <EuiSpacer size="l" />
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
               <EuiButton fill onClick={this.onSubmit} isLoading={loading}>
