@@ -31,7 +31,32 @@ export default class UploadPage extends Component {
     patientnummer: '',
     doktorsnamn: '',
     avdelning: '',
-    selectedJob: 'ks_ögon'
+    selectedJob: '',
+    jobs: [{
+      value: 'ks_ögon',
+      inputDisplay: 'KS - Ögon',
+      dropdownDisplay: (
+        <DropDown
+          title="Karolinska Sjukhuset :: Ögon"
+        />
+      )
+    }, {
+      value: 'ks_hjärta',
+      inputDisplay: 'KS - Hjärta',
+      dropdownDisplay: (
+        <DropDown
+          title="Karolinska Sjukhuset :: Hjärta"
+        />
+      )
+    }, {
+      value: 'su_hjärna',
+      inputDisplay: 'SU - hjärna',
+      dropdownDisplay: (
+        <DropDown
+          title="Sahlgrenska Universitetssjukhuset :: Hjärna"
+        />
+      )
+    }]
   }
 
   state = this.DEFAULT_STATE
@@ -42,7 +67,6 @@ export default class UploadPage extends Component {
     dropdownDisplay: (
       <DropDown
         title="Default"
-        content="Wave2Letter(19 layers)"
       />
     )
   }, {
@@ -51,42 +75,31 @@ export default class UploadPage extends Component {
     dropdownDisplay: (
       <DropDown
         title="Jasper model"
-        content="JASPER(24 layers)"
       />
     )
   }]
 
-  jobs = [{
-    value: 'ks_ögon',
-    inputDisplay: 'KS - Ögon',
-    dropdownDisplay: (
-      <DropDown
-        title="Karolinska Sjukhuset :: Ögon"
-        content="Ladda upp medicinskt transkript som KS-Ögon"
-      />
-    )
-  }, {
-    value: 'ks_hjärta',
-    inputDisplay: 'KS - Hjärta',
-    dropdownDisplay: (
-      <DropDown
-        title="Karolinska Sjukhuset :: Hjärta"
-        content="Ladda upp medicinskt transkript som KS-Hjärta"
-      />
-    )
-  }, {
-    value: 'su_hjärna',
-    inputDisplay: 'SU - hjärna',
-    dropdownDisplay: (
-      <DropDown
-        title="Sahlgrenska Universitetssjukhuset :: Hjärna"
-        content="Ladda upp medicinskt transkript som SU- Hjärna"
-      />
-    )
-  }]
+  
 
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Ladda Upp'
+    api.loadTags()
+      .then((activeTags) => {
+        let jobs = []
+        activeTags.forEach((tag)=>{
+          console.log(tag.value)
+          jobs.push({
+            value: tag.value,
+            inputDisplay: tag.value,
+            dropdownDisplay: (
+              <DropDown
+                title={tag.value}
+              />
+            )
+          })
+        })
+        this.setState({ jobs, selectedJob: jobs[0].value })
+      })
   }
 
   onMetadataChange = (metaData) => {
@@ -173,7 +186,8 @@ export default class UploadPage extends Component {
       loading,
       metaData,
       toasts,
-      selectedJob
+      selectedJob,
+      jobs
     } = this.state
     return (
       <Page preferences title="Ladda Upp">
@@ -196,7 +210,7 @@ export default class UploadPage extends Component {
           <EuiSpacer size="l" />
           <EuiFormRow label="Välj job för transkriptet">
             <EuiSuperSelect
-              options={this.jobs}
+              options={jobs}
               valueOfSelected={selectedJob}
               onChange={this.onJobChange}
               itemLayoutAlign="top"
@@ -262,19 +276,12 @@ export default class UploadPage extends Component {
   }
 }
 
-const DropDown = ({ title, content }) => (
+const DropDown = ({ title }) => (
   <Fragment>
     <strong>{title}</strong>
-    <EuiSpacer size="xs"/>
-    <EuiText size="s" color="subdued">
-      <p className="euiTextColor--subdued">
-        {content}
-      </p>
-    </EuiText>
   </Fragment>
 )
 
 DropDown.propTypes = {
-  title: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired
 }
