@@ -11,7 +11,6 @@ import {
   EuiProgress,
   EuiSpacer,
   EuiSuperSelect,
-  EuiText,
   EuiFieldText
 } from '@elastic/eui'
 import api from '../api'
