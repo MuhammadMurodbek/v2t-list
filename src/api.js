@@ -69,7 +69,7 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
         model: metadata,
         tags: [selectedJob],
         fields: {
-          department_id: '95316512',
+          department_id: 'KS_Heart',
           department_name: avdelning,
           examination_time: '2019-11-06T03:29:33.344Z',
           doctor_id: doktorsnamn,
