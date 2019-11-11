@@ -92,18 +92,19 @@ export default class Editor extends Component {
     const range = document.createRange()
     if (selection.rangeCount > 0) selection.removeAllRanges()
     const container = this.getSelectedElement()
-    if (this.cursor.offset <= container.firstChild.length) {
-      range.setStart(container.firstChild || container, this.cursor.offset)
-      range.setEnd(container.firstChild || container, this.cursor.offset)
-      selection.addRange(range)
-      this.cursor = null
-    } else {
-      range.setStart(container.firstChild || container, container.firstChild.length)
-      range.setEnd(container.firstChild || container, container.firstChild.length)
-      selection.addRange(range)
-      this.cursor = null
+    console.log('container.firstChild')
+    console.log(container.firstChild)
+    if (container.firstChild) {
+      if (this.cursor.offset <= container.firstChild.length) {
+        range.setStart(container.firstChild || container, this.cursor.offset)
+        range.setEnd(container.firstChild || container, this.cursor.offset)
+      } else {
+        range.setStart(container.firstChild || container, container.firstChild.length)
+        range.setEnd(container.firstChild || container, container.firstChild.length)
+      }
     }
-     
+    selection.addRange(range)
+    this.cursor = null
   }
 
   getClosestDataset = (node) => {
