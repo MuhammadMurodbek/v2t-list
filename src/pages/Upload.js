@@ -16,8 +16,6 @@ import {
 import api from '../api'
 import Page from '../components/Page'
 
-export const API_PATH = '/api/v1/transcription/'
-
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
@@ -30,29 +28,29 @@ export default class UploadPage extends Component {
     patientnummer: '',
     doktorsnamn: '',
     avdelning: '',
-    selectedJob: '',
+    selectedJob: 'KS Lungs',
     jobs: [{
-      value: 'ks_ögon',
-      inputDisplay: 'KS - Ögon',
+      value: 'KS Lungs',
+      inputDisplay: 'KS - Lungs',
       dropdownDisplay: (
         <DropDown
-          title="Karolinska Sjukhuset :: Ögon"
+          title="KS - Lungs"
         />
       )
     }, {
-      value: 'ks_hjärta',
-      inputDisplay: 'KS - Hjärta',
+      value: 'KS - Heart',
+      inputDisplay: 'KS - Heart',
       dropdownDisplay: (
         <DropDown
-          title="Karolinska Sjukhuset :: Hjärta"
+          title="KS - Heart"
         />
       )
     }, {
-      value: 'su_hjärna',
-      inputDisplay: 'SU - hjärna',
+      value: 'Akuten',
+      inputDisplay: 'Akuten',
       dropdownDisplay: (
         <DropDown
-          title="Sahlgrenska Universitetssjukhuset :: Hjärna"
+          title="Akuten"
         />
       )
     }]
@@ -82,23 +80,6 @@ export default class UploadPage extends Component {
 
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Ladda Upp'
-    api.loadTags()
-      .then((activeTags) => {
-        let jobs = []
-        activeTags.forEach((tag)=>{
-          console.log(tag.value)
-          jobs.push({
-            value: tag.value,
-            inputDisplay: tag.value,
-            dropdownDisplay: (
-              <DropDown
-                title={tag.value}
-              />
-            )
-          })
-        })
-        this.setState({ jobs, selectedJob: jobs[0].value })
-      })
   }
 
   onMetadataChange = (metaData) => {
