@@ -37,6 +37,7 @@ export default class EditPage extends Component {
     templates: {
       templates: []
     },
+    templateId: '',
     // defaultTemplate: '',
     sectionHeaders: []
   }
@@ -73,9 +74,6 @@ export default class EditPage extends Component {
         originalChapters,
         tags,
         originalTags: tags
-      }, ()=>{ 
-        console.log('this.state.templateId')
-        console.log(this.state.templateId)
       })
     } else {
       this.setState({
@@ -110,7 +108,6 @@ export default class EditPage extends Component {
         }, () => {
           const { templates } = this.state
           const { defaultTemplate } = this.state
-          
           const template = templates.templates.find(template => template.id === defaultTemplate)
           const sections = template ? template.sections : []
           const sectionHeaders = sections.map(section => section.name)
