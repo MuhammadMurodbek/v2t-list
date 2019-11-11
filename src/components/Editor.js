@@ -288,11 +288,16 @@ export default class Editor extends Component {
     const endOffset = Number(range.endOffset)
     if(startSegment === endSegment) {
       const selfWords = chapters[chapterId].segments[startSegment].words
-      const nextSegmentWords = chapters[chapterId].segments[startSegment + 1].words
-      const mergedWords = selfWords.slice(0, -1).concat(nextSegmentWords)
-      chapters[chapterId].segments[startSegment].words = mergedWords
-      chapters[chapterId].segments.splice(startSegment + 1, 1)
-      this.stashCursor(-1)
+      if (chapters[chapterId].segments[startSegment + 1]) {
+        const nextSegmentWords = chapters[chapterId].segments[startSegment + 1].words
+        const mergedWords = selfWords.slice(0, -1).concat(nextSegmentWords)
+        chapters[chapterId].segments[startSegment].words = mergedWords
+        chapters[chapterId].segments.splice(startSegment + 1, 1)
+        this.stashCursor(-1)
+      } else {
+        chapters[chapterId].segments.splice(startSegment + 1, 1)
+        this.stashCursor(-1)
+      }
     } else {
       const startSegmentWords = chapters[chapterId].segments[startSegment].words.slice(0, startOffset)
       const endSegmentWords = chapters[chapterId].segments[endSegment].words.slice(endOffset)
