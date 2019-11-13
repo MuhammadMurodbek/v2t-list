@@ -66,14 +66,6 @@ export default class UploadPage extends Component {
         title="Default"
       />
     )
-  }, {
-    value: 'jasper',
-    inputDisplay: 'Jasper model',
-    dropdownDisplay: (
-      <DropDown
-        title="Jasper model"
-      />
-    )
   }]
 
   
