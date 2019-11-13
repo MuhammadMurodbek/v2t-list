@@ -38,6 +38,7 @@ export default class EditPage extends Component {
       templates: []
     },
     templateId: '',
+    originalTemplate: '',
     // defaultTemplate: '',
     sectionHeaders: []
   }
@@ -104,7 +105,8 @@ export default class EditPage extends Component {
       this.setState({ 
         templates: data, 
         defaultTemplate: template_id, 
-        templateId: template_id
+        templateId: template_id,
+        originalTemplate: template_id
         }, () => {
           const { templates } = this.state
           const { defaultTemplate } = this.state
@@ -192,8 +194,10 @@ export default class EditPage extends Component {
 
   save = async () => {    
     const { transcript } = this.props
-    const { originalChapters, chapters, tags, originalTags, templateId } = this.state
-    if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
+    const { originalChapters, chapters, tags, originalTags, templateId, originalTemplate } = this.state
+    if (JSON.stringify(originalChapters) === JSON.stringify(chapters) 
+      && JSON.stringify(tags) === JSON.stringify(originalTags) 
+      && (originalTemplate === templateId)) {
       swal({
         title: 'Det finns inget att uppdatera!',
         text: 'Diktatet är inte ändrat',
