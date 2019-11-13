@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { Component, Fragment } from 'react'
 import {
-  EuiGlobalToastList
+  EuiGlobalToastList, EuiText, EuiSpacer
 } from '@elastic/eui'
 import '../styles/player.css'
 import Seek from './Seek'
@@ -56,15 +56,6 @@ class Player extends Component {
         this.myRef.current.pause()
         this.setState({ isPlaying: false })
       }
-    }
-  }
-
-  stopMusic = () => {
-    if (this.myRef && this.myRef.current) {
-      this.myRef.current.pause()
-      this.setState({ isPlaying: false }, () => {
-        this.myRef.current.currentTime = 0
-      })
     }
   }
 
@@ -343,16 +334,6 @@ class Player extends Component {
           />
 
           <button
-            title="Stop"
-            className="play"
-            id="stop"
-            data-icon="S"
-            aria-label="stop"
-            onClick={this.stopMusic}
-            type="button"
-          />
-
-          <button
             title="Backward"
             className="play"
             id="backward"
@@ -386,7 +367,6 @@ class Player extends Component {
             {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
           </span>
         </div>
-
         <VirtualControl
           transcript={audioTranscript}
           startTimes={startTimes}
@@ -397,6 +377,12 @@ class Player extends Component {
           dismissToast={this.removeToast}
           toastLifeTimeMs={2000}
         />
+        <EuiSpacer size="l" />
+        <EuiText textAlign="left" className="tips">
+          <span>Press alt+space to </span>
+          <span style={{ display: isPlaying === true ? 'inline-block' : 'none' }}>pause</span>
+          <span style={{ display: isPlaying === false ? 'inline-block' : 'none' }}>play</span>
+        </EuiText>
       </Fragment>
     )
   }

@@ -33,7 +33,7 @@
 }
 
 .controls {
-  width: 750px;
+  width: 710px;
   bottom: 20px;
   background-color:  #f1f3f4;
   transition: 1s all;
@@ -42,7 +42,7 @@
 
 .virtualControl {
   background-color: black;
-  margin-left: 135px;
+  margin-left: 104px;
   display: flex;
   margin-top: -18px;
   z-index:-10;
@@ -138,7 +138,7 @@
   position: relative;
   margin-left: 15px;
   margin-top: 8px;
-  margin-right: 20px;
+  margin-right: 14px;
 }
 
 .seekBar {
@@ -310,4 +310,8 @@ input[type=range]:focus::-ms-fill-upper {
 }
 #backward {
   /* Empty div for test purpose  */
+}
+
+.tips{
+  color: red;
 }

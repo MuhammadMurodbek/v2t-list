@@ -266,7 +266,7 @@ export default class UploadPage extends Component {
         <EuiTitle size="l" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
           <h1>Träning</h1>
         </EuiTitle>
-        <EuiSpacer size="s" />
+        <EuiSpacer size="l" />
         <EuiFlexGroup
           style={{ display: incompleteTranscriptExists ? 'none' : 'flex' }}
           alignItems="center"
