@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { EuiInMemoryTable, EuiSearchBar, EuiSpacer } from '@elastic/eui'
+import { EuiInMemoryTable } from '@elastic/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import '@elastic/eui/dist/eui_theme_light.css'
 
@@ -21,13 +21,6 @@ export default class TranscriptionList extends Component {
 
     return (
       <Fragment>
-      <EuiSearchBar
-        box={{
-          placeholder: 'Sök ...'
-        }}
-        onChange={()=> {}}
-      />
-      <EuiSpacer size="l" />
       <EuiInMemoryTable
         pagination={pagination}
         columns={preferences.columns}
