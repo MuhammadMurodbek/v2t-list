@@ -66,7 +66,7 @@ const Flyout = ({ visible, onClose }) => {
           <EuiSpacer size="l" />
           <EuiText><h5>Editor settings</h5></EuiText>
           <EuiSpacer size="s" />
-          <EuiFormRow label="Font size">
+          <EuiFormRow label="Textstorlek">
             <EuiSuperSelect
               options={preferences.fontSizeList}
               valueOfSelected={preferences.currentFontSize}
