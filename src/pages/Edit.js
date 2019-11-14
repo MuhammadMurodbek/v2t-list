@@ -342,8 +342,8 @@ export default class EditPage extends Component {
           </EuiFlexGroup>
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="secondary" onClick={this.finalize}>Submit to
-                Co-worker</EuiButton>
+              <EuiButton fill color="secondary" onClick={this.finalize}>Skicka till
+                Co-Worker</EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
               <EuiButton color="secondary" onClick={this.save}>Spara ändringar</EuiButton>
