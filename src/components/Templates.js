@@ -41,7 +41,7 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, upda
   return (  
     <Fragment>
       <EuiText size="xs">
-        <h2>Journalmaller</h2>
+        <h2>Journalmallar</h2>
       </EuiText>
       <EuiSpacer size="m" />
       <EuiForm>
