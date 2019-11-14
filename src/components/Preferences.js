@@ -46,7 +46,7 @@ const Flyout = ({ visible, onClose }) => {
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
           <h4 id="flyoutTitle">
-            Preferences
+            Inställningar
           </h4>
         </EuiTitle>
       </EuiFlyoutHeader>
