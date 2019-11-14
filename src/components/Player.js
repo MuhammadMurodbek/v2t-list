@@ -379,9 +379,9 @@ class Player extends Component {
         />
         <EuiSpacer size="l" />
         <EuiText textAlign="left" className="tips">
-          <span>Press alt+space to </span>
-          <span style={{ display: isPlaying === true ? 'inline-block' : 'none' }}>pause</span>
-          <span style={{ display: isPlaying === false ? 'inline-block' : 'none' }}>play</span>
+          <span>Tryck alt+space för att </span>
+          <span style={{ display: isPlaying === true ? 'inline-block' : 'none' }}>pausa</span>
+          <span style={{ display: isPlaying === false ? 'inline-block' : 'none' }}>spela</span>
         </EuiText>
       </Fragment>
     )
