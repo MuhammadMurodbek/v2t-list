@@ -52,19 +52,19 @@ const Flyout = ({ visible, onClose }) => {
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
         <Fragment>
-          <EuiText><h5>Flux settings</h5></EuiText>
+          <EuiText><h5>Inställningar för aktivitetslista</h5></EuiText>
           <EuiSpacer size="s" />
-          <EuiFormRow label="Backlog columns">
+          <EuiFormRow>
             <EuiComboBox
               placeholder="Enter the columns in the order you want to display them"
               selectedOptions={preferences.columns}
-              options={COLUMN_OPTIONS}
+              options={COLUMN_OPTIONS.filter(column => column.label !== 'id' && column.label !== 'öppna' && column.label !== 'delete')}
               onChange={setColumns}
             />
           </EuiFormRow>
 
           <EuiSpacer size="l" />
-          <EuiText><h5>Editor settings</h5></EuiText>
+          <EuiText><h5>Inställningar för Editors</h5></EuiText>
           <EuiSpacer size="s" />
           <EuiFormRow label="Textstorlek">
             <EuiSuperSelect

@@ -22,7 +22,7 @@ export const WORD_OPTIONS = [
 
 export const COLUMN_OPTIONS = [
   {
-    label: 'created',
+    label: 'Skapad',
     field: 'created_time',
     name: 'Skapad',
     width: '170px',
@@ -31,50 +31,50 @@ export const COLUMN_OPTIONS = [
       .format('YYYY-MM-DD HH:mm:ss')
   },
   {
-    label: 'type',
+    label: 'Typ',
     name: 'Typ',
     width: '70px',
-    render: transcript => `${(transcript || {}).media_content_type ? transcript.media_content_type : 'voice'}`
+    render: transcript => `${(transcript || {}).media_content_type ? transcript.media_content_type : 'ljud'}`
   },
   {
-    label: 'doctorsName',
+    label: 'Doktor',
     name: 'Doktor',
     width: '140px',
     render: transcript => `${((transcript || {}).fields || {}).doctor_full_name ? transcript.fields.doctor_full_name : ''}`
   },
   {
-    label: 'patientsName',
+    label: 'Patient',
     name: 'Patient',
     width: '140px',
     render: transcript => `${((transcript || {}).fields || {}).patient_full_name ? transcript.fields.patient_full_name : ''}`
   },
   {
-    label: 'patientId',
-    name: 'Patients Personnummer',
+    label: 'PatientId',
+    name: 'PatientId',
     width: '150px',
     render: transcript => `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}`
   },
   {
-    label: 'departmentName',
+    label: 'Avdelning',
     name: 'Avdelning',
     width: '200px',
     render: transcript => `${((transcript || {}).fields || {}).department_name ? transcript.fields.department_name : ''}`
   },
   {
-    label: 'id',
+    label: 'Id',
     field: 'id',
     name: 'Id'
     // sortable: true
   },
   {
-    label: 'open',
+    label: 'Öppna',
     field: 'id',
     name: '',
     width: '100px',
     render: id => <EuiButtonEmpty href={`/#edit/${id}`}>Öppna</EuiButtonEmpty>
   },
   {
-    label: 'delete',
+    label: 'Ta bort',
     field: 'id',
     name: '',
     width: '100px',
@@ -220,6 +220,14 @@ export default class Preference {
   set allColumns(v) {
     this._allColumns = v
   }
+  
+  get visibleColumns() {
+    return this._visibleColumns
+  }
+
+  set visibleColumns(v) {
+    this._visibleColumns = v
+  }
 
   static defaultState = {
     words: '3',
@@ -229,15 +237,15 @@ export default class Preference {
     allColumns: COLUMN_OPTIONS,
     fontSizeList: [{
       value: '15px',
-      inputDisplay: 'Small'
+      inputDisplay: 'Små'
     },
       {
         value: '18px',
-        inputDisplay: 'Medium'
+        inputDisplay: 'Mellan'
       },
       {
         value: '20px',
-        inputDisplay: 'Large'
+        inputDisplay: 'Stor'
       }],
     currentFontSize: '18px',
     fontSizeIteration: 0,
