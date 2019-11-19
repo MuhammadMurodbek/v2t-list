@@ -141,6 +141,31 @@ export default class Preference {
     }
   }
 
+  get stopButtonVisibilityStatus() {
+    return this._stopButtonVisibilityStatus
+  }
+
+
+  set stopButtonVisibilityStatus(v) {
+    if (this._stopButtonVisibilityStatus === true) {
+      this._stopButtonVisibilityStatus = false
+      localStorage.setItem('stopButtonVisibilityStatus', this._stopButtonVisibilityStatus)
+    } else if (this._stopButtonVisibilityStatus === false) {
+      this._stopButtonVisibilityStatus = true
+      localStorage.setItem('stopButtonVisibilityStatus', this._stopButtonVisibilityStatus)
+    } else {
+      const stopButtonVisibilityStatusFromStorage = localStorage.getItem('stopButtonVisibilityStatus')
+      if (stopButtonVisibilityStatusFromStorage === 'true') {
+        this._stopButtonVisibilityStatus = true
+      } else if (stopButtonVisibilityStatusFromStorage === 'false') {
+        this._stopButtonVisibilityStatus = false
+      } else {
+        this._stopButtonVisibilityStatus = true
+      }
+      localStorage.setItem('stopButtonVisibilityStatus', this._stopButtonVisibilityStatus)
+    }
+  }
+
   get showVideo() {
     return this._showVideo
   }
@@ -233,11 +258,12 @@ export default class Preference {
     words: '3',
     showVideo: true,
     autoPlayStatus: true,
+    stopButtonVisibilityStatus: false,
     columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
     allColumns: COLUMN_OPTIONS,
     fontSizeList: [{
       value: '15px',
-      inputDisplay: 'Små'
+      inputDisplay: 'Liten'
     },
       {
         value: '18px',

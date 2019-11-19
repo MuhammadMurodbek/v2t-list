@@ -33,6 +33,7 @@ const Flyout = ({ visible, onClose }) => {
   const [preferences, setPreferences] = usePreferences()
   const setColumns = columns => setPreferences({ columns })
   const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
+  const setStopButtonVisibilityStatus = stopButtonVisibilityStatus => setPreferences({ stopButtonVisibilityStatus })
   const setShowVideo = showVideo => setPreferences({ showVideo })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })
   const logout = () => {
@@ -58,13 +59,13 @@ const Flyout = ({ visible, onClose }) => {
             <EuiComboBox
               placeholder="Enter the columns in the order you want to display them"
               selectedOptions={preferences.columns}
-              options={COLUMN_OPTIONS.filter(column => column.label !== 'id' && column.label !== 'öppna' && column.label !== 'delete')}
+              options={COLUMN_OPTIONS.filter(column => column.label !== 'Id' && column.label !== 'Öppna' && column.label !== 'Ta Bort')}
               onChange={setColumns}
             />
           </EuiFormRow>
 
           <EuiSpacer size="l" />
-          <EuiText><h5>Inställningar för Editors</h5></EuiText>
+          <EuiText><h5>Inställningar för Editor</h5></EuiText>
           <EuiSpacer size="s" />
           <EuiFormRow label="Textstorlek">
             <EuiSuperSelect
@@ -84,6 +85,16 @@ const Flyout = ({ visible, onClose }) => {
               label="Aktivera autostart"
               checked={preferences.autoPlayStatus}
               onChange={setAutoPlayStatus}
+            />
+          </EuiFormRow>
+          <EuiSpacer size="l" />
+          <EuiText><h5>Show stop button</h5></EuiText>
+          <EuiSpacer size="s" />
+          <EuiFormRow label="">
+            <EuiSwitch
+              label="Show stop button"
+              checked={preferences.stopButtonVisibilityStatus}
+              onChange={setStopButtonVisibilityStatus}
             />
           </EuiFormRow>
           <EuiFormRow label="">

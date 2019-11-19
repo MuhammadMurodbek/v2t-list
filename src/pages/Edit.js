@@ -265,7 +265,7 @@ export default class EditPage extends Component {
   }
 
   cancel = () => {
-    window.location.reload()
+    window.location = '/'
   }
 
   render() {
