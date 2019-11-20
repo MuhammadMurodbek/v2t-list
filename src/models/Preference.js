@@ -160,7 +160,7 @@ export default class Preference {
       } else if (stopButtonVisibilityStatusFromStorage === 'false') {
         this._stopButtonVisibilityStatus = false
       } else {
-        this._stopButtonVisibilityStatus = true
+        this._stopButtonVisibilityStatus = false
       }
       localStorage.setItem('stopButtonVisibilityStatus', this._stopButtonVisibilityStatus)
     }

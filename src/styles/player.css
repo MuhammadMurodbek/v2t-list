@@ -40,9 +40,26 @@
   display: flex;
 }
 
+.controlsWithStopButtonEnabled {
+  width: 750px;
+  bottom: 20px;
+  background-color:  #f1f3f4;
+  transition: 1s all;
+  display: flex;
+}
+
 .virtualControl {
   background-color: black;
   margin-left: 104px;
+  display: flex;
+  margin-top: -18px;
+  z-index:-10;
+  width:487px;
+  height:5px;
+}
+.virtualControlWithStopButtonEnabled {
+  background-color: black;
+  margin-left: 135px;
   display: flex;
   margin-top: -18px;
   z-index:-10;
@@ -139,6 +156,13 @@
   margin-left: 15px;
   margin-top: 8px;
   margin-right: 14px;
+}
+
+.tidPunktWithStopButtonEnabled{
+  position: relative;
+  margin-left: 15px;
+  margin-top: 8px;
+  margin-right: 20px;
 }
 
 .seekBar {

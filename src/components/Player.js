@@ -58,6 +58,15 @@ class Player extends Component {
       }
     }
   }
+  
+  stopMusic = () => {
+    if (this.myRef && this.myRef.current) {
+      this.myRef.current.pause()
+      this.setState({ isPlaying: false }, () => {
+        this.myRef.current.currentTime = 0
+      })
+    }
+  }
 
   backwardMusic = () => {
     const { mediaSkipDuration } = this.state
@@ -310,7 +319,7 @@ class Player extends Component {
         element.
         </video>
 
-        <div className="controls">
+        <div className={preferences.stopButtonVisibilityStatus === false ? "controls" : "controlsWithStopButtonEnabled" }>
           <button
             title="Play"
             style={{ display: isPlaying === false ? 'block' : 'none' }}
@@ -330,6 +339,17 @@ class Player extends Component {
             data-icon="u"
             aria-label="play pause toggle"
             onClick={this.pauseMusic}
+            type="button"
+          />
+          
+          <button
+            title="Stop"
+            style={{ display: preferences.stopButtonVisibilityStatus === true ? 'block' : 'none' }}
+            className="play"
+            id="stop"
+            data-icon="S"
+            aria-label="play pause toggle"
+            onClick={this.stopMusic}
             type="button"
           />
 
@@ -361,7 +381,10 @@ class Player extends Component {
             id="myRange"
             onChange={this.onChangeSeek}
           />
-          <span aria-label="tidpunkt" className="tidPunkt">
+          <span 
+            aria-label="tidpunkt" 
+            className={preferences.stopButtonVisibilityStatus === false ? "tidPunkt" : "tidPunktWithStopButtonEnabled"}
+          >
             {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
             &nbsp;/&nbsp;
             {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
@@ -371,6 +394,7 @@ class Player extends Component {
           transcript={audioTranscript}
           startTimes={startTimes}
           duration={duration}
+          preferences={preferences}
         />
         <EuiGlobalToastList
           toasts={toasts}
@@ -388,10 +412,10 @@ class Player extends Component {
   }
 }
 
-const VirtualControl = ({ transcript, startTimes, duration }) => {
+const VirtualControl = ({ transcript, startTimes, duration, preferences }) => {
   if (!transcript) return null
   return (
-    <div className="virtualControl">
+      <div className={preferences.stopButtonVisibilityStatus === false ? "virtualControl" : "virtualControlWithStopButtonEnabled"}>
       {transcript.map(({ segments }) => segments.map((segment, i) => {
         if (startTimes.includes(segment.startTime)) {
           return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / duration} background="yellow" />)
