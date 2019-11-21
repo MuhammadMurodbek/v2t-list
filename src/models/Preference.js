@@ -63,7 +63,8 @@ export const COLUMN_OPTIONS = [
   {
     label: 'Id',
     field: 'id',
-    name: 'Id'
+    name: 'Id',
+    disabled: true
     // sortable: true
   },
   {
@@ -71,12 +72,14 @@ export const COLUMN_OPTIONS = [
     field: 'id',
     name: '',
     width: '100px',
-    render: id => <EuiButtonEmpty href={`/#edit/${id}`}>Öppna</EuiButtonEmpty>
+    render: id => <EuiButtonEmpty href={`/#edit/${id}`}>Öppna</EuiButtonEmpty>,
+    disabled: true
   },
   {
     label: 'Ta bort',
     field: 'id',
     name: '',
+    disabled: true,
     width: '100px',
     render: id => <EuiButtonEmpty color='danger' onClick={()=>{
       swal({
@@ -238,20 +241,23 @@ export default class Preference {
     this._columns = v
   }
 
-  get allColumns() {
-    return this._allColumns
+  get columnsForCombo() {
+    return this._columnsForCombo
   }
 
-  set allColumns(v) {
-    this._allColumns = v
-  }
-  
-  get visibleColumns() {
-    return this._visibleColumns
+  set columnsForCombo(v) {
+    this._columnsForCombo = v
+    const visibleLabels = v.map(u=>u.label)
+    const updatedTemplate = COLUMN_OPTIONS.filter(obj => obj.label === 'Öppna' || obj.label === 'Ta bort' || visibleLabels.includes(obj.label))
+    this._columnsForTranscriptList  = updatedTemplate
   }
 
-  set visibleColumns(v) {
-    this._visibleColumns = v
+  get columnsForTranscriptList() {
+    return this._columnsForTranscriptList
+  }
+
+  set columnsForTranscriptList(v) {
+    this._columnsForTranscriptList = v
   }
 
   static defaultState = {
@@ -259,8 +265,9 @@ export default class Preference {
     showVideo: true,
     autoPlayStatus: true,
     stopButtonVisibilityStatus: false,
-    columns: COLUMN_OPTIONS.filter(column => column.label !== 'id'),
-    allColumns: COLUMN_OPTIONS,
+    columns: COLUMN_OPTIONS,
+    columnsForCombo: COLUMN_OPTIONS.map(({ render, ...items }) => items).filter(column => column.label !== 'Id' && column.label !== 'Öppna' && column.label !== 'Ta bort'),
+    columnsForTranscriptList: COLUMN_OPTIONS.filter(column => column.label !== 'Id'),
     fontSizeList: [{
       value: '15px',
       inputDisplay: 'Liten'

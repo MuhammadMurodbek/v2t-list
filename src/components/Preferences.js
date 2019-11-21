@@ -10,7 +10,6 @@ import { COLUMN_OPTIONS } from '../models/Preference'
 
 const Preferences = () => {
   const [visible, setVisible] = useState(false)
-
   return (
     <Fragment>
       <Button onClick={() => setVisible(true)} />
@@ -31,7 +30,7 @@ const Button = ({ onClick }) => (
 const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
   const [preferences, setPreferences] = usePreferences()
-  const setColumns = columns => setPreferences({ columns })
+  const setColumns = columnsForCombo => setPreferences({ columnsForCombo })
   const setAutoPlayStatus = autoPlayStatus => setPreferences({ autoPlayStatus })
   const setStopButtonVisibilityStatus = stopButtonVisibilityStatus => setPreferences({ stopButtonVisibilityStatus })
   const setShowVideo = showVideo => setPreferences({ showVideo })
@@ -58,9 +57,9 @@ const Flyout = ({ visible, onClose }) => {
           <EuiFormRow>
             <EuiComboBox
               placeholder="Enter the columns in the order you want to display them"
-              selectedOptions={preferences.columns}
-              options={COLUMN_OPTIONS.filter(column => column.label !== 'Id' && column.label !== 'Öppna' && column.label !== 'Ta Bort')}
-              onChange={setColumns}
+              selectedOptions={preferences.columnsForCombo}
+              options={COLUMN_OPTIONS.map(({ render, ...items }) => items)}
+              onChange={setColumns} 
             />
           </EuiFormRow>
 

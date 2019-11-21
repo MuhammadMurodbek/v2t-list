@@ -23,7 +23,7 @@ export default class TranscriptionList extends Component {
       <Fragment>
       <EuiInMemoryTable
         pagination={pagination}
-        columns={preferences.columns.filter(column => column.label !== 'Id')}
+        columns={preferences.columnsForTranscriptList}
         items={transcripts}
       />
       </Fragment>
