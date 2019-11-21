@@ -66,9 +66,17 @@ export default class UploadPage extends Component {
         title="Default"
       />
     )
+  },
+  {
+    value: 'jasper',
+    inputDisplay: 'Jasper 10x3',
+    dropdownDisplay: (
+      <DropDown
+        title="Jasper 10x3"
+      />
+    )
   }]
 
-  
 
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Ladda Upp'
@@ -132,23 +140,23 @@ export default class UploadPage extends Component {
     this.setState({ ...this.DEFAULT_STATE })
     throw e
   }
-  
+
   onPatientNameChange = (e) => {
     this.setState({ patientsnamn: e.target.value })
   }
-  
+
   onPatientNumberChange = (e) => {
     this.setState({ patientnummer: e.target.value })
   }
-  
+
   onDoctorsNameChange = (e) => {
     this.setState({ doktorsnamn: e.target.value })
   }
-  
+
   onDepartmentChange = (e) => {
     this.setState({ avdelning: e.target.value })
   }
-  
+
   removeToast = () => {
     this.setState({ toasts: [] })
   }
@@ -165,7 +173,7 @@ export default class UploadPage extends Component {
       <Page preferences title="Ladda Upp">
         <EuiForm>
           <EuiFormRow label="Välj fil">
-            <EuiFilePicker 
+            <EuiFilePicker
               initialPromptText="Ladda upp fil"
               onChange={this.onFilesChange}/>
           </EuiFormRow>
