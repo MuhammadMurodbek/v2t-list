@@ -216,12 +216,12 @@ docker:
 deploy-to-dev:
   <<: *not_release_condition
   cache: {}
-  image: dtzar/helm-kubectl:2.14.3
+  image: dtzar/helm-kubectl:3.0.0
   stage: deploy
   before_script:
     - mkdir -p ~/.kube && echo "$KUBE_CONFIG_DEV" > ~/.kube/config
   script:
-    - kubectl rollout restart deployment/ui --namespace=v2t
+    - kubectl rollout restart deployment/ui --namespace=v2t-dev
   variables:
     GIT_STRATEGY: none
   only:
