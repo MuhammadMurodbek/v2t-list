@@ -6,6 +6,7 @@ import {
   EuiImage,
   EuiPage,
   EuiPageSideBar,
+  // EuiToolTip,
   // EuiButton,
   EuiSideNav
 } from '@elastic/eui'
@@ -24,6 +25,7 @@ import api from './api'
 
 export default class App extends Component {
   state = {
+
     transcripts: [],
     preferences: new Preference(),
     selectedItemName: 'lungor',

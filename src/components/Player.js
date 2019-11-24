@@ -321,7 +321,7 @@ class Player extends Component {
 
         <div className={preferences.stopButtonVisibilityStatus === false ? "controls" : "controlsWithStopButtonEnabled" }>
           <button
-            title="Play"
+            title="Tryck alt+space för att spela"
             style={{ display: isPlaying === false ? 'block' : 'none' }}
             className="play"
             id="play"
@@ -332,7 +332,7 @@ class Player extends Component {
           />
 
           <button
-            title="Pause"
+            title="Tryck alt+space för att pausa"
             style={{ display: isPlaying === true ? 'block' : 'none' }}
             className="play"
             id="pause"
@@ -343,7 +343,7 @@ class Player extends Component {
           />
           
           <button
-            title="Stop"
+            title="Tryck alt+space för att sluta"
             style={{ display: preferences.stopButtonVisibilityStatus === true ? 'block' : 'none' }}
             className="play"
             id="stop"
@@ -354,7 +354,7 @@ class Player extends Component {
           />
 
           <button
-            title="Backward"
+            title="Tryck alt + → hoppa ett ord framåt"
             className="play"
             id="backward"
             data-icon="B"
@@ -364,7 +364,7 @@ class Player extends Component {
           />
 
           <button
-            title="Forward"
+            title="Tryck alt + ← hoppa ett ord bakåt"
             className="play"
             id="forward"
             data-icon="F"
