@@ -8,21 +8,22 @@
 p {
   line-height: 2;
 }
-.euiPageContentBody {
-  width: 85%;
-}
-.euiPageContentHeader {
-  width: 85%;
-}
 
 .euiPage {
   background-image: url("./img/sidebar.png");
   background-repeat: no-repeat;
   background-size: cover;
+  padding: 0px;
 }
 
 .login{
-  margin-top: 35vh;
+  padding-top: 35vh;
+  padding-left: 39vw;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("./img/sidebar.png");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .euiSideNavItemButton__label {
@@ -37,21 +38,8 @@ p {
 }
 .euiSideNavItemButton.euiSideNavItemButton-isSelected .euiSideNavItemButton__label:hover {
   text-decoration: none;
-  /* color: #fff; */
   cursor: not-allowed;
 }
-/* .euiSideNavItem__items:after {
-    position: absolute;
-    content: '';
-    top: 0;
-    bottom: 12px;
-    width: 1px;
-    background: green;
-    left: 0;
-}
-.euiSideNavItem--branch > .euiSideNavItemButton:after {
-    background: #fff;
-} */
 
 .euiSideNavItem__items:after {
   background: #fff;
@@ -63,4 +51,12 @@ p {
 
 .euiButtonEmpty--danger:focus {
     background-color: transparent;
+}
+
+.euiPageSideBar {
+    min-width: 192px;
+    flex: 0 1;
+    margin-top: 24px;
+    margin-left: 20px;
+    margin-right: 20px;
 }

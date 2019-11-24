@@ -9,8 +9,8 @@ import {
 } from '@elastic/eui'
 import swal from 'sweetalert'
 import { usePreferences } from '../components/PreferencesProvider'
-import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
-import Page from '../components/Page'
+// import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
+import logo from '../img/medspeech+Inovia_logo_rgb.png'
 import api from '../api'
 
 
@@ -67,8 +67,8 @@ const LoginPage = () => {
   }
 
   return (
-    <Page title="">
-      <div className="login"></div>
+      <div className="login">
+
         <EuiImage
           className="logo"
           size="m"
@@ -76,7 +76,7 @@ const LoginPage = () => {
           url={logo}
         />
       
-      <EuiFlexGroup>
+      <EuiFlexGroup >
         <EuiFlexItem>
           <EuiFieldText
             placeholder="username"
@@ -98,7 +98,7 @@ const LoginPage = () => {
         <EuiFlexItem grow={false}>
           <EuiButtonEmpty
             size="l"
-            color="primary"
+            style={{color:"white"}}
             type="submit"
             onClick={() => login()}
           >
@@ -106,7 +106,7 @@ const LoginPage = () => {
           </EuiButtonEmpty>
         </EuiFlexItem>
       </EuiFlexGroup>
-    </Page>
+      </div>
   )
 }
 

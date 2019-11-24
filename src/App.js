@@ -2,7 +2,13 @@
 // eslint-disable-next-line no-console
 import React, { Component } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
-import { EuiImage, EuiPage, EuiPageSideBar, EuiSideNav } from '@elastic/eui'
+import {
+  EuiImage,
+  EuiPage,
+  EuiPageSideBar,
+  // EuiButton,
+  EuiSideNav
+} from '@elastic/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
@@ -128,6 +134,10 @@ export default class App extends Component {
     })
   }
 
+  // collapseSideBar = () => {
+
+  // }
+
   render() {
     const { transcripts, preferences, sidenav, isLoggedIn } = this.state
     return (
@@ -149,6 +159,7 @@ export default class App extends Component {
                 style={{ width: 300 }}
                 items={sidenav}
               />
+              {/* <EuiButton color="text" fill onClick={this.collapseSideBar} >Collapse</EuiButton> */}
             </EuiPageSideBar>
             <Switch>
               <Route exact path="/" render={props => isLoggedIn ? <StartPage {...{

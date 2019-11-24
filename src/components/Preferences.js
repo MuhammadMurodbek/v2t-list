@@ -76,8 +76,11 @@ const Flyout = ({ visible, onClose }) => {
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
+
           <EuiText><h5>Uppspelning</h5></EuiText>
-          <EuiSpacer size="s" />
+
+          <EuiSpacer size="m" />
+
           <EuiFormRow label="">
             <EuiSwitch
               className="autoplaySwitch"
@@ -86,12 +89,10 @@ const Flyout = ({ visible, onClose }) => {
               onChange={setAutoPlayStatus}
             />
           </EuiFormRow>
-          <EuiSpacer size="l" />
-          <EuiText><h5>Show stop button</h5></EuiText>
-          <EuiSpacer size="s" />
+
           <EuiFormRow label="">
             <EuiSwitch
-              label="Show stop button"
+              label="Visa stoppknapp"
               checked={preferences.stopButtonVisibilityStatus}
               onChange={setStopButtonVisibilityStatus}
             />
