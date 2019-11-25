@@ -69,10 +69,10 @@ export const COLUMN_OPTIONS = [
   },
   {
     label: 'Öppna',
-    field: 'id',
+    field: 'external_id',
     name: '',
     width: '100px',
-    render: id => <EuiButtonEmpty href={`/#edit/${id}`}>Öppna</EuiButtonEmpty>,
+    render: external_id => <EuiButtonEmpty href={`/#edit/${external_id}`}>Öppna</EuiButtonEmpty>,
     disabled: true
   },
   {
@@ -178,7 +178,7 @@ export default class Preference {
       this._showVideo = false
       localStorage.setItem('showVideo', this._showVideo)
     } else if (this._showVideo === false) {
-      this._showVideo = true      
+      this._showVideo = true
       localStorage.setItem('showVideo', this._showVideo)
     } else {
       const showVideoFromStorage = localStorage.getItem('showVideo')

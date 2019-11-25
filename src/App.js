@@ -134,7 +134,7 @@ export default class App extends Component {
       selectedItemName: name
     })
   }
-  
+
   openHelpWindow = () => {
     window.open("https://inoviagroup.se/anvandarhandledning-v2t/", "_blank")
   }
@@ -181,9 +181,9 @@ export default class App extends Component {
                 Hjälp
               </EuiButtonEmpty>
             </EuiPageSideBar>
-            
-              
-            
+
+
+
             <Switch>
               <Route exact path="/" render={props => isLoggedIn ? <StartPage {...{
                 ...props,
@@ -193,7 +193,7 @@ export default class App extends Component {
                 path="/edit/:id"
                 render={(props) => {
                   const transcript = transcripts
-                    .find(currentTranscript => currentTranscript.id === props.match.params.id)
+                    .find(currentTranscript => currentTranscript.external_id === props.match.params.id)
                   return <EditPage {...{
                     ...props,
                     transcript
@@ -208,7 +208,7 @@ export default class App extends Component {
                      render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
               <Route path="/training/"
                      render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
-              <Route path="/login" 
+              <Route path="/login"
                 render={props => isLoggedIn ? <StartPage {...{
                   ...props,
                   transcripts
