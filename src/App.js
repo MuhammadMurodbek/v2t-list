@@ -6,8 +6,7 @@ import {
   EuiImage,
   EuiPage,
   EuiPageSideBar,
-  // EuiToolTip,
-  // EuiButton,
+  EuiButtonEmpty,
   EuiSideNav
 } from '@elastic/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
@@ -135,6 +134,10 @@ export default class App extends Component {
       selectedItemName: name
     })
   }
+  
+  openHelpWindow = () => {
+    window.open("https://inoviagroup.se/anvandarhandledning-v2t/", "_blank")
+  }
 
   // collapseSideBar = () => {
 
@@ -162,7 +165,25 @@ export default class App extends Component {
                 items={sidenav}
               />
               {/* <EuiButton color="text" fill onClick={this.collapseSideBar} >Collapse</EuiButton> */}
+              <EuiButtonEmpty
+                size="l"
+                style={{
+                  color: "white",
+                  position: "fixed",
+                  left: -12,
+                  fontWeight: 600,
+                  bottom: 10,
+                  width: 100,
+                  background: "transparent"
+                }}
+                onClick={() => this.openHelpWindow()}
+              >
+                Hjälp
+              </EuiButtonEmpty>
             </EuiPageSideBar>
+            
+              
+            
             <Switch>
               <Route exact path="/" render={props => isLoggedIn ? <StartPage {...{
                 ...props,
