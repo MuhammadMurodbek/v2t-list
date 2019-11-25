@@ -354,7 +354,7 @@ class Player extends Component {
           />
 
           <button
-            title="Tryck alt + → hoppa ett ord framåt"
+            title="Tryck alt + → för att hoppa ett ord framåt"
             className="play"
             id="backward"
             data-icon="B"
@@ -364,7 +364,7 @@ class Player extends Component {
           />
 
           <button
-            title="Tryck alt + ← hoppa ett ord bakåt"
+            title="Tryck alt + ← för att hoppa ett ord bakåt"
             className="play"
             id="forward"
             data-icon="F"
