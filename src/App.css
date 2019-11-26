@@ -60,3 +60,7 @@ p {
     margin-left: 20px;
     margin-right: 20px;
 }
+
+.euiSideNavItem--trunk > .euiSideNavItem__items {
+    width: 50%;
+}
