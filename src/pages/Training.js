@@ -14,7 +14,6 @@ import {
 import swal from 'sweetalert'
 import api from '../api'
 import Player from '../components/Player'
-import Editor from '../components/Editor'
 import Page from '../components/Page'
 import '../styles/simple-player.css'
 import TrainingHelp from '../components/training/TrainingHelp'
@@ -32,7 +31,8 @@ export default class UploadPage extends Component {
     previewContents: '',
     isPreviewVisible: false,
     revision: 0,
-    sequenceNumber: 0
+    sequenceNumber: 0,
+    finalChapters: ''
   }
 
   componentDidMount = async () => {
@@ -69,17 +69,8 @@ export default class UploadPage extends Component {
   }
 
   loadSubtitle = (status) => {
-    const tempChapter = [{
-      keyword: '',
-      segments: [
-        {
-          endTime: 0,
-          startTime: 0,
-          words: status.data.transcription.text
-        }]
-    }]
     this.setState({
-      chapters: tempChapter,
+      chapters: status.data.transcription.text,
       previewContents: status.data.transcription.text,
       revision: status.data.transcription.revision,
       sequenceNumber: status.data.transcription.sequenceNumber
@@ -115,42 +106,34 @@ export default class UploadPage extends Component {
     return updatedTextSegment
   }
 
-  onUpdateTranscript = (chapters) => {
-    this.setState({ chapters }, () => {
-      if (chapters[0]) {
+  onUpdateTranscript = (e) => {
+    const { finalChapters } = this.state
+    this.setState({ finalChapters: e.target.textContent }, () => {
+      if (finalChapters) {
         this.showPreview()
       }
     })
   }
 
   textProcessBeforeCompletion = () => {
-    const { chapters } = this.state
-    const updatedChapters = []
-    if (chapters[0]) {
-      chapters.forEach((chapter) => {
-        let tempChapter = {}
-        let tempSegments = ''
-        chapter.segments.forEach((segment) => {
-          tempSegments += this.textReplacementForTraining(segment.words)
+    const { finalChapters } = this.state
+    const allTheWords = finalChapters.split(' ')
+    let updatedChapters = ''
+    if (finalChapters) {
+        allTheWords.forEach((word, i) => {
+          if (i < allTheWords.length-1) {
+            updatedChapters += this.textReplacementForTraining(word) + ' '
+          } else {
+            updatedChapters += this.textReplacementForTraining(word)
+          }
         })
-        tempChapter = {
-          keyword: '',
-          segments: [
-            {
-              endTime: 0,
-              startTime: 0,
-              words: tempSegments
-            }]
-        }
-        updatedChapters.push(tempChapter)
-      })
     }
     return updatedChapters
   }
 
   showPreview = () => {
     const updatedChapters = this.textProcessBeforeCompletion()
-    this.setState({ previewContents: updatedChapters[0].segments[0].words })
+    this.setState({ previewContents: updatedChapters })
   }
 
   completeTranscript = () => {
@@ -250,7 +233,6 @@ export default class UploadPage extends Component {
       isMediaAudio,
       queryTerm,
       chapters,
-      currentTime,
       mediaId,
       toasts,
       incompleteTranscriptExists,
@@ -311,17 +293,16 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
           <EuiFlexItem style={{ fontSize: '22px' }}>
-            <Editor
-              transcript={chapters}
-              originalChapters={chapters}
-              chapters={chapters}
-              currentTime={currentTime}
-              onSelect={this.onSelectText}
-              updateTranscript={this.onUpdateTranscript}
-              validateTranscript={this.onValidateTranscript}
-              isDiffVisible={false}
-              sectionHeaders={[]}
-            />
+            <EuiText>
+              <pre>
+                <code
+                  onKeyUp={ this.onUpdateTranscript }
+                  contentEditable
+                  suppressContentEditableWarning
+                >{chapters}</code>
+              </pre>
+            </EuiText>
+            <EuiSpacer size="m" />
             <EuiText textAlign="right">
               <EuiButtonEmpty onClick={this.changePreviewVisibility} style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}>
                 {visibilityChange}

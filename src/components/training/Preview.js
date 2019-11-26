@@ -7,7 +7,7 @@ import '../../App.css'
 const Preview = ({ contents, visible }) => (
   <Fragment>
     <EuiText style={{ display: visible ? 'flex' : 'none' }}>
-      <h5>Preview</h5>
+      <h5>Förhandsvisning</h5>
     </EuiText>
     <EuiSpacer size="m" />
     <EuiText style={{ display: visible ? 'flex' : 'none' }}>
