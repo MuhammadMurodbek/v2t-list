@@ -43,8 +43,24 @@ export default class App extends Component {
     })
   }
 
+
+  getQueryStringValue(key) {
+    return decodeURIComponent(window.location.href.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent(key).replace(/[.+*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"))
+  }  
+
   fetchTranscripts = () => {
-    const token = localStorage.getItem('token')
+    const tokenFromStorage = localStorage.getItem('token')
+    const tokenFromQuery = this.getQueryStringValue('token')
+    let token 
+
+    if (tokenFromStorage) {
+      token = tokenFromStorage
+    }
+
+    if (tokenFromQuery) {
+      token = tokenFromQuery
+    }
+    
     if (token) {
       this.setState({ isLoggedIn: true })
       api.setToken(token)
