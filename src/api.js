@@ -82,7 +82,12 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
       },
       word_spotter: {
         section_template: 'ext1'
-      }
+      },
+      export: [
+        {
+          system_id: 'WEBDOC'
+        }
+      ]
     })], {
       type: 'application/json'
     })
