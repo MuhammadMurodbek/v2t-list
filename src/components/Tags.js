@@ -38,7 +38,7 @@ export default class Tags extends Component {
     // Purpose of doing this is to use free text search
     if (codeData.data !== null) {
       const options = codeData.data.map((code) => {
-        const label = `${code.value}: ${code.description}`
+        const label = `${code.value.toUpperCase()}: ${code.description}`
         return {
           ...code,
           label
@@ -120,7 +120,10 @@ export default class Tags extends Component {
         field: 'id',
         name: 'Kod',
         sortable: true,
-        width: '80px'
+        width: '80px',
+        render: (item) => {
+          return item.toUpperCase()
+        }
       },
       {
         field: 'description',
