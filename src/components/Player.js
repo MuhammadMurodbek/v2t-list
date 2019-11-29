@@ -24,6 +24,7 @@ class Player extends Component {
     duration: 1,
     mediaSkipDuration: 2,
     currentVolumeLevel: 0.6,
+    currentPlaybackRate: 1.0,
     toasts: []
   }
 
@@ -198,7 +199,7 @@ class Player extends Component {
   }
 
   handleKeyPress = (e) => {
-    const { isPlaying, currentVolumeLevel } = this.state
+    const { isPlaying, currentVolumeLevel, currentPlaybackRate } = this.state
     const media = this.myRef && this.myRef.current ? this.myRef.current : null
     if (e.altKey && e.key === 'ArrowLeft') {
       this.backwardMusic()
@@ -249,6 +250,45 @@ class Player extends Component {
             }]
           })
         }
+      })
+    } else if (e.shiftKey && e.key === 'ArrowUp') {
+      e.preventDefault()
+      // let updatedCurrentVolume = currentVolumeLevel
+      let updatedPlaybackRate = currentPlaybackRate
+      if (currentPlaybackRate !== 2) {
+        updatedPlaybackRate = parseFloat((currentPlaybackRate + 0.20).toFixed(2))
+      }
+      this.setState({
+        currentPlaybackRate: updatedPlaybackRate
+      }, () => {
+        media.playbackRate = currentPlaybackRate
+        this.setState({
+          toasts: [{
+            title: 'Speed',
+            color: 'success',
+            text: `${updatedPlaybackRate * 100}%`
+          }]
+        })
+      })
+    } else if (e.shiftKey && e.key === 'ArrowDown') {
+      e.preventDefault()
+      let updatedPlaybackRate = currentPlaybackRate
+      if (currentPlaybackRate !== 0.2) {
+        updatedPlaybackRate = parseFloat((currentPlaybackRate - 0.20).toFixed(2))
+      }
+      this.setState({
+        currentPlaybackRate: updatedPlaybackRate
+      }, () => {
+        media.playbackRate = updatedPlaybackRate
+        if (updatedPlaybackRate !== 0) {
+          this.setState({
+            toasts: [{
+              title: 'Volume 📢',
+              color: 'success',
+              text: `${updatedPlaybackRate * 100}%`
+            }]
+          })
+        } 
       })
     } else if (e.altKey && e.keyCode === 32) {
       if (isPlaying) {

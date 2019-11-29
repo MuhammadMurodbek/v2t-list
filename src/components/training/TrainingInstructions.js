@@ -18,28 +18,36 @@ const TrainingInstructions = () => {
 
   const items = [
     {
-      action: 'Play',
+      action: 'Spela Upp',
       shortcut: 'alt + space'
     },
     {
-      action: 'Pause',
+      action: 'Pausa',
       shortcut: 'alt + space'
     },
     {
-      action: 'Forward',
+      action: 'Stega framåt',
       shortcut: 'alt + →'
     },
     {
-      action: 'Backward',
+      action: 'Stega bakåt',
       shortcut: 'alt + ←'
     },
     {
-      action: 'Navigate Forward',
-      shortcut: 'tabs'
+      action: 'Uppspelningshastighet (snabbare)',
+      shortcut: 'shift + ↑'
     },
     {
-      action: 'Navigate Backward',
-      shortcut: 'shift + tabs'
+      action: 'Uppspelningshastighet (långsammare)',
+      shortcut: 'shift + ↓'
+    },
+    {
+      action: 'Höj volymen',
+      shortcut: 'alt + ↑'
+    },
+    {
+      action: 'Sänk volymen',
+      shortcut: 'alt + ↓'
     }
   ]
 
