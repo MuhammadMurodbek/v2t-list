@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { Component, Fragment } from 'react'
 import {
-  EuiGlobalToastList, EuiText, EuiSpacer
+  EuiGlobalToastList, EuiText, EuiSpacer, EuiToolTip
 } from '@elastic/eui'
 import '../styles/player.css'
 import Seek from './Seek'
@@ -283,7 +283,7 @@ class Player extends Component {
         if (updatedPlaybackRate !== 0) {
           this.setState({
             toasts: [{
-              title: 'Volume 📢',
+              title: 'Speed',
               color: 'success',
               text: `${updatedPlaybackRate * 100}%`
             }]
@@ -305,7 +305,7 @@ class Player extends Component {
 
   render() {
     const {
-      isPlaying, trackDuration, duration, currentTime, startTimes, seekPosition, toasts
+      isPlaying, trackDuration, duration, currentTime, startTimes, seekPosition, toasts, currentPlaybackRate
     } = this.state
     const {
       audioTranscript,
@@ -429,6 +429,14 @@ class Player extends Component {
             &nbsp;/&nbsp;
             {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
           </span>
+          <EuiToolTip  position="top" content="Uppspelningshastighet">
+            <span
+              aria-label="playbackSpeed"
+              className="playbackSpeed"
+            >
+              {(Math.round(currentPlaybackRate * 100) / 100).toFixed(2)}x
+          </span>
+          </EuiToolTip>
         </div>
         <VirtualControl
           transcript={audioTranscript}

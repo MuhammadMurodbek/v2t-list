@@ -33,7 +33,7 @@
 }
 
 .controls {
-  width: 710px;
+  width: 760px;
   bottom: 20px;
   background-color:  #f1f3f4;
   transition: 1s all;
@@ -41,7 +41,7 @@
 }
 
 .controlsWithStopButtonEnabled {
-  width: 750px;
+  width: 800px;
   bottom: 20px;
   background-color:  #f1f3f4;
   transition: 1s all;
@@ -338,4 +338,24 @@ input[type=range]:focus::-ms-fill-upper {
 
 .tips{
   color: red;
+}
+
+.playerInfo {
+    padding: 13px;
+    width: 280px;
+    margin-left: 36vw;
+    margin-top: -21px;
+}
+
+.playbackSpeed{
+  position: relative;
+  margin-left: 0px;
+  margin-top: 8px;
+  margin-right: 7px;
+  font-weight: 600;
+}
+
+.euiToolTipAnchor {
+    display: inline-block;
+    margin-top: 7px;
 }
