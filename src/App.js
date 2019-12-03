@@ -28,7 +28,8 @@ export default class App extends Component {
     transcripts: [],
     preferences: new Preference(),
     selectedItemName: 'lungor',
-    isLoggedIn: false
+    isLoggedIn: false,
+    isTokenFromUrl: false
   }
 
   componentDidMount() {
@@ -52,13 +53,14 @@ export default class App extends Component {
     const tokenFromStorage = localStorage.getItem('token')
     const tokenFromQuery = this.getQueryStringValue('token')
     let token 
-
+    
     if (tokenFromStorage) {
       token = tokenFromStorage
     }
 
     if (tokenFromQuery) {
       token = tokenFromQuery
+      this.setState({isTokenFromUrl: true})
     }
     
     if (token) {
@@ -160,12 +162,12 @@ export default class App extends Component {
   // }
 
   render() {
-    const { transcripts, preferences, sidenav, isLoggedIn } = this.state
+    const { transcripts, preferences, sidenav, isLoggedIn, isTokenFromUrl } = this.state
     return (
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>
           <EuiPage>
-            <EuiPageSideBar style={{ display: isLoggedIn ? 'inline-block' : 'none' }}>
+            <EuiPageSideBar style={{ display: isLoggedIn & !isTokenFromUrl? 'inline-block' : 'none' }}>
               <EuiImage
                 className="logo"
                 size="m"
