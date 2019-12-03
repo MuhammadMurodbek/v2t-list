@@ -429,7 +429,7 @@ class Player extends Component {
             &nbsp;/&nbsp;
             {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
           </span>
-          <EuiToolTip  position="top" content="Uppspelningshastighet">
+          <EuiToolTip position="top" content="Tryck shift+↑ eller shift+↓ för att ändra hastigheten">
             <span
               aria-label="playbackSpeed"
               className="playbackSpeed"
