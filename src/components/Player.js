@@ -264,7 +264,7 @@ class Player extends Component {
         media.playbackRate = currentPlaybackRate
         this.setState({
           toasts: [{
-            title: 'Speed',
+            title: 'Uppspelningshastighet',
             color: 'success',
             text: `${updatedPlaybackRate * 100}%`
           }]
@@ -283,7 +283,7 @@ class Player extends Component {
         if (updatedPlaybackRate !== 0) {
           this.setState({
             toasts: [{
-              title: 'Speed',
+              title: 'Uppspelningshastighet',
               color: 'success',
               text: `${updatedPlaybackRate * 100}%`
             }]
