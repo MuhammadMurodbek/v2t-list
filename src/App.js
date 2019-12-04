@@ -114,10 +114,12 @@ export default class App extends Component {
                   name: 'Ladda Upp',
                   onClick: () => this.selectItem('Upload')
                 }, {
-                  href: `http://${window.location.hostname.replace('www', 'kibana')}`,
                   id: 4,
                   isSelected: selectedItemName === 'Analytics',
-                  name: 'Analytics'
+                  name: 'Analytics',
+                  onClick: () => {
+                    window.open(`http://${window.location.hostname.replace('www', 'kibana')}`, '_blank').focus()
+                  }
                 }, {
                   href: '/#/training',
                   id: 5,
