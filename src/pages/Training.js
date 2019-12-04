@@ -321,7 +321,7 @@ export default class UploadPage extends Component {
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup
-          style={{ display: incompleteTranscriptExists }}
+          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
           <EuiFlexItem grow={false}>
             <EuiButton className="complete" fill color="secondary" onClick={this.completeTranscript}>Godkänn</EuiButton>
