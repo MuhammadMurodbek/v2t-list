@@ -157,6 +157,7 @@ export default class UploadPage extends Component {
             </Fragment>)
         }]
       }, async () => {
+        this.setState({ chapters: [] })
         await api.trainingUpdate(transcriptionId, sequenceNumber, previewContents)
         this.loadCurrentTranscript()
       })
@@ -183,6 +184,7 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, () => {
+      this.setState({ chapters: [] })
       this.loadCurrentTranscript()
     })
   }
@@ -205,8 +207,8 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, async () => {
+      this.setState({ chapters: [] })
       await api.trainingReject(transcriptionId, sequenceNumber)
-
       this.loadCurrentTranscript()
     })
   }
