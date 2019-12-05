@@ -341,14 +341,14 @@ export default class UploadPage extends Component {
         </EuiTitle>
         <EuiSpacer size="m" />
         <EuiFlexGroup
-          style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
+          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
           <EuiFlexItem>
             <TrainingHelp />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiGlobalToastList
-          style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
+          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
           toasts={toasts}
           dismissToast={this.removeToast}
           toastLifeTimeMs={1000}
