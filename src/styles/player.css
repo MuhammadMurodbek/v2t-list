@@ -32,10 +32,16 @@
   }
 }
 
+.sticky-controls {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+}
+
 .controls {
   width: 760px;
   bottom: 20px;
-  background-color:  #f1f3f4;
+  background-color: #b9bac1;
   transition: 1s all;
   display: flex;
 }
@@ -43,7 +49,7 @@
 .controlsWithStopButtonEnabled {
   width: 800px;
   bottom: 20px;
-  background-color:  #f1f3f4;
+  background-color: #b9bac1;
   transition: 1s all;
   display: flex;
 }
@@ -74,7 +80,7 @@
 @font-face {
   font-family: 'HeydingsControlsRegular';
   src: url('../data/fonts/heydings_controls-webfont.eot');
-  src: 
+  src:
     url('../data/fonts/heydings_controls-webfont.eot?#iefix') format('embedded-opentype'),
     url('../data/fonts/heydings_controls-webfont.woff') format('woff'),
     url('../data/fonts/heydings_controls-webfont.ttf') format('truetype');
@@ -260,7 +266,7 @@ input[type=range]::-moz-range-track {
   box-shadow: none;
   background-color: transparent;
   border-radius: 1.3px;
-  
+
 }
 
 input[type=range]::-ms-track {
@@ -274,9 +280,9 @@ input[type=range]::-ms-track {
 
 input[type=range]::-ms-fill-lower {
   background-color: rgba(165, 172, 233, 0.5);
-  
+
   border-radius: 2.6px;
-  
+
 }
 
 input[type=range]:focus::-ms-fill-lower {
@@ -285,9 +291,9 @@ input[type=range]:focus::-ms-fill-lower {
 
 input[type=range]::-ms-fill-upper {
   background-color: rgba(165, 172, 233, 0.5);
-  
+
   border-radius: 2.6px;
-  
+
 }
 
 input[type=range]:focus::-ms-fill-upper {

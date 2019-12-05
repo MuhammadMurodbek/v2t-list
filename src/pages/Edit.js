@@ -295,28 +295,22 @@ export default class EditPage extends Component {
     return (
       <Page preferences title="Editor">
         <div>
-          <EuiFlexGroup wrap>
-            <EuiFlexItem>
-              <figure>
-                <Player
-                  audioTranscript={originalChapters}
-                  trackId={transcript.external_id}
-                  getCurrentTime={this.getCurrentTime}
-                  updateSeek={this.onTimeUpdate}
-                  queryTerm={queryTerm}
-                  isPlaying={false}
-                  isContentAudio={isMediaAudio}
-                  ref={this.playerRef}
-                  searchBoxVisible
-                  isTraining={false}
-                  onPause={this.onPause}
-                />
-                <EuiSpacer size="l"/>
-                <EuiSpacer size="l"/>
-                <EuiHorizontalRule margin="xs" />
-              </figure>
-            </EuiFlexItem>
-          </EuiFlexGroup>
+          <Player
+            audioTranscript={originalChapters}
+            trackId={transcript.external_id}
+            getCurrentTime={this.getCurrentTime}
+            updateSeek={this.onTimeUpdate}
+            queryTerm={queryTerm}
+            isPlaying={false}
+            isContentAudio={isMediaAudio}
+            ref={this.playerRef}
+            searchBoxVisible
+            isTraining={false}
+            onPause={this.onPause}
+          />
+          <EuiSpacer size="l"/>
+          <EuiSpacer size="l"/>
+          <EuiHorizontalRule margin="xs" />
           <EuiSpacer size="l"/>
           <EuiSpacer size="l"/>
 

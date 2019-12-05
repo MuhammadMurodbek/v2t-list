@@ -363,91 +363,93 @@ class Player extends Component {
         element.
         </video>
 
-        <div className={preferences.stopButtonVisibilityStatus === false ? "controls" : "controlsWithStopButtonEnabled" }>
-          <button
-            title="Tryck alt+space för att spela"
-            style={{ display: isPlaying === false ? 'block' : 'none' }}
-            className="play"
-            id="play"
-            data-icon="P"
-            aria-label="play pause toggle"
-            onClick={this.playMusic}
-            type="button"
-          />
+        <div className="sticky-controls">
+          <div className={preferences.stopButtonVisibilityStatus === false ? "controls" : "controlsWithStopButtonEnabled" }>
+            <button
+              title="Tryck alt+space för att spela"
+              style={{ display: isPlaying === false ? 'block' : 'none' }}
+              className="play"
+              id="play"
+              data-icon="P"
+              aria-label="play pause toggle"
+              onClick={this.playMusic}
+              type="button"
+            />
 
-          <button
-            title="Tryck alt+space för att pausa"
-            style={{ display: isPlaying === true ? 'block' : 'none' }}
-            className="play"
-            id="pause"
-            data-icon="u"
-            aria-label="play pause toggle"
-            onClick={this.pauseMusic}
-            type="button"
-          />
+            <button
+              title="Tryck alt+space för att pausa"
+              style={{ display: isPlaying === true ? 'block' : 'none' }}
+              className="play"
+              id="pause"
+              data-icon="u"
+              aria-label="play pause toggle"
+              onClick={this.pauseMusic}
+              type="button"
+            />
 
-          <button
-            title="Tryck alt+space för att sluta"
-            style={{ display: preferences.stopButtonVisibilityStatus === true ? 'block' : 'none' }}
-            className="play"
-            id="stop"
-            data-icon="S"
-            aria-label="play pause toggle"
-            onClick={this.stopMusic}
-            type="button"
-          />
+            <button
+              title="Tryck alt+space för att sluta"
+              style={{ display: preferences.stopButtonVisibilityStatus === true ? 'block' : 'none' }}
+              className="play"
+              id="stop"
+              data-icon="S"
+              aria-label="play pause toggle"
+              onClick={this.stopMusic}
+              type="button"
+            />
 
-          <button
-            title="Tryck alt + → för att hoppa ett ord framåt"
-            className="play"
-            id="backward"
-            data-icon="B"
-            aria-label="stop"
-            onClick={this.backwardMusic}
-            type="button"
-          />
+            <button
+              title="Tryck alt + → för att hoppa ett ord framåt"
+              className="play"
+              id="backward"
+              data-icon="B"
+              aria-label="stop"
+              onClick={this.backwardMusic}
+              type="button"
+            />
 
-          <button
-            title="Tryck alt + ← för att hoppa ett ord bakåt"
-            className="play"
-            id="forward"
-            data-icon="F"
-            aria-label="stop"
-            onClick={this.forwardMusic}
-            type="button"
-          />
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={(seekPosition / duration) * 100}
-            className="sliderWrapper"
-            id="myRange"
-            onChange={this.onChangeSeek}
-          />
-          <span
-            aria-label="tidpunkt"
-            className={preferences.stopButtonVisibilityStatus === false ? "tidPunkt" : "tidPunktWithStopButtonEnabled"}
-          >
-            {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
-            &nbsp;/&nbsp;
-            {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
-          </span>
-          <EuiToolTip position="top" content="Tryck shift+↑ eller shift+↓ för att ändra hastigheten">
+            <button
+              title="Tryck alt + ← för att hoppa ett ord bakåt"
+              className="play"
+              id="forward"
+              data-icon="F"
+              aria-label="stop"
+              onClick={this.forwardMusic}
+              type="button"
+            />
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={(seekPosition / duration) * 100}
+              className="sliderWrapper"
+              id="myRange"
+              onChange={this.onChangeSeek}
+            />
             <span
-              aria-label="playbackSpeed"
-              className="playbackSpeed"
+              aria-label="tidpunkt"
+              className={preferences.stopButtonVisibilityStatus === false ? "tidPunkt" : "tidPunktWithStopButtonEnabled"}
             >
-              {(Math.round(currentPlaybackRate * 100) / 100).toFixed(2)}x
-          </span>
-          </EuiToolTip>
+              {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
+              &nbsp;/&nbsp;
+              {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
+            </span>
+            <EuiToolTip position="top" content="Tryck shift+↑ eller shift+↓ för att ändra hastigheten">
+              <span
+                aria-label="playbackSpeed"
+                className="playbackSpeed"
+              >
+                {(Math.round(currentPlaybackRate * 100) / 100).toFixed(2)}x
+            </span>
+            </EuiToolTip>
+          </div>
+          <VirtualControl
+            transcript={audioTranscript}
+            startTimes={startTimes}
+            duration={duration}
+            preferences={preferences}
+          />
         </div>
-        <VirtualControl
-          transcript={audioTranscript}
-          startTimes={startTimes}
-          duration={duration}
-          preferences={preferences}
-        />
         <EuiGlobalToastList
           toasts={toasts}
           dismissToast={this.removeToast}
