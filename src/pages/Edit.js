@@ -40,7 +40,8 @@ export default class EditPage extends Component {
     templateId: '',
     originalTemplate: '',
     // defaultTemplate: '',
-    sectionHeaders: []
+    sectionHeaders: [],
+    initialCursor: 0
   }
 
   componentDidMount() {
@@ -102,9 +103,9 @@ export default class EditPage extends Component {
 
     if (templates) {
       const { data } = templates
-      this.setState({ 
-        templates: data, 
-        defaultTemplate: template_id, 
+      this.setState({
+        templates: data,
+        defaultTemplate: template_id,
         templateId: template_id,
         originalTemplate: template_id
         }, () => {
@@ -192,11 +193,11 @@ export default class EditPage extends Component {
     throw new Error(e)
   }
 
-  save = async () => {    
+  save = async () => {
     const { transcript } = this.props
     const { originalChapters, chapters, tags, originalTags, templateId, originalTemplate } = this.state
-    if (JSON.stringify(originalChapters) === JSON.stringify(chapters) 
-      && JSON.stringify(tags) === JSON.stringify(originalTags) 
+    if (JSON.stringify(originalChapters) === JSON.stringify(chapters)
+      && JSON.stringify(tags) === JSON.stringify(originalTags)
       && (originalTemplate === templateId)) {
       swal({
         title: 'Det finns inget att uppdatera!',
@@ -264,6 +265,12 @@ export default class EditPage extends Component {
     this.setState({ chapters })
   }
 
+  onPause = () => {
+    const { currentTime } = this.state
+    const initialCursor = currentTime
+    this.setState({ initialCursor })
+  }
+
   cancel = () => {
     window.location = '/'
   }
@@ -281,7 +288,8 @@ export default class EditPage extends Component {
       templates,
       templateId,
       // defaultTemplate,
-      sectionHeaders
+      sectionHeaders,
+      initialCursor
     } = this.state
     if (!transcript) return null
     return (
@@ -301,6 +309,7 @@ export default class EditPage extends Component {
                   ref={this.playerRef}
                   searchBoxVisible
                   isTraining={false}
+                  onPause={this.onPause}
                 />
                 <EuiSpacer size="l"/>
                 <EuiSpacer size="l"/>
@@ -322,6 +331,7 @@ export default class EditPage extends Component {
                 updateTranscript={this.onUpdateTranscript}
                 isDiffVisible
                 sectionHeaders={sectionHeaders}
+                initialCursor={initialCursor}
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -332,7 +342,7 @@ export default class EditPage extends Component {
                     updateTags={this.onUpdateTags}
                   />
                   <EuiSpacer size="xxl" />
-                  <Templates 
+                  <Templates
                     listOfTemplates={templates.templates}
                     defaultTemplate={templateId}
                     updateSectionHeader={this.updateSectionHeader}

@@ -22,7 +22,8 @@ export default class Editor extends Component {
     transcript: null,
     originalChapters: null,
     chapters: null,
-    currentTime: 0
+    currentTime: 0,
+    initialCursor: 0
   }
 
   state = {
@@ -36,8 +37,11 @@ export default class Editor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { originalChapters } = this.props
-    this.updateCursor()
+    const { initialCursor, originalChapters } = this.props
+    if (initialCursor && prevProps.initialCursor !== initialCursor)
+      this.setCursor(initialCursor)
+    else
+      this.updateCursor()
 
     if (prevProps.originalChapters !== originalChapters) {
       this.initChapters()
@@ -56,6 +60,20 @@ export default class Editor extends Component {
       })
       updateTranscript(chapters)
     }
+  }
+
+  setCursor = (timestamp) => {
+    const { chapters } = this.props
+    const cursor = chapters.reduce((store, {segments}, chapter) => {
+      const segment = segments.findIndex(({startTime, endTime}) => {
+        //find segment within timestamp or find closest to startTime
+        return (startTime <= timestamp && endTime >= timestamp)
+          || (startTime > timestamp && startTime < store.startTime)
+      })
+      return segment >= 0 ? { chapter, segment, offset: 0, startTime: segments[segment].startTime } : store
+    }, { chapter: 0, segment: 0, offset: 0, startTime: Number.MAX_SAFE_INTEGER })
+    this.cursor = cursor
+    this.updateCursor()
   }
 
   updateCursor = () => {

@@ -58,8 +58,9 @@ class Player extends Component {
         this.setState({ isPlaying: false })
       }
     }
+    this.props.onPause()
   }
-  
+
   stopMusic = () => {
     if (this.myRef && this.myRef.current) {
       this.myRef.current.pause()
@@ -290,9 +291,10 @@ class Player extends Component {
               text: `${updatedPlaybackRate * 100}%`
             }]
           })
-        } 
+        }
       })
     } else if (e.altKey && e.keyCode === 32) {
+      e.preventDefault()
       if (isPlaying) {
         this.pauseMusic()
       } else {
@@ -383,7 +385,7 @@ class Player extends Component {
             onClick={this.pauseMusic}
             type="button"
           />
-          
+
           <button
             title="Tryck alt+space för att sluta"
             style={{ display: preferences.stopButtonVisibilityStatus === true ? 'block' : 'none' }}
@@ -423,8 +425,8 @@ class Player extends Component {
             id="myRange"
             onChange={this.onChangeSeek}
           />
-          <span 
-            aria-label="tidpunkt" 
+          <span
+            aria-label="tidpunkt"
             className={preferences.stopButtonVisibilityStatus === false ? "tidPunkt" : "tidPunktWithStopButtonEnabled"}
           >
             {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
