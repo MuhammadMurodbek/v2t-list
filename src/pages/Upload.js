@@ -1,10 +1,7 @@
 import React, { Component, Fragment } from 'react'
+import axios from 'axios'
 import PropTypes from 'prop-types'
 import {
-  EuiButton,
-  EuiFilePicker,
-  EuiFlexGroup,
-  EuiFlexItem,
   EuiForm,
   EuiFormRow,
   EuiGlobalToastList,
@@ -13,7 +10,6 @@ import {
   EuiSuperSelect,
   EuiFieldText
 } from '@elastic/eui'
-import api from '../api'
 import Page from '../components/Page'
 
 
@@ -88,10 +84,6 @@ export default class UploadPage extends Component {
     })
   }
 
-  onJobChange = (selectedJob) => {
-    this.setState({ selectedJob })
-  }
-
   onFilesChange = (files) => {
     this.setState({ files })
   }
@@ -120,6 +112,17 @@ export default class UploadPage extends Component {
     return this.onUploaded()
   }
 
+  uploadFile = (file, metadata) => {
+    const body = new FormData()
+    body.append('audio', file)
+    if (metadata) {
+      body.set('metadata', new Blob([JSON.stringify({ 'transcription': { 'model': metadata } })], {
+        type: "application/json"
+      }));
+    }
+    return axios.post(API_PATH, body)
+  }
+
   onUploaded = () => {
     this.setState({
       ...this.DEFAULT_STATE,
@@ -137,7 +140,8 @@ export default class UploadPage extends Component {
   }
 
   onUploadFailed = (e) => {
-    this.setState({ ...this.DEFAULT_STATE })
+    const message = `An error accured during file upload. ${e.message}`
+    this.setState({ ...this.DEFAULT_STATE, message })
     throw e
   }
 
@@ -240,17 +244,11 @@ export default class UploadPage extends Component {
                 Ladda Upp
               </EuiButton>
             </EuiFlexItem>
-            {/* <EuiFlexItem>
+            <EuiFlexItem>
               {message}
-            </EuiFlexItem> */}
+            </EuiFlexItem>
           </EuiFlexGroup>
         </EuiForm>
-        <EuiGlobalToastList
-          // style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
-          toasts={toasts}
-          dismissToast={this.removeToast}
-          toastLifeTimeMs={1000}
-        />
       </Page>
     )
   }
