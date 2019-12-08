@@ -95,6 +95,7 @@ class Player extends Component {
     seconds = seconds < 10 ? `0${seconds}` : seconds
     const trackDuration = `${minutes}:${seconds}`
     this.setState({ trackDuration, duration }, () => {
+      this.setState({ currentPlaybackRate: 1.0 })
       if (preferences.autoPlayStatus) {
         const media = this.myRef && this.myRef.current ? this.myRef.current : null
         media.play()
