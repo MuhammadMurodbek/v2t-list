@@ -16,7 +16,7 @@ const LiveTemplateEngine = ({ listOfTemplates }) => {
   const [sectionHeaders, setSectionHeaders] = useState([
     { name: 'KONTAKTORSAK', done: true },
     { name: 'AT', done: false },
-    { name: 'LUNGOR', done: true },
+    { name: 'LUNGOR', done: false },
     { name: 'BUK', done: false },
     { name: 'DIAGNOS', done: false }])
     
