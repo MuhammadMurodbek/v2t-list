@@ -1,7 +1,10 @@
 import React, { Component, Fragment } from 'react'
-import axios from 'axios'
 import PropTypes from 'prop-types'
 import {
+  EuiButton,
+  EuiFilePicker,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiForm,
   EuiFormRow,
   EuiGlobalToastList,
@@ -10,6 +13,7 @@ import {
   EuiSuperSelect,
   EuiFieldText
 } from '@elastic/eui'
+import api from '../api'
 import Page from '../components/Page'
 
 
@@ -84,6 +88,10 @@ export default class UploadPage extends Component {
     })
   }
 
+  onJobChange = (selectedJob) => {
+    this.setState({ selectedJob })
+  }
+
   onFilesChange = (files) => {
     this.setState({ files })
   }
@@ -112,17 +120,6 @@ export default class UploadPage extends Component {
     return this.onUploaded()
   }
 
-  uploadFile = (file, metadata) => {
-    const body = new FormData()
-    body.append('audio', file)
-    if (metadata) {
-      body.set('metadata', new Blob([JSON.stringify({ 'transcription': { 'model': metadata } })], {
-        type: "application/json"
-      }));
-    }
-    return axios.post(API_PATH, body)
-  }
-
   onUploaded = () => {
     this.setState({
       ...this.DEFAULT_STATE,
@@ -133,15 +130,14 @@ export default class UploadPage extends Component {
         text: (
           <Fragment>
             <h3>Successfully uploaded files</h3>
-            <EuiProgress size="s" color="subdued"/>
+            <EuiProgress size="s" color="subdued" />
           </Fragment>)
       }]
     })
   }
 
   onUploadFailed = (e) => {
-    const message = `An error accured during file upload. ${e.message}`
-    this.setState({ ...this.DEFAULT_STATE, message })
+    this.setState({ ...this.DEFAULT_STATE })
     throw e
   }
 
@@ -179,7 +175,7 @@ export default class UploadPage extends Component {
           <EuiFormRow label="Välj fil">
             <EuiFilePicker
               initialPromptText="Ladda upp fil"
-              onChange={this.onFilesChange}/>
+              onChange={this.onFilesChange} />
           </EuiFormRow>
           <EuiSpacer size="xs" />
           <EuiFormRow label="Välj AI modell för transkriberingen">
@@ -212,14 +208,14 @@ export default class UploadPage extends Component {
           </EuiFormRow>
           <EuiSpacer size="l" />
           <EuiFormRow label="Patients Personnummer">
-          <EuiFieldText
-            placeholder="Patients Personnummer"
-            value={this.state.patientnummer}
-            onChange={this.onPatientNumberChange}
-            aria-label="Use aria labels when no actual label is in use"
-          />
+            <EuiFieldText
+              placeholder="Patients Personnummer"
+              value={this.state.patientnummer}
+              onChange={this.onPatientNumberChange}
+              aria-label="Use aria labels when no actual label is in use"
+            />
           </EuiFormRow>
-            <EuiSpacer size="l" />
+          <EuiSpacer size="l" />
           <EuiFormRow label="Doktors Namn">
             <EuiFieldText
               placeholder="Doktors Namn"
@@ -244,11 +240,17 @@ export default class UploadPage extends Component {
                 Ladda Upp
               </EuiButton>
             </EuiFlexItem>
-            <EuiFlexItem>
+            {/* <EuiFlexItem>
               {message}
-            </EuiFlexItem>
+            </EuiFlexItem> */}
           </EuiFlexGroup>
         </EuiForm>
+        <EuiGlobalToastList
+          // style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}
+          toasts={toasts}
+          dismissToast={this.removeToast}
+          toastLifeTimeMs={1000}
+        />
       </Page>
     )
   }
