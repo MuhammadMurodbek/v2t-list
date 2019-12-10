@@ -174,7 +174,7 @@ export default class UploadPage extends Component {
   skipTranscript = () => {
     this.setState({
       toasts: [{
-        id: 0,
+        id: '0',
         title: '',
         color: 'primary',
         text: (
@@ -197,7 +197,7 @@ export default class UploadPage extends Component {
 
     this.setState({
       toasts: [{
-        id: 0,
+        id: '0',
         title: '',
         color: 'danger',
         text: (

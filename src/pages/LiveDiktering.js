@@ -185,7 +185,7 @@ const LiveDiktering = () => {
         console.log('processedString')
         console.log(processedString)
         console.log('processedString')
-      setChapters([{ keyword: "KONTAKTORSAK", segments: [{ words: processedString, startTime: 0.00, endTime: 0.00 }] }])
+        setChapters([{ keyword: "KONTAKTORSAK", segments: [{ words: processedString, startTime: 0.00, endTime: 0.00 }] }])
         setWordDump(processedString)
     }
 
@@ -203,9 +203,9 @@ const LiveDiktering = () => {
                 if (messageBody.Transcript.Results[0]) {
                     stringDump.push(messageBody.Transcript.Results[0].Alternatives[0].Transcript)
                 }
-                // console.log('-----')
-                // console.log(stringDump)
-                // console.log('-----')
+                console.log('-----')
+                console.log(stringDump)
+                console.log('-----')
                 postPrecess(stringDump)
                 //setWordDump(stringDump)
             } else {
