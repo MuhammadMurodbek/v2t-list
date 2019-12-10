@@ -88,18 +88,17 @@ export default class Editor extends Component {
     }
   }
 
-  escapeRegExp = string => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
-
   stashCursor = (offset = 0) => {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
+     // range.startContainer becomes the node after cursor when no nodes exist in front of cursor (deleted)
+    const isFirstNode = node.isSameNode(this.getFirstSegmentNode(node))
     const dataset = this.getClosestDataset(node)
-    const escapedTextContent = this.escapeRegExp(node.textContent)
-    const siblingOffset = node.wholeText ? node.wholeText.replace(new RegExp(`${escapedTextContent}$`), '').length : 0
+    const siblingOffset = this.isPastedInParent(node) ? node.parentNode.previousSibling.innerText.length : 0
     this.cursor = {
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
-      segment: Number(dataset.segment || 0),
+      segment: isFirstNode ? 0 : Number(dataset.segment || 0),
       offset: range.startOffset + siblingOffset + offset
     }
     this.arrangeCursor()
@@ -110,23 +109,29 @@ export default class Editor extends Component {
     const range = document.createRange()
     if (selection.rangeCount > 0) selection.removeAllRanges()
     const container = this.getSelectedElement()
-    console.log('container.firstChild')
-    console.log(container.firstChild)
-    if (container.firstChild) {
-      if (this.cursor.offset <= container.firstChild.length) {
-        range.setStart(container.firstChild || container, this.cursor.offset)
-        range.setEnd(container.firstChild || container, this.cursor.offset)
-      } else {
-        range.setStart(container.firstChild || container, container.firstChild.length)
-        range.setEnd(container.firstChild || container, container.firstChild.length)
-      }
-    }
+    range.setStart(container.firstChild || container, this.cursor.offset)
+    range.setEnd(container.firstChild || container, this.cursor.offset)
     selection.addRange(range)
     this.cursor = null
   }
 
+  getFirstSegmentNode = (node) => {
+    return node.nodeName === 'CODE' ? node.firstChild.firstChild : this.getFirstSegmentNode(node.parentNode)
+  }
+
+  isPastedInParent = (node) => {
+    const parent = node.parentNode
+    return !Object.keys(node.dataset || {}).length && !Object.keys(parent.dataset || {}).length &&
+      parent.previousSibling && !!Object.keys(parent.previousSibling.dataset || {}).length
+  }
+
   getClosestDataset = (node) => {
-    return Object.keys(node.dataset || {}).length ? node.dataset : this.getClosestDataset(node.parentNode)
+    const currentHasDataset = Object.keys(node.dataset || {}).length
+    if (currentHasDataset)
+      return node.dataset
+    if (this.isPastedInParent(node))
+      return node.parentNode.previousSibling.dataset
+    return this.getClosestDataset(node.parentNode)
   }
 
   getSelectedElement = () => {
@@ -169,46 +174,10 @@ export default class Editor extends Component {
     updateTranscript(chapters)
   }
 
-  onPaste = (e, chapterId) => {
-    const original = e.target.innerText
-    const insert = e.clipboardData.getData('Text')
-    const selection = window.getSelection()
-    const range = selection.getRangeAt(0)
-    const endOffset = range.startContainer.isSameNode(range.endContainer) ? range.endOffset : original.length
-    const words = `${original.slice(0, range.startOffset)}${insert}${original.slice(endOffset)}`
-    e.preventDefault()
-    if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, words)
-    this.onChangeSegments(chapterId, range, words, insert.length)
-  }
-
-  onChangeSegments = (chapterId, range, words, offset) => {
-    const { updateTranscript } = this.props
-    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
-    const startSegmentId = Number(this.getClosestDataset(range.startContainer).segment || 0)
-    const endSegmentId = Number(this.getClosestDataset(range.endContainer).segment || 0)
-    const endSegment = chapters[chapterId].segments[endSegmentId]
-    endSegment.words = endSegment.words.slice(range.endOffset)
-    for (let segmentId = endSegmentId - 1; segmentId > startSegmentId; segmentId--)
-      chapters[chapterId].segments.splice(segmentId, 1)
-    chapters[chapterId].segments[startSegmentId].words = words
-    this.stashCursor(offset)
-    const diff = this.getDiff(chapters)
-    this.setState({ diff })
-    updateTranscript(chapters)
-  }
-
   onKeyDown = (e, chapterId) => {
     const selection = window.getSelection()
     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
-    if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
-      this.splitChapter(e, chapterId, segmentId)
-    }
-    if (e.keyCode === KEYCODE_BACKSPACE) {
-      this.handleWordChange(e, chapterId, segmentId)
-    }
-    if (e.keyCode === KEYCODE_DELETE) {
-      this.mergeWithNextChapter(e, chapterId, segmentId)
-    }
+    this.handleChapterChange(e, chapterId, segmentId)
   }
 
   updateKeyword = (id, value) => {
@@ -246,46 +215,25 @@ export default class Editor extends Component {
     updateTranscript(chapters)
   }
 
-  handleWordChange = (e, chapterId, segmentId) => {
-    const selection = window.getSelection()
-    const isBeginningSelected = segmentId === 0 && selection.getRangeAt(0).endOffset === 0
-    const range = selection.getRangeAt(0)
+  handleChapterChange = (e, chapterId, segmentId) => {
+    const lastSegmentId = this.props.chapters[chapterId].segments.length - 1
     const textContent = e.target.childNodes[segmentId].textContent
-    const startSegment = Number(range.startContainer.parentNode.dataset.segment)
-    const endSegment = Number(range.endContainer.parentNode.dataset.segment)
-
-    if(startSegment === endSegment && textContent.length === range.endOffset - range.startOffset)
-      return
-    const isSegmentMerge = (/\s$/.test(textContent)
-      && textContent.length === range.endOffset)
-      || (startSegment !== endSegment)
-    if (isBeginningSelected) {
-      this.mergeWithPreviousChapter(e, chapterId)
-    } else if(isSegmentMerge){
-      this.mergeSegment(e, chapterId, startSegment, endSegment)
+    const range = window.getSelection().getRangeAt(0)
+    const isBeginningSelected = segmentId === 0 && range.endOffset === 0
+    const isEndingSelected = segmentId === lastSegmentId && range.startOffset === textContent.length
+    if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
+      this.splitChapter(e, chapterId, segmentId)
+    } else if (isBeginningSelected && e.keyCode === KEYCODE_BACKSPACE) {
+      this.mergeChapter(e, chapterId, chapterId -1, -1)
+    } else if (isEndingSelected && e.keyCode === KEYCODE_DELETE) {
+      this.mergeChapter(e, chapterId +1, chapterId)
     }
-  }
-
-  mergeWithPreviousChapter = (e, chapterId) => {
-    this.mergeChapter(e, chapterId, chapterId - 1, -1)
-  }
-
-  mergeWithNextChapter = (e, chapterId, segmentId) => {
-    const { chapters } = this.props
-    const selection = window.getSelection()
-    const chapter = chapters[chapterId]
-    const isLastSegment = chapter.segments.length - 1 <= segmentId
-    const segment = chapter.segments[segmentId]
-    const wordsLength = segment ? segment.words.length : 0
-    const endingSelected = isLastSegment && wordsLength === selection.getRangeAt(0).startOffset
-    if (endingSelected)
-      this.mergeChapter(e, chapterId + 1, chapterId)
   }
 
   mergeChapter = (e, fromChapterId, toChapterId, cursorOffset) => {
     const { updateTranscript } = this.props
-    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     e.preventDefault()
+    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     this.stashCursor(cursorOffset)
     const toSegments = chapters[toChapterId].segments
@@ -297,43 +245,21 @@ export default class Editor extends Component {
     updateTranscript(chapters)
   }
 
-  mergeSegment = (e, chapterId, startSegment, endSegment) => {
-    const { updateTranscript } = this.props
-    const chapters = JSON.parse(JSON.stringify(this.props.chapters))
-    e.preventDefault()
-    const selection = window.getSelection()
-    const range = selection.getRangeAt(0)
-    const startOffset = Number(range.startOffset)
-    const endOffset = Number(range.endOffset)
-    if(startSegment === endSegment) {
-      const selfWords = chapters[chapterId].segments[startSegment].words
-      if (chapters[chapterId].segments[startSegment + 1]) {
-        const nextSegmentWords = chapters[chapterId].segments[startSegment + 1].words
-        const mergedWords = selfWords.slice(0, -1).concat(nextSegmentWords)
-        chapters[chapterId].segments[startSegment].words = mergedWords
-        chapters[chapterId].segments.splice(startSegment + 1, 1)
-        this.stashCursor(-1)
-      } else {
-        chapters[chapterId].segments.splice(startSegment + 1, 1)
-        this.stashCursor(-1)
-      }
-    } else {
-      const startSegmentWords = chapters[chapterId].segments[startSegment].words.slice(0, startOffset)
-      const endSegmentWords = chapters[chapterId].segments[endSegment].words.slice(endOffset)
-      const mergedWords = `${startSegmentWords}${endSegmentWords}`
-      chapters[chapterId].segments[startSegment].words = mergedWords
-      chapters[chapterId].segments.splice(startSegment + 1, endSegment - startSegment)
-      this.stashCursor(0)
-    }
-    const diff = this.getDiff(chapters)
-    this.setState({ diff })
-    updateTranscript(chapters)
-  }
-
   parseChapter = (target, chapterId) => {
     const { chapters } = this.props
-    const segments = Array.from(target.childNodes).map(child => this.parseSegment(child, chapterId))
-      .filter(segment => segment.words.length)
+    const segments = Array.from(target.childNodes)
+      .reduce((store, child) => {
+        const segment = this.parseSegment(child, chapterId)
+        const lastSegment = store[store.length -1]
+        if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
+          lastSegment.words += segment.words
+          lastSegment.endTime = segment.endTime
+          store[store.length -1] = lastSegment
+        } else if (segment.words.length) {
+          store.push(segment)
+        }
+        return store
+      }, [])
     return { ...chapters[chapterId], segments }
   }
 
@@ -387,7 +313,6 @@ export default class Editor extends Component {
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
-          onPaste={this.onPaste}
           error={error}
           context={preferences}
           sectionHeaders={sectionHeaders}
@@ -403,9 +328,9 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
+const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect, error, context, sectionHeaders, setKeyword }) => {
   if (!inputRef) return null
-  const editors = chapters.map((chapter, i) => (
+    const editors = chapters.map((chapter, i) => (
     <EditableChapter
       key={i}
       chapterId={i}
@@ -415,7 +340,6 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
       onChange={onChange}
       onKeyDown={onKeyDown}
       onSelect={onSelect}
-      onPaste={onPaste}
       error={error}
       context={context}
       sectionHeaders={sectionHeaders}
@@ -429,7 +353,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, segments, onChange, onKeyDown, currentTime, onSelect, onPaste, error, context, sectionHeaders, setKeyword }) => {
+const EditableChapter = ({ chapterId, keyword, segments, onChange, onKeyDown, currentTime, onSelect, error, context, sectionHeaders, setKeyword }) => {
   // const onFocus = () => {
   // if (keyword === NEW_KEYWORD)
   //    setTimeout(() => document.execCommand('selectAll', false, null), 0)
@@ -464,14 +388,13 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, onKeyDown, cu
         onChange={onChange}
         onKeyDown={onKeyDown}
         onSelect={onSelect}
-        onPaste={onPaste}
         context={context}
       />
     </Fragment>
   )
 }
 
-const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect, onPaste }) => {
+const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect }) => {
   const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
     <pre>
@@ -480,7 +403,6 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}
         onSelect={onSelect}
-        onPaste={e => onPaste(e, chapterId)}
         contentEditable
         suppressContentEditableWarning
         data-chapter={chapterId}
