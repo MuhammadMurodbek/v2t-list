@@ -30,9 +30,8 @@ export default class UploadPage extends Component {
     incompleteTranscriptExists: true,
     previewContents: '',
     isPreviewVisible: false,
-    revision: 0,
-    sequenceNumber: 0,
-    finalChapters: ''
+    finalChapters: '',
+    token: localStorage.getItem('token')
   }
 
   componentDidMount = async () => {
@@ -40,7 +39,7 @@ export default class UploadPage extends Component {
     this.playerRef = React.createRef()
     this.setState({
       toasts: [{
-        id: 0,
+        id: '0',
         title: '',
         color: 'primary',
         text: (
@@ -56,10 +55,10 @@ export default class UploadPage extends Component {
 
   loadCurrentTranscript = async () => {
     const status = await api.trainingGetNext()
-    if (status.data.transcription) {
+    if (status.data.data) {
       this.setState({
-        transcriptionId: status.data.transcription.transcriptionId,
-        mediaId: status.data.transcription.media
+        transcriptionId: status.data.data.id,
+        mediaId: status.data.data.id
       }, () => {
         this.loadSubtitle(status)
       })
@@ -70,10 +69,8 @@ export default class UploadPage extends Component {
 
   loadSubtitle = (status) => {
     this.setState({
-      chapters: status.data.transcription.text,
-      previewContents: status.data.transcription.text,
-      revision: status.data.transcription.revision,
-      sequenceNumber: status.data.transcription.sequenceNumber
+      chapters: status.data.data.text,
+      previewContents: status.data.data.text
     })
   }
 
@@ -139,15 +136,14 @@ export default class UploadPage extends Component {
   completeTranscript = () => {
     const {
       transcriptionId,
-      previewContents,
-      sequenceNumber
+      previewContents
     } = this.state
     this.textProcessBeforeCompletion()
     let reg = /^[A-Za-z åäöé]+$/
     if (previewContents.match(reg)) {
       this.setState({
         toasts: [{
-          id: 0,
+          id: '0',
           title: '',
           color: 'success',
           text: (
@@ -158,7 +154,7 @@ export default class UploadPage extends Component {
         }]
       }, async () => {
         this.setState({ chapters: [] })
-        await api.trainingUpdate(transcriptionId, sequenceNumber, previewContents)
+        await api.trainingUpdate(transcriptionId, previewContents)
         this.loadCurrentTranscript()
       })
     } else {      
@@ -174,7 +170,7 @@ export default class UploadPage extends Component {
   skipTranscript = () => {
     this.setState({
       toasts: [{
-        id: 0,
+        id: '0',
         title: '',
         color: 'primary',
         text: (
@@ -191,13 +187,12 @@ export default class UploadPage extends Component {
 
   rejectTranscript = () => {
     const {
-      transcriptionId,
-      sequenceNumber
+      transcriptionId
     } = this.state
 
     this.setState({
       toasts: [{
-        id: 0,
+        id: '0',
         title: '',
         color: 'danger',
         text: (
@@ -208,7 +203,7 @@ export default class UploadPage extends Component {
       }]
     }, async () => {
       this.setState({ chapters: [] })
-      await api.trainingReject(transcriptionId, sequenceNumber)
+      await api.trainingReject(transcriptionId)
       this.loadCurrentTranscript()
     })
   }
@@ -240,7 +235,8 @@ export default class UploadPage extends Component {
       incompleteTranscriptExists,
       previewContents,
       isPreviewVisible,
-      autoplayStatus
+      autoplayStatus,
+      token
     } = this.state
 
     const visibilityChange = isPreviewVisible ? 'Dolj' : 'Visa'
@@ -285,6 +281,8 @@ export default class UploadPage extends Component {
               searchBoxVisible={false}
               isTraining
               autoplayEnabled={autoplayStatus}
+              onPause={()=>{}}
+              token={token}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

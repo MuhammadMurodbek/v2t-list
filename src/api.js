@@ -127,12 +127,12 @@ const updateTranscription = (transcriptionId, tags, chapters, template_id) => {
 }
 
 const trainingGetNext = () => {
-  return axios.get('/api/training/v1')
-    .catch(error => error)
+  return axios.get(`/api/training/v2/transcript`)
+    .catch(error => console.log(error))
 }
 
-const trainingUpdate = (transcriptionId, sequenceNumber, updatedText) => {
-  return axios.put(`/api/training/v1/${transcriptionId}/${sequenceNumber}`,
+const trainingUpdate = (transcriptionId, updatedText) => {
+  return axios.post(`/api/training/v2/transcript/${transcriptionId}/status`,
     {
       text: updatedText
     })
@@ -141,10 +141,10 @@ const trainingUpdate = (transcriptionId, sequenceNumber, updatedText) => {
     })
 }
 
-const trainingReject = (transcriptionId, sequenceNumber) => {
-  return axios.put(`/api/training/v1/${transcriptionId}/${sequenceNumber}`,
+const trainingReject = (transcriptionId) => {
+  return axios.post(`/api/training/v2/${transcriptionId}/status`,
     {
-      status: 'REJECT'
+      reject: true
     })
     .catch((error) => {
       logout()
