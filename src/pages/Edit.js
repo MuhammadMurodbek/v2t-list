@@ -41,8 +41,7 @@ export default class EditPage extends Component {
     originalTemplate: '',
     // defaultTemplate: '',
     sectionHeaders: [],
-    initialCursor: 0,
-    token: null
+    initialCursor: 0
   }
 
   componentDidMount() {
@@ -121,12 +120,6 @@ export default class EditPage extends Component {
           const sectionHeaders = sections.map(section => section.name)
           this.setState({ sectionHeaders})
         })
-    }
-    
-    if (localStorage.getItem('token')) {
-      this.setState({ token: localStorage.getItem('token') })
-    } else if (this.getQueryStringValue('token')){
-      this.setState({ token: this.getQueryStringValue('token') })
     }
   }
 
@@ -299,8 +292,7 @@ export default class EditPage extends Component {
       templateId,
       // defaultTemplate,
       sectionHeaders,
-      initialCursor,
-      token
+      initialCursor
     } = this.state
     if (!transcript) return null
     return (
