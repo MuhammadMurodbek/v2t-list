@@ -147,7 +147,7 @@ const trainingReject = (transcriptionId) => {
       reject: true
     })
     .catch((error) => {
-      logout()
+      console.log(error)
     })
 }
 
