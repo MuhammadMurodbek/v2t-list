@@ -8,8 +8,8 @@ import {
 import '../App.css'
 
 const ListOfHeaders = ({ headers }) => {
-  const listItems = headers.map((header) => 
-    <Fragment>
+  const listItems = headers.map((header, i) => 
+    <Fragment key={i}>
       <li style={{ 
           'textDecoration': header.done===true ? 'line-through' : 'none',
           'color': header.done===true ? 'gray' : 'black'
