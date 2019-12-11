@@ -41,7 +41,8 @@ export default class EditPage extends Component {
     originalTemplate: '',
     // defaultTemplate: '',
     sectionHeaders: [],
-    initialCursor: 0
+    initialCursor: 0,
+    token: null
   }
 
   componentDidMount() {
@@ -63,6 +64,10 @@ export default class EditPage extends Component {
     }
   }
 
+  getQueryStringValue(key) {
+    return decodeURIComponent(window.location.href.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent(key).replace(/[.+*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"))
+  }  
+  
   loadSegments = async () => {
     const { transcript } = this.props
     // const [preferences] = this.context
@@ -116,6 +121,12 @@ export default class EditPage extends Component {
           const sectionHeaders = sections.map(section => section.name)
           this.setState({ sectionHeaders})
         })
+    }
+    
+    if (localStorage.getItem('token')) {
+      this.setState({ token: localStorage.getItem('token') })
+    } else if (this.getQueryStringValue('token')){
+      this.setState({ token: this.getQueryStringValue('token') })
     }
   }
 
@@ -288,7 +299,8 @@ export default class EditPage extends Component {
       templateId,
       // defaultTemplate,
       sectionHeaders,
-      initialCursor
+      initialCursor,
+      token
     } = this.state
     if (!transcript) return null
     return (
@@ -306,6 +318,7 @@ export default class EditPage extends Component {
             searchBoxVisible
             isTraining={false}
             onPause={this.onPause}
+            token={token}
           />
           <EuiSpacer size="l"/>
           <EuiSpacer size="l"/>
