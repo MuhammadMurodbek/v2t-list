@@ -18,11 +18,14 @@ export default class LiveDikterin2 extends Component {
     recordingAction: 'start',
     microphoneBeingPressed: false,
     listOfTemplates: [],
-    chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "Börja live diktering ...", startTime: 0.00, endTime: 0.00 }] }]
+    chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "Börja live diktering ...", startTime: 0.00, endTime: 0.00 }] }],
+    originalText: '',
+    currentText: ''
   }
 
   componentDidMount = () => {
     this.templates()
+    document.title = 'Inovia AI :: Live Diktering 🎤'
   }
 
   templates = async () => {
@@ -117,8 +120,16 @@ export default class LiveDikterin2 extends Component {
     // updateAnalysers();
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
+      console.log('text')
       console.log(text)
-        prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
+      const { originalText } = prevState.state
+      prevState.setState({ currentText: text }, ()=>{
+        console.log('prevState.state.whole')
+        const finalText = `${originalText} ${prevState.state.currentText}`
+        console.log(finalText)
+        prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: finalText, startTime: 0.00, endTime: 0.00 }] }] })
+      })
+        // prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
     });
   }
 
@@ -159,12 +170,15 @@ export default class LiveDikterin2 extends Component {
   }
 
   toggleRecord = () => {
-    const { microphoneBeingPressed } = this.state
+    const { microphoneBeingPressed, originalText, currentText } = this.state
     if (microphoneBeingPressed === true) {
-    // stopDiktation()
       this.setState({ microphoneBeingPressed: false })
       this.setState({ recordingAction: 'start' })
-    } else {
+      // Close the socket
+      this.socketio.emit('end-recording')
+      this.socketio.close()
+      this.setState({ originalText: `${originalText} ${currentText}`})
+        } else {
       this.setState({ recording: true }, ()=> {
         this.setState({ microphoneBeingPressed: true })
         this.setState({ recordingAction: 'stop' })
@@ -187,12 +201,15 @@ export default class LiveDikterin2 extends Component {
         <EuiSpacer size="m" />
         <EuiSpacer size="m" />
         {/* <EuiButton onClick={this.toggleRecording}>Click me</EuiButton> */}
-        <Mic
-          recordingAction={recordingAction}
-          microphoneBeingPressed={microphoneBeingPressed}
-          toggleRecord={this.toggleRecord}
-        />
-        
+        <EuiFlexGroup >
+          <EuiFlexItem>
+            <Mic
+              recordingAction={recordingAction}
+              microphoneBeingPressed={microphoneBeingPressed}
+              toggleRecord={this.toggleRecord}
+            />
+          </EuiFlexItem>
+        </EuiFlexGroup >
         <EuiSpacer size="l" />
         <EuiSpacer size="l" />
         <EuiSpacer size="l" />
