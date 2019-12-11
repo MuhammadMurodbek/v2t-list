@@ -1,5 +1,5 @@
 // Used react synthetic event
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment } from 'react'
 import {
   EuiSpacer,
   EuiText,

@@ -1,5 +1,5 @@
 // Used react synthetic event
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState } from 'react'
 import DropDown from './DropDown'
 import {
   EuiSpacer,
@@ -24,7 +24,7 @@ const LiveTemplateEngine = ({ listOfTemplates }) => {
     console.log('e')
     console.log(e)
     setSelectedTemplate(e)
-    listOfTemplates.map(template => {
+    listOfTemplates.forEach(template => {
       if(template.id===e) {
         setSectionHeaders(template.sections.map(section =>{return { name: section.name, 'done': false }}))
       }

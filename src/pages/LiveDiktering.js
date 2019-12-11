@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from 'react'
-import { EuiSpacer, EuiButton, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
+import React, { Component } from 'react'
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
@@ -33,7 +33,7 @@ export default class LiveDikterin2 extends Component {
   }
 
   onSelectText = () => {
-    const selctedText = window.getSelection().toString()
+    // update later
   }
 
   onUpdateTranscript = (chapters) => {
@@ -159,7 +159,7 @@ export default class LiveDikterin2 extends Component {
   }
 
   toggleRecord = () => {
-    const { microphoneBeingPressed, recordingAction } = this.state
+    const { microphoneBeingPressed } = this.state
     if (microphoneBeingPressed === true) {
     // stopDiktation()
       this.setState({ microphoneBeingPressed: false })
