@@ -264,7 +264,6 @@ export default class EditPage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    console.log(chapters)
     this.setState({ chapters })
   }
 

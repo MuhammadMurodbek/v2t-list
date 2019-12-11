@@ -317,14 +317,15 @@ class Player extends Component {
       trackId,
       getCurrentTime,
       isContentAudio,
-      searchBoxVisible
+      searchBoxVisible,
+      token
     } = this.props
 
     const [preferences] = this.context
     let trackUrl = `/api/transcriptions/v1/${trackId}/media`
     const isTraining = this.props
     if (isTraining) {
-      trackUrl = `/api/training/v1/media/${trackId}`
+      trackUrl = `/api/training/v2/transcript/${trackId}/media?_token=${token}`
     }
     return (
       <Fragment>
