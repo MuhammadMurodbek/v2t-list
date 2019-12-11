@@ -18,7 +18,7 @@ export default class LiveDikterin2 extends Component {
     recordingAction: 'start',
     microphoneBeingPressed: false,
     listOfTemplates: [],
-    chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "Börja live diktering ...", startTime: 0.00, endTime: 0.00 }] }],
+    chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "...", startTime: 0.00, endTime: 0.00 }] }],
     originalText: '',
     currentText: ''
   }
@@ -159,14 +159,17 @@ export default class LiveDikterin2 extends Component {
       this.setState({ recording: true })
       this.initAudio()
       console.log('button is clicked')
-      // let socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
-
       this.socketio.emit('start-recording', {
         numChannels: 1,
         bps: 16,
         fps: parseInt(this.audioContext.sampleRate)
       })
-    } else {}
+    } else {
+      this.setState({ recording: false })
+      this.initAudio()
+      console.log('button is clicked')
+      this.socketio.emit('end-record')
+    }
   }
 
   toggleRecord = () => {
