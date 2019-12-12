@@ -128,15 +128,15 @@ export default class App extends Component {
                   isSelected: selectedItemName === 'Training',
                   name: 'Träning',
                   onClick: () => this.selectItem('Training')
-                }, {
-                  href: '/#/livediktering',
-                  id: 6,
-                  isSelected: selectedItemName === 'Live',
-                  name: 'Live Diktering',
-                  onClick: () => this.selectItem('Live')
+                // }, {
+                //   href: '/#/livediktering',
+                //   id: 6,
+                //   isSelected: selectedItemName === 'Live',
+                //   name: 'Live Diktering',
+                //   onClick: () => this.selectItem('Live')
                 }, {
                   href: `http://${window.location.hostname.replace('www', 'webdoc')}`,
-                  id: 7,
+                  id: 6,
                   isSelected: selectedItemName === 'Co-worker',
                   name: 'Co-worker',
                   onClick: () => this.selectItem('Co-worker')
