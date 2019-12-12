@@ -1,9 +1,8 @@
 // Used react synthetic event
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import DropDown from './DropDown'
 import {
   EuiSpacer,
-  EuiText,
   EuiForm,
   EuiFormRow,
   EuiSuperSelect
@@ -11,7 +10,7 @@ import {
 import ListOfHeaders from './ListOfHeaders'
 import '../App.css'
 
-const LiveTemplateEngine = ({ listOfTemplates }) => {
+const LiveTemplateEngine = ({ listOfTemplates, usedSections }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('ext1')
   const [sectionHeaders, setSectionHeaders] = useState([
     { name: 'KONTAKTORSAK', done: true },
@@ -20,13 +19,40 @@ const LiveTemplateEngine = ({ listOfTemplates }) => {
     { name: 'BUK', done: false },
     { name: 'DIAGNOS', done: false }])
     
+  // Similar to componentDidMount and componentDidUpdate:
+  useEffect(() => {
+    // Update the document title using the browser API
+    updateSectionHeader()
+  });
+
+  const updateSectionHeader = () => {
+    console.log('sectionheader changed')
+    listOfTemplates.forEach(template => {
+      if (template.id === selectedTemplate) {
+        setSectionHeaders(template.sections.map(section => {
+          if (usedSections.includes(section.name)) {
+            return { name: section.name, 'done': true }
+          } else {
+            return { name: section.name, 'done': false }
+          }
+        }))
+      }
+    })
+  }
+
   const onTemplateChange = (e) => {
-    console.log('e')
+    console.log('onTemplateChange')
     console.log(e)
     setSelectedTemplate(e)
     listOfTemplates.forEach(template => {
       if(template.id===e) {
-        setSectionHeaders(template.sections.map(section =>{return { name: section.name, 'done': false }}))
+        setSectionHeaders(template.sections.map(section =>{
+          if (usedSections.includes(section.name)){
+            return { name: section.name, 'done': true }
+          } else {
+            return { name: section.name, 'done': false }
+          }
+        }))
       }
     })
   }
@@ -45,9 +71,6 @@ const LiveTemplateEngine = ({ listOfTemplates }) => {
 
   return (
     <Fragment>
-      <EuiText size="xs">
-        <h2>Available Templates</h2>
-      </EuiText>
       <EuiSpacer size="m" />
       <EuiForm>
         <EuiFormRow label="Välj journalmall">

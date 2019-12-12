@@ -79,6 +79,24 @@ export default class LiveDikterin2 extends Component {
     return merger;
   }
 
+
+  processChapters = (finalText) => {
+    console.log(finalText)
+    const arrayList = ["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"]
+    const words = finalText.split(' ')
+    let tempChapters = [{ keyword: "KONTAKTORSAK", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] }]
+    words.forEach((word)=>{
+      if (arrayList.includes(word.toUpperCase())){
+        tempChapters.push({ keyword: word.toUpperCase(), segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
+      } else { 
+        tempChapters[tempChapters.length - 1].segments[0].words = `${tempChapters[tempChapters.length - 1].segments[0].words}  ${word}`
+      }
+    })
+    console.log('tempChapters')
+    console.log(tempChapters)
+    return tempChapters
+  }
+
   gotStream = (stream) => {
     const { recording } = this.state
     let inputPoint = this.audioContext.createGain();
@@ -127,7 +145,7 @@ export default class LiveDikterin2 extends Component {
         console.log('prevState.state.whole')
         const finalText = `${originalText} ${prevState.state.currentText}`
         console.log(finalText)
-        prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: finalText, startTime: 0.00, endTime: 0.00 }] }] })
+        prevState.setState({ chapters: prevState.processChapters(finalText) })
       })
         // prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
     });
@@ -147,30 +165,6 @@ export default class LiveDikterin2 extends Component {
     });
   }
 
-  toggleRecording = (e) => {
-    // audioInput = null
-    // realAudioInput = null
-    // inputPoint = null
-    // recording = false
-    // rafID = null
-    // analyserContext = null
-    const { recording } = this.state
-    if (recording === false) {
-      this.setState({ recording: true })
-      this.initAudio()
-      console.log('button is clicked')
-      this.socketio.emit('start-recording', {
-        numChannels: 1,
-        bps: 16,
-        fps: parseInt(this.audioContext.sampleRate)
-      })
-    } else {
-      this.setState({ recording: false })
-      this.initAudio()
-      console.log('button is clicked')
-      this.socketio.emit('end-record')
-    }
-  }
 
   toggleRecord = () => {
     const { microphoneBeingPressed, originalText, currentText } = this.state
@@ -198,24 +192,10 @@ export default class LiveDikterin2 extends Component {
 
   render() {
       const { chapters, recordingAction, microphoneBeingPressed, listOfTemplates } = this.state
+      const usedSections = chapters.map(chapter => chapter.keyword)
+      console.log(usedSections)
     return (
       <Page preferences title="">
-        <EuiSpacer size="m" />
-        <EuiSpacer size="m" />
-        <EuiSpacer size="m" />
-        {/* <EuiButton onClick={this.toggleRecording}>Click me</EuiButton> */}
-        <EuiFlexGroup >
-          <EuiFlexItem>
-            <Mic
-              recordingAction={recordingAction}
-              microphoneBeingPressed={microphoneBeingPressed}
-              toggleRecord={this.toggleRecord}
-            />
-          </EuiFlexItem>
-        </EuiFlexGroup >
-        <EuiSpacer size="l" />
-        <EuiSpacer size="l" />
-        <EuiSpacer size="l" />
         <EuiFlexGroup >
           <EuiFlexItem>
             <Editor
@@ -231,7 +211,14 @@ export default class LiveDikterin2 extends Component {
             />
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ minWidth: 230, marginLeft: 30 }}>
-            <LiveTemplateEngine listOfTemplates={listOfTemplates} />
+            <EuiSpacer size="l" />
+              <Mic
+                recordingAction={recordingAction}
+                microphoneBeingPressed={microphoneBeingPressed}
+                toggleRecord={this.toggleRecord}
+              />
+              <EuiSpacer size="l" />
+            <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
