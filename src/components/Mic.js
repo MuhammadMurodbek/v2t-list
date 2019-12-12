@@ -33,11 +33,10 @@ const Mic = ({
     </span>
     <EuiSpacer size="m" />
     <span>
-      Click the button to
       &nbsp;
       {recordingAction}
       &nbsp;
-      recording
+      diktering
     </span>
   </EuiTextAlign>
 )

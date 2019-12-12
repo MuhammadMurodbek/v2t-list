@@ -15,7 +15,7 @@ export default class LiveDikterin2 extends Component {
 
   state = {
     recording: false,
-    recordingAction: 'start',
+    recordingAction: 'Starta',
     microphoneBeingPressed: false,
     listOfTemplates: [],
     chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "...", startTime: 0.00, endTime: 0.00 }] }],
@@ -86,6 +86,7 @@ export default class LiveDikterin2 extends Component {
 
   processChapters = (finalText) => {
     const { sections } = this.state
+    console.log('finalText with everythin')
     console.log(finalText)
     const arrayList = sections
     const words = finalText.split(' ')
@@ -94,7 +95,15 @@ export default class LiveDikterin2 extends Component {
       if (arrayList.includes(word.toUpperCase())){
         tempChapters.push({ keyword: word.toUpperCase(), segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
       } else { 
-        tempChapters[tempChapters.length - 1].segments[0].words = `${tempChapters[tempChapters.length - 1].segments[0].words}  ${word}`
+        if (word === '\n') {
+          console.log('found ny rad')
+          // tempChapters[tempChapters.length - 1].segments[0].words = tempChapters[tempChapters.length - 1].segments[0].words + "\n"
+          tempChapters[tempChapters.length - 1].segments[0].words = `${tempChapters[tempChapters.length - 1].segments[0].words} `
+        } else {
+          tempChapters[tempChapters.length - 1].segments[0].words = `${tempChapters[tempChapters.length - 1].segments[0].words}  ${word}`
+        }
+       
+
       }
     })
     console.log('tempChapters')
@@ -175,7 +184,7 @@ export default class LiveDikterin2 extends Component {
     const { microphoneBeingPressed, originalText, currentText } = this.state
     if (microphoneBeingPressed === true) {
       this.setState({ microphoneBeingPressed: false })
-      this.setState({ recordingAction: 'start' })
+      this.setState({ recordingAction: 'Starta' })
       // Close the socket
       this.socketio.emit('end-recording')
       this.socketio.close()
@@ -183,7 +192,7 @@ export default class LiveDikterin2 extends Component {
         } else {
       this.setState({ recording: true }, ()=> {
         this.setState({ microphoneBeingPressed: true })
-        this.setState({ recordingAction: 'stop' })
+        this.setState({ recordingAction: 'Avsluta' })
         this.initAudio()
         console.log('button is clicked')
         this.socketio.emit('start-recording', {
@@ -198,7 +207,6 @@ export default class LiveDikterin2 extends Component {
   render() {
     const { chapters, recordingAction, microphoneBeingPressed, listOfTemplates, sections } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
-    console.log(usedSections)
     return (
       <Page preferences title="">
         <EuiFlexGroup >

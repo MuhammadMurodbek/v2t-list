@@ -26,7 +26,6 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   });
 
   const updateSectionHeader = () => {
-    console.log('sectionheader changed')
     listOfTemplates.forEach(template => {
       if (template.id === selectedTemplate) {
         setSectionHeaders(template.sections.map(section => {
@@ -42,8 +41,6 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   }
 
   const onTemplateChange = (e) => {
-    console.log('onTemplateChange')
-    console.log(e)
     setSelectedTemplate(e)
     listOfTemplates.forEach(template => {
       if(template.id===e) {
