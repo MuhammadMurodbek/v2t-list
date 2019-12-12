@@ -41,8 +41,7 @@ export default class EditPage extends Component {
     originalTemplate: '',
     // defaultTemplate: '',
     sectionHeaders: [],
-    initialCursor: 0,
-    token: null
+    initialCursor: 0
   }
 
   componentDidMount() {
@@ -125,12 +124,6 @@ export default class EditPage extends Component {
           })
         })
     }
-    
-    if (localStorage.getItem('token')) {
-      this.setState({ token: localStorage.getItem('token') })
-    } else if (this.getQueryStringValue('token')){
-      this.setState({ token: this.getQueryStringValue('token') })
-    }
   }
 
   parseTranscriptions = (transcriptions) => {
@@ -181,8 +174,9 @@ export default class EditPage extends Component {
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       this.sendToCoworker()
     } else {
-      await this.save()
-      this.sendToCoworker()
+      this.save().then(()=>{
+        this.sendToCoworker()
+      })
     }
   }
 
@@ -197,7 +191,7 @@ export default class EditPage extends Component {
         title: 'Det är inte möjligt att skicka till Co-Worker, vänligen prova igen senare.',
         text: '',
         icon: 'error',
-        button: 'Avbryt'
+        button: 'Ok'
       })
     }
   }
@@ -207,7 +201,7 @@ export default class EditPage extends Component {
     throw new Error(e)
   }
 
-  save = async () => {
+  save = () => {
     const { transcript } = this.props
     const { originalChapters, chapters, tags, originalTags, templateId, originalTemplate } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters)
@@ -240,7 +234,7 @@ export default class EditPage extends Component {
       })
     })
 
-    api.updateTranscription(transcript.external_id, tags, chapters, templateId)
+    return api.updateTranscription(transcript.external_id, tags, chapters, templateId)
       .then(() => {
         this.setState({
           originalChapters: this.parseTranscriptions(chapters),
@@ -289,7 +283,7 @@ export default class EditPage extends Component {
   }
 
   render() {
-    const { transcript } = this.props
+    const { transcript, token } = this.props
     const {
       currentTime,
       originalChapters,
@@ -302,8 +296,7 @@ export default class EditPage extends Component {
       templateId,
       // defaultTemplate,
       sectionHeaders,
-      initialCursor,
-      token
+      initialCursor
     } = this.state
     if (!transcript) return null
     return (

@@ -142,12 +142,12 @@ const trainingUpdate = (transcriptionId, updatedText) => {
 }
 
 const trainingReject = (transcriptionId) => {
-  return axios.post(`/api/training/v2/${transcriptionId}/status`,
+  return axios.post(`/api/training/v2/transcript/${transcriptionId}/status`,
     {
       reject: true
     })
     .catch((error) => {
-      logout()
+      console.log(error)
     })
 }
 

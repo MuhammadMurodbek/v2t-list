@@ -30,7 +30,8 @@ export default class App extends Component {
     preferences: new Preference(),
     selectedItemName: 'lungor',
     isLoggedIn: false,
-    isTokenFromUrl: false
+    isTokenFromUrl: false,
+    token: null
   }
 
   componentDidMount() {
@@ -65,7 +66,7 @@ export default class App extends Component {
     }
     
     if (token) {
-      this.setState({ isLoggedIn: true })
+      this.setState({ isLoggedIn: true, token })
       api.setToken(token)
 
       api.loadTickets(undefined, 0, 200)
@@ -171,7 +172,7 @@ export default class App extends Component {
   // }
 
   render() {
-    const { transcripts, preferences, sidenav, isLoggedIn, isTokenFromUrl } = this.state
+    const { transcripts, preferences, sidenav, isLoggedIn, isTokenFromUrl, token } = this.state
     return (
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>
@@ -223,7 +224,8 @@ export default class App extends Component {
                     .find(currentTranscript => currentTranscript.external_id === props.match.params.id)
                   return <EditPage {...{
                     ...props,
-                    transcript
+                    transcript,
+                    token
                   }} />
                 }}
               />
