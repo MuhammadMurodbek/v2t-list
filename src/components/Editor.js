@@ -39,7 +39,7 @@ export default class Editor extends Component {
   componentDidUpdate(prevProps) {
     const { initialCursor, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
-      this.setCursor(initialCursor)
+      this.setCursor(initialCursor, true)
     else
       this.updateCursor()
 
@@ -62,7 +62,7 @@ export default class Editor extends Component {
     }
   }
 
-  setCursor = (timestamp) => {
+  setCursor = (timestamp, select) => {
     const { chapters } = this.props
     const cursor = chapters.reduce((store, {segments}, chapter) => {
       const segment = segments.findIndex(({startTime, endTime}) => {
@@ -70,8 +70,8 @@ export default class Editor extends Component {
         return (startTime <= timestamp && endTime >= timestamp)
           || (startTime > timestamp && startTime < store.startTime)
       })
-      return segment >= 0 ? { chapter, segment, offset: 0, startTime: segments[segment].startTime } : store
-    }, { chapter: 0, segment: 0, offset: 0, startTime: Number.MAX_SAFE_INTEGER })
+      return segment >= 0 ? { chapter, segment, offset: 0, startTime: segments[segment].startTime, select } : store
+    }, { chapter: 0, segment: 0, offset: 0, startTime: Number.MAX_SAFE_INTEGER, select })
     this.cursor = cursor
     this.updateCursor()
   }
@@ -105,12 +105,17 @@ export default class Editor extends Component {
   }
 
   popCursor = () => {
+    const { offset, select } = this.cursor
     const selection = window.getSelection()
     const range = document.createRange()
     if (selection.rangeCount > 0) selection.removeAllRanges()
     const container = this.getSelectedElement()
-    range.setStart(container.firstChild || container, this.cursor.offset)
-    range.setEnd(container.firstChild || container, this.cursor.offset)
+    const element = container.firstChild || container
+    const textLength = element.textContent.length
+    const startOffset = select ? 0 : offset
+    const endOffset = select && textLength ? textLength - 1 : offset
+    range.setStart(element, startOffset)
+    range.setEnd(element, endOffset)
     selection.addRange(range)
     this.cursor = null
   }
