@@ -171,8 +171,9 @@ export default class EditPage extends Component {
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
       this.sendToCoworker()
     } else {
-      await this.save()
-      this.sendToCoworker()
+      this.save().then(()=>{
+        this.sendToCoworker()
+      })
     }
   }
 
@@ -187,7 +188,7 @@ export default class EditPage extends Component {
         title: 'Det är inte möjligt att skicka till Co-Worker, vänligen prova igen senare.',
         text: '',
         icon: 'error',
-        button: 'Avbryt'
+        button: 'Ok'
       })
     }
   }
@@ -197,7 +198,7 @@ export default class EditPage extends Component {
     throw new Error(e)
   }
 
-  save = async () => {
+  save = () => {
     const { transcript } = this.props
     const { originalChapters, chapters, tags, originalTags, templateId, originalTemplate } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters)
@@ -230,7 +231,7 @@ export default class EditPage extends Component {
       })
     })
 
-    api.updateTranscription(transcript.external_id, tags, chapters, templateId)
+    return api.updateTranscription(transcript.external_id, tags, chapters, templateId)
       .then(() => {
         this.setState({
           originalChapters: this.parseTranscriptions(chapters),
