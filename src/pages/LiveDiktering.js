@@ -20,7 +20,8 @@ export default class LiveDikterin2 extends Component {
     listOfTemplates: [],
     chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "...", startTime: 0.00, endTime: 0.00 }] }],
     originalText: '',
-    currentText: ''
+    currentText: '',
+    sections: ["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"]
   }
 
   componentDidMount = () => {
@@ -78,11 +79,15 @@ export default class LiveDikterin2 extends Component {
     splitter.connect(merger, 0, 1);
     return merger;
   }
-
+  
+  updatedSections = (sections) => {
+    this.setState({ sections }) 
+  }
 
   processChapters = (finalText) => {
+    const { sections } = this.state
     console.log(finalText)
-    const arrayList = ["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"]
+    const arrayList = sections
     const words = finalText.split(' ')
     let tempChapters = [{ keyword: "KONTAKTORSAK", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] }]
     words.forEach((word)=>{
@@ -147,7 +152,7 @@ export default class LiveDikterin2 extends Component {
         console.log(finalText)
         prevState.setState({ chapters: prevState.processChapters(finalText) })
       })
-        // prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
+      // prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
     });
   }
 
@@ -191,9 +196,9 @@ export default class LiveDikterin2 extends Component {
   }
 
   render() {
-      const { chapters, recordingAction, microphoneBeingPressed, listOfTemplates } = this.state
-      const usedSections = chapters.map(chapter => chapter.keyword)
-      console.log(usedSections)
+    const { chapters, recordingAction, microphoneBeingPressed, listOfTemplates, sections } = this.state
+    const usedSections = chapters.map(chapter => chapter.keyword)
+    console.log(usedSections)
     return (
       <Page preferences title="">
         <EuiFlexGroup >
@@ -206,7 +211,7 @@ export default class LiveDikterin2 extends Component {
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
               isDiffVisible={false}
-              sectionHeaders={["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"]}
+              sectionHeaders={sections}
               initialCursor={0}
             />
           </EuiFlexItem>
@@ -218,7 +223,7 @@ export default class LiveDikterin2 extends Component {
                 toggleRecord={this.toggleRecord}
               />
               <EuiSpacer size="l" />
-            <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} />
+            <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>

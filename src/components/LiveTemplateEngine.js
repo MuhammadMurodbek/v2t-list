@@ -10,7 +10,7 @@ import {
 import ListOfHeaders from './ListOfHeaders'
 import '../App.css'
 
-const LiveTemplateEngine = ({ listOfTemplates, usedSections }) => {
+const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('ext1')
   const [sectionHeaders, setSectionHeaders] = useState([
     { name: 'KONTAKTORSAK', done: true },
@@ -36,6 +36,7 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections }) => {
             return { name: section.name, 'done': false }
           }
         }))
+        updatedSections(sectionHeaders.map(sectionHeader=>sectionHeader.name))
       }
     })
   }
@@ -64,10 +65,6 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections }) => {
       dropdownDisplay: ( <DropDown title={template.name} />)
     }
   })
-
-  // const template = listOfTemplates.find(template => template.id === selectedTemplate)
-  // const sections = template ? template.sections : []
-  // const sectionNames = sections.map(section => section.name)
 
   return (
     <Fragment>
