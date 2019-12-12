@@ -176,7 +176,11 @@ export default class LiveDikterin2 extends Component {
     //   alert('Error getting audio');
     //   console.log(e);
     // });
-   
+    if (navigator.mediaDevices === undefined) {
+      navigator.mediaDevices = {};
+    }
+
+  
 
 
     navigator.mediaDevices.getUserMedia({ audio: true })
