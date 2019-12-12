@@ -65,8 +65,8 @@ export default class EditPage extends Component {
 
   getQueryStringValue(key) {
     return decodeURIComponent(window.location.href.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent(key).replace(/[.+*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"))
-  }  
-  
+  }
+
   loadSegments = async () => {
     const { transcript } = this.props
     // const [preferences] = this.context
@@ -146,6 +146,10 @@ export default class EditPage extends Component {
 
   onTimeUpdate = (currentTime) => {
     this.setState({ currentTime })
+  }
+
+  onCursorTimeChange = (cursorTime) => {
+    this.setState({ cursorTime })
   }
 
   getCurrentTime = () => {
@@ -283,6 +287,7 @@ export default class EditPage extends Component {
     const { transcript, token } = this.props
     const {
       currentTime,
+      cursorTime,
       originalChapters,
       chapters,
       queryTerm,
@@ -302,6 +307,7 @@ export default class EditPage extends Component {
           <Player
             audioTranscript={originalChapters}
             trackId={transcript.external_id}
+            cursorTime={cursorTime}
             getCurrentTime={this.getCurrentTime}
             updateSeek={this.onTimeUpdate}
             queryTerm={queryTerm}
@@ -326,6 +332,7 @@ export default class EditPage extends Component {
                 originalChapters={originalChapters}
                 chapters={chapters}
                 currentTime={currentTime}
+                onCursorTimeChange={this.onCursorTimeChange}
                 onSelect={this.onSelectText}
                 updateTranscript={this.onUpdateTranscript}
                 isDiffVisible

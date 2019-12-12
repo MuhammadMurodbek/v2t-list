@@ -120,6 +120,16 @@ export default class Editor extends Component {
     this.cursor = null
   }
 
+  onCursorChange = () => {
+    const { chapters, onCursorTimeChange } = this.props
+    const selection = window.getSelection()
+    const chapterId = Number(selection.anchorNode.parentNode.dataset.chapter || 0)
+    const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
+    const segment = chapters[chapterId] && chapters[chapterId].segments[segmentId]
+    const timestamp = segment ? segment.startTime : 0
+    onCursorTimeChange(timestamp)
+  }
+
   getFirstSegmentNode = (node) => {
     return node.nodeName === 'CODE' ? node.firstChild.firstChild : this.getFirstSegmentNode(node.parentNode)
   }
@@ -318,6 +328,7 @@ export default class Editor extends Component {
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
+          onCursorChange={this.onCursorChange}
           error={error}
           context={preferences}
           sectionHeaders={sectionHeaders}
@@ -333,7 +344,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown, onSelect, error, context, sectionHeaders, setKeyword }) => {
+const EditableChapters = ({ chapters, inputRef, ...editableChapterProps }) => {
   if (!inputRef) return null
     const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -341,14 +352,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
       chapterId={i}
       keyword={chapter.keyword}
       segments={chapter.segments}
-      currentTime={currentTime}
-      onChange={onChange}
-      onKeyDown={onKeyDown}
-      onSelect={onSelect}
-      error={error}
-      context={context}
-      sectionHeaders={sectionHeaders}
-      setKeyword={setKeyword}
+      {...{ ...editableChapterProps }}
     />
   ))
   return (
@@ -358,7 +362,7 @@ const EditableChapters = ({ chapters, inputRef, currentTime, onChange, onKeyDown
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, segments, onChange, onKeyDown, currentTime, onSelect, error, context, sectionHeaders, setKeyword }) => {
+const EditableChapter = ({ chapterId, keyword, sectionHeaders, setKeyword, ...chunkProps }) => {
   // const onFocus = () => {
   // if (keyword === NEW_KEYWORD)
   //    setTimeout(() => document.execCommand('selectAll', false, null), 0)
@@ -387,19 +391,14 @@ const EditableChapter = ({ chapterId, keyword, segments, onChange, onKeyDown, cu
         chapterId={chapterId}
       />
       <Chunks
-        segments={segments}
-        currentTime={currentTime}
         chapterId={chapterId}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-        onSelect={onSelect}
-        context={context}
+        {...{ ...chunkProps }}
       />
     </Fragment>
   )
 }
 
-const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect }) => {
+const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect, onCursorChange }) => {
   const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
     <pre>
@@ -407,6 +406,8 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
         key={segments.toString()}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}
+        onKeyUp={onCursorChange}
+        onClick={onCursorChange}
         onSelect={onSelect}
         contentEditable
         suppressContentEditableWarning

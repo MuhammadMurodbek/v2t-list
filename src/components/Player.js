@@ -32,6 +32,13 @@ class Player extends Component {
     document.addEventListener('keydown', this.handleKeyPress)
   }
 
+  componentDidUpdate = (prevProps) => {
+    const { cursorTime } = this.props
+    const { isPlaying } = this.state
+    if (!isPlaying && prevProps.cursorTime !== cursorTime)
+      this.myRef.current.currentTime = cursorTime
+  }
+
   onChangeSeek = (e) => {
     const { duration } = this.state
     const { value } = e.target
@@ -205,11 +212,7 @@ class Player extends Component {
   handleKeyPress = (e) => {
     const { isPlaying, currentVolumeLevel, currentPlaybackRate } = this.state
     const media = this.myRef && this.myRef.current ? this.myRef.current : null
-    if (e.altKey && e.key === 'ArrowLeft') {
-      this.backwardMusic()
-    } else if (e.altKey && e.key === 'ArrowRight') {
-      this.forwardMusic()
-    } else if (e.altKey && e.key === 'ArrowUp') {
+    if (e.altKey && e.key === 'ArrowUp') {
       e.preventDefault()
       let updatedCurrentVolume = currentVolumeLevel
       if (currentVolumeLevel !== 1) {
