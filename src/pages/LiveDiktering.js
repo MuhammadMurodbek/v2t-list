@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
-
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
+import PersonalInformation from '../components/PersonalInformation'
 import io from 'socket.io-client';
 import Page from '../components/Page'
 
@@ -21,7 +21,8 @@ export default class LiveDikterin2 extends Component {
     chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "...", startTime: 0.00, endTime: 0.00 }] }],
     originalText: '',
     currentText: '',
-    sections: ["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"]
+    sections: ["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"],
+    isMicrophoneStarted: false
   }
 
   componentDidMount = () => {
@@ -166,17 +167,51 @@ export default class LiveDikterin2 extends Component {
   }
 
   initAudio = () => {
-    if (!navigator.getUserMedia)
-      navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-    if (!navigator.cancelAnimationFrame)
-      navigator.cancelAnimationFrame = navigator.webkitCancelAnimationFrame || navigator.mozCancelAnimationFrame;
-    if (!navigator.requestAnimationFrame)
-      navigator.requestAnimationFrame = navigator.webkitRequestAnimationFrame || navigator.mozRequestAnimationFrame;
+    // const { isMicrophoneStarted } = this.state
+    // // if (isMicrophoneStarted) {}
+    // if (!navigator.getUserMedia)
+    //   navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-    navigator.getUserMedia({ audio: true }, this.gotStream, function (e) {
-      alert('Error getting audio');
-      console.log(e);
-    });
+    // navigator.getUserMedia({ audio: true }, this.gotStream, function (e) {
+    //   alert('Error getting audio');
+    //   console.log(e);
+    // });
+    if (navigator.mediaDevices === undefined) {
+      navigator.mediaDevices = {};
+    }
+
+    // Some browsers partially implement mediaDevices. We can't just assign an object
+    // with getUserMedia as it would overwrite existing properties.
+    // Here, we will just add the getUserMedia property if it's missing.
+    if (navigator.mediaDevices.getUserMedia === undefined) {
+      navigator.mediaDevices.getUserMedia = function (constraints) {
+
+        // First get ahold of the legacy getUserMedia, if present
+        var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+        // Some browsers just don't implement it - return a rejected promise with an error
+        // to keep a consistent interface
+        if (!getUserMedia) {
+          return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+        }
+
+        // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+        return new Promise(function (resolve, reject) {
+          getUserMedia.call(navigator, constraints, resolve, reject);
+        });
+      }
+    }
+
+
+
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+        this.gotStream(stream)
+      })
+      .catch(function (err) {
+        console.log(err.name + ": " + err.message);
+      });
+
   }
 
 
@@ -225,13 +260,28 @@ export default class LiveDikterin2 extends Component {
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ minWidth: 230, marginLeft: 30 }}>
             <EuiSpacer size="l" />
-              <Mic
-                recordingAction={recordingAction}
-                microphoneBeingPressed={microphoneBeingPressed}
-                toggleRecord={this.toggleRecord}
-              />
-              <EuiSpacer size="l" />
+            <Mic
+              recordingAction={recordingAction}
+              microphoneBeingPressed={microphoneBeingPressed}
+              toggleRecord={this.toggleRecord}
+            />
+            <EuiSpacer size="l" />
+            <EuiSpacer size="l" />
+            <PersonalInformation />
+            <EuiSpacer size="s" />
             <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="secondary" onClick={() => { }}>Skicka till
+                Co-Worker</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton color="secondary" onClick={() => { }}>Spara ändringar</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="danger" onClick={() => { }}>Avbryt</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
