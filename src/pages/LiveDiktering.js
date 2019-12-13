@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
-
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
+import PersonalInformation from '../components/PersonalInformation'
 import io from 'socket.io-client';
 import Page from '../components/Page'
 
@@ -260,13 +260,28 @@ export default class LiveDikterin2 extends Component {
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ minWidth: 230, marginLeft: 30 }}>
             <EuiSpacer size="l" />
-              <Mic
-                recordingAction={recordingAction}
-                microphoneBeingPressed={microphoneBeingPressed}
-                toggleRecord={this.toggleRecord}
-              />
-              <EuiSpacer size="l" />
+            <Mic
+              recordingAction={recordingAction}
+              microphoneBeingPressed={microphoneBeingPressed}
+              toggleRecord={this.toggleRecord}
+            />
+            <EuiSpacer size="l" />
+            <EuiSpacer size="l" />
+            <PersonalInformation />
+            <EuiSpacer size="s" />
             <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="secondary" onClick={() => { }}>Skicka till
+                Co-Worker</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton color="secondary" onClick={() => { }}>Spara ändringar</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="danger" onClick={() => { }}>Avbryt</EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
