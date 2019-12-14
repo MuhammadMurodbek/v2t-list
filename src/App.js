@@ -13,7 +13,6 @@ import logo from './img/medspeech+Inovia_logo_rgb.png'
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
-import LivePage from './pages/Live'
 import UploadPage from './pages/Upload'
 import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
@@ -229,7 +228,6 @@ export default class App extends Component {
                   }} />
                 }}
               />
-              <Route path="/live/" render={props => isLoggedIn ? <LivePage/> : <LoginPage/>}/>
               <Route path="/upload/" render={props => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
               <Route path="/analytics/"
                      render={props => isLoggedIn ? <AnalyticsPage/> : <LoginPage/>}/>
