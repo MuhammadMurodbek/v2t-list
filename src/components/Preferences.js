@@ -6,7 +6,6 @@ import {
 } from '@elastic/eui'
 
 import help from '../img/help.png'
-import '../styles/editor.css'
 
 import { usePreferences } from './PreferencesProvider'
 import { COLUMN_OPTIONS } from '../models/Preference'
