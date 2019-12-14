@@ -37,6 +37,7 @@ const Button = ({ onClick }) => (
     <EuiFlexItem>
       <img
         src={help}
+        className="help"
         alt="mic"
         onClick={openHelpWindow}
       />

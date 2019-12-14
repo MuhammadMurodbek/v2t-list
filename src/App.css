@@ -64,3 +64,9 @@ p {
 .euiSideNavItem--trunk > .euiSideNavItem__items {
     width: 50%;
 }
+
+.help{
+  width: 40px;
+  margin-top: -4px;
+  cursor: pointer;
+}
