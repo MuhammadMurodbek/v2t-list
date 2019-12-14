@@ -1,9 +1,11 @@
 import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import {
-  EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiText,
+  EuiFlexGroup, EuiFlexItem, EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiText,
   EuiTitle, EuiIcon, EuiSwitch, EuiSuperSelect, EuiSpacer, EuiButtonEmpty
 } from '@elastic/eui'
+
+import help from '../img/help.png'
 
 import { usePreferences } from './PreferencesProvider'
 import { COLUMN_OPTIONS } from '../models/Preference'
@@ -17,14 +19,30 @@ const Preferences = () => {
     </Fragment>
   )
 }
+const openHelpWindow = () => {
+  window.open("https://inoviagroup.se/anvandarhandledning-v2t/", "_blank")
+}
 
 const Button = ({ onClick }) => (
-  <EuiIcon
-    type="gear"
-    size="xl"
-    className="gear"
-    onClick={onClick}
-  />
+  <EuiFlexGroup>
+    <EuiFlexItem>
+      <EuiIcon
+        type="gear"
+        size="xl"
+        className="gear"
+        onClick={onClick}
+      />
+    </EuiFlexItem>
+    <EuiFlexItem>
+      <img
+        src={help}
+        className="help"
+        alt="mic"
+        onClick={openHelpWindow}
+      />
+    </EuiFlexItem>
+  </EuiFlexGroup>
+  
 )
 
 const Flyout = ({ visible, onClose }) => {
