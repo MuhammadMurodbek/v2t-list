@@ -87,14 +87,16 @@ export default class LiveDikterin2 extends Component {
 
   processChapters = (finalText) => {
     const { sections } = this.state
+    let usedKeywords = ["KONTAKTORSAK"]
     console.log('finalText with everythin')
     console.log(finalText)
     const arrayList = sections
     const words = finalText.split(' ')
     let tempChapters = [{ keyword: "KONTAKTORSAK", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] }]
     words.forEach((word)=>{
-      if (arrayList.includes(word.toUpperCase())){
+      if (arrayList.includes(word.toUpperCase()) && !usedKeywords.includes(word.toUpperCase())){
         tempChapters.push({ keyword: word.toUpperCase(), segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
+        usedKeywords.push(word.toUpperCase())
       } else { 
         if (word === '\n') {
           console.log('found ny rad')
@@ -103,8 +105,6 @@ export default class LiveDikterin2 extends Component {
         } else {
           tempChapters[tempChapters.length - 1].segments[0].words = `${tempChapters[tempChapters.length - 1].segments[0].words}  ${word}`
         }
-       
-
       }
     })
     console.log('tempChapters')
@@ -164,6 +164,10 @@ export default class LiveDikterin2 extends Component {
       })
       // prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
     });
+  }
+
+  onCursorTimeChange = () => {
+    
   }
 
   initAudio = () => {
@@ -253,6 +257,7 @@ export default class LiveDikterin2 extends Component {
               currentTime={0.00}
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
+              onCursorTimeChange={this.onCursorTimeChange}
               isDiffVisible={false}
               sectionHeaders={sections}
               initialCursor={0}
