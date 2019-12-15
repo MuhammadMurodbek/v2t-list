@@ -243,6 +243,10 @@ export default class LiveDikterin2 extends Component {
     }
   }
 
+  sendAsHorrribleTranscription = () => {
+
+  }
+
   render() {
     const { chapters, recordingAction, microphoneBeingPressed, listOfTemplates, sections } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
@@ -281,6 +285,10 @@ export default class LiveDikterin2 extends Component {
           <EuiFlexItem grow={false}>
             <EuiButton fill color="secondary" onClick={() => { }}>Skicka till
                 Co-Worker</EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton fill color="danger" onClick={this.sendAsHorrribleTranscription}>“Skicka för granskning”
+            </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton color="secondary" onClick={() => { }}>Spara ändringar</EuiButton>
