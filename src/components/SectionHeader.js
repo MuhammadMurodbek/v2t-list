@@ -4,9 +4,8 @@
 import React, { useState, useEffect } from 'react'
 import {
     EuiFormRow,
-    EuiSuperSelect
+    EuiComboBox
 } from '@elastic/eui'
-import DropDown from '../components/DropDown'
 
 const SectionHeader = ({ isVisible, keywords, selectedHeader, updateKey, chapterId}) => {
   const [selectedKeyword, setSelectedKeyword] = useState(selectedHeader)
@@ -17,31 +16,22 @@ const SectionHeader = ({ isVisible, keywords, selectedHeader, updateKey, chapter
   )
 
   const onKeywordChange = (k) => {
-    setSelectedKeyword(k)
-    updateKey(k, chapterId)
+    const keyword = k[0] ? k[0].label : ''
+    setSelectedKeyword(keyword)
+    updateKey(keyword, chapterId)
   }
-  
-  const keywordsOptions = keywords.map((keyword) => {
-    return {
-      value: keyword,
-      inputDisplay: keyword,
-      dropdownDisplay: (
-        <DropDown
-          title={keyword}
-        />
-      )
-    }
-  }
-  )
+
+  const keywordsOptions = keywords.map(keyword => ({ label: keyword }))
 
   return (
     <EuiFormRow label="Journalrubrik" style={{ display: keywords.length>0 ? 'flex' : 'none' }}>
-      <EuiSuperSelect
+      <EuiComboBox
+        placeholder="Välj en journalrubrik"
         options={keywordsOptions}
-        valueOfSelected={selectedKeyword}
+        selectedOptions={selectedKeyword ? [{label: selectedKeyword}] : []}
+        singleSelection={{ asPlainText: true }}
         onChange={onKeywordChange}
-        itemLayoutAlign="top"
-        hasDividers
+        isClearable={false}
       />
     </EuiFormRow>
   )
