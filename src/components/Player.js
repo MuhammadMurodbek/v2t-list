@@ -8,6 +8,15 @@ import Seek from './Seek'
 
 import { PreferenceContext } from './PreferencesProvider'
 
+const KEYCODE = {
+  J: 'KeyJ',
+  N: 'KeyN',
+  K: 'KeyK',
+  M: 'KeyM'
+}
+const VOLUME_KEYS = [KEYCODE.J, KEYCODE.N]
+const PLAYBACK_RATE_KEYS = [KEYCODE.K, KEYCODE.M]
+
 class Player extends Component {
   static contextType = PreferenceContext
 
@@ -23,13 +32,17 @@ class Player extends Component {
     startTimes: [],
     duration: 1,
     mediaSkipDuration: 2,
-    currentVolumeLevel: 0.6,
-    currentPlaybackRate: 1.0,
+    volume: 0.6,
+    playbackRate: 1.0,
     toasts: []
   }
 
   componentDidMount = () => {
     document.addEventListener('keydown', this.handleKeyPress)
+  }
+
+  componentWillUnmount = () => {
+    document.removeEventListener('keydown', this.handleKeyPress)
   }
 
   componentDidUpdate = (prevProps) => {
@@ -102,7 +115,7 @@ class Player extends Component {
     seconds = seconds < 10 ? `0${seconds}` : seconds
     const trackDuration = `${minutes}:${seconds}`
     this.setState({ trackDuration, duration }, () => {
-      this.setState({ currentPlaybackRate: 1.0 })
+      this.setState({ playbackRate: 1.0 })
       if (preferences.autoPlayStatus) {
         const media = this.myRef && this.myRef.current ? this.myRef.current : null
         media.play()
@@ -209,94 +222,35 @@ class Player extends Component {
     })
   }
 
-  handleKeyPress = (e) => {
-    const { isPlaying, currentVolumeLevel, currentPlaybackRate } = this.state
+  updateMedia = (setting, title, text, min, max, current, change) => {
     const media = this.myRef && this.myRef.current ? this.myRef.current : null
-    if (e.altKey && e.key === 'ArrowUp') {
+    const value = Math.max(min, Math.min(max, current + change).toFixed(2))
+    media[setting] = value
+    this.setState({
+      [setting]: value,
+      toasts: [{
+        id: `toast-${setting}`,
+        title: title(value),
+        color: 'success',
+        text: text(value)
+      }]
+    })
+  }
+
+  handleKeyPress = (e) => {
+    const { isPlaying, volume, playbackRate } = this.state
+    if (e.altKey && VOLUME_KEYS.includes(e.code)) {
       e.preventDefault()
-      let updatedCurrentVolume = currentVolumeLevel
-      if (currentVolumeLevel !== 1) {
-        updatedCurrentVolume = parseFloat((currentVolumeLevel + 0.20).toFixed(2))
-      }
-      this.setState({
-        currentVolumeLevel: updatedCurrentVolume
-      }, () => {
-        media.volume = updatedCurrentVolume
-        this.setState({
-          toasts: [{
-            title: 'Volume 📢',
-            color: 'success',
-            text: `${updatedCurrentVolume * 100}%`
-          }]
-        })
-      })
-    } else if (e.altKey && e.key === 'ArrowDown') {
+      const change = e.code === VOLUME_KEYS[0] ? .2 : -.2
+      const title = v => `Volume ${v ? '📢' : '🔕'}`
+      const text = v => v ? `${v * 100}%` : 'Muted'
+      this.updateMedia('volume', title, text, 0, 1, volume, change)
+    } else if (e.altKey && PLAYBACK_RATE_KEYS.includes(e.code)) {
       e.preventDefault()
-      let updatedCurrentVolume = currentVolumeLevel
-      if (currentVolumeLevel !== 0.00) {
-        updatedCurrentVolume = parseFloat((currentVolumeLevel - 0.20).toFixed(2))
-      }
-      this.setState({
-        currentVolumeLevel: updatedCurrentVolume
-      }, () => {
-        media.volume = updatedCurrentVolume
-        if (updatedCurrentVolume !== 0) {
-          this.setState({
-            toasts: [{
-              title: 'Volume 📢',
-              color: 'success',
-              text: `${updatedCurrentVolume * 100}%`
-            }]
-          })
-        } else {
-          this.setState({
-            toasts: [{
-              title: 'Volume 🔕',
-              color: 'success',
-              text: 'Muted'
-            }]
-          })
-        }
-      })
-    } else if (e.shiftKey && e.key === 'ArrowUp') {
-      e.preventDefault()
-      // let updatedCurrentVolume = currentVolumeLevel
-      let updatedPlaybackRate = currentPlaybackRate
-      if (currentPlaybackRate !== 2) {
-        updatedPlaybackRate = parseFloat((currentPlaybackRate + 0.20).toFixed(2))
-      }
-      this.setState({
-        currentPlaybackRate: updatedPlaybackRate
-      }, () => {
-        media.playbackRate = currentPlaybackRate
-        this.setState({
-          toasts: [{
-            title: 'Uppspelningshastighet',
-            color: 'success',
-            text: `${updatedPlaybackRate * 100}%`
-          }]
-        })
-      })
-    } else if (e.shiftKey && e.key === 'ArrowDown') {
-      e.preventDefault()
-      let updatedPlaybackRate = currentPlaybackRate
-      if (currentPlaybackRate !== 0.2) {
-        updatedPlaybackRate = parseFloat((currentPlaybackRate - 0.20).toFixed(2))
-      }
-      this.setState({
-        currentPlaybackRate: updatedPlaybackRate
-      }, () => {
-        media.playbackRate = updatedPlaybackRate
-        if (updatedPlaybackRate !== 0) {
-          this.setState({
-            toasts: [{
-              title: 'Uppspelningshastighet',
-              color: 'success',
-              text: `${updatedPlaybackRate * 100}%`
-            }]
-          })
-        }
-      })
+      const change = e.code === PLAYBACK_RATE_KEYS[0] ? .2 : -.2
+      const title = v => 'Uppspelningshastighet'
+      const text = v => `${v * 100}%`
+      this.updateMedia('playbackRate', title, text, .2, 2, playbackRate, change)
     } else if (e.altKey && e.keyCode === 32) {
       e.preventDefault()
       if (isPlaying) {
@@ -313,7 +267,7 @@ class Player extends Component {
 
   render() {
     const {
-      isPlaying, trackDuration, duration, currentTime, startTimes, seekPosition, toasts, currentPlaybackRate
+      isPlaying, trackDuration, duration, currentTime, startTimes, seekPosition, toasts, playbackRate
     } = this.state
     const {
       audioTranscript,
@@ -444,7 +398,7 @@ class Player extends Component {
                 aria-label="playbackSpeed"
                 className="playbackSpeed"
               >
-                {(Math.round(currentPlaybackRate * 100) / 100).toFixed(2)}x
+                {(Math.round(playbackRate * 100) / 100).toFixed(2)}x
             </span>
             </EuiToolTip>
           </div>

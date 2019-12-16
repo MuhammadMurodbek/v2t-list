@@ -14,6 +14,8 @@ const KEYCODE_ENTER = 13
 const KEYCODE_BACKSPACE = 8
 const KEYCODE_DELETE = 46
 
+const ILLEGAL_CHARS_REGEX = /˜/g
+
 export default class Editor extends Component {
   static contextType = PreferenceContext
 
@@ -180,7 +182,8 @@ export default class Editor extends Component {
 
   onChange = (e, chapterId) => {
     const { updateTranscript } = this.props
-    this.stashCursor()
+    const illegalCharacters = e.target.innerText.match(ILLEGAL_CHARS_REGEX) || []
+    this.stashCursor(- illegalCharacters.length)
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, e.target.innerText)
     chapters[chapterId] = this.parseChapter(e.target, chapterId)
@@ -279,6 +282,7 @@ export default class Editor extends Component {
   }
 
   parseSegment = (child, chapterId) => {
+    this.removeInvalidChars(child)
     const { chapters } = this.props
     const segmentId = child.dataset ? child.dataset.segment : null
     const segments = chapters[chapterId].segments
@@ -286,6 +290,10 @@ export default class Editor extends Component {
     if (segmentId)
       return { ...segments[segmentId], words }
     return { startTime: 0, endTime: 0, words }
+  }
+
+  removeInvalidChars = (child) => {
+    child.textContent = child.textContent.replace(ILLEGAL_CHARS_REGEX, '')
   }
 
   getDiff = (chapters) => {
