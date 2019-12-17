@@ -97,6 +97,9 @@ export default class LiveDikterin2 extends Component {
       if (arrayList.includes(word.toUpperCase()) && !usedKeywords.includes(word.toUpperCase())){
         tempChapters.push({ keyword: word.toUpperCase(), segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
         usedKeywords.push(word.toUpperCase())
+      } else if (word === "allmäntillstånd") {
+        tempChapters.push({ keyword: "AT", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
+        usedKeywords.push("AT")
       } else { 
         if (word === '\n') {
           console.log('found ny rad')
@@ -205,8 +208,6 @@ export default class LiveDikterin2 extends Component {
         });
       }
     }
-
-
 
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then((stream) => {
