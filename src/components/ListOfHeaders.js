@@ -1,4 +1,3 @@
-// Used react synthetic event
 import React, { Fragment } from 'react'
 import {
   EuiSpacer,
@@ -11,7 +10,7 @@ const ListOfHeaders = ({ headers }) => {
   const listItems = headers.map((header, i) => 
       <li key={i} style={{ 
           'textDecoration': header.done === true ? 'line-through' : 'none',
-          'color': header.done === true ? 'gray' : 'black'
+          'color': header.done === true ? 'green' : 'black'
           }}>{header.name}
       </li> 
   )
@@ -20,7 +19,7 @@ const ListOfHeaders = ({ headers }) => {
     <Fragment>
       <EuiPanel>
         <EuiText>
-          <h6>Sections</h6>
+          <h6>Sökord</h6>
           <ul>{listItems}</ul>
         </EuiText>
       </EuiPanel>

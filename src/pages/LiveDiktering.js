@@ -5,7 +5,7 @@ import Editor from '../components/Editor'
 import Mic from '../components/Mic'
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import PersonalInformation from '../components/PersonalInformation'
-import io from 'socket.io-client';
+import io from 'socket.io-client'
 import Page from '../components/Page'
 
 export default class LiveDikterin2 extends Component {
