@@ -86,6 +86,9 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
       export: [
         {
           system_id: 'WEBDOC'
+        },
+        {
+          system_id: 'FILE_SHARE'
         }
       ]
     })], {
