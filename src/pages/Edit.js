@@ -169,16 +169,26 @@ export default class EditPage extends Component {
       originalChapters,
       chapters,
       tags,
-      originalTags
+      originalTags,
+      fields
     } = this.state
 
-    if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
-      this.sendToCoworker()
-    } else {
-      this.save().then(()=>{
+    if(fields.patient_id){
+      if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
         this.sendToCoworker()
+      } else {
+        this.save().then(()=>{
+          this.sendToCoworker()
+        })
+      }
+    } else {
+      swal({
+        title: 'Det är inte möjligt att skicka till Co-Worker.',
+        text: 'Patients ID saknas',
+        icon: 'error',
+        button: 'Ok'
       })
-    }
+    }  
   }
 
   sendToCoworker = async () => {
