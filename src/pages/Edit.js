@@ -184,7 +184,7 @@ export default class EditPage extends Component {
     } else {
       swal({
         title: 'Det är inte möjligt att skicka till Co-Worker.',
-        text: 'Patients ID saknas',
+        text: 'Personnummer saknas',
         icon: 'error',
         button: 'Ok'
       })
