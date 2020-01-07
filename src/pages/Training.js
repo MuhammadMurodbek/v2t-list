@@ -139,7 +139,7 @@ export default class UploadPage extends Component {
       previewContents
     } = this.state
     this.textProcessBeforeCompletion()
-    let reg = /^[A-Za-z åäöé]+$/
+    let reg = /^[A-Za-z åäöé']+$/
     if (previewContents.match(reg)) {
       this.setState({
         toasts: [{
