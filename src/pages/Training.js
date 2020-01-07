@@ -9,7 +9,8 @@ import {
   EuiProgress,
   EuiTextAlign,
   EuiText,
-  EuiButtonEmpty
+  EuiButtonEmpty,
+  EuiTextArea
 } from '@elastic/eui'
 import swal from 'sweetalert'
 import api from '../api'
@@ -23,7 +24,7 @@ export default class UploadPage extends Component {
   state = {
     isMediaAudio: true,
     queryTerm: false,
-    chapters: [],
+    chapters: '',
     transcriptionId: 0,
     mediaId: 0,
     toasts: [],
@@ -104,11 +105,10 @@ export default class UploadPage extends Component {
   }
 
   onUpdateTranscript = (e) => {
-    const { finalChapters } = this.state
-    this.setState({ finalChapters: e.target.textContent }, () => {
-      if (finalChapters) {
-        this.showPreview()
-      }
+    const { value } = e.target
+    this.setState({ chapters: value.replace('\n', '') })
+    this.setState({ finalChapters: value }, () => {
+      this.showPreview()
     })
   }
 
@@ -153,7 +153,7 @@ export default class UploadPage extends Component {
             </Fragment>)
         }]
       }, async () => {
-        this.setState({ chapters: [] })
+        this.setState({ chapters: '' })
         await api.trainingUpdate(transcriptionId, previewContents)
         this.loadCurrentTranscript()
       })
@@ -180,7 +180,7 @@ export default class UploadPage extends Component {
           </Fragment>)
       }]
     }, () => {
-      this.setState({ chapters: [] })
+      this.setState({ chapters: '' })
       this.loadCurrentTranscript()
     })
   }
@@ -293,15 +293,13 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
           <EuiFlexItem style={{ fontSize: '22px' }}>
-            <EuiText>
-              <pre>
-                <code
-                  onKeyUp={ this.onUpdateTranscript }
-                  contentEditable
-                  suppressContentEditableWarning
-                >{chapters}</code>
-              </pre>
-            </EuiText>
+            <EuiTextArea
+              style={{ width: "760px" }}
+              value={chapters}
+              onChange={this.onUpdateTranscript}
+              resize="none"
+              fullWidth={true}
+            />
             <EuiSpacer size="m" />
             <EuiText textAlign="right">
               <EuiButtonEmpty onClick={this.changePreviewVisibility} style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}>

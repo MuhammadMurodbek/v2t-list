@@ -10,7 +10,7 @@ const Preview = ({ contents, visible }) => (
       <h5>Förhandsvisning</h5>
     </EuiText>
     <EuiSpacer size="m" />
-    <EuiText style={{ display: visible ? 'flex' : 'none' }}>
+    <EuiText style={{ display: visible ? 'flex' : 'none' , width: 760 }}>
       <pre>
         <code>{contents}</code>
       </pre>
