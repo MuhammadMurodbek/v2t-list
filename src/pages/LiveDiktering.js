@@ -8,7 +8,7 @@ import PersonalInformation from '../components/PersonalInformation'
 import io from 'socket.io-client'
 import Page from '../components/Page'
 
-export default class LiveDikterin2 extends Component {
+export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = new AudioContext()
   socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
