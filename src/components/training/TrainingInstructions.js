@@ -26,28 +26,20 @@ const TrainingInstructions = () => {
       shortcut: 'alt + space'
     },
     {
-      action: 'Stega framåt',
-      shortcut: 'alt + →'
-    },
-    {
-      action: 'Stega bakåt',
-      shortcut: 'alt + ←'
-    },
-    {
       action: 'Uppspelningshastighet (snabbare)',
-      shortcut: 'shift + ↑'
+      shortcut: 'shift + k'
     },
     {
       action: 'Uppspelningshastighet (långsammare)',
-      shortcut: 'shift + ↓'
+      shortcut: 'shift + m'
     },
     {
       action: 'Höj volymen',
-      shortcut: 'alt + ↑'
+      shortcut: 'alt + j'
     },
     {
       action: 'Sänk volymen',
-      shortcut: 'alt + ↓'
+      shortcut: 'alt + n'
     }
   ]
 
