@@ -280,7 +280,7 @@ export default class LiveDiktering extends Component {
             <EuiSpacer size="l" />
             <PersonalInformation />
             <EuiSpacer size="s" />
-            {/* <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} /> */}
+            <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup>
