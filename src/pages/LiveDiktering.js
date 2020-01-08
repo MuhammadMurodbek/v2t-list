@@ -11,7 +11,11 @@ import Page from '../components/Page'
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = new AudioContext()
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+  // socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', {
+  //   transports: ['websocket']
+  // })
+
+  socketio = io.connect('ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] });
 
   state = {
     recording: false,
