@@ -11,8 +11,11 @@ import Page from '../components/Page'
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = new AudioContext()
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
-
+  // https://ilxgpu9000.inoviaai.se/socket.io/?EIO=3&transport=websocket
+  // socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+  // socketio = io.connect('ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+  socketio = io.connect('/socket/', { transports: ['websocket'] })
+  
 
   state = {
     recording: false,
@@ -29,6 +32,8 @@ export default class LiveDiktering extends Component {
   componentDidMount = () => {
     this.templates()
     document.title = 'Inovia AI :: Live Diktering 🎤'
+    console.log('socketio')
+    console.log(this.socketio)
   }
 
   templates = async () => {
@@ -280,7 +285,7 @@ export default class LiveDiktering extends Component {
             <EuiSpacer size="l" />
             <PersonalInformation />
             <EuiSpacer size="s" />
-            <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
+            {/* <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} /> */}
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup>
