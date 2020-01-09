@@ -3,7 +3,7 @@ import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
-import LiveTemplateEngine from '../components/LiveTemplateEngine'
+// import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import PersonalInformation from '../components/PersonalInformation'
 import io from 'socket.io-client'
 import Page from '../components/Page'
@@ -255,8 +255,11 @@ export default class LiveDiktering extends Component {
   }
 
   render() {
-    const { chapters, recordingAction, microphoneBeingPressed, listOfTemplates, sections } = this.state
-    const usedSections = chapters.map(chapter => chapter.keyword)
+    const { chapters, recordingAction, microphoneBeingPressed,
+      //  listOfTemplates, 
+       sections 
+      } = this.state
+    // const usedSections = chapters.map(chapter => chapter.keyword)
     return (
       <Page preferences title="">
         <EuiFlexGroup >
