@@ -12,9 +12,9 @@ export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = new AudioContext()
   // https://ilxgpu9000.inoviaai.se/socket.io/?EIO=3&transport=websocket
-  // socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
   // socketio = io.connect('ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
-  socketio = io.connect('/socket/', { transports: ['websocket'] })
+  // socketio = io.connect('/socket/', { transports: ['websocket'] })
   
 
   state = {
