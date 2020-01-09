@@ -2,16 +2,18 @@ import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import {
   EuiFlexGroup, EuiFlexItem, EuiFormRow, EuiComboBox, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiText,
-  EuiTitle, EuiIcon, EuiSwitch, EuiSuperSelect, EuiSpacer, EuiButtonEmpty
+  EuiTitle, EuiIcon, EuiSwitch, EuiSuperSelect, EuiSpacer, EuiTab,
+  EuiTabs
 } from '@elastic/eui'
 
 import help from '../img/help.png'
-
+import Logout from '../components/Logout'
 import { usePreferences } from './PreferencesProvider'
 import { COLUMN_OPTIONS } from '../models/Preference'
 
 const Preferences = () => {
   const [visible, setVisible] = useState(false)
+
   return (
     <Fragment>
       <Button onClick={() => setVisible(true)} />
@@ -19,6 +21,7 @@ const Preferences = () => {
     </Fragment>
   )
 }
+
 const openHelpWindow = () => {
   window.open("https://inoviagroup.se/anvandarhandledning-v2t/", "_blank")
 }
@@ -53,22 +56,12 @@ const Flyout = ({ visible, onClose }) => {
   const setStopButtonVisibilityStatus = stopButtonVisibilityStatus => setPreferences({ stopButtonVisibilityStatus })
   const setShowVideo = showVideo => setPreferences({ showVideo })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })
-  const logout = () => {
-    setPreferences({ token: '' })
-    window.location.replace('/')
-  }
-
-
-  return (
-    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" size="s">
-      <EuiFlyoutHeader hasBorder>
-        <EuiTitle size="m">
-          <h4 id="flyoutTitle">
-            Inställningar
-          </h4>
-        </EuiTitle>
-      </EuiFlyoutHeader>
-      <EuiFlyoutBody>
+  const [selectedTabId, setSelectedTabId] = useState('0')
+  const tabs = [
+    {
+      id: '0',
+      name: 'Editor',
+      content: (
         <Fragment>
           <EuiText><h5>Inställningar för aktivitetslista</h5></EuiText>
           <EuiSpacer size="s" />
@@ -77,7 +70,7 @@ const Flyout = ({ visible, onClose }) => {
               placeholder="Enter the columns in the order you want to display them"
               selectedOptions={preferences.columnsForCombo}
               options={COLUMN_OPTIONS.map(({ render, ...items }) => items)}
-              onChange={setColumns} 
+              onChange={setColumns}
             />
           </EuiFormRow>
 
@@ -93,8 +86,15 @@ const Flyout = ({ visible, onClose }) => {
               hasDividers
             />
           </EuiFormRow>
-          <EuiSpacer size="l" />
-
+          <Logout setPreferences={setPreferences} />
+        </Fragment>
+      )
+    },
+    {
+      id: '1',
+      name: 'Uppspelning',
+      content: (
+        <Fragment>
           <EuiText><h5>Uppspelning</h5></EuiText>
 
           <EuiSpacer size="m" />
@@ -123,20 +123,49 @@ const Flyout = ({ visible, onClose }) => {
               onChange={setShowVideo}
             />
           </EuiFormRow>
+          <Logout setPreferences={setPreferences} />
         </Fragment>
+      )
+    }
+  ]
+
+  const onSelectedTabChanged = id => {
+    setSelectedTabId(id)
+  }
+
+  const renderTabs = () => {
+    return tabs.map((tab, index) => (
+      <Fragment key={index}>
+        <EuiTab
+          onClick={() => onSelectedTabChanged(tab.id)}
+          isSelected={tab.id === selectedTabId}
+          key={index}>
+          {tab.name}
+        </EuiTab>
+      </Fragment>
+      
+    ));
+  }
+
+
+
+  return (
+    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" size="s">
+      <EuiFlyoutHeader hasBorder>
+        <EuiTitle size="m">
+          <h4 id="flyoutTitle">
+            Inställningar
+          </h4>
+        </EuiTitle>
+      </EuiFlyoutHeader>
+      <EuiFlyoutBody>
+        <EuiTabs style={{ marginBottom: '-25px' }}>
+          {renderTabs()}
+        </EuiTabs>
+        {/* {tabs[selectedTabId].id} */}
         <EuiSpacer size="l" />
         <EuiSpacer size="l" />
-        <EuiFormRow label="">
-          <EuiButtonEmpty
-            size="s"
-            color= "danger"
-            onClick={logout}
-            iconType="kqlFunction"
-            iconSide="right">
-            Logga ut
-          </EuiButtonEmpty>
-        </EuiFormRow>
-    
+        {tabs[selectedTabId].content}
       </EuiFlyoutBody>
     </EuiFlyout>
   )
