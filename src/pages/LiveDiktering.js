@@ -3,7 +3,7 @@ import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
-// import LiveTemplateEngine from '../components/LiveTemplateEngine'
+import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import PersonalInformation from '../components/PersonalInformation'
 import io from 'socket.io-client'
 import Page from '../components/Page'
@@ -11,12 +11,7 @@ import Page from '../components/Page'
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = new AudioContext()
-  // https://ilxgpu9000.inoviaai.se/socket.io/?EIO=3&transport=websocket
   socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
-  // socketio = io.connect('ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
-  // socketio = io.connect('/socket/', { transports: ['websocket'] })
-  
-
   state = {
     recording: false,
     recordingAction: 'Starta',
@@ -255,11 +250,8 @@ export default class LiveDiktering extends Component {
   }
 
   render() {
-    const { chapters, recordingAction, microphoneBeingPressed,
-      //  listOfTemplates, 
-       sections 
-      } = this.state
-    // const usedSections = chapters.map(chapter => chapter.keyword)
+    const { chapters, recordingAction, microphoneBeingPressed,listOfTemplates, sections } = this.state
+    const usedSections = chapters.map(chapter => chapter.keyword)
     return (
       <Page preferences title="">
         <EuiFlexGroup >
@@ -288,7 +280,7 @@ export default class LiveDiktering extends Component {
             <EuiSpacer size="l" />
             <PersonalInformation />
             <EuiSpacer size="s" />
-            {/* <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} /> */}
+            <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup>
