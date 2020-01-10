@@ -21,21 +21,23 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
     
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
-    // Update the document title using the browser API
     updateSectionHeader()
   });
 
   const updateSectionHeader = () => {
     listOfTemplates.forEach(template => {
       if (template.id === selectedTemplate) {
-        setSectionHeaders(template.sections.map(section => {
+        const updatedSectionHeaders = template.sections.map(section => {
           if (usedSections.includes(section.name)) {
             return { name: section.name, 'done': true }
           } else {
             return { name: section.name, 'done': false }
           }
-        }))
-        updatedSections(sectionHeaders.map(sectionHeader=>sectionHeader.name))
+        })
+        if (JSON.stringify(updatedSectionHeaders) !== JSON.stringify(sectionHeaders)) {
+          setSectionHeaders(updatedSectionHeaders)
+          updatedSections(updatedSectionHeaders.map(sectionHeader => sectionHeader.name))
+        }
       }
     })
   }
@@ -44,13 +46,15 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
     setSelectedTemplate(e)
     listOfTemplates.forEach(template => {
       if(template.id===e) {
-        setSectionHeaders(template.sections.map(section =>{
-          if (usedSections.includes(section.name)){
+        const updatedSectionHeaders = template.sections.map(section => {
+          if (usedSections.includes(section.name)) {
             return { name: section.name, 'done': true }
           } else {
             return { name: section.name, 'done': false }
           }
-        }))
+        })
+        setSectionHeaders(updatedSectionHeaders)
+        updatedSections(updatedSectionHeaders.map(updatedSectionHeader => updatedSectionHeader.name))
       }
     })
   }
