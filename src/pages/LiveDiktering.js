@@ -27,14 +27,10 @@ export default class LiveDiktering extends Component {
   componentDidMount = () => {
     this.templates()
     document.title = 'Inovia AI :: Live Diktering 🎤'
-    console.log('socketio')
-    console.log(this.socketio)
-  }
+    }
 
   templates = async () => {
     const templateList = await api.getSectionTemplates()
-    console.log('templateList')
-    console.log(templateList.data.templates)
     this.setState({ listOfTemplates: templateList.data.templates })
   }
 
@@ -89,8 +85,6 @@ export default class LiveDiktering extends Component {
   processChapters = (finalText) => {
     const { sections } = this.state
     let usedKeywords = ["KONTAKTORSAK"]
-    console.log('finalText with everythin')
-    console.log(finalText)
     const arrayList = sections
     const words = finalText.split(' ')
     let tempChapters = [{ keyword: "KONTAKTORSAK", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] }]
@@ -111,8 +105,6 @@ export default class LiveDiktering extends Component {
         }
       }
     })
-    console.log('tempChapters')
-    console.log(tempChapters)
     return tempChapters
   }
 
@@ -157,13 +149,11 @@ export default class LiveDiktering extends Component {
     // updateAnalysers();
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
-      console.log('text')
-      console.log(text)
       const { originalText } = prevState.state
       prevState.setState({ currentText: text }, ()=>{
-        console.log('prevState.state.whole')
+        // console.log('prevState.state.whole')
         const finalText = `${originalText} ${prevState.state.currentText}`
-        console.log(finalText)
+        // console.log(finalText)
         prevState.setState({ chapters: prevState.processChapters(finalText) })
       })
       // prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
@@ -235,7 +225,7 @@ export default class LiveDiktering extends Component {
         this.setState({ microphoneBeingPressed: true })
         this.setState({ recordingAction: 'Avsluta' })
         this.initAudio()
-        console.log('button is clicked')
+        // console.log('button is clicked')
         this.socketio.emit('start-recording', {
           numChannels: 1,
           bps: 16,
