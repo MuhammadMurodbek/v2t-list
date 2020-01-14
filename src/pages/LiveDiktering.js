@@ -26,8 +26,8 @@ export default class LiveDiktering extends Component {
 
   componentDidMount = () => {
     this.templates()
-    document.title = 'Inovia AI :: Live Diktering 🎤'
-    }
+    document.title = 'Inovia AI :: Live Diktering 🎤'   
+  }
 
   templates = async () => {
     const templateList = await api.getSectionTemplates()
@@ -51,15 +51,11 @@ export default class LiveDiktering extends Component {
   // http://stackoverflow.com/a/28977136/552182
   interpolateArray = (data, newSampleRate, oldSampleRate) => {
     var fitCount = Math.round(data.length * (newSampleRate / oldSampleRate));
-    //var newData = new Array();
     var newData = [];
-    //var springFactor = new Number((data.length - 1) / (fitCount - 1));
     var springFactor = Number((data.length - 1) / (fitCount - 1));
     newData[0] = data[0]; // for new allocation
     for (var i = 1; i < fitCount - 1; i++) {
       var tmp = i * springFactor;
-      //var before = new Number(Math.floor(tmp)).toFixed();
-      //var after = new Number(Math.ceil(tmp)).toFixed();
       var before = Number(Math.floor(tmp)).toFixed();
       var after = Number(Math.ceil(tmp)).toFixed();
       var atPoint = tmp - before;
@@ -78,12 +74,35 @@ export default class LiveDiktering extends Component {
     return merger;
   }
   
+  validateSections = (updatedSectionNames) => {
+    const {sections} = this.state
+    if(JSON.stringify(sections)!==JSON.stringify(updatedSectionNames)) {
+      // cheeck if the current sections are incompatible  
+      const { chapters } = this.state
+      // shuffle chapters according to the new template
+      let updatedText = ''
+      chapters.forEach((chapter) => {
+        updatedText = `${updatedText} ${chapter.keyword}`
+        chapter.segments.forEach((segment) => {
+          updatedText = `${updatedText} ${segment.words}`
+        })
+      })
+      updatedText = updatedText.replace('KONTAKTORSAK', '')
+      updatedText = updatedText.replace(/\s\s+/g, ' ');
+      this.setState({ chapters: this.processChapters(updatedText, updatedSectionNames) })
+    } // else do nothing 
+  }
+
   updatedSections = (sections) => {
+    this.validateSections(sections)
     this.setState({ sections }) 
   }
 
-  processChapters = (finalText) => {
-    const { sections } = this.state
+  processChapters = (finalText, updatedSections) => {
+    let sections = this.state
+    if (updatedSections) {
+      sections  = updatedSections
+    } 
     let usedKeywords = ["KONTAKTORSAK"]
     const arrayList = sections
     const words = finalText.split(' ')
@@ -185,7 +204,7 @@ export default class LiveDiktering extends Component {
       navigator.mediaDevices.getUserMedia = function (constraints) {
 
         // First get ahold of the legacy getUserMedia, if present
-        var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        const getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
         // Some browsers just don't implement it - return a rejected promise with an error
         // to keep a consistent interface
@@ -239,6 +258,13 @@ export default class LiveDiktering extends Component {
 
   }
 
+  save = () => {
+    /* Check the template compatibility, if the section headers don't belong to the template, 
+    // notify the user and clear up the keywords and move the keyword as a regular text
+    // as it was actually said by the speaker
+    */
+  }
+
   render() {
     const { chapters, recordingAction, microphoneBeingPressed,listOfTemplates, sections } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
@@ -283,7 +309,7 @@ export default class LiveDiktering extends Component {
             </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton color="secondary" onClick={() => { }}>Spara ändringar</EuiButton>
+            <EuiButton color="secondary" onClick={this.save()}>Spara ändringar</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton fill color="danger" onClick={() => { }}>Avbryt</EuiButton>
