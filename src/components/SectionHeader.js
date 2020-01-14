@@ -24,7 +24,7 @@ const SectionHeader = ({ isVisible, keywords, selectedHeader, updateKey, chapter
   const keywordsOptions = keywords.map(keyword => ({ label: keyword }))
 
   return (
-    <EuiFormRow label="Journalrubrik" style={{ display: keywords.length>0 ? 'flex' : 'none' }}>
+    <EuiFormRow label="Sökord" style={{ display: keywords.length>0 ? 'flex' : 'none' }}>
       <EuiComboBox
         placeholder="Välj en journalrubrik"
         options={keywordsOptions}

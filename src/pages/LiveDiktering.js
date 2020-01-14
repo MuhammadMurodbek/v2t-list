@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
+import { EuiText, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
+import interpolateArray from '../models/interpolateArray'
 import PersonalInformation from '../components/PersonalInformation'
 import io from 'socket.io-client'
 import Page from '../components/Page'
@@ -43,28 +44,6 @@ export default class LiveDiktering extends Component {
     this.setState({ chapters })
   }
 
-  linearInterpolate = (before, after, atPoint) => {
-    return before + (after - before) * atPoint;
-  }
-
-  // for changing the sampling rate, reference:
-  // http://stackoverflow.com/a/28977136/552182
-  interpolateArray = (data, newSampleRate, oldSampleRate) => {
-    var fitCount = Math.round(data.length * (newSampleRate / oldSampleRate));
-    var newData = [];
-    var springFactor = Number((data.length - 1) / (fitCount - 1));
-    newData[0] = data[0]; // for new allocation
-    for (var i = 1; i < fitCount - 1; i++) {
-      var tmp = i * springFactor;
-      var before = Number(Math.floor(tmp)).toFixed();
-      var after = Number(Math.ceil(tmp)).toFixed();
-      var atPoint = tmp - before;
-      newData[i] = this.linearInterpolate(data[before], data[after], atPoint);
-    }
-    newData[fitCount - 1] = data[data.length - 1]; // for new allocation
-    return newData;
-  }
-
   convertToMono = (input) => {
     var splitter = this.audioContext.createChannelSplitter(2);
     var merger = this.audioContext.createChannelMerger(2);
@@ -99,7 +78,8 @@ export default class LiveDiktering extends Component {
   }
 
   processChapters = (finalText, updatedSections) => {
-    let sections = this.state
+  // processChapters = (finalText) => {
+    let {sections} = this.state
     if (updatedSections) {
       sections  = updatedSections
     } 
@@ -147,7 +127,7 @@ export default class LiveDiktering extends Component {
     scriptNode.onaudioprocess = function (audioEvent) {
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0);
-        input = prevState.interpolateArray(input, 16000, 44100)
+        input = interpolateArray(input, 16000, 44100)
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer);
@@ -155,7 +135,6 @@ export default class LiveDiktering extends Component {
           var s = Math.max(-1, Math.min(1, input[i]));
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
         }
-        // console.log(buffer)
         prevState.socketio.emit('write-audio', buffer)
       }
     }
@@ -184,15 +163,6 @@ export default class LiveDiktering extends Component {
   }
 
   initAudio = () => {
-    // const { isMicrophoneStarted } = this.state
-    // // if (isMicrophoneStarted) {}
-    // if (!navigator.getUserMedia)
-    //   navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
-    // navigator.getUserMedia({ audio: true }, this.gotStream, function (e) {
-    //   alert('Error getting audio');
-    //   console.log(e);
-    // });
     if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {};
     }
@@ -272,6 +242,11 @@ export default class LiveDiktering extends Component {
       <Page preferences title="">
         <EuiFlexGroup >
           <EuiFlexItem>
+            <PersonalInformation />
+            <EuiSpacer size="l" />
+            <EuiText grow={false}>
+              <h2>Editor</h2>
+            </EuiText>
             <Editor
               transcript={chapters}
               originalChapters={chapters}
@@ -292,9 +267,6 @@ export default class LiveDiktering extends Component {
               microphoneBeingPressed={microphoneBeingPressed}
               toggleRecord={this.toggleRecord}
             />
-            <EuiSpacer size="l" />
-            <EuiSpacer size="l" />
-            <PersonalInformation />
             <EuiSpacer size="s" />
             <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
           </EuiFlexItem>
