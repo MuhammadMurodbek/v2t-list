@@ -9,6 +9,7 @@ import PersonalInformation from '../components/PersonalInformation'
 import Tags from '../components/Tags'
 import io from 'socket.io-client'
 import Page from '../components/Page'
+import processChapters from '../models/textProcessing/processChapters'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -74,7 +75,7 @@ export default class LiveDiktering extends Component {
       })
       updatedText = updatedText.replace('KONTAKTORSAK', '')
       updatedText = updatedText.replace(/\s\s+/g, ' ');
-      this.setState({ chapters: this.processChapters(updatedText, updatedSectionNames) })
+      this.setState({ chapters: processChapters(updatedText, updatedSectionNames) })
     } // else do nothing 
   }
 

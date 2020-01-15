@@ -14,6 +14,7 @@ import Tags from '../components/Tags'
 import Player from '../components/Player'
 import Templates from '../components/Templates'
 import Info from '../components/Info'
+import isSuperset from '../models/isSuperset'
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -212,7 +213,28 @@ export default class EditPage extends Component {
     throw new Error(e)
   }
 
-  save = () => {
+  areSectionHeadersBelongToTheTemplate = () => {
+    // get the list of templates
+    const { templates, templateId, chapters } = this.state
+    const templateNames = templates.templates.map(template=>template.id)
+    // get the current template
+    // get the list of valid headers
+    const sectionHeadersForSelectedTemplate = templates
+      .templates
+      .filter(template=> template.id===templateId)
+      .map(template=>template.sections)[0]
+      .map(section=>section.name)
+    // get the current headers
+    const currentKeyWords = chapters.map(chapter=>chapter.keyword)
+    // check if the headers are compatible with the template
+    //
+    const set1 = new Set(sectionHeadersForSelectedTemplate)
+    const set2 = new Set(currentKeyWords)
+    if (isSuperset(set1, set2)) { return true }
+    else { return false }
+  }
+
+  save = async () => {
     const { transcript } = this.props
     const { originalChapters, chapters, tags, originalTags, templateId, originalTemplate } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters)
@@ -238,6 +260,16 @@ export default class EditPage extends Component {
       })
       return
     }
+    
+    if (this.areSectionHeadersBelongToTheTemplate() === false) {
+      swal({
+        title: 'Inte möjligt att spara diktatet',
+        text: 'Journalrubrik is not compatible to the template',
+        icon: 'info',
+        button: 'Avbryt'
+      })
+      return
+    }
 
     chapters.forEach((chapter) => {
       chapter.segments.forEach((segment) => {
@@ -245,26 +277,28 @@ export default class EditPage extends Component {
       })
     })
 
-    return api.updateTranscription(transcript.external_id, tags, chapters, templateId)
-      .then(() => {
-        this.setState({
-          originalChapters: this.parseTranscriptions(chapters),
-          originalTags: tags
-        }, () => {
-          swal({
-            title: 'Diktatet är uppdaterat',
-            text: '',
-            icon: 'success',
-            button: 'Avbryt'
-          })
-          return true
+    
+
+    try {
+      await api.updateTranscription(transcript.external_id, tags, chapters, templateId)
+      this.setState({
+        originalChapters: this.parseTranscriptions(chapters),
+        originalTags: tags
+      }, () => {
+        swal({
+          title: 'Diktatet är uppdaterat',
+          text: '',
+          icon: 'success',
+          button: 'Avbryt'
         })
+        return true
       })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.log(error)
-        return false
-      })
+    }
+    catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
+      return false
+    }
   }
 
   onUpdateTags = (tags) => {
