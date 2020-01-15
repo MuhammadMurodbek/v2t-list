@@ -6,13 +6,14 @@ import Mic from '../components/Mic'
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import interpolateArray from '../models/interpolateArray'
 import PersonalInformation from '../components/PersonalInformation'
+import Tags from '../components/Tags'
 import io from 'socket.io-client'
 import Page from '../components/Page'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = new AudioContext()
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket']})
   state = {
     recording: false,
     recordingAction: 'Starta',
@@ -22,7 +23,8 @@ export default class LiveDiktering extends Component {
     originalText: '',
     currentText: '',
     sections: ["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"],
-    isMicrophoneStarted: false
+    isMicrophoneStarted: false,
+    tags: []
   }
 
   componentDidMount = () => {
@@ -37,6 +39,10 @@ export default class LiveDiktering extends Component {
 
   onSelectText = () => {
     // update later
+  }
+
+  onUpdateTags = (tags) => {
+    this.setState({ tags })
   }
 
   onUpdateTranscript = (chapters) => {
@@ -108,6 +114,9 @@ export default class LiveDiktering extends Component {
   }
 
   gotStream = (stream) => {
+    // console.log('..........')
+    // console.log(this.socketio.connected)
+    // console.log('..........')
     const { recording } = this.state
     let inputPoint = this.audioContext.createGain();
     
@@ -203,14 +212,21 @@ export default class LiveDiktering extends Component {
   toggleRecord = () => {
     const { microphoneBeingPressed, originalText, currentText } = this.state
     if (microphoneBeingPressed === true) {
-      this.setState({ microphoneBeingPressed: false })
-      this.setState({ recordingAction: 'Starta' })
-      // Close the socket
-      this.socketio.emit('end-recording')
-      this.socketio.close()
-      this.setState({ originalText: `${originalText} ${currentText}`})
-        } else {
+      console.log('stop recording')
+      this.setState({ recording: false }, () => {
+        this.setState({ microphoneBeingPressed: false })
+        this.setState({ recordingAction: 'Starta' })
+        // Close the socket
+        this.socketio.emit('end-recording')
+        this.socketio.close()
+        this.setState({ originalText: `${originalText} ${currentText}` })
+      })   
+    } else {
+      console.log('start recording')
+      console.log(this.socketio.connected)
       this.setState({ recording: true }, ()=> {
+        console.log('then')
+        console.log(this.socketio.connected)
         this.setState({ microphoneBeingPressed: true })
         this.setState({ recordingAction: 'Avsluta' })
         this.initAudio()
@@ -233,10 +249,17 @@ export default class LiveDiktering extends Component {
     // notify the user and clear up the keywords and move the keyword as a regular text
     // as it was actually said by the speaker
     */
+    console.log('this.socketiossss')
+    console.log(this.socketio)
+    console.log(this.socketio.connected)
+    console.log('this.socketio')
+    if (!this.socketio.connected) {
+      this.socketio.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+    }
   }
 
   render() {
-    const { chapters, recordingAction, microphoneBeingPressed,listOfTemplates, sections } = this.state
+    const { chapters, recordingAction, microphoneBeingPressed, listOfTemplates, sections, tags } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
       <Page preferences title="">
@@ -267,7 +290,12 @@ export default class LiveDiktering extends Component {
               microphoneBeingPressed={microphoneBeingPressed}
               toggleRecord={this.toggleRecord}
             />
-            <EuiSpacer size="s" />
+            <EuiSpacer size="l" />
+            <Tags
+              tags={tags}
+              updateTags={this.onUpdateTags}
+            />
+            <EuiSpacer size="l" />
             <LiveTemplateEngine listOfTemplates={listOfTemplates} usedSections={usedSections} updatedSections={this.updatedSections} />
           </EuiFlexItem>
         </EuiFlexGroup>
@@ -281,7 +309,7 @@ export default class LiveDiktering extends Component {
             </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton color="secondary" onClick={this.save()}>Spara ändringar</EuiButton>
+            <EuiButton color="secondary" onClick={this.save}>Spara ändringar</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton fill color="danger" onClick={() => { }}>Avbryt</EuiButton>
