@@ -216,7 +216,7 @@ export default class EditPage extends Component {
   areSectionHeadersBelongToTheTemplate = () => {
     // get the list of templates
     const { templates, templateId, chapters } = this.state
-    const templateNames = templates.templates.map(template=>template.id)
+    // const templateNames = templates.templates.map(template=>template.id)
     // get the current template
     // get the list of valid headers
     const sectionHeadersForSelectedTemplate = templates
