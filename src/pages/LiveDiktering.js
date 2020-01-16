@@ -13,7 +13,7 @@ import processChapters from '../models/textProcessing/processChapters'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
-  audioContext = new AudioContext()
+  audioContext = null
   socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket']})
   state = {
     recording: false,
@@ -75,7 +75,7 @@ export default class LiveDiktering extends Component {
       })
       updatedText = updatedText.replace('KONTAKTORSAK', '')
       updatedText = updatedText.replace(/\s\s+/g, ' ');
-      this.setState({ chapters: processChapters(updatedText, updatedSectionNames) })
+      this.setState({ chapters: this.processChapters(updatedText, updatedSectionNames) })
     } // else do nothing 
   }
 
@@ -211,6 +211,7 @@ export default class LiveDiktering extends Component {
 
 
   toggleRecord = () => {
+    if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { microphoneBeingPressed, originalText, currentText } = this.state
     if (microphoneBeingPressed === true) {
       console.log('stop recording')
@@ -266,11 +267,16 @@ export default class LiveDiktering extends Component {
       <Page preferences title="">
         <EuiFlexGroup >
           <EuiFlexItem>
+            <EuiText grow={false}>
+              <h2>LiveDiktering (i/ai)</h2>
+            </EuiText>
+            <EuiSpacer size="m" />
             <PersonalInformation />
             <EuiSpacer size="l" />
             <EuiText grow={false}>
-              <h2>Editor</h2>
+              <h3>Editor</h3>
             </EuiText>
+            <EuiSpacer size="m" />
             <Editor
               transcript={chapters}
               originalChapters={chapters}
