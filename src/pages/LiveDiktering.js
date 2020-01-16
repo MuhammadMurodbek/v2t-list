@@ -75,43 +75,13 @@ export default class LiveDiktering extends Component {
       })
       updatedText = updatedText.replace('KONTAKTORSAK', '')
       updatedText = updatedText.replace(/\s\s+/g, ' ');
-      this.setState({ chapters: this.processChapters(updatedText, updatedSectionNames) })
+      this.setState({ chapters: processChapters(updatedText, updatedSectionNames) })
     } // else do nothing 
   }
 
   updatedSections = (sections) => {
     this.validateSections(sections)
     this.setState({ sections }) 
-  }
-
-  processChapters = (finalText, updatedSections) => {
-  // processChapters = (finalText) => {
-    let {sections} = this.state
-    if (updatedSections) {
-      sections  = updatedSections
-    } 
-    let usedKeywords = ["KONTAKTORSAK"]
-    const arrayList = sections
-    const words = finalText.split(' ')
-    let tempChapters = [{ keyword: "KONTAKTORSAK", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] }]
-    words.forEach((word)=>{
-      if (arrayList.includes(word.toUpperCase()) && !usedKeywords.includes(word.toUpperCase())){
-        tempChapters.push({ keyword: word.toUpperCase(), segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
-        usedKeywords.push(word.toUpperCase())
-      } else if (word === "allmäntillstånd") {
-        tempChapters.push({ keyword: "AT", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
-        usedKeywords.push("AT")
-      } else { 
-        if (word === '\n') {
-          console.log('found ny rad')
-          // tempChapters[tempChapters.length - 1].segments[0].words = tempChapters[tempChapters.length - 1].segments[0].words + "\n"
-          tempChapters[tempChapters.length - 1].segments[0].words = `${tempChapters[tempChapters.length - 1].segments[0].words} `
-        } else {
-          tempChapters[tempChapters.length - 1].segments[0].words = `${tempChapters[tempChapters.length - 1].segments[0].words}  ${word}`
-        }
-      }
-    })
-    return tempChapters
   }
 
   gotStream = (stream) => {
@@ -155,6 +125,7 @@ export default class LiveDiktering extends Component {
     inputPoint.connect(zeroGain);
     zeroGain.connect(this.audioContext.destination);
     // updateAnalysers();
+    const {sections} = this.state
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
       const { originalText } = prevState.state
@@ -162,7 +133,7 @@ export default class LiveDiktering extends Component {
         // console.log('prevState.state.whole')
         const finalText = `${originalText} ${prevState.state.currentText}`
         // console.log(finalText)
-        prevState.setState({ chapters: prevState.processChapters(finalText) })
+        prevState.setState({ chapters: processChapters(finalText, sections) })
       })
       // prevState.setState({ chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: text, startTime: 0.00, endTime: 0.00 }] }] })
     });

@@ -1,16 +1,9 @@
-const processChapters = (finalText, updatedSections) => {
-  let { sections } = this.state
-  
-  if (updatedSections) {
-    sections = updatedSections
-  }
-  
+const processChapters = (finalText, updatedSections) => {  
   let usedKeywords = ["KONTAKTORSAK"]
-    const arrayList = sections
-    const words = finalText.split(' ')
+  const words = finalText.split(' ')
     let tempChapters = [{ keyword: "KONTAKTORSAK", segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] }]
     words.forEach((word) => {
-      if (arrayList.includes(word.toUpperCase()) && !usedKeywords.includes(word.toUpperCase())) {
+      if (updatedSections.includes(word.toUpperCase()) && !usedKeywords.includes(word.toUpperCase())) {
         tempChapters.push({ keyword: word.toUpperCase(), segments: [{ words: '', startTime: 0.00, endTime: 0.00 }] })
         usedKeywords.push(word.toUpperCase())
       } else if (word === "allmäntillstånd") {
