@@ -56,7 +56,6 @@ export default class Editor extends Component {
     if (chapters) {
       chapters.forEach((chapter) => {
         chapter.segments.forEach((segment) => {
-          if (segment.words.indexOf('\n') > -1) { segment.words = '\n' }
           segment.words = segment.words.replace(/ +$/, ' ')
         })
       })
