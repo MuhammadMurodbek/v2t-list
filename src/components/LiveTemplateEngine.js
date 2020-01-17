@@ -27,7 +27,6 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   const getHeaderWithSynonyms = (sectionHeadersInfo) => {
     let headersWithSynonyms = {}
     sectionHeadersInfo.forEach(sectionHeader => {
-      const a = sectionHeader.name
       headersWithSynonyms['a'] = sectionHeader.synonyms
       headersWithSynonyms[sectionHeader.name] = headersWithSynonyms['a']
       delete headersWithSynonyms['a']

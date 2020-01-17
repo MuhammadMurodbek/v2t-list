@@ -67,7 +67,7 @@ export default class LiveDiktering extends Component {
   }
   
   validateSections = (updatedSectionNames) => {
-    const { sections, chapters, listOfTemplates} = this.state
+    const { sections, chapters } = this.state
     if(JSON.stringify(sections)!==JSON.stringify(updatedSectionNames)) {
       // cheeck if the current sections are incompatible  
       // shuffle chapters according to the new template
