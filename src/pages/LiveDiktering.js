@@ -23,7 +23,13 @@ export default class LiveDiktering extends Component {
     chapters: [{ keyword: "KONTAKTORSAK", segments: [{ words: "...", startTime: 0.00, endTime: 0.00 }] }],
     originalText: '',
     currentText: '',
-    sections: ["KONTAKTORSAK", "AT", "LUNGOR", "BUK", "DIAGNOS"],
+    sections: {
+      "KONTAKTORSAK": [], 
+      "AT": [], 
+      "LUNGOR": [] , 
+      "BUK": [] , 
+      "DIAGNOS": [] 
+    }, 
     isMicrophoneStarted: false,
     tags: []
   }
@@ -61,10 +67,9 @@ export default class LiveDiktering extends Component {
   }
   
   validateSections = (updatedSectionNames) => {
-    const {sections} = this.state
+    const { sections, chapters, listOfTemplates} = this.state
     if(JSON.stringify(sections)!==JSON.stringify(updatedSectionNames)) {
       // cheeck if the current sections are incompatible  
-      const { chapters } = this.state
       // shuffle chapters according to the new template
       let updatedText = ''
       chapters.forEach((chapter) => {
@@ -81,13 +86,10 @@ export default class LiveDiktering extends Component {
 
   updatedSections = (sections) => {
     this.validateSections(sections)
-    this.setState({ sections }) 
+    this.setState({ sections })
   }
 
   gotStream = (stream) => {
-    // console.log('..........')
-    // console.log(this.socketio.connected)
-    // console.log('..........')
     const { recording } = this.state
     let inputPoint = this.audioContext.createGain();
     
@@ -185,7 +187,7 @@ export default class LiveDiktering extends Component {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { microphoneBeingPressed, originalText, currentText } = this.state
     if (microphoneBeingPressed === true) {
-      console.log('stop recording')
+      // console.log('stop recording')
       this.setState({ recording: false }, () => {
         this.setState({ microphoneBeingPressed: false })
         this.setState({ recordingAction: 'Starta' })
@@ -195,11 +197,11 @@ export default class LiveDiktering extends Component {
         this.setState({ originalText: `${originalText} ${currentText}` })
       })   
     } else {
-      console.log('start recording')
-      console.log(this.socketio.connected)
+      // console.log('start recording')
+      // console.log(this.socketio.connected)
       this.setState({ recording: true }, ()=> {
-        console.log('then')
-        console.log(this.socketio.connected)
+        // console.log('then')
+        // console.log(this.socketio.connected)
         this.setState({ microphoneBeingPressed: true })
         this.setState({ recordingAction: 'Avsluta' })
         this.initAudio()
@@ -222,10 +224,6 @@ export default class LiveDiktering extends Component {
     // notify the user and clear up the keywords and move the keyword as a regular text
     // as it was actually said by the speaker
     */
-    console.log('this.socketiossss')
-    console.log(this.socketio)
-    console.log(this.socketio.connected)
-    console.log('this.socketio')
     if (!this.socketio.connected) {
       this.socketio.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
     }
@@ -257,7 +255,7 @@ export default class LiveDiktering extends Component {
               updateTranscript={this.onUpdateTranscript}
               onCursorTimeChange={this.onCursorTimeChange}
               isDiffVisible={false}
-              sectionHeaders={sections}
+              sectionHeaders={Object.keys(sections)}
               initialCursor={0}
             />
           </EuiFlexItem>

@@ -23,20 +23,40 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   useEffect(() => {
     updateSectionHeader()
   });
+  
+  const getHeaderWithSynonyms = (sectionHeadersInfo) => {
+    let headersWithSynonyms = {}
+    sectionHeadersInfo.forEach(sectionHeader => {
+      const a = sectionHeader.name
+      headersWithSynonyms['a'] = sectionHeader.synonyms
+      headersWithSynonyms[sectionHeader.name] = headersWithSynonyms['a']
+      delete headersWithSynonyms['a']
+    })
+    return headersWithSynonyms
+  }
 
   const updateSectionHeader = () => {
     listOfTemplates.forEach(template => {
       if (template.id === selectedTemplate) {
         const updatedSectionHeaders = template.sections.map(section => {
           if (usedSections.includes(section.name)) {
-            return { name: section.name, 'done': true }
+            if (section.synonyms) {
+              return { name: section.name, synonyms: section.synonyms, 'done': true }
+            } else {
+              return { name: section.name, synonyms: [], 'done': true }
+            }
           } else {
-            return { name: section.name, 'done': false }
+            if (section.synonyms) {
+              return { name: section.name, synonyms: section.synonyms, 'done': false }
+            } else {
+              return { name: section.name, synonyms: [], 'done': false }
+            }
           }
         })
         if (JSON.stringify(updatedSectionHeaders) !== JSON.stringify(sectionHeaders)) {
           setSectionHeaders(updatedSectionHeaders)
-          updatedSections(updatedSectionHeaders.map(sectionHeader => sectionHeader.name))
+          // Send the name of the synonyms too 
+          updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
         }
       }
     })
@@ -48,13 +68,22 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
       if(template.id===e) {
         const updatedSectionHeaders = template.sections.map(section => {
           if (usedSections.includes(section.name)) {
-            return { name: section.name, 'done': true }
+            if (section.synonyms) {
+              return { name: section.name, synonyms: section.synonyms, 'done': true }
+            } else {
+              return { name: section.name, synonyms: [], 'done': true }
+            }
           } else {
-            return { name: section.name, 'done': false }
+            if (section.synonyms) {
+              return { name: section.name, synonyms: section.synonyms, 'done': false }
+            } else {
+              return { name: section.name, synonyms: [], 'done': false }
+            }
           }
         })
         setSectionHeaders(updatedSectionHeaders)
-        updatedSections(updatedSectionHeaders.map(updatedSectionHeader => updatedSectionHeader.name))
+        // Send the name of the synonyms too 
+        updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
       }
     })
   }
