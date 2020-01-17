@@ -128,12 +128,13 @@ export default class Editor extends Component {
     const chapterId = Number(selection.anchorNode.parentNode.dataset.chapter || 0)
     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
     const segment = chapters[chapterId] && chapters[chapterId].segments[segmentId]
-    const timestamp = segment ? segment.startTime : 0
+    const timestamp = segment ? segment.startTime || 0 : 0
     onCursorTimeChange(timestamp)
   }
 
   getFirstSegmentNode = (node) => {
-    return node.nodeName === 'CODE' ? node.firstChild.firstChild : this.getFirstSegmentNode(node.parentNode)
+    const getDeepestChild = (node) => node.firstChild ? getDeepestChild(node.firstChild) : node
+    return node.nodeName === 'CODE' ? getDeepestChild(node) : this.getFirstSegmentNode(node.parentNode)
   }
 
   isPastedInParent = (node) => {
@@ -411,6 +412,7 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
   return (
     <pre>
       <code
+        style={{minHeight: '100px'}}
         key={segments.toString()}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}

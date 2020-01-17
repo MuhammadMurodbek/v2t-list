@@ -189,7 +189,7 @@ export default class EditPage extends Component {
         icon: 'error',
         button: 'Ok'
       })
-    }  
+    }
   }
 
   sendToCoworker = async () => {
