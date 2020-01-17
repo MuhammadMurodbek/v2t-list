@@ -195,7 +195,24 @@ export default class Editor extends Component {
   onKeyDown = (e, chapterId) => {
     const selection = window.getSelection()
     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
+    if (e.keyCode === KEYCODE_ENTER && e.shiftKey) {
+      this.insertNewline(e, chapterId, segmentId)
+    }
     this.handleChapterChange(e, chapterId, segmentId)
+  }
+
+  insertNewline = (e, chapterId, segmentId) => {
+    const { chapters, updateTranscript } = this.props
+    e.preventDefault()
+    this.stashCursor(1)
+    const range = window.getSelection().getRangeAt(0)
+    const selectedLength = range.endOffset - range.startOffset
+    const segments = chapters[chapterId].segments
+    const charArray = segments[segmentId].words.split('')
+    charArray.splice(range.startOffset, selectedLength, '\n')
+    segments[segmentId].words = charArray.join('')
+    chapters[chapterId].segments = segments
+    updateTranscript(chapters)
   }
 
   updateKeyword = (id, value) => {
