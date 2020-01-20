@@ -7,7 +7,11 @@ import PropTypes from 'prop-types'
 import Preferences from './Preferences'
 
 const Start = ({ title, children, preferences }) => (
-  <EuiPageBody style={{ minHeight: '100vh', margin: '0px', paddingLeft: '0px' }}>
+  <EuiPageBody style={{
+    minHeight: '100vh',
+    margin: '0px',
+    paddingLeft: '0px'
+  }}>
     <EuiPageContent style={{ borderRadius: 0 }}>
       <EuiPageContentHeader>
         <EuiPageContentHeaderSection>
