@@ -52,12 +52,10 @@ export default class Editor extends Component {
 
   initChapters = () => {
     const { originalChapters, updateTranscript } = this.props
-    const chapters = originalChapters
-    if (chapters) {
-      chapters.forEach((chapter) => {
-        chapter.segments.forEach((segment) => {
-          segment.words = segment.words.replace(/ +$/, ' ')
-        })
+    if (originalChapters) {
+      const chapters = originalChapters.map((chapter) => {
+        const segments = chapter.segments.reduce(this.reduceSegment, [])
+        return { ...chapter, segments }
       })
       updateTranscript(chapters)
     }
@@ -285,15 +283,7 @@ export default class Editor extends Component {
     const segments = Array.from(target.childNodes)
       .reduce((store, child) => {
         const segment = this.parseSegment(child, chapterId)
-        const lastSegment = store[store.length -1]
-        if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
-          lastSegment.words += segment.words
-          lastSegment.endTime = segment.endTime
-          store[store.length -1] = lastSegment
-        } else if (segment.words.length) {
-          store.push(segment)
-        }
-        return store
+        return this.reduceSegment(store, segment)
       }, [])
     return { ...chapters[chapterId], segments }
   }
@@ -307,6 +297,18 @@ export default class Editor extends Component {
     if (segmentId)
       return { ...segments[segmentId], words }
     return { startTime: 0, endTime: 0, words }
+  }
+
+  reduceSegment = (store, segment) => {
+    const lastSegment = store[store.length -1]
+    if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
+      lastSegment.words += segment.words
+      lastSegment.endTime = segment.endTime
+      store[store.length -1] = lastSegment
+    } else if (segment.words.length) {
+      store.push(segment)
+    }
+    return store
   }
 
   removeInvalidChars = (child) => {
