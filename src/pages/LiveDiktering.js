@@ -264,7 +264,7 @@ export default class LiveDiktering extends Component {
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
-      <Page preferences title="Live diktering">
+      <Page preferences title="Live diktering (i/ai)">
         <EuiFlexGroup >
           <EuiFlexItem>
             <PersonalInformation />
