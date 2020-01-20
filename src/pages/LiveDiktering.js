@@ -264,13 +264,9 @@ export default class LiveDiktering extends Component {
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
-      <Page preferences title="">
+      <Page preferences title="Live diktering">
         <EuiFlexGroup >
           <EuiFlexItem>
-            <EuiText grow={false}>
-              <h2>LiveDiktering (i/ai)</h2>
-            </EuiText>
-            <EuiSpacer size="m" />
             <PersonalInformation />
             <EuiSpacer size="l" />
             <EuiText grow={false}>
@@ -291,7 +287,6 @@ export default class LiveDiktering extends Component {
             />
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ minWidth: 230, marginLeft: 30 }}>
-            <EuiSpacer size="l" />
             <Mic
               recordingAction={recordingAction}
               microphoneBeingPressed={microphoneBeingPressed}
