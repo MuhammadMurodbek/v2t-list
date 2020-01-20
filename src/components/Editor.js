@@ -412,7 +412,7 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
   return (
     <pre>
       <code
-        style={{minHeight: '100px'}}
+        style={{ minHeight: '20px' }}
         key={segments.toString()}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}
