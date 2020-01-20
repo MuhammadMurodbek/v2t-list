@@ -6,8 +6,13 @@ import {
   EuiComboBox,
   EuiFlexItem,
   EuiSpacer,
-  EuiText
+  EuiText,
+  EuiDragDropContext,
+  EuiDraggable,
+  EuiDroppable,
+  EuiHorizontalRule
 } from '@elastic/eui'
+
 import swal from 'sweetalert'
 import api from '../api'
 import '../styles/tags.css'
@@ -17,7 +22,12 @@ export default class Tags extends Component {
     tableOfCodes: [],
     isLoading: false,
     selectedOption: [],
-    options: []
+    options: [],
+    list: [
+      { id: 1, content: <span><strong>1</strong>&emsp;&emsp;&emsp;&emsp;&emsp;hello</span> },
+      { id: 2, content: '2 hej' },
+      { id: 3, content: '3 hola' }
+    ]
   }
 
   componentDidUpdate(prevProps) {
@@ -58,7 +68,10 @@ export default class Tags extends Component {
 
   addCode = () => {
     const { selectedOption, tableOfCodes } = this.state
-
+    console.log('selectedOption')
+    console.log(selectedOption)
+    console.log('tableOfCodes')
+    console.log(tableOfCodes)
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(': ')
@@ -77,7 +90,7 @@ export default class Tags extends Component {
         })
         this.emptySelectedOption()
       } else {
-        const temp = tableOfCodes
+        let temp = tableOfCodes
         temp.push(newCode)
         this.setState({ tableOfCodes: temp }, () => {
           this.emptySelectedOption()
@@ -107,6 +120,10 @@ export default class Tags extends Component {
     this.setState({
       isLoading: false
     })
+  }
+
+  onDragEnd = ({ source, destination }) => {
+    console.log(source, destination)
   }
 
   render() {
@@ -181,6 +198,20 @@ export default class Tags extends Component {
             columns={COLUMNS}
             hasActions
           />
+          <EuiSpacer size="l" />
+          <table>
+            <span><tr style={{ lineHeight: 1.6 }}> <td className="icdTable">Kod</td><td className="icdTable">&nbsp;Beskrivning</td><EuiSpacer size="l" /></tr></span>
+            <EuiHorizontalRule margin="xs" />
+            <EuiDragDropContext onDragEnd={this.onDragEnd}>
+              <EuiDroppable droppableId="DROPPABLE_AREA_BARE">
+                {tableOfCodes.map(({ description, id }, idx) => (
+                  <EuiDraggable key={id} index={idx} draggableId={id}>
+                    {() => <span><tr style={{ lineHeight: 1.6 }}> <td>{id}</td><td>{description}</td><EuiSpacer size="l" /></tr><EuiHorizontalRule margin="xs" /></span>}
+                  </EuiDraggable>
+                ))}
+              </EuiDroppable>
+            </EuiDragDropContext>
+          </table>
         </EuiFlexItem>
       </Fragment>
     )

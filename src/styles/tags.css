@@ -9,3 +9,14 @@
 .euiListGroupItem:hover {
        background-color: #d3d9e2;
 }
+
+
+td{
+  padding: 10px;
+}
+
+.icdTable {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
