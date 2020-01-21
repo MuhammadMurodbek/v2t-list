@@ -64,10 +64,6 @@ export default class Tags extends Component {
 
   addCode = () => {
     const { selectedOption, tableOfCodes } = this.state
-    // console.log('selectedOption')
-    // console.log(selectedOption)
-    // console.log('tableOfCodes')
-    // console.log(tableOfCodes)
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(': ')
@@ -130,6 +126,8 @@ export default class Tags extends Component {
     if (source && destination) {
       this.setState({ 
         tableOfCodes: this.swap(tableOfCodes, source.index, destination.index)
+      }, () => {
+        this.props.updateTags(this.state.tableOfCodes)
       })
     }
   };
