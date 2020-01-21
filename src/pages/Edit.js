@@ -129,10 +129,12 @@ export default class EditPage extends Component {
       return transcriptions.map((transcript) => {
         const keyword = transcript.keyword.length ? transcript.keyword : 'Kontaktorsak'
         const segments = transcript.segments.map((chunk, i) => {
-          const words = i >= transcript.segments.length - 1 ? chunk.words : `${chunk.words} `
+          const isLast = i >= transcript.segments.length - 1
+          const noSpaceSuffix = isLast || /^\s*$/.test(chunk.words)
+          const words = noSpaceSuffix ? chunk.words : `${chunk.words} `
           return {
             ...chunk,
-            words
+            words: words.replace(/ +$/, ' ')
           }
         })
         return {
@@ -260,7 +262,7 @@ export default class EditPage extends Component {
       })
       return
     }
-    
+
     if (this.areSectionHeadersBelongToTheTemplate() === false) {
       swal({
         title: 'Inte möjligt att spara diktatet',
@@ -277,7 +279,7 @@ export default class EditPage extends Component {
       })
     })
 
-    
+
 
     try {
       await api.updateTranscription(transcript.external_id, tags, chapters, templateId)
