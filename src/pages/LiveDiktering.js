@@ -8,7 +8,7 @@ import {
   EuiButton 
 } from '@elastic/eui'
 import api from '../api'
-import Editor from '../components/Editor'
+import LiveEditor from '../components/LiveEditor'
 import Mic from '../components/Mic'
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import interpolateArray from '../models/interpolateArray'
@@ -273,7 +273,7 @@ export default class LiveDiktering extends Component {
               <h3>Editor</h3>
             </EuiText>
             <EuiSpacer size="m" />
-            <Editor
+            <LiveEditor
               transcript={chapters}
               originalChapters={chapters}
               chapters={chapters}
