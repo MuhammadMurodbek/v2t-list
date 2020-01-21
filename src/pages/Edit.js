@@ -77,10 +77,16 @@ export default class EditPage extends Component {
     const originalChapters = this.parseTranscriptions(response.data.transcriptions)
     const { tags, fields, media_content_type, template_id } = response.data
     if (tags) {
+      const processedTags = tags.map((tag) => { 
+        return { 
+          id: tag.id.toUpperCase(),
+          description: tag.description
+        } 
+      })
       this.setState({
         originalChapters,
-        tags,
-        originalTags: tags
+        tags: processedTags,
+        originalTags: processedTags
       })
     } else {
       this.setState({
