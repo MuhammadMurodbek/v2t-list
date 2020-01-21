@@ -30,12 +30,12 @@ const Info = ({ fields }) => {
       field: 'patientNamn',
       name: 'Patientnamn',
       sortable: true,
-      width: '200px'
+      width: '190px'
     },
     {
       field: 'patientId',
       name: 'Personnummer',
-      width: '100px'
+      width: '110px'
     }]
 
   

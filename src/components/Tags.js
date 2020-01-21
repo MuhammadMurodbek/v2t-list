@@ -6,11 +6,11 @@ import {
   EuiComboBox,
   EuiFlexItem,
   EuiSpacer,
-  EuiText,
-  EuiDragDropContext,
-  EuiDraggable,
-  EuiDroppable,
-  EuiHorizontalRule
+  EuiText//,
+  // EuiDragDropContext,
+  // EuiDraggable,
+  // EuiDroppable,
+  // EuiHorizontalRule
 } from '@elastic/eui'
 
 import swal from 'sweetalert'
@@ -68,10 +68,10 @@ export default class Tags extends Component {
 
   addCode = () => {
     const { selectedOption, tableOfCodes } = this.state
-    console.log('selectedOption')
-    console.log(selectedOption)
-    console.log('tableOfCodes')
-    console.log(tableOfCodes)
+    // console.log('selectedOption')
+    // console.log(selectedOption)
+    // console.log('tableOfCodes')
+    // console.log(tableOfCodes)
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(': ')
@@ -199,19 +199,42 @@ export default class Tags extends Component {
             hasActions
           />
           <EuiSpacer size="l" />
-          <table>
-            <span><tr style={{ lineHeight: 1.6 }}> <td className="icdTable">Kod</td><td className="icdTable">&nbsp;Beskrivning</td><EuiSpacer size="l" /></tr></span>
-            <EuiHorizontalRule margin="xs" />
-            <EuiDragDropContext onDragEnd={this.onDragEnd}>
-              <EuiDroppable droppableId="DROPPABLE_AREA_BARE">
-                {tableOfCodes.map(({ description, id }, idx) => (
-                  <EuiDraggable key={id} index={idx} draggableId={id}>
-                    {() => <span><tr style={{ lineHeight: 1.6 }}> <td>{id}</td><td>{description}</td><EuiSpacer size="l" /></tr><EuiHorizontalRule margin="xs" /></span>}
-                  </EuiDraggable>
-                ))}
-              </EuiDroppable>
-            </EuiDragDropContext>
-          </table>
+          {/* <table>
+            <thead>
+              <tr style={{ lineHeight: 1.6 }}>
+                <td className="icdTable">Kod</td>
+                <td className="icdTable">Beskrivning</td>
+              </tr>
+            </thead>
+            <tbody>
+              <EuiDragDropContext onDragEnd={this.onDragEnd}>
+                <EuiDroppable droppableId="DROPPABLE_AREA_BARE">
+                  {tableOfCodes.map(({ description, id }, idx) => (
+                    <EuiDraggable key={id} index={idx} draggableId={id}>
+                      {() => 
+                        <tr style={{ lineHeight: 1.6 }}>
+                          <td>{id}</td>
+                          <td>{description}</td>
+                          <td> 
+                            <EuiButtonIcon
+                              iconSize="l"
+                              color="danger"
+                              onClick={
+                                () => this.deleteRow({ description, id })
+                              }
+                              iconType="trash"
+                              aria-label="Next"
+                            />  
+                          </td><EuiSpacer size="l" />
+                          <EuiHorizontalRule margin="xs" />
+                        </tr>
+                      }
+                    </EuiDraggable>
+                  ))}
+                </EuiDroppable>
+              </EuiDragDropContext>
+            </tbody>
+          </table> */}
         </EuiFlexItem>
       </Fragment>
     )
