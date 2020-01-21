@@ -1,16 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 import React, { Component, Fragment } from 'react'
 import {
-  EuiBasicTable,
   EuiButtonIcon,
   EuiComboBox,
   EuiFlexItem,
   EuiSpacer,
-  EuiText//,
-  // EuiDragDropContext,
-  // EuiDraggable,
-  // EuiDroppable,
-  // EuiHorizontalRule
+  EuiText,
+  EuiDragDropContext,
+  EuiDraggable,
+  EuiDroppable,
+  EuiPanel,
+  EuiFlexGroup,
+  EuiIcon
 } from '@elastic/eui'
 
 import swal from 'sweetalert'
@@ -22,12 +23,7 @@ export default class Tags extends Component {
     tableOfCodes: [],
     isLoading: false,
     selectedOption: [],
-    options: [],
-    list: [
-      { id: 1, content: <span><strong>1</strong>&emsp;&emsp;&emsp;&emsp;&emsp;hello</span> },
-      { id: 2, content: '2 hej' },
-      { id: 3, content: '3 hola' }
-    ]
+    options: []
   }
 
   componentDidUpdate(prevProps) {
@@ -122,47 +118,27 @@ export default class Tags extends Component {
     })
   }
 
-  onDragEnd = ({ source, destination }) => {
-    console.log(source, destination)
+  swap = (arr, source, destination) => {
+    const temp = arr[source]
+    arr[source] = arr[destination]
+    arr[destination] = temp
+    return arr
   }
+
+  onDragEnd = ({ source, destination }) => {
+    const {tableOfCodes} = this.state
+    if (source && destination) {
+      this.setState({ 
+        tableOfCodes: this.swap(tableOfCodes, source.index, destination.index)
+      })
+    }
+  };
 
   render() {
     const label = (<h2>Kod</h2>)
     const {
       options, isLoading, selectedOption, tableOfCodes
     } = this.state
-
-    const COLUMNS = [
-      {
-        field: 'id',
-        name: 'Kod',
-        sortable: true,
-        width: '80px',
-        render: (item) => {
-          return item.toUpperCase()
-        }
-      },
-      {
-        field: 'description',
-        name: 'Beskrivning',
-        width: '300px'
-      },
-      {
-        name: '',
-        actions: [{
-          render: (item) => {
-            return (
-              <EuiButtonIcon
-                iconSize="l"
-                color="danger"
-                onClick={() => this.deleteRow(item)}
-                iconType="trash"
-                aria-label="Next"
-              />
-            )
-          }
-        }]
-      }]
 
     return (
       <Fragment>
@@ -191,50 +167,55 @@ export default class Tags extends Component {
             <AddButton onClick={this.addCode} />
           </span>
         </div>
-        <EuiFlexItem grow={false} style={{ width: 380, display: tableOfCodes.length > 0 ? 'block' : 'none' }}>
-          <EuiBasicTable
+        <EuiFlexItem grow={false} style={{ width: 400, display: tableOfCodes.length > 0 ? 'block' : 'none' }}>
+          {/* <EuiBasicTable
             className="transcript"
             items={tableOfCodes}
             columns={COLUMNS}
             hasActions
-          />
+          /> */}
           <EuiSpacer size="l" />
-          {/* <table>
-            <thead>
-              <tr style={{ lineHeight: 1.6 }}>
-                <td className="icdTable">Kod</td>
-                <td className="icdTable">Beskrivning</td>
-              </tr>
-            </thead>
-            <tbody>
-              <EuiDragDropContext onDragEnd={this.onDragEnd}>
-                <EuiDroppable droppableId="DROPPABLE_AREA_BARE">
-                  {tableOfCodes.map(({ description, id }, idx) => (
-                    <EuiDraggable key={id} index={idx} draggableId={id}>
-                      {() => 
-                        <tr style={{ lineHeight: 1.6 }}>
-                          <td>{id}</td>
-                          <td>{description}</td>
-                          <td> 
-                            <EuiButtonIcon
-                              iconSize="l"
-                              color="danger"
-                              onClick={
-                                () => this.deleteRow({ description, id })
-                              }
-                              iconType="trash"
-                              aria-label="Next"
-                            />  
-                          </td><EuiSpacer size="l" />
-                          <EuiHorizontalRule margin="xs" />
-                        </tr>
-                      }
-                    </EuiDraggable>
-                  ))}
-                </EuiDroppable>
-              </EuiDragDropContext>
-            </tbody>
-          </table> */}
+          <EuiDragDropContext onDragEnd={this.onDragEnd}>
+            <EuiDroppable
+              droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
+              spacing="m"
+              withPanel>
+              {tableOfCodes.map(({ description, id }, idx) => (
+                <EuiDraggable
+                  spacing="m"
+                  key={id}
+                  index={idx}
+                  draggableId={id}
+                  customDragHandle={true}>
+                  {provided => (
+                    <EuiPanel className="custom" paddingSize="m">
+                      <EuiFlexGroup style={{
+                        width: 380, lineHeight: 1.5}}>
+                        <EuiFlexItem>
+                          <div {...provided.dragHandleProps}>
+                            <EuiIcon type="grab" color="blue"/>
+                          </div>
+                        </EuiFlexItem>
+                        <EuiFlexItem style={{ minWidth: 260, fontSize: '1rem' }}><strong>{id}</strong>  {description}</EuiFlexItem>
+                        <EuiFlexItem>
+                          <EuiButtonIcon
+                            iconSize="l"
+                            color="danger"
+                            onClick={
+                              () => this.deleteRow({ description, id })
+                            }
+                            iconType="trash"
+                            aria-label="Next"
+                          />  
+                              
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiPanel>
+                  )}
+                </EuiDraggable>
+              ))}
+            </EuiDroppable>
+          </EuiDragDropContext> 
         </EuiFlexItem>
       </Fragment>
     )
