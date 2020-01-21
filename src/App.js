@@ -185,7 +185,7 @@ export default class App extends Component {
                 onClick={this.loadHomescreen}
               />
               <EuiSideNav
-                mobileTitle="Navigate within $APP_NAME"
+                mobileTitle=""
                 // toggleOpenOnMobile={false}
                 isOpenOnMobile={false}
                 style={{ width: 300 }}

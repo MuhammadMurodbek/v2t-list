@@ -152,7 +152,7 @@ export default class Tags extends Component {
         <EuiText size="xs">
           {label}
         </EuiText>
-        <EuiSpacer size="m"/>
+        <EuiSpacer size="m" />
         <div className="searchKoder" style={{ display: 'flex' }}>
           <span style={{
             width: 344,
@@ -171,10 +171,10 @@ export default class Tags extends Component {
             />
           </span>
           <span style={{ marginTop: '4px' }}>
-            <AddButton onClick={this.addCode}/>
+            <AddButton onClick={this.addCode} />
           </span>
         </div>
-        <EuiFlexItem grow={false} style={{ width: 380, display: tableOfCodes.length>0? 'block':'none' }}>
+        <EuiFlexItem grow={false} style={{ width: 380, display: tableOfCodes.length > 0 ? 'block' : 'none' }}>
           <EuiBasicTable
             className="transcript"
             items={tableOfCodes}
