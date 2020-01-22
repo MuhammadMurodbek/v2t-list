@@ -7,7 +7,7 @@ const getKeyByValue = (object, value) =>
 
 const getTheFullKeyWords = (partialKeyword, listOfKeywords) => {
   const probableKeywords = []
-  listOfKeywords.map(keyword=>{
+  listOfKeywords.forEach(keyword=>{
     if (keyword.includes(partialKeyword.toUpperCase())) {
       probableKeywords.push(keyword)
     }
