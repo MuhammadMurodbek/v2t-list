@@ -52,6 +52,8 @@ export default class LiveDiktering extends Component {
 
   templates = async () => {
     const templateList = await api.getSectionTemplates()
+    console.log('templates')
+    console.log(templateList)
     this.setState({ listOfTemplates: templateList.data.templates })
   }
 
@@ -79,6 +81,12 @@ export default class LiveDiktering extends Component {
   
   validateSections = (updatedSectionNames) => {
     const { sections, chapters } = this.state
+    // console.log('sections beta')
+    // console.log(sections)
+    // console.log('updated sections')
+    // console.log(updatedSectionNames)
+    // console.log('chapters')
+    // console.log(chapters)
     if(JSON.stringify(sections)!==JSON.stringify(updatedSectionNames)) {
       // cheeck if the current sections are incompatible  
       // shuffle chapters according to the new template
@@ -91,6 +99,10 @@ export default class LiveDiktering extends Component {
       })
       updatedText = updatedText.replace('KONTAKTORSAK', '')
       updatedText = updatedText.replace(/\s\s+/g, ' ')
+      updatedText = updatedText.replace(/ny rad/g, '')
+      updatedText = updatedText.replace(/\n/g, '')
+      console.log('updated text final')
+      console.log(updatedText)
       this.setState({
         chapters: processChapters(updatedText, updatedSectionNames)
       })
@@ -98,6 +110,8 @@ export default class LiveDiktering extends Component {
   }
 
   updatedSections = (sections) => {
+    console.log('before validating')
+    console.log(sections)
     this.validateSections(sections)
     this.setState({ sections })
   }
