@@ -82,8 +82,10 @@ export default class Tags extends Component {
         })
         this.emptySelectedOption()
       } else {
-        let temp = tableOfCodes
-        temp.push(newCode)
+        const temp = [ ...tableOfCodes, {
+          id: data[0],
+          description: data[1]
+        }]
         this.setState({ tableOfCodes: temp }, () => {
           this.emptySelectedOption()
           this.props.updateTags(this.state.tableOfCodes)
