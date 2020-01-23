@@ -67,11 +67,6 @@ export default class Tags extends Component {
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(': ')
-      const newCode = {
-        id: data[0],
-        description: data[1]
-      }
-
       if (tableOfCodes.some(e => e.id === data[0])) {
         // eslint-disable-next-line no-alert
         swal({
@@ -82,11 +77,11 @@ export default class Tags extends Component {
         })
         this.emptySelectedOption()
       } else {
-        const temp = [ ...tableOfCodes, {
+        const updatedCodes = [ ...tableOfCodes, {
           id: data[0],
           description: data[1]
         }]
-        this.setState({ tableOfCodes: temp }, () => {
+        this.setState({ tableOfCodes: updatedCodes }, () => {
           this.emptySelectedOption()
           this.props.updateTags(this.state.tableOfCodes)
         })
