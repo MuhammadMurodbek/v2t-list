@@ -26,7 +26,7 @@ const SectionHeader = ({ isVisible, keywords, selectedHeader, updateKey, chapter
   return (
     <EuiFormRow label="Sökord" style={{ display: keywords.length>0 ? 'flex' : 'none' }}>
       <EuiComboBox
-        placeholder="Välj en journalrubrik"
+        placeholder="Välj en sökord"
         options={keywordsOptions}
         selectedOptions={selectedKeyword ? [{label: selectedKeyword}] : []}
         singleSelection={{ asPlainText: true }}

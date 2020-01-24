@@ -252,7 +252,7 @@ export default class EditPage extends Component {
         title: 'Det finns inget att uppdatera!',
         text: 'Diktatet är inte ändrat',
         icon: 'info',
-        button: 'Avbryt'
+        button: 'Ok'
       })
       return
     }
@@ -262,9 +262,9 @@ export default class EditPage extends Component {
     if (headers.length !== uniqueHeaders.length) {
       swal({
         title: 'Inte möjligt att spara diktatet',
-        text: 'Journalrubrik får endast förekomma 1 gång',
+        text: 'Sökord får endast förekomma 1 gång',
         icon: 'info',
-        button: 'Avbryt'
+        button: 'Ok'
       })
       return
     }
@@ -272,9 +272,9 @@ export default class EditPage extends Component {
     if (this.areSectionHeadersBelongToTheTemplate() === false) {
       swal({
         title: 'Inte möjligt att spara diktatet',
-        text: 'Journalrubrik is not compatible to the template',
+        text: 'Sökord is not compatible to the template',
         icon: 'info',
-        button: 'Avbryt'
+        button: 'Ok'
       })
       return
     }
