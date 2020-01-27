@@ -40,7 +40,6 @@ const isItAValidKeyword = (listOfProbableKeywords, finalText, i) => {
 const capitalize = (str) => str
   .trim().charAt(0).toUpperCase() + str.trim().slice(1)
 
-
 const capitalizeSections = (tempChapters) => {
   return tempChapters.map(({ keyword, segments })=>{
     return { keyword,
@@ -55,7 +54,10 @@ const capitalizeSections = (tempChapters) => {
   })
 }
 
-const putPunkt = (str) => str[str.length-1]!=='.' ? `${str}.` : str
+const putPunkt = (str) => 
+  // match whether the last character of the string is a punctuation
+  !str.match(/[\p{P}\p{N}]$/u)
+  && str.length > 0 ? `${str}.` : str
 
 const setThePunkt = (tempChapters) => {
   return tempChapters.map(({ keyword, segments }) => {
@@ -230,11 +232,8 @@ const processChapters = (finalText, updatedSections) => {
 
 
   // Capitalize the transcript
-  const capitalized = capitalizeSections(tempChapters)
-  if (capitalized) { 
-    return setThePunkt(capitalized)
-  }
-  return tempChapters
+  const capitalized = capitalizeSections(tempChapters)  
+  return capitalized ? setThePunkt(capitalized) : tempChapters
 }
 
 export default processChapters
