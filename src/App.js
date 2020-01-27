@@ -121,7 +121,7 @@ export default class App extends Component {
                   onClick: () => {
                     if(window.location.hostname.split('.')[0].includes('dev')) {
                       window.open('https://v2t-dev-kibana.inoviaai.se', '_blank').focus()
-                    } else {
+                    } else if (window.location.hostname.split('.')[0].includes('stage')) {
                       window.open('https://v2t-stage-kibana.inoviaai.se', '_blank').focus()
                     }
                   }
@@ -138,11 +138,26 @@ export default class App extends Component {
                 //   name: 'Live Diktering',
                 //   onClick: () => this.selectItem('Live')
                 }, {
-                  href: `http://${window.location.hostname.replace('www', 'webdoc')}`,
                   id: 6,
                   isSelected: selectedItemName === 'Co-worker',
                   name: 'Co-worker',
-                  onClick: () => this.selectItem('Co-worker')
+                  onClick: () => {
+                    if (
+                      window.location.hostname.split('.')[0].includes('dev')
+                    ) {
+                      window
+                        .open('https://v2t-dev-webdoc.inoviaai.se/#/', '_blank')
+                        .focus()
+                    } else if (
+                      window.location.hostname.split('.')[0].includes('stage')
+                    ) { 
+                      window
+                        .open(
+                          'https://v2t-stage-webdoc.inoviaai.se/#/', '_blank'
+                        )
+                        .focus()
+                    }
+                  }
                 }
               ],
               name: ''
