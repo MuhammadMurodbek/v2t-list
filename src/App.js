@@ -229,8 +229,8 @@ export default class App extends Component {
                 }}
               />
               <Route path="/upload/" render={props => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
-              <Route path="/analytics/"
-                     render={props => isLoggedIn ? <AnalyticsPage/> : <LoginPage/>}/>
+              {/* <Route path="/analytics/"
+                     render={props => isLoggedIn ? <AnalyticsPage/> : <LoginPage/>}/> */}
               <Route path="/training/"
                      render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
               <Route path="/training/"
