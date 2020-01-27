@@ -101,8 +101,6 @@ export default class LiveDiktering extends Component {
       updatedText = updatedText.replace(/\s\s+/g, ' ')
       updatedText = updatedText.replace(/ny rad/g, '')
       updatedText = updatedText.replace(/\n/g, '')
-      console.log('updated text final')
-      console.log(updatedText)
       this.setState({
         chapters: processChapters(updatedText, updatedSectionNames)
       })
