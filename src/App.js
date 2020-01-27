@@ -119,7 +119,11 @@ export default class App extends Component {
                   isSelected: selectedItemName === 'Analytics',
                   name: 'Analytics',
                   onClick: () => {
-                    window.open(`http://${window.location.hostname.replace('www', 'kibana')}`, '_blank').focus()
+                    if(window.location.hostname.split('.')[0].includes('dev')) {
+                      window.open('https://v2t-dev-kibana.inoviaai.se', '_blank').focus()
+                    } else {
+                      window.open('https://v2t-stage-kibana.inoviaai.se', '_blank').focus()
+                    }
                   }
                 }, {
                   href: '/#/training',
