@@ -55,6 +55,23 @@ const capitalizeSections = (tempChapters) => {
   })
 }
 
+const putPunkt = (str) => str[str.length-1]!=='.' ? `${str}.` : str
+
+const setThePunkt = (tempChapters) => {
+  return tempChapters.map(({ keyword, segments }) => {
+    return {
+      keyword,
+      segments: [
+        {
+          words: putPunkt(segments.map(segment => segment.words).join()),
+          startTime: 0,
+          endTime: 0
+        }
+      ]
+    }
+  })
+}
+
 const processChapters = (finalText, updatedSections) => {  
   const usedKeywords = ['KONTAKTORSAK']
   const words = finalText.split(' ')
@@ -215,7 +232,7 @@ const processChapters = (finalText, updatedSections) => {
   // Capitalize the transcript
   const capitalized = capitalizeSections(tempChapters)
   if (capitalized) { 
-    return capitalized
+    return setThePunkt(capitalized)
   }
   return tempChapters
 }
