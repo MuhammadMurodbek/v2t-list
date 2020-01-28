@@ -74,9 +74,13 @@ const setThePunkt = (tempChapters) => {
   })
 }
 
+const getReplacementForPreservedWord = (fullText) => {
+  return fullText.replace(/i b s/ig, 'IBS')
+}
+
 const processChapters = (finalText, updatedSections) => {  
   const usedKeywords = ['KONTAKTORSAK']
-  const words = finalText.split(' ')
+  const words = getReplacementForPreservedWord(finalText).split(' ')
   const tempChapters = [{ 
     keyword: 'KONTAKTORSAK',
     segments: [{ words: '', startTime: 0.00, endTime: 0.00 }]
