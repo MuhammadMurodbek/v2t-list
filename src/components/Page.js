@@ -19,10 +19,11 @@ const Start = ({ title, logo, children, preferences }) => (
             <h2>{title}            
               <img
                 src={logo}
+                alt=""
                 // className="mic"
                 style={{height: 70}}
-            />
-</h2>
+              />
+            </h2>
 
           </EuiTitle>
         </EuiPageContentHeaderSection>
