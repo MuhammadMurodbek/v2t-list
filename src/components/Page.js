@@ -6,7 +6,7 @@ import {
 import PropTypes from 'prop-types'
 import Preferences from './Preferences'
 
-const Start = ({ title, children, preferences }) => (
+const Start = ({ title, logo, children, preferences }) => (
   <EuiPageBody style={{
     minHeight: '100vh',
     margin: '0px',
@@ -16,7 +16,14 @@ const Start = ({ title, children, preferences }) => (
       <EuiPageContentHeader>
         <EuiPageContentHeaderSection>
           <EuiTitle>
-            <h2>{title}</h2>
+            <h2>{title}            
+              <img
+                src={logo}
+                // className="mic"
+                style={{height: 70}}
+            />
+</h2>
+
           </EuiTitle>
         </EuiPageContentHeaderSection>
         <EuiPageContentHeaderSection>

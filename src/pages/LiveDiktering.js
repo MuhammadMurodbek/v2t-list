@@ -17,6 +17,7 @@ import Tags from '../components/Tags'
 import io from 'socket.io-client'
 import Page from '../components/Page'
 import processChapters from '../models/processChapters'
+import inoviaLogo from '../img/livediktering.png'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -276,7 +277,7 @@ export default class LiveDiktering extends Component {
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
-      <Page preferences title="Live diktering (i/ai)">
+      <Page preferences logo={inoviaLogo}>
         <EuiFlexGroup >
           <EuiFlexItem>
             <PersonalInformation />
