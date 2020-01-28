@@ -64,10 +64,6 @@ export default class EditPage extends Component {
     }
   }
 
-  getQueryStringValue(key) {
-    return decodeURIComponent(window.location.href.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent(key).replace(/[.+*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"))
-  }
-
   loadSegments = async () => {
     const { transcript } = this.props
     // const [preferences] = this.context
@@ -119,21 +115,23 @@ export default class EditPage extends Component {
         defaultTemplate: template_id,
         templateId: template_id,
         originalTemplate: template_id
-        }, () => {
-          const { templates } = this.state
-          const { defaultTemplate } = this.state
-          const template = templates.templates.find(template => template.id === defaultTemplate)
-          const sections = template ? template.sections : []
-          const sectionHeaders = sections.map(section => section.name)
-          this.setState({ sectionHeaders })
-        })
+      }, () => {
+        const { templates } = this.state
+        const { defaultTemplate } = this.state
+        const template = templates
+          .templates.find(template => template.id === defaultTemplate)
+        const sections = template ? template.sections : []
+        const sectionHeaders = sections.map(section => section.name)
+        this.setState({ sectionHeaders })
+      })
     }
   }
 
   parseTranscriptions = (transcriptions) => {
     if (transcriptions) {
       return transcriptions.map((transcript) => {
-        const keyword = transcript.keyword.length ? transcript.keyword : 'Kontaktorsak'
+        const keyword = transcript
+          .keyword.length ? transcript.keyword : 'Kontaktorsak'
         const segments = transcript.segments.map((chunk, i) => {
           const isLast = i >= transcript.segments.length - 1
           const noSpaceSuffix = isLast || /^\s*$/.test(chunk.words)
@@ -393,31 +391,36 @@ export default class EditPage extends Component {
               />
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-                  <Info fields={fields} />
-                  <EuiSpacer size="xxl" />
-                  <Tags
-                    tags={tags}
-                    updateTags={this.onUpdateTags}
-                  />
-                  <EuiSpacer size="xxl" />
-                  <Templates
-                    listOfTemplates={templates.templates}
-                    defaultTemplate={templateId}
-                    updateSectionHeader={this.updateSectionHeader}
-                    updateTemplateId={this.updateTemplateId}
-                  />
+              <Info fields={fields} />
+              <EuiSpacer size="xxl" />
+              <Tags
+                tags={tags}
+                updateTags={this.onUpdateTags}
+              />
+              <EuiSpacer size="xxl" />
+              <Templates
+                listOfTemplates={templates.templates}
+                defaultTemplate={templateId}
+                updateSectionHeader={this.updateSectionHeader}
+                updateTemplateId={this.updateTemplateId}
+              />
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="secondary" onClick={this.finalize}>Skicka till
-                Co-Worker</EuiButton>
+              <EuiButton fill color="secondary" onClick={this.finalize}>
+                Skicka till Co-Worker
+              </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton color="secondary" onClick={this.save}>Spara ändringar</EuiButton>
+              <EuiButton color="secondary" onClick={this.save}>
+                Spara ändringar
+              </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="danger" onClick={this.cancel}>Avbryt</EuiButton>
+              <EuiButton fill color="danger" onClick={this.cancel}>
+                Avbryt
+              </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>
