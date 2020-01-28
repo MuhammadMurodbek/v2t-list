@@ -1,14 +1,19 @@
+/* eslint-disable react/prop-types */
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
 import DropDown from './DropDown'
 import {
-    EuiSpacer,
-    EuiText, EuiForm, EuiFormRow, EuiSuperSelect
+  EuiSpacer, EuiText, EuiForm, EuiFormRow, EuiSuperSelect
 } from '@elastic/eui'
 import '../App.css'
 
 
-const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, updateTemplateId }) => {
+const Templates = ({
+  listOfTemplates,
+  defaultTemplate,
+  updateSectionHeader,
+  updateTemplateId
+}) => {
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate)
   const [templateId, setTemplateId] = useState(defaultTemplate)
   
@@ -34,7 +39,8 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, upda
     }}
   )
 
-  const template = listOfTemplates.find(template => template.id === selectedTemplate)
+  const template = listOfTemplates
+    .find(template => template.id === selectedTemplate)
   const sections = template ? template.sections : []
   const sectionNames = sections.map(section => section.name)
   
@@ -55,6 +61,7 @@ const Templates = ({ listOfTemplates, defaultTemplate, updateSectionHeader, upda
         </EuiFormRow>
       </EuiForm>
     </Fragment>
-)}
+  )
+}
 
 export default Templates
