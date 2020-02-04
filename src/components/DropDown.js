@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-const DropDown = ({ title, content }) => (
+const DropDown = ({ title }) => (
   <Fragment>
     <strong>{title}</strong>
   </Fragment>

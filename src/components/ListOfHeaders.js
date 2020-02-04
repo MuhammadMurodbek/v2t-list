@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import React, { Fragment } from 'react'
 import {
   EuiSpacer,
@@ -8,11 +10,11 @@ import '../App.css'
 
 const ListOfHeaders = ({ headers }) => {
   const listItems = headers.map((header, i) => 
-      <li key={i} style={{ 
-          'textDecoration': header.done === true ? 'line-through' : 'none',
-          'color': header.done === true ? 'green' : 'black'
-          }}>{header.name}
-      </li> 
+    <li key={i} style={{ 
+      'textDecoration': header.done === true ? 'line-through' : 'none',
+      'color': header.done === true ? 'green' : 'black'
+    }}>{header.name}
+    </li> 
   )
 
   return (
@@ -20,7 +22,7 @@ const ListOfHeaders = ({ headers }) => {
       <EuiPanel>
         <EuiText>
           <h6>Sökord</h6>
-          <ul style={{ overflowX: 'auto', height: 160}}>{listItems}</ul>
+          <ul style={{ overflowX: 'auto', height: 260 }}>{listItems}</ul>
         </EuiText>
       </EuiPanel>
       <EuiSpacer size="s" />            

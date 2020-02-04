@@ -2,7 +2,7 @@
 import React from 'react'
 import moment from 'moment'
 import swal from 'sweetalert'
-import { EuiButtonEmpty } from '@elastic/eui'
+import { EuiButtonEmpty, EuiButtonIcon } from '@elastic/eui'
 import api from '../api'
 
 export const WORD_OPTIONS = [
@@ -81,22 +81,46 @@ export const COLUMN_OPTIONS = [
     name: '',
     disabled: true,
     width: '100px',
-    render: id => <EuiButtonEmpty color='danger' onClick={()=>{
-      swal({
-        title: "Vill du verkligen ta bort diktatet?",
-        text: "",
-        icon: "warning",
-        buttons: ["Avbryt","OK"],
-        dangerMode: true
-      })
-        .then((willDelete) => {
-          if (willDelete) {
-            swal("Diktatet tas bort!", {
-              icon: "success",
+    render: id => 
+    
+    // <EuiButtonIcon color='danger' onClick={()=>{
+    //   swal({
+    //     title: "Vill du verkligen ta bort diktatet?",
+    //     text: "",
+    //     icon: "warning",
+    //     buttons: ["Avbryt","OK"],
+    //     dangerMode: true
+    //   })
+    //     .then((willDelete) => {
+    //       if (willDelete) {
+    //         swal("Diktatet tas bort!", {
+    //           icon: "success",
+    //         })
+    //       }
+    //     })
+    // }}>Ta bort</EuiButtonEmpty>
+      <EuiButtonIcon 
+        color="danger"
+        iconType="trash"
+        onClick={()=>{
+          swal({
+            title: 'Vill du verkligen ta bort diktatet?',
+            text: '',
+            icon: 'warning',
+            buttons: ['Avbryt', 'OK'],
+            dangerMode: true
+          })
+            .then((willDelete) => {
+              if (willDelete) {
+                swal('Diktatet tas bort!', {
+                  icon: 'success',
+                })
+              }
             })
-          }
-        })
-    }}>Ta bort</EuiButtonEmpty>
+        }} />
+      // </EuiButtonIcon>
+
+
   }
 ]
 

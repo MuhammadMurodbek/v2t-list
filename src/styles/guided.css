@@ -1,0 +1,11 @@
+.guidedBox {
+  font-size: 30px;
+}
+
+.euiButtonIcon--disabled:focus {
+    background-color: transparent;
+}
+
+.euiButtonIcon--primary:focus {
+    background-color: transparent;
+}

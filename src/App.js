@@ -17,6 +17,7 @@ import UploadPage from './pages/Upload'
 // import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
+import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Preference from './models/Preference'
 import './App.css'
@@ -251,11 +252,13 @@ export default class App extends Component {
               {/* <Route path="/analytics/"
                      render={props => isLoggedIn ? <AnalyticsPage/> : <LoginPage/>}/> */}
               <Route path="/training/"
-                     render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
+                render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
               <Route path="/training/"
-                     render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
+                render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
               <Route path="/livediktering/"
-                     render={props => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}/>
+                render={props => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}/>
+              <Route path="/guided-live/"
+                render={props => isLoggedIn ? <GuidedLivePage/> : <LoginPage/>}/>
               <Route path="/login"
                 render={props => isLoggedIn ? <StartPage {...{
                   ...props,

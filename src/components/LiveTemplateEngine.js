@@ -109,7 +109,7 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
         </EuiFormRow>
       </EuiForm>
       <EuiSpacer size="m" />
-        <ListOfHeaders headers={sectionHeaders} />
+      <ListOfHeaders headers={sectionHeaders} />
     </Fragment>
   )
 }
