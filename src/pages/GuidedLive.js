@@ -7,7 +7,7 @@ import {
   EuiStepsHorizontal
 } from '@elastic/eui'
 import Page from '../components/Page'
-import Doctor from '../components/live/Doctor'
+import Step from '../components/live/Step'
 
 export default class GuidedLive extends Component {
   state = {
@@ -47,16 +47,25 @@ export default class GuidedLive extends Component {
   askDoctorsName = () => {
     const { horizontalSteps } = this.state
     this.setState({ isDoctorVisible: true })
-    // horizontalSteps[0].disabled = false,
-    console.log('in the doctors name')
     this.disableOtherThan(horizontalSteps, 0)
+  }
+
+  goNext = (fromIndex, toIndex) => {
+    const { horizontalSteps } = this.state
+    horizontalSteps[fromIndex].isComplete = true
+    horizontalSteps[fromIndex].isSelected = false
+    horizontalSteps[toIndex].isComplete = false
+    horizontalSteps[toIndex].isSelected = true
   }
 
   askPatientsName = () => {
     const { horizontalSteps } = this.state
-    this.setState({ isDoctorVisible: false },()=>{
-      this.disableOtherThan(horizontalSteps, 1)
-    })
+    if (horizontalSteps[0].isComplete) {
+      this.goNext(0,1)
+    }
+    // this.setState({ isDoctorVisible: false },()=>{
+    //   this.disableOtherThan(horizontalSteps, 1)
+    // })
   }
   
   askPersonnummer = () => {
@@ -103,9 +112,7 @@ export default class GuidedLive extends Component {
         } 
         return { ...step, ...tempObject } 
       }
-      
     })
-    console.log('p')
     this.setState({ horizontalSteps: updatedSteps })
   }
 
@@ -119,18 +126,16 @@ export default class GuidedLive extends Component {
             <EuiStepsHorizontal steps={horizontalSteps} />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiSpacer size="l" />
-        <EuiSpacer size="l" />
-        <EuiSpacer size="l" />
-        <EuiSpacer size="l" />
+        <EuiSpacer size="xxl" />
         <EuiFlexGroup>
           <EuiFlexItem style={{ display: isDoctorVisible ? 'flex' : 'none' }}>
-            <Doctor stepsHierarchy={horizontalSteps} updatedStepsHierarchy={this.updateSteps}/>
+            <Step
+              stepsHierarchy={horizontalSteps}
+              updatedStepsHierarchy={this.updateSteps}
+            />
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
     )
   }
 }
-
-

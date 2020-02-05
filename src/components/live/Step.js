@@ -5,49 +5,45 @@ import React, { useState, Fragment } from 'react'
 import {
   EuiFlexGroup,
   EuiFlexItem,
-  EuiTextAlign,
   EuiButtonIcon,
   EuiTextArea,
   EuiSpacer
 } from '@elastic/eui'
-import Mic from '../../components/Mic'
+import Mic from '../Mic'
+import steps from '../../models/live/steps'
 import '../../styles/guided.css'
 
-const Doctor = ({ stepsHierarchy, updatedStepsHierarchy }) => {
+const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
+  const predefinedSteps = steps()
   const [currentItem, setCurrentItem] = useState('')
-  const [patientsName, setPatientsName] = useState('')
-  const steps = [
-    'doctors namn',
-    'patients name',
-    'patiets Personnummer',
-    'template',
-    'dictation'
-  ]
-  const [currentStep, setCurrentStep] = useState('doctors namn')
-  const onChange = (e) => {
-    setCurrentItem(e.target.value)
-  }
-
+  const [currentStep, setCurrentStep] = useState(predefinedSteps[0])
+  const onChange = e => setCurrentItem(e.target.value)
+  const [doktorsNamn, setDoktorsNamn] = useState('')
+  const [personummer, setPersonnummer] = useState('')
+  const [patientsNamn, setPatientsNamn] = useState('')
+  const [template, setTemplate] = useState('')
+  
   const goPrevious = () => {
-    steps.forEach((step, i)=>{
+    predefinedSteps.forEach((step, i)=>{
       if (
         currentStep === step 
-        && currentStep!==steps[0]
+        && currentStep !== predefinedSteps[0]
       ) {
-        setCurrentStep(steps[i-1])
+        setCurrentStep(predefinedSteps[i-1])
         changeHierarchyBack(i - 1)
-        setCurrentItem('')
+        if (i === 1) {
+          setCurrentItem(doktorsNamn)
+          // if (doktorsNamn.length === 0) setCurrentItem('')
+        }
+        else if (i === 2) {setCurrentItem(patientsNamn)}
+        else if (i === 3) {setCurrentItem(personummer)}
+        else if (i === 4) {setCurrentItem(template)}
+        
       }
     })
   }
   
   const changeHierarchyBack = (index) => {
-    console.log(' Change hierarchy ')
-    console.log(index)
-    console.log('current hi')
-    console.table(stepsHierarchy)
-    console.log('current hi')
-    console.log('new hi')
     const newStepsHierarchy = stepsHierarchy.map((step, i) => {
       let tempObject
       if (i === index) {
@@ -71,39 +67,40 @@ const Doctor = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         return { ...step, ...tempObject }
       }
     })
-    console.table(newStepsHierarchy)
-    console.log('new hi end')
-    // })
-    // console.log('p')
-    // this.setState({ horizontalSteps: updatedSteps })
-
-
     updatedStepsHierarchy(newStepsHierarchy)
-    console.log(' Change hierarchy end ')
   }
 
-
   const goNext = () => {
-    steps.forEach((step, i) => {
+    predefinedSteps.forEach((step, i) => {
       if (
         currentStep === step 
-        && currentStep !== steps[steps.length - 1] 
+        && currentStep !== predefinedSteps[predefinedSteps.length - 1] 
         && currentItem.length>0
       ) {
-        setCurrentStep(steps[i +1])
+        setCurrentStep(predefinedSteps[i +1])
         changeHierarchyNext(i+1)
-        setCurrentItem('')
+        if (i === 0) {
+          setDoktorsNamn(currentItem)
+          if(patientsNamn.length===0) setCurrentItem('')
+          else setCurrentItem(patientsNamn)
+        } else if (i === 1 ) {
+          setPatientsNamn(currentItem)
+          if (personummer.length === 0) setCurrentItem('')
+          else setCurrentItem(personummer)
+        } else if (i === 2 ) {
+          setPersonnummer(currentItem)
+          if (template.length === 0) setCurrentItem('')
+          else setCurrentItem(template)
+        } else if (i === 3 ) {
+          setTemplate(currentItem)
+        }
+        
+        
       }
     })
   }
 
   const changeHierarchyNext = (index) => {
-    console.log(' Change hierarchy ')
-    console.log(index)
-    console.log('current hi')
-    console.table(stepsHierarchy)
-    console.log('current hi')
-    console.log('new hi')
     const newStepsHierarchy = stepsHierarchy.map((step, i) => {
       let tempObject
       if (i === index) {
@@ -126,31 +123,14 @@ const Doctor = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         return { ...step, ...tempObject }
       }
     })
-    console.table(newStepsHierarchy)
-    console.log('new hi end')
-    // })
-    // console.log('p')
-    // this.setState({ horizontalSteps: updatedSteps })
-
-
     updatedStepsHierarchy(newStepsHierarchy)
-    console.log(' Change hierarchy end ')
   }
 
-
-  
-  const moveToPersonnummer = () => {
-    if (currentItem.length>0)
-      console.log('moving to personnummer')
-  }
-
-  const toggleRecord = ( ) => {
-
-  }
-  const [microphoneBeingPressed, setMicrophoneBeingPressed] = useState(false)
-  const [recordingAction, setRecordingAction] = useState('starta')
-
-
+  // const [microphoneBeingPressed, setMicrophoneBeingPressed] = useState(false)
+  // const [recordingAction, setRecordingAction] = useState('starta')
+  const microphoneBeingPressed = false
+  const recordingAction = 'starta'
+  const toggleRecord = () => true
 
   return (
     <Fragment>
@@ -163,7 +143,7 @@ const Doctor = ({ stepsHierarchy, updatedStepsHierarchy }) => {
       <EuiFlexGroup >
         <EuiFlexItem style={{ paddingTop: 300}}>
           <EuiButtonIcon
-            color={currentStep !== steps[0] ? 'primary' : 'disabled'}
+            color={currentStep !== predefinedSteps[0] ? 'primary' : 'disabled'}
             onClick={() => goPrevious()}
             iconType="arrowLeft"
             aria-label="Next"
@@ -171,7 +151,10 @@ const Doctor = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiTextArea
-            placeholder={`Säg/Skriv ${currentStep} \nSäg "Nästa" eller "Tillbaka" efter namnet`}
+            placeholder={
+              // eslint-disable-next-line max-len
+              `Säg/Skriv ${currentStep}\nSäg Nästa" eller "Tillbaka" efter namnet`
+            }
             aria-label="Skriv Doktors Namn"
             resize="none"
             fullWidth={true}
@@ -186,7 +169,8 @@ const Doctor = ({ stepsHierarchy, updatedStepsHierarchy }) => {
             iconType="arrowRight"
             aria-label="Next"
             color={
-              currentStep !== steps[steps.length - 1] && currentItem.length > 0 ? 'primary' : 'disabled' 
+              currentStep !== predefinedSteps[predefinedSteps.length - 1]
+              && currentItem.length > 0 ? 'primary' : 'disabled' 
             }
           />
         </EuiFlexItem>
@@ -194,4 +178,4 @@ const Doctor = ({ stepsHierarchy, updatedStepsHierarchy }) => {
     </Fragment>
   )
 }
-export default Doctor
+export default Step
