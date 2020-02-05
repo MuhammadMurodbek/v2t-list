@@ -141,9 +141,10 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
       />
       <EuiSpacer size="l" />
       <EuiFlexGroup >
-        <EuiFlexItem style={{ paddingTop: 300}}>
+        <EuiFlexItem style={{ paddingTop: 100}}>
           <EuiButtonIcon
             color={currentStep !== predefinedSteps[0] ? 'primary' : 'disabled'}
+            iconSize="xxl"
             onClick={() => goPrevious()}
             iconType="arrowLeft"
             aria-label="Next"
@@ -163,9 +164,10 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
             className= "guidedBox"
           />
         </EuiFlexItem>
-        <EuiFlexItem style={{ paddingTop: 300 }}>
+        <EuiFlexItem style={{ paddingTop: 100 }}>
           <EuiButtonIcon
             onClick={() => goNext()}
+            iconSize="xxl"
             iconType="arrowRight"
             aria-label="Next"
             color={
