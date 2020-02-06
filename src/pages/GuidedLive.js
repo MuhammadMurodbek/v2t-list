@@ -11,32 +11,32 @@ import Step from '../components/live/Step'
 
 export default class GuidedLive extends Component {
   state = {
-    isDoctorVisible: true,
+    currentStepIndex: 0,
     horizontalSteps: [
       {
         title: 'Doktors Namn',
         isComplete: false,
         disabled: false,
         isSelected: true,
-        onClick: () => this.askDoctorsName()
+        onClick: () => this.shiftState(0)
       }, {
         title: 'Patients Namn',
         isComplete: false,
         disabled: false,
         isSelected: false,
-        onClick: () => this.askPatientsName()
+        onClick: () => this.shiftState(1)
       }, {
         title: 'Patients Personnummer',
         disabled: true,
-        onClick: () => this.askPersonnummer()
+        onClick: () => this.shiftState(2)
       }, {
         title: 'Template',
         disabled: true,
-        onClick: () => this.askTemplate()
+        onClick: () => this.shiftState(3)
       }, {
         title: 'Diktering',
         disabled: true,
-        onClick: () => this.börjaDiktering()
+        onClick: () => this.shiftState(4)
       }]
   }
 
@@ -44,54 +44,59 @@ export default class GuidedLive extends Component {
     document.title = 'Inovia AI :: Live Diktering 🎤'
   }
   
-  askDoctorsName = () => {
-    const { horizontalSteps } = this.state
-    this.setState({ isDoctorVisible: true })
-    this.disableOtherThan(horizontalSteps, 0)
-  }
-
-  goNext = (fromIndex, toIndex) => {
-    const { horizontalSteps } = this.state
-    horizontalSteps[fromIndex].isComplete = true
-    horizontalSteps[fromIndex].isSelected = false
-    horizontalSteps[toIndex].isComplete = false
-    horizontalSteps[toIndex].isSelected = true
-  }
-
-  askPatientsName = () => {
-    const { horizontalSteps } = this.state
-    if (horizontalSteps[0].isComplete) {
-      this.goNext(0,1)
+  shiftState = (toStep) => {
+    console.log(toStep)
+    const { horizontalSteps, currentStepIndex } = this.state
+    if (currentStepIndex !== toStep) {
+      console.log(horizontalSteps)
+      const newStepsHierarchy = horizontalSteps.map((step, i) => {
+        if (i === toStep) {
+          const tempObject = {
+            isSelected: true,
+            isComplete: false,
+            disabled: false
+          }
+          return { ...step, ...tempObject }
+        } else if(i === currentStepIndex) {
+          const tempObject = {
+            isSelected: false,
+            isComplete: true,
+            disabled: false
+          }
+          return { ...step, ...tempObject }
+        } else {
+          return step
+        }
+      
+      })
+      console.log(newStepsHierarchy)
+      this.setState({ horizontalSteps: newStepsHierarchy})
+      // tempObject = {
+      //   isSelected: false,
+      //   isComplete: false
+      // }
+      // { ...step, ...tempObject }
+      
+      // this.setState({
+      //   horizontalSteps: 
+      // })
+      // horizontalSteps[currentStepIndex].isComplete = true
+      // horizontalSteps[currentStepIndex].isSelected = false
     }
-    // this.setState({ isDoctorVisible: false },()=>{
-    //   this.disableOtherThan(horizontalSteps, 1)
-    // })
-  }
-  
-  askPersonnummer = () => {
-    const { horizontalSteps } = this.state
-    this.setState({ isDoctorVisible: false }, () => {
-      this.disableOtherThan(horizontalSteps, 2)
-    })
-  }
-
-  askTemplate = () => {
-    const { horizontalSteps } = this.state
-    this.setState({ isDoctorVisible: false }, () => {
-      this.disableOtherThan(horizontalSteps, 3)
-    })
-  }
-
-  börjaDiktering = () => {
-    const { horizontalSteps } = this.state
-    this.setState({ isDoctorVisible: false }, () => {
-      this.disableOtherThan(horizontalSteps, 4)
-    })
+    // this.jumpToStep(currentStepIndex, 0)
+    // this.setState({ isDoctorVisible: true })
+    // this.disableOtherThan(horizontalSteps, 0)
   }
 
   updateSteps = (steps) => {
     this.setState({ horizontalSteps: steps },
       ()=>{
+        steps.forEach((step, i)=>{
+          console.log(step.isSelected)
+          if (step.isSelected) {
+            this.setState({ currentStepIndex: i})
+          }
+        })
         console.log('updated steps')
         console.log(steps)
         console.log('updated steps end')
@@ -116,9 +121,8 @@ export default class GuidedLive extends Component {
     this.setState({ horizontalSteps: updatedSteps })
   }
 
-
   render() {
-    const { horizontalSteps, isDoctorVisible } = this.state
+    const { horizontalSteps } = this.state
     return (
       <Page preferences title = "" logo="">
         <EuiFlexGroup >
@@ -128,7 +132,7 @@ export default class GuidedLive extends Component {
         </EuiFlexGroup>
         <EuiSpacer size="xxl" />
         <EuiFlexGroup>
-          <EuiFlexItem style={{ display: isDoctorVisible ? 'flex' : 'none' }}>
+          <EuiFlexItem>
             <Step
               stepsHierarchy={horizontalSteps}
               updatedStepsHierarchy={this.updateSteps}
