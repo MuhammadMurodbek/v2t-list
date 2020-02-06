@@ -81,7 +81,8 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
         }
       },
       word_spotter: {
-        section_template: 'ext1'
+        section_template: 'ext1',
+        categories: ["icd-10"]
       },
       export: [
         {
