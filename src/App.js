@@ -120,9 +120,9 @@ export default class App extends Component {
                   name: 'Analytics',
                   onClick: () => {
                     if(window.location.hostname.split('.')[0].includes('dev')) {
-                      window.open('https://v2t-dev-kibana.inoviaai.se', '_blank').focus()
+                      window.open('https://v2t-dev-kibana.inoviagroup.se', '_blank').focus()
                     } else if (window.location.hostname.split('.')[0].includes('stage')) {
-                      window.open('https://v2t-stage-kibana.inoviaai.se', '_blank').focus()
+                      window.open('https://v2t-stage-kibana.inoviagroup.se', '_blank').focus()
                     }
                   }
                 }, {
@@ -146,14 +146,14 @@ export default class App extends Component {
                       window.location.hostname.split('.')[0].includes('dev')
                     ) {
                       window
-                        .open('https://v2t-dev-webdoc.inoviaai.se/#/', '_blank')
+                        .open('https://v2t-dev-webdoc.inoviagroup.se/#/', '_blank')
                         .focus()
                     } else if (
                       window.location.hostname.split('.')[0].includes('stage')
                     ) { 
                       window
                         .open(
-                          'https://v2t-stage-webdoc.inoviaai.se/#/', '_blank'
+                          'https://v2t-stage-webdoc.inoviagroup.se/#/', '_blank'
                         )
                         .focus()
                     }
