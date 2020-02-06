@@ -69,7 +69,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
     })
     updatedStepsHierarchy(newStepsHierarchy)
   }
-
+  
   const goNext = () => {
     predefinedSteps.forEach((step, i) => {
       if (
@@ -77,6 +77,23 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         && currentStep !== predefinedSteps[predefinedSteps.length - 1] 
         && currentItem.length>0
       ) {
+        
+        
+        // const newStepsHierarchy = stepsHierarchy.map((step, j) => {
+        //   if (i === j) {
+        //     const tempObject = {
+        //       title: currentItem
+        //     }
+        //     return { ...step, ...tempObject }
+        //   } else {
+        //     return step
+        //   }
+        // })
+        // console.log('-----------------')
+        // console.log(newStepsHierarchy)
+        // console.log('-----------------')
+        // updatedStepsHierarchy(newStepsHierarchy)
+
         setCurrentStep(predefinedSteps[i +1])
         changeHierarchyNext(i+1)
         if (i === 0) {
@@ -94,8 +111,6 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         } else if (i === 3 ) {
           setTemplate(currentItem)
         }
-        
-        
       }
     })
   }
@@ -118,7 +133,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
       } else {
         tempObject = {
           isComplete: true,
-          disabled: false
+          // disabled: true
         }
         return { ...step, ...tempObject }
       }

@@ -18,74 +18,35 @@ export default class GuidedLive extends Component {
         isComplete: false,
         disabled: false,
         isSelected: true,
-        onClick: () => this.shiftState(0)
+        status: 'incomplete',
+        onClick: () => {}
       }, {
         title: 'Patients Namn',
         isComplete: false,
-        disabled: false,
+        disabled: true,
         isSelected: false,
-        onClick: () => this.shiftState(1)
+        status: 'incomplete',
+        onClick: () => { }
       }, {
         title: 'Patients Personnummer',
         disabled: true,
-        onClick: () => this.shiftState(2)
+        status: 'incomplete',
+        onClick: () => { }
       }, {
         title: 'Template',
         disabled: true,
-        onClick: () => this.shiftState(3)
+        status: 'incomplete',
+        onClick: () => { }
       }, {
         title: 'Diktering',
         disabled: true,
-        onClick: () => this.shiftState(4)
+        status: 'incomplete',
+        onClick: () => { }
       }]
   }
 
   componentDidMount = () => {
     document.title = 'Inovia AI :: Live Diktering 🎤'
-  }
-  
-  shiftState = (toStep) => {
-    console.log(toStep)
-    const { horizontalSteps, currentStepIndex } = this.state
-    if (currentStepIndex !== toStep) {
-      console.log(horizontalSteps)
-      const newStepsHierarchy = horizontalSteps.map((step, i) => {
-        if (i === toStep) {
-          const tempObject = {
-            isSelected: true,
-            isComplete: false,
-            disabled: false
-          }
-          return { ...step, ...tempObject }
-        } else if(i === currentStepIndex) {
-          const tempObject = {
-            isSelected: false,
-            isComplete: true,
-            disabled: false
-          }
-          return { ...step, ...tempObject }
-        } else {
-          return step
-        }
-      
-      })
-      console.log(newStepsHierarchy)
-      this.setState({ horizontalSteps: newStepsHierarchy})
-      // tempObject = {
-      //   isSelected: false,
-      //   isComplete: false
-      // }
-      // { ...step, ...tempObject }
-      
-      // this.setState({
-      //   horizontalSteps: 
-      // })
-      // horizontalSteps[currentStepIndex].isComplete = true
-      // horizontalSteps[currentStepIndex].isSelected = false
-    }
-    // this.jumpToStep(currentStepIndex, 0)
-    // this.setState({ isDoctorVisible: true })
-    // this.disableOtherThan(horizontalSteps, 0)
   }
 
   updateSteps = (steps) => {
@@ -122,7 +83,7 @@ export default class GuidedLive extends Component {
   }
 
   render() {
-    const { horizontalSteps } = this.state
+    const { horizontalSteps, params } = this.state
     return (
       <Page preferences title = "" logo="">
         <EuiFlexGroup >
