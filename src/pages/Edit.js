@@ -295,7 +295,7 @@ export default class EditPage extends Component {
           title: 'Diktatet är uppdaterat',
           text: '',
           icon: 'success',
-          button: 'Avbryt'
+          button: 'Ok'
         })
         return true
       })
