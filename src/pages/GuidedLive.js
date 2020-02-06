@@ -18,7 +18,7 @@ export default class GuidedLive extends Component {
         isComplete: false,
         disabled: false,
         isSelected: true,
-        status: 'incomplete',
+        status: 'primary',
         onClick: () => {}
       }, {
         title: 'Patients Namn',

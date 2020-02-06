@@ -48,6 +48,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
       let tempObject
       if (i === index) {
         tempObject = {
+          status: 'primary',
           isSelected: true,
           isComplete: false,
           disabled: false
@@ -61,6 +62,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         return { ...step, ...tempObject }
       } else {
         tempObject = {
+          status: 'disabled',
           isSelected: false,
           isComplete: false
         }
@@ -120,6 +122,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
       let tempObject
       if (i === index) {
         tempObject = {
+          status: 'primary',
           isSelected: true,
           disabled: false
         }
