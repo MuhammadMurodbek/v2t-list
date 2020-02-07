@@ -18,7 +18,7 @@ export default class GuidedLive extends Component {
         isComplete: false,
         disabled: false,
         isSelected: true,
-        status: 'primary',
+        // status: 'primary',
         onClick: () => {}
       }, {
         title: 'Patients Namn',
@@ -50,18 +50,7 @@ export default class GuidedLive extends Component {
   }
 
   updateSteps = (steps) => {
-    this.setState({ horizontalSteps: steps },
-      ()=>{
-        steps.forEach((step, i)=>{
-          console.log(step.isSelected)
-          if (step.isSelected) {
-            this.setState({ currentStepIndex: i})
-          }
-        })
-        console.log('updated steps')
-        console.log(steps)
-        console.log('updated steps end')
-      })
+    this.setState({ horizontalSteps: steps })
   }
 
   disableOtherThan = (horizontalSteps, index) => {
@@ -83,7 +72,7 @@ export default class GuidedLive extends Component {
   }
 
   render() {
-    const { horizontalSteps, params } = this.state
+    const { horizontalSteps } = this.state
     return (
       <Page preferences title = "" logo="">
         <EuiFlexGroup >

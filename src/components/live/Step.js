@@ -32,12 +32,21 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         setCurrentStep(predefinedSteps[i-1])
         changeHierarchyBack(i - 1)
         if (i === 1) {
+          setPatientsNamn(currentItem)
           setCurrentItem(doktorsNamn)
-          // if (doktorsNamn.length === 0) setCurrentItem('')
         }
-        else if (i === 2) {setCurrentItem(patientsNamn)}
-        else if (i === 3) {setCurrentItem(personummer)}
-        else if (i === 4) {setCurrentItem(template)}
+        else if (i === 2) {
+          setPersonnummer(currentItem)
+          setCurrentItem(patientsNamn)
+        }
+        else if (i === 3) {
+          setTemplate(currentItem)
+          setCurrentItem(personummer)
+        }
+        else if (i === 4) {
+          // Should be dictation
+          setCurrentItem(template)
+        }
         
       }
     })
@@ -78,24 +87,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         currentStep === step 
         && currentStep !== predefinedSteps[predefinedSteps.length - 1] 
         && currentItem.length>0
-      ) {
-        
-        
-        // const newStepsHierarchy = stepsHierarchy.map((step, j) => {
-        //   if (i === j) {
-        //     const tempObject = {
-        //       title: currentItem
-        //     }
-        //     return { ...step, ...tempObject }
-        //   } else {
-        //     return step
-        //   }
-        // })
-        // console.log('-----------------')
-        // console.log(newStepsHierarchy)
-        // console.log('-----------------')
-        // updatedStepsHierarchy(newStepsHierarchy)
-
+      ) {   
         setCurrentStep(predefinedSteps[i +1])
         changeHierarchyNext(i+1)
         if (i === 0) {
@@ -120,6 +112,9 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   const changeHierarchyNext = (index) => {
     const newStepsHierarchy = stepsHierarchy.map((step, i) => {
       let tempObject
+      console.log('i')
+      console.log(i)
+      console.log('i end')
       if (i === index) {
         tempObject = {
           status: 'primary',
@@ -134,13 +129,36 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         }
         return { ...step, ...tempObject }
       } else {
-        tempObject = {
-          isComplete: true,
-          // disabled: true
-        }
-        return { ...step, ...tempObject }
+        // if(i===index-1) {
+        //   tempObject = {
+        //     title: doktorsNamn,
+        //     isComplete: true
+        //   }
+        //   return { ...step, ...tempObject }
+        // } else {
+          tempObject = {
+            isComplete: true
+          }
+           return { ...step, ...tempObject }
+      //  }  
       }
     })
+
+    const poo = newStepsHierarchy.map((s, j) => { 
+       if(j===0) {
+        if(doktorsNamn.length>0) {
+          const tempObject = {
+            title: doktorsNamn
+          }
+          return { ...s, ...tempObject }
+        } else return s 
+      } else return s
+    })
+
+    console.log('******')
+    console.log(poo)
+    console.log('*****')
+    
     updatedStepsHierarchy(newStepsHierarchy)
   }
 
