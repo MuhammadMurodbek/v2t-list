@@ -177,16 +177,19 @@ export default class EditPage extends Component {
       chapters,
       tags,
       originalTags,
-      fields
+      fields,
+      templateId,
+      originalTemplate
     } = this.state
-
     if(fields.patient_id){
-      if (JSON.stringify(originalChapters) === JSON.stringify(chapters) && JSON.stringify(tags) === JSON.stringify(originalTags)) {
+      if (
+        JSON.stringify(originalChapters) === JSON.stringify(chapters) 
+        && JSON.stringify(tags) === JSON.stringify(originalTags)
+        && originalTemplate === templateId
+      ) {
         this.sendToCoworker()
       } else {
-        this.save().then(()=>{
-          this.sendToCoworker()
-        })
+        this.save(true)
       }
     } else {
       swal({
@@ -197,6 +200,8 @@ export default class EditPage extends Component {
       })
     }
   }
+
+
 
   sendToCoworker = async () => {
     const { transcript } = this.props
@@ -240,7 +245,7 @@ export default class EditPage extends Component {
     else { return false }
   }
 
-  save = async () => {
+  save = async (shouldBeSentToCoworker=false) => {
     const { transcript } = this.props
     const { originalChapters, chapters, tags, originalTags, templateId, originalTemplate } = this.state
     if (JSON.stringify(originalChapters) === JSON.stringify(chapters)
@@ -297,6 +302,9 @@ export default class EditPage extends Component {
           icon: 'success',
           button: 'Ok'
         })
+        if(shouldBeSentToCoworker===true){
+          this.sendToCoworker()
+        }
         return true
       })
     }
