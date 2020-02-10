@@ -1,7 +1,7 @@
 const steps = () => [
   'doctors namn',
   'patients name',
-  'patiets Personnummer',
+  'patients Personnummer',
   'template',
   'dictation'
 ]

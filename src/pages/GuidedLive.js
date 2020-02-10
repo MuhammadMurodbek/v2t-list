@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react'
 import {
-  EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiStepsHorizontal
+  EuiSteps
 } from '@elastic/eui'
 import Page from '../components/Page'
 import Step from '../components/live/Step'
@@ -15,32 +14,36 @@ export default class GuidedLive extends Component {
     horizontalSteps: [
       {
         title: 'Doktors Namn',
-        isComplete: false,
+        children: <p></p>,
+        // isComplete: false,
         disabled: false,
-        isSelected: true,
+        
         // status: 'primary',
         onClick: () => {}
       }, {
         title: 'Patients Namn',
-        isComplete: false,
+        children: <p></p>,
+        // isComplete: false,
         disabled: true,
-        isSelected: false,
-        status: 'incomplete',
+        status: 'disabled',
         onClick: () => { }
       }, {
         title: 'Patients Personnummer',
+        children: <p></p>,
         disabled: true,
-        status: 'incomplete',
+        status: 'disabled',
         onClick: () => { }
       }, {
         title: 'Template',
+        children: <p></p>,
         disabled: true,
-        status: 'incomplete',
+        status: 'disabled',
         onClick: () => { }
       }, {
         title: 'Diktering',
+        children: <p></p>,
         disabled: true,
-        status: 'incomplete',
+        status: 'disabled',
         onClick: () => { }
       }]
   }
@@ -76,12 +79,13 @@ export default class GuidedLive extends Component {
     return (
       <Page preferences title = "" logo="">
         <EuiFlexGroup >
-          <EuiFlexItem>
-            <EuiStepsHorizontal steps={horizontalSteps} />
+          <EuiFlexItem style={{ maxWidth: 290 }}>
+            {/* <EuiStepsHorizontal steps={horizontalSteps} /> */}
+            <EuiSteps steps={horizontalSteps} />
           </EuiFlexItem>
-        </EuiFlexGroup>
+        {/* </EuiFlexGroup>
         <EuiSpacer size="xxl" />
-        <EuiFlexGroup>
+        <EuiFlexGroup> */}
           <EuiFlexItem>
             <Step
               stepsHierarchy={horizontalSteps}

@@ -53,6 +53,7 @@ const Templates = ({
       <EuiForm>
         <EuiFormRow label="Välj journalmall">
           <EuiSuperSelect
+            className="moo"
             options={templateOptions}
             valueOfSelected={defaultTemplate}
             onChange={onTemplateChange}
