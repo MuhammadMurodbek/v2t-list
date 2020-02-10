@@ -241,6 +241,12 @@ export default class EditPage extends Component {
     //
     const set1 = new Set(sectionHeadersForSelectedTemplate)
     const set2 = new Set(currentKeyWords)
+    // Check if they are same, but having different case
+    
+
+
+
+
     if (isSuperset(set1, set2)) { return true }
     else { return false }
   }
@@ -275,7 +281,7 @@ export default class EditPage extends Component {
     if (this.areSectionHeadersBelongToTheTemplate() === false) {
       swal({
         title: 'Inte möjligt att spara diktatet',
-        text: 'Sökord is not compatible to the template',
+        text: 'Det valda sökordet finns inte för mallen',
         icon: 'info',
         button: 'Ok'
       })
