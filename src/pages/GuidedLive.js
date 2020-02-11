@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
 import {
@@ -11,19 +12,15 @@ import Step from '../components/live/Step'
 export default class GuidedLive extends Component {
   state = {
     currentStepIndex: 0,
-    horizontalSteps: [
+    verticalSteps: [
       {
         title: 'Doktors Namn',
         children: <p></p>,
-        // isComplete: false,
         disabled: false,
-        
-        // status: 'primary',
         onClick: () => {}
       }, {
         title: 'Patients Namn',
         children: <p></p>,
-        // isComplete: false,
         disabled: true,
         status: 'disabled',
         onClick: () => { }
@@ -53,11 +50,11 @@ export default class GuidedLive extends Component {
   }
 
   updateSteps = (steps) => {
-    this.setState({ horizontalSteps: steps })
+    this.setState({ verticalSteps: steps })
   }
 
-  disableOtherThan = (horizontalSteps, index) => {
-    const updatedSteps = horizontalSteps.map((step, i)=>{
+  disableOtherThan = (verticalSteps, index) => {
+    const updatedSteps = verticalSteps.map((step, i)=>{
       let tempObject
       if (i === index) {
         tempObject = {
@@ -71,24 +68,20 @@ export default class GuidedLive extends Component {
         return { ...step, ...tempObject } 
       }
     })
-    this.setState({ horizontalSteps: updatedSteps })
+    this.setState({ verticalSteps: updatedSteps })
   }
 
   render() {
-    const { horizontalSteps } = this.state
+    const { verticalSteps } = this.state
     return (
       <Page preferences title = "" logo="">
         <EuiFlexGroup >
           <EuiFlexItem style={{ maxWidth: 290 }}>
-            {/* <EuiStepsHorizontal steps={horizontalSteps} /> */}
-            <EuiSteps steps={horizontalSteps} />
+            <EuiSteps steps={verticalSteps} />
           </EuiFlexItem>
-        {/* </EuiFlexGroup>
-        <EuiSpacer size="xxl" />
-        <EuiFlexGroup> */}
           <EuiFlexItem>
             <Step
-              stepsHierarchy={horizontalSteps}
+              stepsHierarchy={verticalSteps}
               updatedStepsHierarchy={this.updateSteps}
             />
           </EuiFlexItem>

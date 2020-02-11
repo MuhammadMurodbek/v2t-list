@@ -14,6 +14,7 @@ import swal from 'sweetalert'
 import Mic from '../Mic'
 import api from '../../api'
 import GuidedTemplates from '../../components/live/GuidedTemplates'
+import GuidedLiveEditor from '../../components/live/GuidedLiveEditor'
 import steps from '../../models/live/steps'
 import validatePersonnummer from '../../models/live/validatePersonnummer'
 import '../../styles/guided.css'
@@ -29,6 +30,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   const [template, setTemplate] = useState('')
   const [templateId, setTemplateId] = useState('')
   const [templates, setTemplates] = useState({templates: []})
+  const [selectedTemplate, setSelectedTemplate] = useState()
   const [sectionHeaders, setSectionHeaders] = useState([])
   const [listOfTemplates, setListOfTemplates] = useState([])
   
@@ -134,7 +136,6 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
             })
             setCurrentItem('')
             setCurrentStep('patients Personnummer')
-            
           }
         } else if (i === 3 ) {
           setTemplate(currentItem)
@@ -145,6 +146,11 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
 
   const updatedSections = (sections) => {
     console.log(sections)
+  }
+
+  const updatedTemplateIndex = (updtedIndex) => {
+    setSelectedTemplate(templates.templates[updtedIndex])
+    setCurrentItem(templates.templates[updtedIndex].name)
   }
 
   const changeHierarchyNext = (index, itemName) => {
@@ -251,7 +257,14 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
             <EuiSpacer size="xxl" />
             <GuidedTemplates
               listOfTemplates={listOfTemplates}
+              updatedTemplateIndex={updatedTemplateIndex}
             />
+          </span>
+          <span style={{
+            'display': currentStep === 'dictation' ? 'block' : 'none'
+          }}>
+            <EuiSpacer size="xxl" />
+            <GuidedLiveEditor />
           </span>
         </EuiFlexItem>
         <EuiFlexItem style={{ paddingTop: 100, maxWidth: 300 }}>

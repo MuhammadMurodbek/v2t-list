@@ -12,7 +12,7 @@ import {
 import '../../App.css'
 import SectionHeadersList from './SectionHeadersList'
 
-const GuidedTemplates = ({ listOfTemplates }) => {
+const GuidedTemplates = ({ listOfTemplates, updatedTemplateIndex }) => {
   const [activeTemplateIndex, setActiveTemplateIndex] = useState(0)    
 
   // Similar to componentDidMount and componentDidUpdate:
@@ -43,6 +43,7 @@ const GuidedTemplates = ({ listOfTemplates }) => {
                   onClick={
                     () => {
                       setActiveTemplateIndex(i)
+                      updatedTemplateIndex(i)
                     }
                   }
                   isActive={activeTemplateIndex === i}
