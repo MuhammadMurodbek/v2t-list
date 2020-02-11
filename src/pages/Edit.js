@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 /* eslint-disable camelcase */
 /* eslint-disable no-alert */
@@ -242,13 +243,45 @@ export default class EditPage extends Component {
     const set1 = new Set(sectionHeadersForSelectedTemplate)
     const set2 = new Set(currentKeyWords)
     // Check if they are same, but having different case
-    
+    // Conver the set into array to use map 
+    // function and then convert it back to a set
+    const set1LowerCase = new Set(
+      Array.from(set1).map(keyword=>keyword.toLowerCase())
+    )
+    const set2LowerCase = new Set(
+      Array.from(set2).map(keyword=>keyword.toLowerCase())
+    )
+    if (isSuperset(set1LowerCase, set2LowerCase)) {
+    // check if they are exactly same
+      if (isSuperset(set1, set2)) {
+        return {
+          message: true
+        }
+      } else {
+        // Change the keyword
+        const set1Array = Array.from(set1)
+        const set2CorrespondingKeywords = Array.from(set2)
+        const newKeywords = []
+        set2CorrespondingKeywords.forEach(currentKeyword => {
+          set1Array.forEach(keyWordFromTemplate=> {
+            if (keyWordFromTemplate.toLowerCase() === currentKeyword.toLowerCase()) {
+              newKeywords.push(keyWordFromTemplate)
+            }
+          })
+        })
 
-
-
-
-    if (isSuperset(set1, set2)) { return true }
-    else { return false }
+        // this.setState({ chapters: updatedTranscriptHeaders})
+        return {
+          message: 'FUZZY',
+          newKeywords
+        }
+      }   
+    } else {
+      {
+        return {
+          message: false
+        } }
+    }
   }
 
   save = async (shouldBeSentToCoworker=false) => {
@@ -278,7 +311,7 @@ export default class EditPage extends Component {
       return
     }
 
-    if (this.areSectionHeadersBelongToTheTemplate() === false) {
+    if (this.areSectionHeadersBelongToTheTemplate().message === false) {
       swal({
         title: 'Inte möjligt att spara diktatet',
         text: 'Det valda sökordet finns inte för mallen',
@@ -286,6 +319,11 @@ export default class EditPage extends Component {
         button: 'Ok'
       })
       return
+    } else if (this.areSectionHeadersBelongToTheTemplate().message === 'FUZZY') {
+      const keywordsAfterTemplateChange = this.areSectionHeadersBelongToTheTemplate().newKeywords
+      chapters.forEach((chapter, i) => {
+        chapter.keyword = keywordsAfterTemplateChange[i]
+      })
     }
 
     chapters.forEach((chapter) => {
