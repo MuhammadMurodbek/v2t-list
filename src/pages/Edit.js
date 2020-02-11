@@ -277,10 +277,9 @@ export default class EditPage extends Component {
         }
       }   
     } else {
-      {
-        return {
-          message: false
-        } }
+      return {
+        message: false
+      } 
     }
   }
 
