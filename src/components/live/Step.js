@@ -23,7 +23,6 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   const predefinedSteps = steps()
   const [currentItem, setCurrentItem] = useState('')
   const [currentStep, setCurrentStep] = useState(predefinedSteps[0])
-  const onChange = e => setCurrentItem(e.target.value)
   const [doktorsNamn, setDoktorsNamn] = useState('')
   const [personnummer, setPersonnummer] = useState('')
   const [patientsNamn, setPatientsNamn] = useState('')
@@ -32,6 +31,11 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [listOfTemplates, setListOfTemplates] = useState([])
   
+  /**
+   * @param {{ target: { value: React.SetStateAction<string>; }; }} e
+   */
+  const onChange = e => setCurrentItem(e.target.value)
+
   const goPrevious = () => {
     predefinedSteps.forEach((step, i)=>{
       if (
