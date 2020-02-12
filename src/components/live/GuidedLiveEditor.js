@@ -1,30 +1,91 @@
+// @ts-nocheck
 /* eslint-disable no-console */
-import React, { Component, Fragment } from 'react'
-// import {
-//     EuiText,
-//     EuiSpacer,
-//     EuiFlexGroup,
-//     EuiFlexItem,
-//     EuiButton
-// } from '@elastic/eui'
-// import api from '../api'
-// import LiveEditor from '../components/LiveEditor'
-// import Mic from '../components/Mic'
-// import LiveTemplateEngine from '../components/LiveTemplateEngine'
-// import interpolateArray from '../models/interpolateArray'
-// import PersonalInformation from '../components/PersonalInformation'
-// import Tags from '../components/Tags'
-// import io from 'socket.io-client'
-// import Page from '../components/Page'
-// import processChapters from '../models/processChapters'
-// import inoviaLogo from '../img/livediktering.png'
+import React, { Component } from 'react'
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSteps
+} from '@elastic/eui'
+import Step from '../../components/live/Step'
 
 export default class GuidedLiveEditor extends Component {
+  state = {
+    currentStepIndex: 0,
+    verticalSteps: [
+      {
+        title: 'Doktors Namn',
+        children: <p></p>,
+        disabled: false,
+        onClick: () => { }
+      }, {
+        title: 'Patients Namn',
+        children: <p></p>,
+        disabled: true,
+        status: 'disabled',
+        onClick: () => { }
+      }, {
+        title: 'Patients Personnummer',
+        children: <p></p>,
+        disabled: true,
+        status: 'disabled',
+        onClick: () => { }
+      }, {
+        title: 'Template',
+        children: <p></p>,
+        disabled: true,
+        status: 'disabled',
+        onClick: () => { }
+      }, {
+        title: 'Diktering',
+        children: <p></p>,
+        disabled: true,
+        status: 'disabled',
+        onClick: () => { }
+      }]
+  }
+
+  componentDidMount = () => {
+    document.title = 'Inovia AI :: Live Diktering 🎤'
+  }
+
+  updateSteps = (steps) => {
+    this.setState({ verticalSteps: steps })
+  }
+
+  disableOtherThan = (verticalSteps, index) => {
+    const updatedSteps = verticalSteps.map((step, i) => {
+      let tempObject
+      if (i === index) {
+        tempObject = {
+          isSelected: true
+        }
+        return { ...step, ...tempObject }
+      } else {
+        tempObject = {
+          isSelected: false
+        }
+        return { ...step, ...tempObject }
+      }
+    })
+    this.setState({ verticalSteps: updatedSteps })
+  }
+
   render() {
+    const { verticalSteps } = this.state
+    const { content } = this.props
     return (
-      <Fragment>
-        <p>Hello</p>
-      </Fragment>
+      <EuiFlexGroup >
+        <EuiFlexItem style={{ maxWidth: 290 }}>
+          <EuiSteps steps={verticalSteps} />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <Step
+            stepsHierarchy={verticalSteps}
+            updatedStepsHierarchy={this.updateSteps}
+            content={content}
+          />
+        </EuiFlexItem> 
+      </EuiFlexGroup>
     )
   }
 }

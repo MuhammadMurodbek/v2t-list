@@ -19,7 +19,7 @@ import steps from '../../models/live/steps'
 import validatePersonnummer from '../../models/live/validatePersonnummer'
 import '../../styles/guided.css'
 
-const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
+const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
   const predefinedSteps = steps()
   const [currentItem, setCurrentItem] = useState('')
   const [currentStep, setCurrentStep] = useState(predefinedSteps[0])
@@ -87,6 +87,9 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   }
   
   const goNext = async () => {
+    console.log('content')
+    console.log(content)
+    console.log('content end')
     const templatesFromServer = await api.getSectionTemplates()
     setTemplates(templatesFromServer.data)
     setListOfTemplates(templatesFromServer.data.templates)
@@ -183,14 +186,9 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   
   return (
     <Fragment>
-      <Mic
-        recordingAction={recordingAction}
-        microphoneBeingPressed={microphoneBeingPressed}
-        toggleRecord={toggleRecord}
-      />
       <EuiSpacer size="l" />
       <EuiFlexGroup >
-        <EuiFlexItem style={{ paddingTop: 100, maxWidth: 300}}>
+        <EuiFlexItem style={{ paddingTop: 100, maxWidth: 250}}>
           <EuiButtonIcon
             color={currentStep !== predefinedSteps[0] ? 'primary' : 'disabled'}
             iconSize="xxl"
@@ -208,9 +206,11 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
                 // eslint-disable-next-line max-len
                 `Säg/Skriv ${currentStep}\nSäg Nästa" eller "Tillbaka" efter namnet`
               }
+              // placeholder={content}
               aria-label="Skriv Doktors Namn"
               fullWidth={true}
-              value={currentItem}  
+              // value={currentItem}  
+              value={content}  
               onChange={onChange}
               className= "guidedBox"
               style={{'resize': 'none'}}
@@ -248,10 +248,9 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
             'display': currentStep === 'dictation' ? 'block' : 'none'
           }}>
             <EuiSpacer size="xxl" />
-            <GuidedLiveEditor />
           </span>
         </EuiFlexItem>
-        <EuiFlexItem style={{ paddingTop: 100, maxWidth: 300 }}>
+        <EuiFlexItem style={{ paddingTop: 100, maxWidth: 250 }}>
           <EuiButtonIcon
             onClick={() => goNext()}
             iconSize="xxl"
