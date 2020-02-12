@@ -9,13 +9,13 @@ const SectionHeadersList = ({headers}) => {
         bordered={false}
         style={{ overflowX: 'auto', height: 700 }}
       >
-        {headers.map((section, index) => {
+        {headers.map((section) => {
           return (
             <EuiListGroupItem
               id={section.name}
               key={section.name}
               label={section.name.toUpperCase()}
-              isActive={index === 0}
+              isActive={false}
             />)
         })}
       </EuiListGroup>
@@ -28,7 +28,7 @@ const SectionHeadersList = ({headers}) => {
         style={{ overflowX: 'auto', height: 700 }}
       >    
         <EuiListGroupItem
-          id={0}
+          id={'0'}
           key={1}
           label={'Ingen'}
           isActive={true}

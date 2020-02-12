@@ -9,17 +9,17 @@ import {
   EuiFlexItem,
   EuiText
 } from '@elastic/eui'
-import '../../App.css'
 import SectionHeadersList from './SectionHeadersList'
 
 const GuidedTemplates = ({ listOfTemplates, updatedTemplateIndex }) => {
   const [activeTemplateIndex, setActiveTemplateIndex] = useState(0)    
 
-  // Similar to componentDidMount and componentDidUpdate:
   return (
     <Fragment>
       <EuiText>
-        <h2>Säg/Välj Journalmalls namn, säg Nästa" eller "Tillbaka" efter namnet.</h2>
+        <h2>
+          Säg/Välj Journalmalls namn, säg Nästa" eller "Tillbaka" efter namnet.
+        </h2>
       </EuiText>
       <EuiSpacer size="m" />
       <EuiFlexGroup>
@@ -52,6 +52,7 @@ const GuidedTemplates = ({ listOfTemplates, updatedTemplateIndex }) => {
           </EuiListGroup>
         </EuiFlexItem>
         <EuiFlexItem>
+          <EuiSpacer size="m" />
           <EuiText>
             <h2>Sökord</h2>
             <EuiSpacer size="m" />

@@ -28,10 +28,8 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   const [personnummer, setPersonnummer] = useState('')
   const [patientsNamn, setPatientsNamn] = useState('')
   const [template, setTemplate] = useState('')
-  const [templateId, setTemplateId] = useState('')
   const [templates, setTemplates] = useState({templates: []})
-  const [selectedTemplate, setSelectedTemplate] = useState()
-  const [sectionHeaders, setSectionHeaders] = useState([])
+  const [selectedTemplate, setSelectedTemplate] = useState('')
   const [listOfTemplates, setListOfTemplates] = useState([])
   
   const goPrevious = () => {
@@ -58,7 +56,6 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
           // Should be dictation
           setCurrentItem(template)
         }
-        
       }
     })
   }
@@ -77,9 +74,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         return step
       } else {
         tempObject = {
-          status: 'disabled',
-          // isSelected: false,
-          // isComplete: false
+          status: 'disabled'
         }
         return { ...step, ...tempObject }
       }
@@ -89,10 +84,8 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   
   const goNext = async () => {
     const templatesFromServer = await api.getSectionTemplates()
-    console.log(templatesFromServer)
     setTemplates(templatesFromServer.data)
     setListOfTemplates(templatesFromServer.data.templates)
-    
 
     predefinedSteps.forEach((step, i) => {
       if (
@@ -101,8 +94,6 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
         && currentItem.length>0
       ) {   
         setCurrentStep(predefinedSteps[i +1])
-        // changeHierarchyNext(i + 1, currentItem)
-        
         if (i === 0) {
           changeHierarchyNext(i + 1, currentItem)
           setDoktorsNamn(currentItem)
@@ -117,14 +108,13 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
           }
         } else if (i === 2 ) {
           const personnummerValidation = validatePersonnummer(currentItem)
-          console.log('Beginning personnummer validation')
           if (personnummerValidation.status) {
             setPersonnummer(personnummerValidation.message)
             changeHierarchyNext(i + 1, personnummerValidation.message)
-            if (template.length === 0) {
-              setCurrentItem('')
+            if (selectedTemplate === '') {
+              setSelectedTemplate(templates.templates[0])
+              setCurrentItem(templates.templates[0].name)
             }
-            else setCurrentItem(template)
           } else {
             changeHierarchyNext(i , '')
             swal(personnummerValidation.message)
@@ -132,20 +122,16 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
               title: personnummerValidation.message,
               text: '',
               icon: 'info',
-              button: 'Ok'
+              buttons: [false, 'Ok']
             })
             setCurrentItem('')
             setCurrentStep('patients Personnummer')
           }
         } else if (i === 3 ) {
-          setTemplate(currentItem)
+          changeHierarchyNext(i + 1, currentItem)
         }
       }
     })
-  }
-
-  const updatedSections = (sections) => {
-    console.log(sections)
   }
 
   const updatedTemplateIndex = (updtedIndex) => {
@@ -190,13 +176,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
   const microphoneBeingPressed = false
   const recordingAction = 'starta'
   const toggleRecord = () => true
-  const updateSectionHeader = (sectionHeaders) => {
-    setSectionHeaders(sectionHeaders)
-  }
-  const updateTemplateId = (templateId) => {
-    setTemplateId(templateId)
-  }
-  const usedSections = []
+  
   return (
     <Fragment>
       <Mic
@@ -225,11 +205,11 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
                 `Säg/Skriv ${currentStep}\nSäg Nästa" eller "Tillbaka" efter namnet`
               }
               aria-label="Skriv Doktors Namn"
-              resize="none"
               fullWidth={true}
               value={currentItem}  
               onChange={onChange}
               className= "guidedBox"
+              style={{'resize': 'none'}}
             />
           </span>
           <span style={{
@@ -283,4 +263,5 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
     </Fragment>
   )
 }
+
 export default Step
