@@ -165,7 +165,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
       }
     })
 
-    const å = newStepsHierarchy.map((s, j) => { 
+    const finalSteps = newStepsHierarchy.map((s, j) => { 
       if(j===index-1) {
         const tempObject = {
           children: `${itemName}`
@@ -174,7 +174,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy }) => {
       } 
       else return s
     })
-    updatedStepsHierarchy(å)
+    updatedStepsHierarchy(finalSteps)
   }
 
   const microphoneBeingPressed = false
