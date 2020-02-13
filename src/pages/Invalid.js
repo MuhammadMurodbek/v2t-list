@@ -4,7 +4,6 @@ import {
 } from '@elastic/eui'
 import '../styles/pageNotFound.css'
 
-
 const Invalid = () => {
   return (
     <div>
@@ -20,7 +19,7 @@ const Invalid = () => {
             </EuiTextAlign>
                       
             <EuiTextAlign textAlign="center">
-              <EuiText>
+              <EuiText style={{marginTop: 30}}>
                 <div>
                   <a href="/" className="whiteLink">Tillbaka</a>
                 </div>
@@ -41,12 +40,9 @@ const Invalid = () => {
           </div>
         </div>
         <div id="ground">
-        
+        </div>
       </div>
-      </div>
-      </div>
-    
-    
+    </div>
   )
 }
 
