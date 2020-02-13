@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState } from 'react'
+import React from 'react'
 // import {
 //     EuiFlexGroup, EuiFlexItem, EuiTextAlign, EuiText
 // } from '@elastic/eui'
@@ -9,7 +9,7 @@ import Page from '../components/Page'
 import '../styles/pageNotFound.css'
 
 const Visualization = () => {
-  const [options, setOptions] = useState({
+  const options = {
     title: {
       text: 'Transcripts sent to the co-workers'
     },
@@ -25,7 +25,7 @@ const Visualization = () => {
       type: 'bar',
       data: [5, 20, 36, 10, 10, 20]
     }]
-  })
+  }
   
   return (
     <Page preferences title="Visualization">
