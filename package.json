@@ -9,6 +9,7 @@
     "@testing-library/jest-dom": "^4.0.0",
     "axios": "^0.18.0",
     "echarts": "^4.6.0",
+    "echarts-for-react": "^2.0.15-beta.1",
     "eslint-config-airbnb": "^17.1.0",
     "googleapis": "39",
     "moment": "^2.24.0",

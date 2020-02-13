@@ -254,11 +254,10 @@ export default class App extends Component {
                 render={(props) => {
                   const transcript = transcripts
                     .find(currentTranscript => currentTranscript.external_id === props.match.params.id)
-                  return <EditPage {...{
-                    ...props,
-                    transcript,
-                    token
-                  }} />
+                  if (transcript)
+                    return <EditPage {...{...props,transcript, token}} />
+                  else
+                    return <Invalid />
                 }}
               />
               <Route path="/upload/" render={props => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
