@@ -18,6 +18,7 @@ import UploadPage from './pages/Upload'
 import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
 import LoginPage from './pages/Login'
+import Invalid from './pages/Invalid'
 import Preference from './models/Preference'
 import './App.css'
 import api from './api'
@@ -138,7 +139,19 @@ export default class App extends Component {
                 //   name: 'Live Diktering',
                 //   onClick: () => this.selectItem('Live')
                 }, {
+                  href: '/#/visualization',
                   id: 6,
+                  isSelected: selectedItemName === 'Visualization',
+                  name: 'Visualization',
+                  onClick: () => this.selectItem('Visualization')
+                // }, {
+                //   href: '/#/livediktering',
+                //   id: 6,
+                //   isSelected: selectedItemName === 'Live',
+                //   name: 'Live Diktering',
+                //   onClick: () => this.selectItem('Live')
+                }, {
+                  id: 7,
                   isSelected: selectedItemName === 'Co-worker',
                   name: 'Co-worker',
                   onClick: () => {
@@ -261,6 +274,9 @@ export default class App extends Component {
                   ...props,
                   transcripts
                 }} /> : <LoginPage/>}/>
+              <Route 
+                render={props => isLoggedIn ? <Invalid /> : <LoginPage />} />
+
             </Switch>
           </EuiPage>
         </PreferencesProvider>
