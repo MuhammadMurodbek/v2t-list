@@ -19,6 +19,8 @@ import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
 import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
+import Invalid from './pages/Invalid'
+import Visualization from './pages/Visualization'
 import Preference from './models/Preference'
 import './App.css'
 import api from './api'
@@ -139,7 +141,19 @@ export default class App extends Component {
                 //   name: 'Live Diktering',
                 //   onClick: () => this.selectItem('Live')
                 }, {
+                  href: '/#/visualization',
                   id: 6,
+                  isSelected: selectedItemName === 'Visualization',
+                  name: 'Visualization',
+                  onClick: () => this.selectItem('Visualization')
+                // }, {
+                //   href: '/#/livediktering',
+                //   id: 6,
+                //   isSelected: selectedItemName === 'Live',
+                //   name: 'Live Diktering',
+                //   onClick: () => this.selectItem('Live')
+                }, {
+                  id: 7,
                   isSelected: selectedItemName === 'Co-worker',
                   name: 'Co-worker',
                   onClick: () => {
@@ -241,29 +255,31 @@ export default class App extends Component {
                 render={(props) => {
                   const transcript = transcripts
                     .find(currentTranscript => currentTranscript.external_id === props.match.params.id)
-                  return <EditPage {...{
-                    ...props,
-                    transcript,
-                    token
-                  }} />
+                  if (transcript)
+                    return <EditPage {...{...props,transcript, token}} />
+                  else
+                    return <Invalid />
                 }}
               />
               <Route path="/upload/" render={props => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
               {/* <Route path="/analytics/"
                      render={props => isLoggedIn ? <AnalyticsPage/> : <LoginPage/>}/> */}
               <Route path="/training/"
-                render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
-              <Route path="/training/"
-                render={props => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
-              <Route path="/livediktering/"
-                render={props => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}/>
+                render={() => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
               <Route path="/guided-live/"
-                render={props => isLoggedIn ? <GuidedLivePage/> : <LoginPage/>}/>
+                render={() => isLoggedIn ? <GuidedLivePage/> : <LoginPage/>}/>
+              <Route path="/livediktering/"
+                render={() => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}/>
+              <Route path="/visualization/"
+                render={() => isLoggedIn ? <Visualization /> : <LoginPage/>}/>
               <Route path="/login"
                 render={props => isLoggedIn ? <StartPage {...{
                   ...props,
                   transcripts
                 }} /> : <LoginPage/>}/>
+              <Route 
+                render={() => isLoggedIn ? <Invalid /> : <LoginPage />} />
+
             </Switch>
           </EuiPage>
         </PreferencesProvider>
