@@ -38,7 +38,7 @@ export default class LiveDiktering extends Component {
     },
     isMicrophoneStarted: false,
     tags: [],
-    finalText:'hello'
+    finalText:''
   }
 
   componentDidMount = () => {
@@ -48,8 +48,8 @@ export default class LiveDiktering extends Component {
 
   templates = async () => {
     const templateList = await api.getSectionTemplates()
-    console.log('templates')
-    console.log(templateList)
+    // console.log('templates')
+    // console.log(templateList)
     this.setState({ listOfTemplates: templateList.data.templates })
   }
 
@@ -91,7 +91,7 @@ export default class LiveDiktering extends Component {
           var s = Math.max(-1, Math.min(1, input[i]))
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
-        prevState.socketio.emit('write-audio', buffer)
+        prevState.socketio.emit('write-audio-pnr', buffer)
       }
     }
     inputPoint.connect(scriptNode)
@@ -101,16 +101,23 @@ export default class LiveDiktering extends Component {
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
     // updateAnalysers();
-    this.socketio.on('add-transcript', function (text) {
+    this.socketio.on('add-transcript-pnr', function (text) {
       // add new recording to page
       const { originalText } = prevState.state
-      console.log('text')
-      console.log(text)
-      console.log('text end ')
+      // console.log('text')
+      // console.log(text)
+      // console.log('text end ')
       prevState.setState({ currentText: text }, () => {
         // console.log('prevState.state.whole')
+        // if (text.toLowerCase().includes('nästa')) {
+          console.log('----------------------')
+          console.log(text.toLowerCase())
+          console.log(prevState.state.finalText)
+          console.log('----------------------')
+        // }
+        
         const finalText = `${originalText} ${prevState.state.currentText}`
-        console.log(finalText)
+        // console.log(finalText)
         // prevState.setState({ chapters: processChapters(finalText) })
         prevState.setState({ finalText })
       })
@@ -192,7 +199,8 @@ export default class LiveDiktering extends Component {
     const {
       recordingAction,
       microphoneBeingPressed,
-      currentText
+      currentText,
+      finalText
     } = this.state
 
     return (
@@ -208,11 +216,8 @@ export default class LiveDiktering extends Component {
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup>
-          {/* <EuiFlexItem>
-            {this.state.finalText}
-          </EuiFlexItem> */}
           <EuiFlexItem>
-            <GuidedLiveEditor content={currentText}/>
+            <GuidedLiveEditor content={finalText}/>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>

@@ -173,6 +173,12 @@ export default class App extends Component {
                         .focus()
                     }
                   }
+                },{
+                  href: '/#/guided-live',
+                  id: 7,
+                  isSelected: selectedItemName === 'Live',
+                  name: 'Live Diktering',
+                  onClick: () => this.selectItem('Live')
                 }
               ],
               name: ''

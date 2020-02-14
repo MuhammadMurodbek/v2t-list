@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-import React, { useState, Fragment } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -30,11 +31,72 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
   const [templates, setTemplates] = useState({templates: []})
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [listOfTemplates, setListOfTemplates] = useState([])
+  const [editorBeingUsed, setEditorBeingUsed] = useState(false)
+  const [previousContent, setPreviousContent] = useState('')
   
+  useEffect(() => {
+    // console.log('changing')
+    // console.log(content)
+    if (!editorBeingUsed) {
+      const wordsFromContent = content.split(' ')
+      // console.log('hola')
+      // console.log(content)
+      setCurrentItem(content)
+      if (wordsFromContent[wordsFromContent.length-1].trim().toLowerCase()==='nästa') {}
+      // if (wordsFromContent[wordsFromContent.length-1].trim().toLowerCase()==='nästa') {
+      //   if (currentStep === 'doctors namn'){
+      //     console.log('++++++++')
+      //     console.log('++++++++')
+      //     console.log('++++++++')
+      //     console.log('current step')
+      //     console.log(currentStep)
+      //     console.log('content')
+      //     console.log(content)
+      //     console.log('prev content')
+      //     console.log(previousContent)
+      //     console.log('++++++++')
+      //     console.log('++++++++')
+      //     console.log('++++++++')
+      //     setDoktorsNamn(content.slice(0, -9))
+      //     setCurrentStep('patients name')
+      //   }
+      //   else if (currentStep === 'patients name') {
+      //     console.log('--------')
+      //     console.log('--------')
+      //     console.log('--------')
+      //     console.log('current step')
+      //     console.log(currentStep)
+      //     console.log('content')
+      //     console.log(content)
+      //     console.log('prev content')
+      //     console.log(previousContent)
+      //     console.log('--------')
+      //     console.log('--------')
+      //     console.log('--------')
+      //     console.log('--------')
+      //     setPatientsNamn(content.slice(0, -9))
+          
+      //   }
+      //   setPreviousContent(content)
+      //   if (content !== previousContent) {
+      //     setCurrentItem('')
+      //     goNext(true)
+      //   } 
+      // } else {
+      //   setCurrentItem(content)
+      // }
+
+      
+    }
+  })
+
   /**
    * @param {{ target: { value: React.SetStateAction<string>; }; }} e
    */
-  const onChange = e => setCurrentItem(e.target.value)
+  const onChange = e => {
+    setEditorBeingUsed(true)
+    setCurrentItem(e.target.value)
+  }
 
   const goPrevious = () => {
     predefinedSteps.forEach((step, i)=>{
@@ -86,10 +148,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
     updatedStepsHierarchy(newStepsHierarchy)
   }
   
-  const goNext = async () => {
-    console.log('content')
-    console.log(content)
-    console.log('content end')
+  const goNext = async (isPrefilled=false) => {
     const templatesFromServer = await api.getSectionTemplates()
     setTemplates(templatesFromServer.data)
     setListOfTemplates(templatesFromServer.data.templates)
@@ -103,12 +162,12 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
         setCurrentStep(predefinedSteps[i +1])
         if (i === 0) {
           changeHierarchyNext(i + 1, currentItem)
-          setDoktorsNamn(currentItem)
+          if (isPrefilled) setDoktorsNamn(currentItem)
           if(patientsNamn.length===0) setCurrentItem('')
           else setCurrentItem(patientsNamn)
         } else if (i === 1 ) {
           changeHierarchyNext(i + 1, currentItem)
-          setPatientsNamn(currentItem)
+          if (isPrefilled) setPatientsNamn(currentItem)
           if (personnummer.length === 0) setCurrentItem('')
           else {
             setCurrentItem(personnummer)
@@ -210,7 +269,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
               aria-label="Skriv Doktors Namn"
               fullWidth={true}
               // value={currentItem}  
-              value={content}  
+              value={currentItem}  
               onChange={onChange}
               className= "guidedBox"
               style={{'resize': 'none'}}
