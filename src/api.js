@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import axios from 'axios'
 
 const headers = {
@@ -160,6 +161,13 @@ const getSectionTemplates = () => {
     .catch(error => error)
 }
 
+const getChartData = () => {
+  return axios.get(`/api/charts/v1/CHART_ID`)
+    .catch((error) => {
+      console.log(error)
+    })
+}
+
 export default {
   approveTranscription,
   setToken,
@@ -174,5 +182,6 @@ export default {
   trainingUpdate,
   updateTranscription,
   uploadMedia,
-  getSectionTemplates
+  getSectionTemplates,
+  getChartData
 }

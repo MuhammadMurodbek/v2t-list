@@ -199,7 +199,6 @@ export default class LiveDiktering extends Component {
     const {
       recordingAction,
       microphoneBeingPressed,
-      currentText,
       finalText
     } = this.state
 

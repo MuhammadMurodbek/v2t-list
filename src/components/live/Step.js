@@ -12,10 +12,8 @@ import {
   EuiFieldText
 } from '@elastic/eui'
 import swal from 'sweetalert'
-import Mic from '../Mic'
 import api from '../../api'
 import GuidedTemplates from '../../components/live/GuidedTemplates'
-import GuidedLiveEditor from '../../components/live/GuidedLiveEditor'
 import steps from '../../models/live/steps'
 import validatePersonnummer from '../../models/live/validatePersonnummer'
 import '../../styles/guided.css'
@@ -32,7 +30,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [listOfTemplates, setListOfTemplates] = useState([])
   const [editorBeingUsed, setEditorBeingUsed] = useState(false)
-  const [previousContent, setPreviousContent] = useState('')
+  // const [previousContent, setPreviousContent] = useState('')
   
   useEffect(() => {
     // console.log('changing')
@@ -239,10 +237,6 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
     updatedStepsHierarchy(finalSteps)
   }
 
-  const microphoneBeingPressed = false
-  const recordingAction = 'starta'
-  const toggleRecord = () => true
-  
   return (
     <Fragment>
       <EuiSpacer size="l" />
