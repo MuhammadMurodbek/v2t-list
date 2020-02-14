@@ -1,6 +1,6 @@
 {
   "name": "v2t-list",
-  "version": "2002.11.0",
+  "version": "2002.11.1",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
