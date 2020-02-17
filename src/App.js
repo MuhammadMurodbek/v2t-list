@@ -175,7 +175,7 @@ export default class App extends Component {
                   }
                 },{
                   href: '/#/guided-live',
-                  id: 7,
+                  id: 8,
                   isSelected: selectedItemName === 'Live',
                   name: 'Live Diktering',
                   onClick: () => this.selectItem('Live')

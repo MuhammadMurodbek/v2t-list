@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
 import {
@@ -106,20 +107,13 @@ export default class LiveDiktering extends Component {
       const { originalText } = prevState.state
       // console.log('text')
       // console.log(text)
+      // console.log(prevState.state.finalText)
       // console.log('text end ')
       prevState.setState({ currentText: text }, () => {
-        // console.log('prevState.state.whole')
-        // if (text.toLowerCase().includes('nästa')) {
-          console.log('----------------------')
-          console.log(text.toLowerCase())
-          console.log(prevState.state.finalText)
-          console.log('----------------------')
-        // }
-        
-        const finalText = `${originalText} ${prevState.state.currentText}`
-        // console.log(finalText)
-        // prevState.setState({ chapters: processChapters(finalText) })
-        prevState.setState({ finalText })
+        // if (prevState.state.currentText!=='Nästa') {
+          const finalText = `${originalText} ${prevState.state.currentText}`
+          prevState.setState({ finalText })
+        // }   
       })
     })
   }
@@ -199,7 +193,8 @@ export default class LiveDiktering extends Component {
     const {
       recordingAction,
       microphoneBeingPressed,
-      finalText
+      finalText,
+      currentText
     } = this.state
 
     return (
@@ -216,7 +211,10 @@ export default class LiveDiktering extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup>
           <EuiFlexItem>
-            <GuidedLiveEditor content={finalText}/>
+            <GuidedLiveEditor
+              prevContent={finalText}
+              currentContent={currentText}
+            />
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>

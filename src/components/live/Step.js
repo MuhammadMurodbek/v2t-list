@@ -18,7 +18,7 @@ import steps from '../../models/live/steps'
 import validatePersonnummer from '../../models/live/validatePersonnummer'
 import '../../styles/guided.css'
 
-const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
+const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentContent }) => {
   const predefinedSteps = steps()
   const [currentItem, setCurrentItem] = useState('')
   const [currentStep, setCurrentStep] = useState(predefinedSteps[0])
@@ -30,63 +30,73 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [listOfTemplates, setListOfTemplates] = useState([])
   const [editorBeingUsed, setEditorBeingUsed] = useState(false)
+  const [usedContents, setUsedContents] = useState([])
   // const [previousContent, setPreviousContent] = useState('')
   
   useEffect(() => {
     // console.log('changing')
     // console.log(content)
-    if (!editorBeingUsed) {
-      const wordsFromContent = content.split(' ')
-      // console.log('hola')
-      // console.log(content)
-      setCurrentItem(content)
-      if (wordsFromContent[wordsFromContent.length-1].trim().toLowerCase()==='nästa') {}
-      // if (wordsFromContent[wordsFromContent.length-1].trim().toLowerCase()==='nästa') {
-      //   if (currentStep === 'doctors namn'){
-      //     console.log('++++++++')
-      //     console.log('++++++++')
-      //     console.log('++++++++')
-      //     console.log('current step')
-      //     console.log(currentStep)
-      //     console.log('content')
-      //     console.log(content)
-      //     console.log('prev content')
-      //     console.log(previousContent)
-      //     console.log('++++++++')
-      //     console.log('++++++++')
-      //     console.log('++++++++')
-      //     setDoktorsNamn(content.slice(0, -9))
-      //     setCurrentStep('patients name')
-      //   }
-      //   else if (currentStep === 'patients name') {
-      //     console.log('--------')
-      //     console.log('--------')
-      //     console.log('--------')
-      //     console.log('current step')
-      //     console.log(currentStep)
-      //     console.log('content')
-      //     console.log(content)
-      //     console.log('prev content')
-      //     console.log(previousContent)
-      //     console.log('--------')
-      //     console.log('--------')
-      //     console.log('--------')
-      //     console.log('--------')
-      //     setPatientsNamn(content.slice(0, -9))
-          
-      //   }
-      //   setPreviousContent(content)
-      //   if (content !== previousContent) {
-      //     setCurrentItem('')
-      //     goNext(true)
-      //   } 
-      // } else {
-      //   setCurrentItem(content)
-      // }
-
+    updateStepBar(usedContents)
+    console.log('----------------------')
+    console.log(prevContent)
+    console.log(currentContent)
+    console.log('usedContents')
+    console.log(usedContents)
+    console.log('----------------------')
+    if (
+      currentContent.trim().toLowerCase() ===  prevContent.trim().toLowerCase()
+      && currentContent.trim().toLowerCase() !== ''
+      && prevContent.trim().toLowerCase() !== ''
+      && usedContents.includes(currentContent)===false
+    ) {
+      console.log('....')
+      // consoxle.log(prevContent)      
+      console.log('....')
       
+      if (!usedContents.includes(prevContent)){
+        // setCurrentItem(prevContent)
+        // goNext(true)
+        updateStepBar(usedContents)
+        setUsedContents([...usedContents, prevContent])
+      }
+        
     }
   })
+
+
+
+  const updateStepBar = (contents) => {
+    const contentLenght = contents.length
+    const newStepsHierarchy = stepsHierarchy.map((step, i) => {
+      let tempObject
+      if (i === contentLenght-1) {
+        tempObject = {
+          status: 'primary',
+          disabled: false
+        }
+        return { ...step, ...tempObject }
+      } else if (i > contentLenght-1) {
+        tempObject = {
+          disabled: true
+        }
+        return { ...step, ...tempObject }
+      } else {
+        tempObject = {
+          status: 'complete'
+        }
+        return { ...step, ...tempObject }
+      }
+    })
+
+    const finalSteps = newStepsHierarchy.map((s, j) => {
+      const tempObject = {
+        children: contents[j]
+      }
+      return { ...s, ...tempObject }
+    })
+    updatedStepsHierarchy(finalSteps)
+  }
+
 
   /**
    * @param {{ target: { value: React.SetStateAction<string>; }; }} e
@@ -147,22 +157,18 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
   }
   
   const goNext = async (isPrefilled=false) => {
-    const templatesFromServer = await api.getSectionTemplates()
-    setTemplates(templatesFromServer.data)
-    setListOfTemplates(templatesFromServer.data.templates)
-
     predefinedSteps.forEach((step, i) => {
       if (
         currentStep === step 
         && currentStep !== predefinedSteps[predefinedSteps.length - 1] 
         && currentItem.length>0
       ) {   
-        setCurrentStep(predefinedSteps[i +1])
         if (i === 0) {
           changeHierarchyNext(i + 1, currentItem)
           if (isPrefilled) setDoktorsNamn(currentItem)
           if(patientsNamn.length===0) setCurrentItem('')
           else setCurrentItem(patientsNamn)
+          setCurrentStep(predefinedSteps[i + 1])
         } else if (i === 1 ) {
           changeHierarchyNext(i + 1, currentItem)
           if (isPrefilled) setPatientsNamn(currentItem)
@@ -170,6 +176,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
           else {
             setCurrentItem(personnummer)
           }
+          setCurrentStep(predefinedSteps[i + 1])
         } else if (i === 2 ) {
           const personnummerValidation = validatePersonnummer(currentItem)
           if (personnummerValidation.status) {
@@ -179,6 +186,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
               setSelectedTemplate(templates.templates[0])
               setCurrentItem(templates.templates[0].name)
             }
+            setCurrentStep(predefinedSteps[i + 1])
           } else {
             changeHierarchyNext(i , '')
             swal(personnummerValidation.message)
@@ -191,6 +199,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
             setCurrentItem('')
             setCurrentStep('patients Personnummer')
           }
+          
         } else if (i === 3 ) {
           changeHierarchyNext(i + 1, currentItem)
         }
@@ -239,7 +248,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
 
   return (
     <Fragment>
-      <EuiSpacer size="l" />
+      {/* <EuiSpacer size="l" />
       <EuiFlexGroup >
         <EuiFlexItem style={{ paddingTop: 100, maxWidth: 250}}>
           <EuiButtonIcon
@@ -315,7 +324,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, content }) => {
             }
           />
         </EuiFlexItem>
-      </EuiFlexGroup>
+      </EuiFlexGroup> */}
     </Fragment>
   )
 }
