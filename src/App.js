@@ -50,7 +50,19 @@ export default class App extends Component {
 
 
   getQueryStringValue(key) {
-    return decodeURIComponent(window.location.href.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent(key).replace(/[.+*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"))
+    return decodeURIComponent(
+      window
+        .location
+        .href
+        .replace(
+          new RegExp(
+            `^(?:.*[&\\?]${
+              encodeURIComponent(key)
+                .replace(/[.+*]/g, '\\$&')
+            }(?:\\=([^&]*))?)?.*$`, 'i'
+          ), '$1'
+        )
+    )
   }  
 
   fetchTranscripts = () => {
@@ -73,7 +85,8 @@ export default class App extends Component {
 
       api.loadTickets(undefined, 0, 200)
         .then((tickets) => {
-          // Check which one are audio and which are video before loading all active jobs
+          // Check which one are audio and 
+          // which are video before loading all active jobs
           this.setState({ transcripts: tickets })
         })
 
@@ -123,9 +136,21 @@ export default class App extends Component {
                   name: 'Analytics',
                   onClick: () => {
                     if(window.location.hostname.split('.')[0].includes('dev')) {
-                      window.open('https://v2t-dev-kibana.inoviagroup.se', '_blank').focus()
-                    } else if (window.location.hostname.split('.')[0].includes('stage')) {
-                      window.open('https://v2t-stage-kibana.inoviagroup.se', '_blank').focus()
+                      window
+                        .open('https://v2t-dev-kibana.inoviagroup.se', '_blank')
+                        .focus()
+                    } else if (
+                      window
+                        .location
+                        .hostname
+                        .split('.')[0]
+                        .includes('stage')
+                    ) {
+                      window
+                        .open(
+                          'https://v2t-stage-kibana.inoviagroup.se', '_blank'
+                        )
+                        .focus()
                     }
                   }
                 }, {
@@ -134,24 +159,12 @@ export default class App extends Component {
                   isSelected: selectedItemName === 'Training',
                   name: 'Träning',
                   onClick: () => this.selectItem('Training')
-                // }, {
-                //   href: '/#/livediktering',
-                //   id: 6,
-                //   isSelected: selectedItemName === 'Live',
-                //   name: 'Live Diktering',
-                //   onClick: () => this.selectItem('Live')
                 }, {
                   href: '/#/visualization',
                   id: 6,
                   isSelected: selectedItemName === 'Visualization',
                   name: 'Visualization',
                   onClick: () => this.selectItem('Visualization')
-                // }, {
-                //   href: '/#/livediktering',
-                //   id: 6,
-                //   isSelected: selectedItemName === 'Live',
-                //   name: 'Live Diktering',
-                //   onClick: () => this.selectItem('Live')
                 }, {
                   id: 7,
                   isSelected: selectedItemName === 'Co-worker',
@@ -161,7 +174,9 @@ export default class App extends Component {
                       window.location.hostname.split('.')[0].includes('dev')
                     ) {
                       window
-                        .open('https://v2t-dev-webdoc.inoviagroup.se/#/', '_blank')
+                        .open(
+                          'https://v2t-dev-webdoc.inoviagroup.se/#/', '_blank'
+                        )
                         .focus()
                     } else if (
                       window.location.hostname.split('.')[0].includes('stage')
@@ -206,17 +221,24 @@ export default class App extends Component {
     window.open("https://inoviagroup.se/anvandarhandledning-v2t/", "_blank")
   }
 
-  // collapseSideBar = () => {
-
-  // }
-
   render() {
-    const { transcripts, preferences, sidenav, isLoggedIn, isTokenFromUrl, token } = this.state
+    const {
+      transcripts,
+      preferences,
+      sidenav,
+      isLoggedIn,
+      isTokenFromUrl,
+      token
+    } = this.state
+
     return (
       <HashRouter>
         <PreferencesProvider value={[preferences, this.setPreferences]}>
           <EuiPage>
-            <EuiPageSideBar style={{ display: isLoggedIn & !isTokenFromUrl? 'inline-block' : 'none' }}>
+            <EuiPageSideBar
+              style={{
+                display: isLoggedIn && !isTokenFromUrl? 'inline-block' : 'none'
+              }}>
               <EuiImage
                 className="logo"
                 size="m"
@@ -231,17 +253,16 @@ export default class App extends Component {
                 style={{ width: 300 }}
                 items={sidenav}
               />
-              {/* <EuiButton color="text" fill onClick={this.collapseSideBar} >Collapse</EuiButton> */}
               <EuiButtonEmpty
                 size="l"
                 style={{
-                  color: "white",
-                  position: "fixed",
+                  color: 'white',
+                  position: 'fixed',
                   left: -12,
                   fontWeight: 600,
                   bottom: 10,
                   width: 100,
-                  background: "transparent"
+                  background: 'transparent'
                 }}
                 onClick={() => this.openHelpWindow()}
               >
@@ -252,30 +273,35 @@ export default class App extends Component {
 
 
             <Switch>
-              <Route exact path="/" render={props => isLoggedIn ? <StartPage {...{
-                ...props,
-                transcripts
-              }} /> : <LoginPage/>}/>
+              <Route
+                exact
+                path="/"
+                render={props => isLoggedIn ? <StartPage {...{
+                  ...props, transcripts
+                }} /> : <LoginPage/>}/>
               <Route
                 path="/edit/:id"
                 render={(props) => {
                   const transcript = transcripts
-                    .find(currentTranscript => currentTranscript.external_id === props.match.params.id)
+                    .find(
+                      currentTranscript => 
+                        currentTranscript.external_id === props.match.params.id)
                   if (transcript)
                     return <EditPage {...{...props,transcript, token}} />
                   else
                     return <Invalid />
                 }}
               />
-              <Route path="/upload/" render={props => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
-              {/* <Route path="/analytics/"
-                     render={props => isLoggedIn ? <AnalyticsPage/> : <LoginPage/>}/> */}
+              <Route
+                path="/upload/"
+                render={ () => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
               <Route path="/training/"
                 render={() => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
               <Route path="/guided-live/"
                 render={() => isLoggedIn ? <GuidedLivePage/> : <LoginPage/>}/>
               <Route path="/livediktering/"
-                render={() => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}/>
+                render={() => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}
+              />
               <Route path="/visualization/"
                 render={() => isLoggedIn ? <Visualization /> : <LoginPage/>}/>
               <Route path="/login"
@@ -285,7 +311,6 @@ export default class App extends Component {
                 }} /> : <LoginPage/>}/>
               <Route 
                 render={() => isLoggedIn ? <Invalid /> : <LoginPage />} />
-
             </Switch>
           </EuiPage>
         </PreferencesProvider>

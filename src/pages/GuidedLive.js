@@ -194,7 +194,8 @@ export default class LiveDiktering extends Component {
       recordingAction,
       microphoneBeingPressed,
       finalText,
-      currentText
+      currentText,
+      listOfTemplates
     } = this.state
 
     return (
@@ -214,6 +215,7 @@ export default class LiveDiktering extends Component {
             <GuidedLiveEditor
               prevContent={finalText}
               currentContent={currentText}
+              listOfTemplates={listOfTemplates}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

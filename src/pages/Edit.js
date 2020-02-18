@@ -16,6 +16,7 @@ import Player from '../components/Player'
 import Templates from '../components/Templates'
 import Info from '../components/Info'
 import isSuperset from '../models/isSuperset'
+import Sidenote from '../components/Sidenote'
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -25,6 +26,7 @@ export default class EditPage extends Component {
   }
 
   state = {
+    sidenoteContent: '',
     originalChapters: null,
     currentTime: 0,
     queryTerm: '',
@@ -384,6 +386,10 @@ export default class EditPage extends Component {
     window.location = '/'
   }
 
+  updateSidenote = () => {
+    
+  }
+
   render() {
     const { transcript, token } = this.props
     const {
@@ -399,7 +405,8 @@ export default class EditPage extends Component {
       templateId,
       // defaultTemplate,
       sectionHeaders,
-      initialCursor
+      initialCursor,
+      sidenoteContent
     } = this.state
     if (!transcript) return null
     return (
@@ -454,6 +461,12 @@ export default class EditPage extends Component {
                 defaultTemplate={templateId}
                 updateSectionHeader={this.updateSectionHeader}
                 updateTemplateId={this.updateTemplateId}
+              />
+
+              <EuiSpacer size="xxl" />
+              <Sidenote
+                content={sidenoteContent}
+                updateSidenote={this.updateSidenote}
               />
             </EuiFlexItem>
           </EuiFlexGroup>

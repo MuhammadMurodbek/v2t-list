@@ -7,21 +7,23 @@ import {
   EuiSteps,
   EuiSpacer, EuiText, EuiButton
 } from '@elastic/eui'
-import api from '../../api'
 import Dots from './Dots'
 import Tags from '../Tags'
 import LiveEditor from '../LiveEditor'
 import LiveTemplateEngine from '../LiveTemplateEngine'
 
-const GuidedLiveEditor = ({prevContent, currentContent}) => {
-  const [listOfTemplates, setListOfTemplates] = useState([])
+const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
   const [editorVisible, setEditorVisible] = useState(false)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [tags, setTags] = useState([])
-  const [chapters, setChapters] = useState([{
+  const chapters = [{
     keyword: 'KONTAKTORSAK',
     segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
-  }])
+  }]
+  // const [chapters, setChapters] = useState([{
+  //   keyword: 'KONTAKTORSAK',
+  //   segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
+  // }])
   const [sections, setSections] = useState({
     'KONTAKTORSAK': [],
     'AT': [],
@@ -78,31 +80,26 @@ const GuidedLiveEditor = ({prevContent, currentContent}) => {
   }, [currentContent, prevContent])
 
 
-  const templates = async () => {
-    const templateList = await api.getSectionTemplates()
-    console.log('templates')
-    console.log(templateList)
-    setListOfTemplates(templateList.data.templates)
-  }
-
   const onUpdateTags = (tags) => {
     setTags(tags)
   }
-  const showAnimationForDoctor = () => {
-    if (currentStepIndex === 0 ) {
-      const finalSteps = verticalSteps.map((s, j) => {
-        if (j === 0) {
-          const tempObject = {
-            children: <p><Dots /></p>
-          }
-          return { ...s, ...tempObject }
-        } else {
-          return { ...s }
-        }
-      })
-      setVerticalSteps(finalSteps)
-    }
-  }
+  
+  // const showAnimationForDoctor = () => {
+  //   if (currentStepIndex === 0 ) {
+  //     const finalSteps = verticalSteps.map((s, j) => {
+  //       if (j === 0) {
+  //         const tempObject = {
+  //           children: <p><Dots /></p>
+  //         }
+  //         return { ...s, ...tempObject }
+  //       } else {
+  //         return { ...s }
+  //       }
+  //     })
+  //     setVerticalSteps(finalSteps)
+  //   }
+  // }
+
   const updateVerticalSteps = (content, index) => {
     const newStepsHierarchy = verticalSteps.map((step, i) => {
       let tempObject
@@ -160,8 +157,6 @@ const GuidedLiveEditor = ({prevContent, currentContent}) => {
 
   }
 
-  const usedSections = () => chapters.map(chapter => chapter.keyword)
-
   const updatedSections = (sections) => {
     // this.validateSections(sections)
     setSections(sections)
@@ -174,7 +169,6 @@ const GuidedLiveEditor = ({prevContent, currentContent}) => {
           <EuiSteps steps={verticalSteps} />
         </EuiFlexItem>
         <EuiFlexItem style={{display: editorVisible? 'block':'none'}}>
-        {/* <EuiFlexItem style={{display: true ? 'block':'none'}}> */}
           <EuiText grow={false}>
             <h3>Editor</h3>
           </EuiText>
@@ -193,31 +187,37 @@ const GuidedLiveEditor = ({prevContent, currentContent}) => {
           />
           
           <EuiFlexGroup >
-        <EuiFlexItem grow={false}>
-          <EuiButton fill color="secondary" onClick={() => { }}>Skicka till
-                  Co-Worker</EuiButton>
+            <EuiFlexItem grow={false}>
+              <EuiButton fill color="secondary" onClick={() => { }}>
+                Skicka till Co-Worker
+              </EuiButton>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButton
+                fill
+                color="danger"
+                onClick={sendAsHorrribleTranscription}>
+              “Skicka för granskning”
+              </EuiButton>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButton color="secondary" onClick={()=>{}}>
+                Spara ändringar
+              </EuiButton>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButton fill color="danger" onClick={() => { }}>
+              Avbryt
+              </EuiButton>
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiButton
-            fill
-            color="danger"
-            onClick={sendAsHorrribleTranscription}>
-          “Skicka för granskning”
-          </EuiButton>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiButton color="secondary" onClick={()=>{}}>
-            Spara ändringar
-          </EuiButton>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiButton fill color="danger" onClick={() => { }}>
-          Avbryt
-          </EuiButton>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-        </EuiFlexItem>
-        <EuiFlexItem style={{ maxWidth: '400px', display: editorVisible ? 'block' : 'none' }}>
+        <EuiFlexItem
+          style={{ 
+            maxWidth: '400px',
+            display: editorVisible ? 'block' : 'none'
+          }}
+        >
           <Tags
             tags={tags}
             updateTags={onUpdateTags}
@@ -226,7 +226,7 @@ const GuidedLiveEditor = ({prevContent, currentContent}) => {
           <EuiSpacer size="l" />
           <LiveTemplateEngine
             listOfTemplates={listOfTemplates}
-            usedSections={usedSections}
+            usedSections={chapters.map(chapter => chapter.keyword)}
             updatedSections={updatedSections}
           /> 
         </EuiFlexItem>
