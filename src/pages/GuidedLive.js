@@ -10,7 +10,7 @@ import Mic from '../components/Mic'
 import interpolateArray from '../models/interpolateArray'
 import io from 'socket.io-client'
 import Page from '../components/Page'
-import inoviaLogo from '../img/livediktering.png'
+// import inoviaLogo from '../img/livediktering.png'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 import { EuiSpacer } from '@elastic/eui'
 

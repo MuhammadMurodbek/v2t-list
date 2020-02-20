@@ -18,10 +18,10 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
   const [editorVisible, setEditorVisible] = useState(false)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [tags, setTags] = useState([])
-  const chapters = [{
+  const [chapters, setChapters] = useState([{
     keyword: 'KONTAKTORSAK',
     segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
-  }]
+  }])
   // const [chapters, setChapters] = useState([{
   //   keyword: 'KONTAKTORSAK',
   //   segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
@@ -65,8 +65,15 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
       onClick: () => { }
     }])
 
+
+    const [finalText, setFinalText] = useState('')
+
   useEffect(()=>{
     // showAnimationForDoctor()
+    console.log('prevContent')
+    console.log(prevContent)
+    console.log('current')
+    console.log(currentContent)
     if (prevContent !== '' && currentContent!==''){
       if(prevContent.toLowerCase().trim()===currentContent.toLowerCase().trim()){
         // if(currentStepIndex===1) {
@@ -76,7 +83,15 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
           updateVerticalSteps(currentContent, currentStepIndex)
           setCurrentStepIndex(currentStepIndex + 1)
         }
-        if (currentStepIndex === 3) setEditorVisible(true)
+        if (currentStepIndex === 3) {
+          console.log('hola')
+          setEditorVisible(true)
+        }
+        if (currentStepIndex>3){
+          setFinalText(`${finalText} ${currentContent}`)
+          setChapters(processChapters(finalText, sections))
+        }
+        
       }
     }
   }, [currentContent, prevContent])
@@ -120,7 +135,8 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
           return { ...step, ...tempObject }
         } else {
           tempObject = {
-            status: 'primary'
+            status: 'primary',
+            children: <p>Starta diktering ... </p>
           }
           return { ...step, ...tempObject }
         }
