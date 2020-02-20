@@ -11,6 +11,8 @@ import Dots from './Dots'
 import Tags from '../Tags'
 import LiveEditor from '../LiveEditor'
 import LiveTemplateEngine from '../LiveTemplateEngine'
+import '../../styles/guided.css'
+import processChapters from '../../models/processChapters'
 
 const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
   const [editorVisible, setEditorVisible] = useState(false)
@@ -110,11 +112,19 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
         }
         return { ...step, ...tempObject }
       } else if (i === index+1) {
-        tempObject = {
-          status: 'primary',
-          children: <Dots />
+        if (index < 3){
+          tempObject = {
+            status: 'primary',
+            children: <Dots />
+          }
+          return { ...step, ...tempObject }
+        } else {
+          tempObject = {
+            status: 'primary'
+          }
+          return { ...step, ...tempObject }
         }
-        return { ...step, ...tempObject }
+        
       }
       else if (i > index) {
         tempObject = {

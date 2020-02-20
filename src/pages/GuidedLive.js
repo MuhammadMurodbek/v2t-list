@@ -199,7 +199,7 @@ export default class LiveDiktering extends Component {
     } = this.state
 
     return (
-      <Page preferences logo={inoviaLogo}>
+      <Page preferences title="Live Flow">
         <EuiFlexGroup>
           <EuiFlexItem grow={false} style={{ maxWidth: 100, marginLeft: 30 }}>
             <Mic

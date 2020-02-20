@@ -192,7 +192,7 @@ export default class App extends Component {
                   href: '/#/guided-live',
                   id: 8,
                   isSelected: selectedItemName === 'Live',
-                  name: 'Live Diktering',
+                  name: 'Live Flow',
                   onClick: () => this.selectItem('Live')
                 }
               ],
