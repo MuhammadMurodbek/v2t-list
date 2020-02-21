@@ -66,7 +66,7 @@ export default class LiveDiktering extends Component {
   }
 
   gotStream = (stream) => {
-    const { recording, writeAudioMessgae, addTranscriptMessgae } = this.state
+    const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
 
     // Create an AudioNode from the stream.
@@ -130,7 +130,7 @@ export default class LiveDiktering extends Component {
     })
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
-      const { originalText } = prevState.state
+      // const { originalText } = prevState.state
       prevState.setState({ currentText: text }, () => {
         // const finalText = `${originalText} ${prevState.state.currentText}`
         prevState.setState({ finalText:text })
