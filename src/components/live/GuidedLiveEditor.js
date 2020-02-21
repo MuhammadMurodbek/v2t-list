@@ -89,7 +89,7 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
         }
         if (currentStepIndex>3){
           setFinalText(`${finalText} ${currentContent}`)
-          setChapters(processChapters(finalText, sections))
+          setChapters(processChapters(currentContent, sections))
         }
         
       }

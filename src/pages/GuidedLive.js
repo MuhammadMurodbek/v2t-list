@@ -39,7 +39,9 @@ export default class LiveDiktering extends Component {
     },
     isMicrophoneStarted: false,
     tags: [],
-    finalText:''
+    finalText:'',
+    counter: 0,
+    writeAudioMessgae: 'write-audio-pnr'
   }
 
   componentDidMount = () => {
@@ -64,7 +66,7 @@ export default class LiveDiktering extends Component {
   }
 
   gotStream = (stream) => {
-    const { recording } = this.state
+    const { recording, writeAudioMessgae, addTranscriptMessgae } = this.state
     const inputPoint = this.audioContext.createGain()
 
     // Create an AudioNode from the stream.
@@ -80,8 +82,12 @@ export default class LiveDiktering extends Component {
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
+
+
+
+
     const prevState = this
-    scriptNode.onaudioprocess = function (audioEvent) {
+    scriptNode.onaudioprocess = (audioEvent) => {
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
@@ -92,9 +98,17 @@ export default class LiveDiktering extends Component {
           var s = Math.max(-1, Math.min(1, input[i]))
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
-        prevState.socketio.emit('write-audio-pnr', buffer)
+        
+        console.log(this.state.writeAudioMessgae)
+        if (this.state.counter === 4) {
+          prevState.setState({
+            writeAudioMessgae: 'write-audio'
+          })
+        }
+        prevState.socketio.emit(prevState.state.writeAudioMessgae, buffer)
       }
     }
+
     inputPoint.connect(scriptNode)
     scriptNode.connect(this.audioContext.destination)
     const zeroGain = this.audioContext.createGain()
@@ -104,16 +118,23 @@ export default class LiveDiktering extends Component {
     // updateAnalysers();
     this.socketio.on('add-transcript-pnr', function (text) {
       // add new recording to page
+      
+      console.log('prevState.state.counter')
+      console.log(prevState.state.counter)
       const { originalText } = prevState.state
-      // console.log('text')
-      // console.log(text)
-      // console.log(prevState.state.finalText)
-      // console.log('text end ')
       prevState.setState({ currentText: text }, () => {
-        // if (prevState.state.currentText!=='Nästa') {
-          const finalText = `${originalText} ${prevState.state.currentText}`
-          prevState.setState({ finalText })
-        // }   
+        const finalText = `${originalText} ${prevState.state.currentText}`
+        prevState.setState({ finalText })
+        prevState.setState({ counter: prevState.state.counter + 1 })
+      })
+    })
+    this.socketio.on('add-transcript', function (text) {
+      // add new recording to page
+      const { originalText } = prevState.state
+      prevState.setState({ currentText: text }, () => {
+        // const finalText = `${originalText} ${prevState.state.currentText}`
+        prevState.setState({ finalText:text })
+        prevState.setState({ counter: prevState.state.counter + 1 })
       })
     })
   }
