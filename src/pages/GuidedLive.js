@@ -17,8 +17,10 @@ import { EuiSpacer } from '@elastic/eui'
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
-  // eslint-disable-next-line max-len
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+  socketio = io
+    .connect(
+      'wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] }
+    )
   state = {
     recording: false,
     recordingAction: 'Starta',
@@ -221,8 +223,8 @@ export default class LiveDiktering extends Component {
 
     return (
       <Page preferences title="Live Flow">
-        <EuiFlexGroup>
-          <EuiFlexItem grow={false} style={{ maxWidth: 100, marginLeft: 30 }}>
+        <EuiFlexGroup justifyContent="center">
+          <EuiFlexItem grow={false} style={{ maxWidth: 300, marginLeft: 30 }}>
             <Mic
               recordingAction={recordingAction}
               microphoneBeingPressed={microphoneBeingPressed}

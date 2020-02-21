@@ -2,10 +2,8 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect, Fragment } from 'react'
 import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiSteps,
-  EuiSpacer, EuiText, EuiButton
+  EuiFlexGroup, EuiFlexItem, EuiSteps, EuiButtonEmpty,
+  EuiSpacer, EuiText, EuiButton, EuiFieldText
 } from '@elastic/eui'
 import Dots from './Dots'
 import Tags from '../Tags'
@@ -22,10 +20,6 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
     keyword: 'KONTAKTORSAK',
     segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
   }])
-  // const [chapters, setChapters] = useState([{
-  //   keyword: 'KONTAKTORSAK',
-  //   segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
-  // }])
   const [sections, setSections] = useState({
     'KONTAKTORSAK': [],
     'AT': [],
@@ -66,7 +60,7 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
     }])
 
 
-    const [finalText, setFinalText] = useState('')
+  const [finalText, setFinalText] = useState('')
 
   useEffect(()=>{
     // showAnimationForDoctor()
@@ -76,9 +70,6 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
     console.log(currentContent)
     if (prevContent !== '' && currentContent!==''){
       if(prevContent.toLowerCase().trim()===currentContent.toLowerCase().trim()){
-        // if(currentStepIndex===1) {
-        //   templates()
-        // }
         if(currentStepIndex<4) {
           updateVerticalSteps(currentContent, currentStepIndex)
           setCurrentStepIndex(currentStepIndex + 1)
@@ -91,7 +82,6 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
           setFinalText(`${finalText} ${currentContent}`)
           setChapters(processChapters(currentContent, sections))
         }
-        
       }
     }
   }, [currentContent, prevContent])
@@ -101,21 +91,9 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
     setTags(tags)
   }
   
-  // const showAnimationForDoctor = () => {
-  //   if (currentStepIndex === 0 ) {
-  //     const finalSteps = verticalSteps.map((s, j) => {
-  //       if (j === 0) {
-  //         const tempObject = {
-  //           children: <p><Dots /></p>
-  //         }
-  //         return { ...s, ...tempObject }
-  //       } else {
-  //         return { ...s }
-  //       }
-  //     })
-  //     setVerticalSteps(finalSteps)
-  //   }
-  // }
+  const onChange = (e) => {
+    console.log(e.target.value)
+  }
 
   const updateVerticalSteps = (content, index) => {
     const newStepsHierarchy = verticalSteps.map((step, i) => {
@@ -159,7 +137,14 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
     const finalSteps = newStepsHierarchy.map((s, j) => {
       if (j === index) {
         const tempObject = {
-          children: <p>{content}</p>
+          children: <p>
+            <EuiFieldText
+              placeholder=""
+              value={content}
+              onChange={onChange}
+              aria-label="Use aria labels when no actual label is in use"
+            />
+          </p>
         }
         return { ...s, ...tempObject }
       } else {
@@ -212,28 +197,43 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
             initialCursor={0}
           />
           
-          <EuiFlexGroup >
+          <EuiFlexGroup justifyContent="flexEnd">
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="secondary" onClick={() => { }}>
-                Skicka till Co-Worker
-              </EuiButton>
+              <EuiButtonEmpty color="#000000" onClick={() => { }}>
+              Avbryt
+              </EuiButtonEmpty>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton
-                fill
-                color="danger"
-                onClick={sendAsHorrribleTranscription}>
-              “Skicka för granskning”
-              </EuiButton>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButton color="secondary" onClick={()=>{}}>
+              <EuiButton 
+                color="subdued" 
+                style={{ 
+                  border: 'solid 1px black',
+                  borderRadius: '25px'
+                }} 
+                onClick={() => { }}>
                 Spara ändringar
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="danger" onClick={() => { }}>
-              Avbryt
+              <EuiButton
+                style={{
+                  background: 'rgb(112, 221, 127)',
+                  borderRadius: '25px',
+                  color: 'black'
+                }}
+                onClick={sendAsHorrribleTranscription}>
+                “Skicka för granskning”
+              </EuiButton>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <EuiButton 
+                style={{ 
+                  background: 'rgb(9, 99, 255)',
+                  color: 'white',
+                  borderRadius: '25px'
+                }}
+                onClick={() => { }}>
+                Skicka till Co-Worker
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
