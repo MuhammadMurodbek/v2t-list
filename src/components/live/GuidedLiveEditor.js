@@ -11,8 +11,9 @@ import LiveEditor from '../LiveEditor'
 import LiveTemplateEngine from '../LiveTemplateEngine'
 import '../../styles/guided.css'
 import processChapters from '../../models/processChapters'
+import TemplateMenu from './TemplateMenu'
 
-const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
+const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates, templatesForMenu }) => {
   const [editorVisible, setEditorVisible] = useState(false)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [tags, setTags] = useState([])
@@ -62,15 +63,15 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
 
   const [finalText, setFinalText] = useState('')
 
-  useEffect(()=>{
+  useEffect(() => {
     // showAnimationForDoctor()
     console.log('prevContent')
     console.log(prevContent)
     console.log('current')
     console.log(currentContent)
-    if (prevContent !== '' && currentContent!==''){
-      if(prevContent.toLowerCase().trim()===currentContent.toLowerCase().trim()){
-        if(currentStepIndex<4) {
+    if (prevContent !== '' && currentContent !== '') {
+      if (prevContent.toLowerCase().trim() === currentContent.toLowerCase().trim()) {
+        if (currentStepIndex < 4) {
           updateVerticalSteps(currentContent, currentStepIndex)
           setCurrentStepIndex(currentStepIndex + 1)
         }
@@ -78,7 +79,7 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
           console.log('hola')
           setEditorVisible(true)
         }
-        if (currentStepIndex>3){
+        if (currentStepIndex > 3) {
           setFinalText(`${finalText} ${currentContent}`)
           setChapters(processChapters(currentContent, sections))
         }
@@ -90,10 +91,6 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
   const onUpdateTags = (tags) => {
     setTags(tags)
   }
-  
-  const onChange = (e) => {
-    console.log(e.target.value)
-  }
 
   const updateVerticalSteps = (content, index) => {
     const newStepsHierarchy = verticalSteps.map((step, i) => {
@@ -104,11 +101,21 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
           disabled: false
         }
         return { ...step, ...tempObject }
-      } else if (i === index+1) {
-        if (index < 3){
-          tempObject = {
-            status: 'primary',
-            children: <Dots />
+      } else if (i === index + 1) {
+        if (index < 3) {
+          console.log('templatesForMenu')
+          console.log(templatesForMenu)
+          console.log('templatesForMenu end')
+          if(index===2){
+            tempObject = {
+              status: 'primary',
+              children: <Fragment><Dots /><EuiSpacer size='m' /><TemplateMenu templatesForMenu={templatesForMenu} /></Fragment >
+            }
+          } else {
+              tempObject = {
+              status: 'primary',
+                children: <Dots />
+            }
           }
           return { ...step, ...tempObject }
         } else {
@@ -118,7 +125,7 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
           }
           return { ...step, ...tempObject }
         }
-        
+
       }
       else if (i > index) {
         tempObject = {
@@ -132,13 +139,12 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
         return { ...step, ...tempObject }
       }
     })
-    
+
 
     const finalSteps = newStepsHierarchy.map((s, j) => {
       if (j === index) {
         const tempObject = {
-          children: <p>{content}
-          </p>
+          children: <p>{content}</p>
         }
         return { ...s, ...tempObject }
       } else {
@@ -167,13 +173,13 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
     setSections(sections)
   }
 
-  return (     
+  return (
     <Fragment>
       <EuiFlexGroup >
         <EuiFlexItem style={{ maxWidth: 290 }}>
           <EuiSteps steps={verticalSteps} />
         </EuiFlexItem>
-        <EuiFlexItem style={{display: editorVisible? 'block':'none'}}>
+        <EuiFlexItem style={{ display: editorVisible ? 'block' : 'none' }}>
           <EuiText grow={false}>
             <h3>Editor</h3>
           </EuiText>
@@ -190,20 +196,20 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
             sectionHeaders={Object.keys(sections)}
             initialCursor={0}
           />
-          
+
           <EuiFlexGroup justifyContent="flexEnd">
             <EuiFlexItem grow={false}>
               <EuiButtonEmpty color="#000000" onClick={() => { }}>
-              Avbryt
+                Avbryt
               </EuiButtonEmpty>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton 
-                color="subdued" 
-                style={{ 
+              <EuiButton
+                color="subdued"
+                style={{
                   border: 'solid 1px black',
                   borderRadius: '25px'
-                }} 
+                }}
                 onClick={() => { }}>
                 Spara ändringar
               </EuiButton>
@@ -220,8 +226,8 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton 
-                style={{ 
+              <EuiButton
+                style={{
                   background: 'rgb(9, 99, 255)',
                   color: 'white',
                   borderRadius: '25px'
@@ -233,7 +239,7 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem
-          style={{ 
+          style={{
             maxWidth: '400px',
             display: editorVisible ? 'block' : 'none'
           }}
@@ -248,7 +254,7 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
             listOfTemplates={listOfTemplates}
             usedSections={chapters.map(chapter => chapter.keyword)}
             updatedSections={updatedSections}
-          /> 
+          />
         </EuiFlexItem>
       </EuiFlexGroup>
     </Fragment>

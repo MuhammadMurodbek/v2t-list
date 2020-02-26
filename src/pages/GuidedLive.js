@@ -41,9 +41,10 @@ export default class LiveDiktering extends Component {
     },
     isMicrophoneStarted: false,
     tags: [],
-    finalText:'',
+    finalText: '',
     counter: 0,
-    writeAudioMessgae: 'write-audio-pnr'
+    writeAudioMessgae: 'write-audio-pnr',
+    templatesForMenu: []
   }
 
   componentDidMount = () => {
@@ -55,7 +56,36 @@ export default class LiveDiktering extends Component {
     const templateList = await api.getSectionTemplates()
     // console.log('templates')
     // console.log(templateList)
-    this.setState({ listOfTemplates: templateList.data.templates })
+    console.log('templates')
+    console.log(templateList)
+    const tempTemplates = templateList.data.templates.map((template, index) => {
+      return {
+        name: template.name,
+        id: template.id,
+        // panel: {
+        //   id: index,
+        //   title: 'sections',
+        //   items: template.sections
+        // }
+      }
+    })
+
+
+
+
+    const finalTemplates = {
+      id: 0,
+      title: 'Journalmallar',
+      items: tempTemplates
+    }
+    console.log('tempTemplates')
+    console.log(finalTemplates)
+    this.setState({ templatesForMenu: finalTemplates })
+    console.log('tempTemplates end')
+    this.setState({
+      listOfTemplates: templateList.data.templates,
+      templatesForMenu: finalTemplates
+    })
   }
 
   convertToMono = (input) => {
@@ -100,7 +130,7 @@ export default class LiveDiktering extends Component {
           var s = Math.max(-1, Math.min(1, input[i]))
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
-        
+
         console.log(this.state.writeAudioMessgae)
         if (this.state.counter === 4) {
           prevState.setState({
@@ -120,7 +150,7 @@ export default class LiveDiktering extends Component {
     // updateAnalysers();
     this.socketio.on('add-transcript-pnr', function (text) {
       // add new recording to page
-      
+
       console.log('prevState.state.counter')
       console.log(prevState.state.counter)
       const { originalText } = prevState.state
@@ -135,7 +165,7 @@ export default class LiveDiktering extends Component {
       // const { originalText } = prevState.state
       prevState.setState({ currentText: text }, () => {
         // const finalText = `${originalText} ${prevState.state.currentText}`
-        prevState.setState({ finalText:text })
+        prevState.setState({ finalText: text })
         prevState.setState({ counter: prevState.state.counter + 1 })
       })
     })
@@ -218,7 +248,8 @@ export default class LiveDiktering extends Component {
       microphoneBeingPressed,
       finalText,
       currentText,
-      listOfTemplates
+      listOfTemplates,
+      templatesForMenu
     } = this.state
 
     return (
@@ -239,6 +270,7 @@ export default class LiveDiktering extends Component {
               prevContent={finalText}
               currentContent={currentText}
               listOfTemplates={listOfTemplates}
+              templatesForMenu={templatesForMenu}
             />
           </EuiFlexItem>
         </EuiFlexGroup>
