@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem, EuiSteps, EuiButtonEmpty,
-  EuiSpacer, EuiText, EuiButton, EuiFieldText
+  EuiSpacer, EuiText, EuiButton
 } from '@elastic/eui'
 import Dots from './Dots'
 import Tags from '../Tags'
@@ -137,13 +137,7 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates}) => {
     const finalSteps = newStepsHierarchy.map((s, j) => {
       if (j === index) {
         const tempObject = {
-          children: <p>
-            <EuiFieldText
-              placeholder=""
-              value={content}
-              onChange={onChange}
-              aria-label="Use aria labels when no actual label is in use"
-            />
+          children: <p>{content}
           </p>
         }
         return { ...s, ...tempObject }
