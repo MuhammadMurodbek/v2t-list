@@ -14,7 +14,7 @@ import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 import { EuiSpacer } from '@elastic/eui'
 
-export default class LiveDiktering extends Component {
+export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   socketio = io
@@ -261,7 +261,7 @@ export default class LiveDiktering extends Component {
               microphoneBeingPressed={microphoneBeingPressed}
               toggleRecord={this.toggleRecord}
             />
-            <EuiSpacer size="xxl" />
+            <EuiSpacer size="l" />
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup>

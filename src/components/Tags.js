@@ -130,14 +130,14 @@ export default class Tags extends Component {
   };
 
   render() {
-    const label = (<h2>Kod</h2>)
+    const label = (<h6>Kod</h6>)
     const {
       options, isLoading, selectedOption, tableOfCodes
     } = this.state
 
     return (
       <Fragment>
-        <EuiText size="xs">
+        <EuiText>
           {label}
         </EuiText>
         <EuiSpacer size="m" />

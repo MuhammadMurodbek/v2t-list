@@ -2,7 +2,8 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect, Fragment } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSteps, EuiButtonEmpty,
+  EuiFlexGroup, EuiFlexItem,
+  EuiSteps, EuiButtonEmpty,
   EuiSpacer, EuiText, EuiButton
 } from '@elastic/eui'
 import Dots from './Dots'
@@ -12,8 +13,14 @@ import LiveTemplateEngine from '../LiveTemplateEngine'
 import '../../styles/guided.css'
 import processChapters from '../../models/processChapters'
 import TemplateMenu from './TemplateMenu'
+import PersonalInfoLive from './PersonalInfoLive'
 
-const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates, templatesForMenu }) => {
+const GuidedLiveEditor = ({
+  prevContent,
+  currentContent,
+  listOfTemplates,
+  templatesForMenu
+}) => {
   const [editorVisible, setEditorVisible] = useState(false)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [tags, setTags] = useState([])
@@ -62,6 +69,10 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates, templa
 
 
   const [finalText, setFinalText] = useState('')
+  const [doktor, setDoktor] = useState('')
+  const [patient, setPatient] = useState('')
+  const [template, setTemplate] = useState('')
+  const [personnummer, setPersonnummer] = useState('')
 
   useEffect(() => {
     // showAnimationForDoctor()
@@ -143,6 +154,18 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates, templa
 
     const finalSteps = newStepsHierarchy.map((s, j) => {
       if (j === index) {
+        if(index===0) {
+          setDoktor(content)
+        }
+        if(index===1) {
+          setPatient(content)
+        }
+        if(index===2) {
+          setPersonnummer(content)
+        }
+        if(index===3) {
+          setTemplate(content)
+        }
         const tempObject = {
           children: <p>{content}</p>
         }
@@ -176,10 +199,17 @@ const GuidedLiveEditor = ({ prevContent, currentContent, listOfTemplates, templa
   return (
     <Fragment>
       <EuiFlexGroup >
-        <EuiFlexItem style={{ maxWidth: 290 }}>
+        <EuiFlexItem style={{ maxWidth: 290, display: editorVisible ? 'none' : 'false' }}>
           <EuiSteps steps={verticalSteps} />
         </EuiFlexItem>
         <EuiFlexItem style={{ display: editorVisible ? 'block' : 'none' }}>
+          <PersonalInfoLive info={{
+            doktor,
+            patient,
+            personnummer,
+            template 
+          }}/>
+          <EuiSpacer size="m" /><EuiSpacer size="m" /><EuiSpacer size="m" />
           <EuiText grow={false}>
             <h3>Editor</h3>
           </EuiText>
