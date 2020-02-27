@@ -98,7 +98,7 @@ const PersonalInfoLive = ({ info }) => {
             <h6>Personnummer</h6> 
           </EuiText>
           <EuiFieldText
-            style={{ border: validatePersonnummer(personnummer).status === false ? '1px yellow solid': 'none'}}
+            style={{ border: validatePersonnummer(personnummer).status === false ? '1px red solid': 'none'}}
             placeholder="Patients Personummer"
             value={personnummer}
             onChange={onChangePersonnummer}
