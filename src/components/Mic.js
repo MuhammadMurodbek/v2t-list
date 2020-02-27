@@ -12,7 +12,7 @@ const Mic = ({
   microphoneBeingPressed,
   toggleRecord
 }) => (
-  <EuiTextAlign textAlign="center">
+    <EuiTextAlign textAlign="center" style={{ zIndex: 10}}>
     <img
       src={mic}
       className="mic"

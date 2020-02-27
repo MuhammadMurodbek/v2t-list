@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   EuiPageBody, EuiPageContent, EuiPageContentHeader,
-  EuiPageContentHeaderSection, EuiTitle, EuiPageContentBody
+  EuiPageContentHeaderSection, EuiText, EuiPageContentBody
 } from '@elastic/eui'
 import PropTypes from 'prop-types'
 import Preferences from './Preferences'
@@ -15,17 +15,9 @@ const Start = ({ title, logo, children, preferences }) => (
     <EuiPageContent style={{ borderRadius: 0 }}>
       <EuiPageContentHeader>
         <EuiPageContentHeaderSection>
-          <EuiTitle>
-            <h2>{title}            
-              <img
-                src={logo}
-                alt=""
-                // className="mic"
-                style={{height: 70}}
-              />
-            </h2>
-
-          </EuiTitle>
+          <EuiText>
+            <h2>{title}</h2>
+          </EuiText>
         </EuiPageContentHeaderSection>
         <EuiPageContentHeaderSection>
           {preferences ? <Preferences /> : null}

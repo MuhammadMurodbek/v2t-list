@@ -199,20 +199,17 @@ const GuidedLiveEditor = ({
   return (
     <Fragment>
       <EuiFlexGroup >
-        <EuiFlexItem style={{ maxWidth: 290, display: editorVisible ? 'none' : 'false' }}>
+        <EuiFlexItem style={{ maxWidth: 290, display: editorVisible ? 'none' : 'false' , marginTop: -150}}>
           <EuiSteps steps={verticalSteps} />
         </EuiFlexItem>
-        <EuiFlexItem style={{ display: editorVisible ? 'block' : 'none' }}>
+        <EuiFlexItem style={{ display: editorVisible ? 'block' : 'none', marginTop: '-200px' }}>
           <PersonalInfoLive info={{
             doktor,
             patient,
             personnummer,
             template 
           }}/>
-          <EuiSpacer size="m" /><EuiSpacer size="m" /><EuiSpacer size="m" />
-          <EuiText grow={false}>
-            <h3>Editor</h3>
-          </EuiText>
+          
           <EuiSpacer size="m" />
           <LiveEditor
             transcript={chapters}
@@ -271,15 +268,14 @@ const GuidedLiveEditor = ({
         <EuiFlexItem
           style={{
             maxWidth: '400px',
-            display: editorVisible ? 'block' : 'none'
+            display: editorVisible ? 'block' : 'none',
+            marginTop: '-200px' 
           }}
         >
           <Tags
             tags={tags}
             updateTags={onUpdateTags}
           />
-          <EuiSpacer size="l" />
-          <EuiSpacer size="l" />
           <LiveTemplateEngine
             listOfTemplates={listOfTemplates}
             usedSections={chapters.map(chapter => chapter.keyword)}

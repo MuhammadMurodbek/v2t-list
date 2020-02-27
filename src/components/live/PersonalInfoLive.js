@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem,
   EuiFieldText, EuiText, EuiSpacer
@@ -51,44 +51,48 @@ const PersonalInfoLive = ({ info }) => {
   }
   
   return (
-    <EuiFlexGroup>
-      <EuiFlexItem>
-        <EuiSpacer size="m" />
-        <EuiText>
-          <h6>Doctor</h6>
-        </EuiText>
-        <EuiFieldText
-          placeholder="Doctors Namn"
-          value={doktor}
-          onChange={onChangeDoktor}
-          aria-label="Use aria labels when no actual label is in use"
-        />
-      </EuiFlexItem>
-      <EuiFlexItem>
-        <EuiSpacer size="m" />
-        <EuiText>
-          <h6>Patient</h6>
-        </EuiText>
-        <EuiFieldText
-          placeholder="Patients Namn"
-          value={patient}
-          onChange={onChangePatient}
-          aria-label="Use aria labels when no actual label is in use"
-        />
-      </EuiFlexItem>
-      <EuiFlexItem>
-        <EuiSpacer size="m" />
-        <EuiText>
-          <h6>Personnummer</h6> 
-        </EuiText>
-        <EuiFieldText
-          placeholder="Patients Personummer"
-          value={personnummer}
-          onChange={onChangePersonnummer}
-          aria-label="Use aria labels when no actual label is in use"
-        />
-      </EuiFlexItem>
-    </EuiFlexGroup>
+    <Fragment>
+      <EuiFlexGroup style={{ width: 250 }}>
+        <EuiFlexItem>
+          <EuiSpacer size="m" />
+          <EuiText>
+            <h6>Doctor</h6>
+          </EuiText>
+          <EuiFieldText
+            placeholder="Doctors Namn"
+            value={doktor}
+            onChange={onChangeDoktor}
+            aria-label="Use aria labels when no actual label is in use"
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiFlexGroup style={{width: 500}}>
+        <EuiFlexItem>
+          <EuiSpacer size="m" />
+          <EuiText>
+            <h6>Patient</h6>
+          </EuiText>
+          <EuiFieldText
+            placeholder="Patients Namn"
+            value={patient}
+            onChange={onChangePatient}
+            aria-label="Use aria labels when no actual label is in use"
+          />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <EuiSpacer size="m" />
+          <EuiText>
+            <h6>Personnummer</h6> 
+          </EuiText>
+          <EuiFieldText
+            placeholder="Patients Personummer"
+            value={personnummer}
+            onChange={onChangePersonnummer}
+            aria-label="Use aria labels when no actual label is in use"
+          />
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </Fragment>
   )
 }
 

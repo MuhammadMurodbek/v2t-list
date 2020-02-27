@@ -25,6 +25,7 @@ export default class TranscriptionList extends Component {
         pagination={pagination}
         columns={preferences.columnsForTranscriptList}
         items={transcripts}
+        compressed={true}
       />
       </Fragment>
     )

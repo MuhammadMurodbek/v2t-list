@@ -7,7 +7,8 @@ import {
   EuiPage,
   EuiPageSideBar,
   EuiButtonEmpty,
-  EuiSideNav
+  EuiSideNav,
+  EuiButtonIcon
 } from '@elastic/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
 import PreferencesProvider from './components/PreferencesProvider'
@@ -33,7 +34,8 @@ export default class App extends Component {
     selectedItemName: 'lungor',
     isLoggedIn: false,
     isTokenFromUrl: false,
-    token: null
+    token: null,
+    isCollupsed: false
   }
 
   componentDidMount() {
@@ -193,7 +195,12 @@ export default class App extends Component {
                   id: 8,
                   isSelected: selectedItemName === 'Live',
                   name: 'Live Flow',
-                  onClick: () => this.selectItem('Live')
+                  onClick: () => {
+                    this.selectItem('Live')
+                    this.setState({
+                      isCollupsed: true
+                    })
+                  }
                 }
               ],
               name: ''
@@ -221,6 +228,13 @@ export default class App extends Component {
     window.open("https://inoviagroup.se/anvandarhandledning-v2t/", "_blank")
   }
 
+  collapse = () => {
+    const { isCollupsed } = this.state
+    this.setState({
+      isCollupsed: !isCollupsed
+    })
+  }
+
   render() {
     const {
       transcripts,
@@ -228,7 +242,8 @@ export default class App extends Component {
       sidenav,
       isLoggedIn,
       isTokenFromUrl,
-      token
+      token,
+      isCollupsed
     } = this.state
 
     return (
@@ -237,7 +252,10 @@ export default class App extends Component {
           <EuiPage>
             <EuiPageSideBar
               style={{
-                display: isLoggedIn && !isTokenFromUrl? 'inline-block' : 'none'
+                display: 
+                  isLoggedIn 
+                  && !isTokenFromUrl 
+                  && isCollupsed === false ? 'inline-block' : 'none'
               }}>
               <EuiImage
                 className="logo"
@@ -258,6 +276,21 @@ export default class App extends Component {
                 style={{
                   color: 'white',
                   position: 'fixed',
+                  left: 0,
+                  fontWeight: 600,
+                  bottom: 40,
+                  width: 100,
+                  background: 'transparent'
+                }}
+                onClick={() => this.collapse()}
+              >
+                Collapse
+              </EuiButtonEmpty>
+              <EuiButtonEmpty
+                size="l"
+                style={{
+                  color: 'white',
+                  position: 'fixed',
                   left: -12,
                   fontWeight: 600,
                   bottom: 10,
@@ -268,6 +301,48 @@ export default class App extends Component {
               >
                 Hjälp
               </EuiButtonEmpty>
+            </EuiPageSideBar>
+            <EuiPageSideBar
+              style={{
+                display:
+                  isLoggedIn
+                    && !isTokenFromUrl
+                    && isCollupsed === true ? 'inline-block' : 'none',
+                    minWidth: '20px'
+              }}>
+      
+              <EuiButtonIcon
+                style={{
+                  color: 'white',
+                  position: 'fixed',
+                  left: -20,
+                  right: 10,
+                  fontWeight: 600,
+                  bottom: 40,
+                  width: 100,
+                  background: 'transparent'
+                }}
+                iconType="arrowLeft"
+                aria-label="Expand"
+                disabled={false}
+                onClick={() => this.collapse()}
+              />
+              {/* <EuiButtonEmpty
+                size="l"
+                style={{
+                  color: 'white',
+                  position: 'fixed',
+                  left: 0,
+                  right: 10,
+                  fontWeight: 600,
+                  bottom: 40,
+                  width: 100,
+                  background: 'transparent'
+                }}
+                onClick={() => this.collapse()}
+              > */}
+                --
+              {/* </EuiButtonEmpty> */}
             </EuiPageSideBar>
 
 

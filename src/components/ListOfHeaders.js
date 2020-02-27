@@ -22,7 +22,7 @@ const ListOfHeaders = ({ headers }) => {
       <EuiPanel>
         <EuiText>
           <h6>Sökord</h6>
-          <ul style={{ overflowX: 'auto', height: 260 }}>{listItems}</ul>
+          <ul style={{ overflowX: 'auto', height: 'auto' }}>{listItems}</ul>
         </EuiText>
       </EuiPanel>
       <EuiSpacer size="s" />            
