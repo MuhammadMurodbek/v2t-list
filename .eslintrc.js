@@ -25,7 +25,7 @@ module.exports = {
         'comma-dangle': [2, 'never'],
         'prefer-template': 'error',
         'no-useless-concat': 'error',
-        'max-len': ['error', { code: 80 }],
+        'max-len': ['error', { code: 100 }],
         'prefer-const': [
             'error',
             {

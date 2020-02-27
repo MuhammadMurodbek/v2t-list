@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem,
@@ -13,17 +14,14 @@ const PersonalInfoLive = ({ info }) => {
   useEffect(()=>{
     if (info) {
       if (info.doktor) {
-        if (
-          doktor === '' 
-          && (doktor.toLowerCase().trim() !== info.doktor.toLowerCase().trim())
-        ) {
+        if (doktor === '' && (doktor.toLowerCase().trim() !== info.doktor.toLowerCase().trim())) {
           setDoktor(info.doktor)
         }
       }
       if (info.patient) {
         if (
           patient === '' 
-          && (patient.toLowerCase().trim() !== info.patient.toLowerCase().trim())
+          && ( patient.toLowerCase().trim() !== info.patient.toLowerCase().trim())
         ) {
           setPatient(info.patient)
         }
@@ -31,8 +29,7 @@ const PersonalInfoLive = ({ info }) => {
       if (info.personnummer) {
         if (
           personnummer === ''
-          && (personnummer.toLowerCase().trim() 
-              !== info.personnummer.toLowerCase().trim())
+          && (personnummer.toLowerCase().trim() !== info.personnummer.toLowerCase().trim())
         ) {
           setPersonnummer(organizePersonummer(info.personnummer))
         }
@@ -53,7 +50,6 @@ const PersonalInfoLive = ({ info }) => {
   } 
 
   const onChangeDoktor=(e)=>{
-    console.log(e.target.value)
     setDoktor(e.target.value)
   }
   const onChangePatient=(e)=>{
@@ -98,7 +94,11 @@ const PersonalInfoLive = ({ info }) => {
             <h6>Personnummer</h6> 
           </EuiText>
           <EuiFieldText
-            style={{ border: validatePersonnummer(personnummer).status === false ? '1px red solid': 'none'}}
+            style={{ 
+              border: 
+                validatePersonnummer(personnummer).status === false ? 
+                  '1px red solid': 'none'
+            }}
             placeholder="Patients Personummer"
             value={personnummer}
             onChange={onChangePersonnummer}

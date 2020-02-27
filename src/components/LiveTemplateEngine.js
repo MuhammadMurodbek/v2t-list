@@ -10,7 +10,7 @@ import {
 import ListOfHeaders from './ListOfHeaders'
 import '../App.css'
 
-const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) => {
+const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections, selectedTemplateName }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('ext1')
   const [sectionHeaders, setSectionHeaders] = useState([
     { name: 'KONTAKTORSAK', done: true },
