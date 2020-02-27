@@ -4,7 +4,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import {
   EuiFlexGroup, EuiFlexItem,
   EuiSteps, EuiButtonEmpty,
-  EuiSpacer, EuiText, EuiButton
+  EuiSpacer, EuiButton
 } from '@elastic/eui'
 import Dots from './Dots'
 import Tags from '../Tags'
