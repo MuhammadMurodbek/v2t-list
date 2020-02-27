@@ -3,6 +3,7 @@ import {
   EuiFlexGroup, EuiFlexItem,
   EuiFieldText, EuiText, EuiSpacer
 } from '@elastic/eui'
+import validatePersonnummer from '../../models/live/validatePersonnummer'
 
 const PersonalInfoLive = ({ info }) => {
   const [doktor, setDoktor] = useState('')
@@ -33,11 +34,23 @@ const PersonalInfoLive = ({ info }) => {
           && (personnummer.toLowerCase().trim() 
               !== info.personnummer.toLowerCase().trim())
         ) {
-          setPersonnummer(info.personnummer)
+          setPersonnummer(organizePersonummer(info.personnummer))
         }
       }
     }
   })
+
+  const organizePersonummer = (nummer) => {
+    let updatedNummer = nummer.trim()
+    updatedNummer = updatedNummer.replace(/\s/g, '')
+    if (updatedNummer.length === 10) {
+      return `${updatedNummer.substr(0,6)}-${updatedNummer.substr(-4)}`
+    } else if (updatedNummer.length === 12) {
+      return `${updatedNummer.substr(0, 8)}-${updatedNummer.substr(-4)}`
+    } else {
+      return updatedNummer
+    }
+  } 
 
   const onChangeDoktor=(e)=>{
     console.log(e.target.value)
@@ -85,6 +98,7 @@ const PersonalInfoLive = ({ info }) => {
             <h6>Personnummer</h6> 
           </EuiText>
           <EuiFieldText
+            style={{ border: validatePersonnummer(personnummer).status === false ? '1px yellow solid': 'none'}}
             placeholder="Patients Personummer"
             value={personnummer}
             onChange={onChangePersonnummer}

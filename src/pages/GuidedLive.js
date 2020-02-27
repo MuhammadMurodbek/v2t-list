@@ -163,11 +163,20 @@ export default class GuidedLive extends Component {
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
       // const { originalText } = prevState.state
-      prevState.setState({ currentText: text }, () => {
+      if (text.includes('slut diktat') || text.includes('slut på diktat')) {
+        prevState.setState({ recording: false }, () => {
+          prevState.setState({ microphoneBeingPressed: false })
+          prevState.setState({ recordingAction: 'Starta' })
+          prevState.socketio.emit('end-recording')
+          prevState.socketio.close()
+        })
+      } else {
+        prevState.setState({ currentText: text }, () => {
         // const finalText = `${originalText} ${prevState.state.currentText}`
-        prevState.setState({ finalText: text })
-        prevState.setState({ counter: prevState.state.counter + 1 })
-      })
+          prevState.setState({ finalText: text })
+          prevState.setState({ counter: prevState.state.counter + 1 })
+        })
+      }
     })
   }
 

@@ -67,8 +67,6 @@ const GuidedLiveEditor = ({
       onClick: () => { }
     }])
 
-
-  const [finalText, setFinalText] = useState('')
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
   const [template, setTemplate] = useState('')
@@ -87,11 +85,19 @@ const GuidedLiveEditor = ({
           setCurrentStepIndex(currentStepIndex + 1)
         }
         if (currentStepIndex === 3) {
-          console.log('hola')
           setEditorVisible(true)
         }
         if (currentStepIndex > 3) {
-          setFinalText(`${finalText} ${currentContent}`)
+          // if(currentContent.includes('slut på diktat')) {
+          //   console.log('******')
+          //   console.log('******')
+          //   console.log('******')
+          //   console.log('******')
+          //   // currentContent = currentContent.trim()
+          //   // const wordsOfCurrentContent = currentContent.split(' ')
+          //   // wordsOfCurrentContent.pop()
+          //   // currentContent = wordsOfCurrentContent.map(word => `${word} `)
+          // }
           setChapters(processChapters(currentContent, sections))
         }
       }
@@ -123,9 +129,9 @@ const GuidedLiveEditor = ({
               children: <Fragment><Dots /><EuiSpacer size='m' /><TemplateMenu templatesForMenu={templatesForMenu} /></Fragment >
             }
           } else {
-              tempObject = {
+            tempObject = {
               status: 'primary',
-                children: <Dots />
+              children: <Dots />
             }
           }
           return { ...step, ...tempObject }
