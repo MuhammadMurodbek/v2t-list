@@ -9,7 +9,8 @@ import {
 import Dots from './Dots'
 import Tags from '../Tags'
 import LiveEditor from '../LiveEditor'
-import LiveTemplateEngine from '../LiveTemplateEngine'
+// import LiveTemplateEngine from '../LiveTemplateEngine'
+import GuidedLiveTemplate from './GuidedLiveTemplate'
 import '../../styles/guided.css'
 import processChapters from '../../models/processChapters'
 import TemplateMenu from './TemplateMenu'
@@ -69,7 +70,7 @@ const GuidedLiveEditor = ({
 
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
-  const [template, setTemplate] = useState('')
+  const [template, setTemplate] = useState('ext1')
   const [personnummer, setPersonnummer] = useState('')
 
   useEffect(() => {
@@ -282,10 +283,11 @@ const GuidedLiveEditor = ({
             tags={tags}
             updateTags={onUpdateTags}
           />
-          <LiveTemplateEngine
+          <GuidedLiveTemplate
             listOfTemplates={listOfTemplates}
             usedSections={chapters.map(chapter => chapter.keyword)}
             updatedSections={updatedSections}
+            templateFromVoice={template}
           />
         </EuiFlexItem>
       </EuiFlexGroup>

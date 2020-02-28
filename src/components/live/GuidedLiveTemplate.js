@@ -1,29 +1,26 @@
+/* eslint-disable no-console */
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
-import DropDown from './DropDown'
-import {
-  EuiSpacer,
-  EuiForm,
-  EuiFormRow,
-  EuiSuperSelect
-} from '@elastic/eui'
-import ListOfHeaders from './ListOfHeaders'
-import '../App.css'
+import DropDown from '../DropDown'
+import { EuiSpacer, EuiForm, EuiFormRow, EuiSuperSelect } from '@elastic/eui'
+import ListOfHeaders from '../ListOfHeaders'
+import '../../App.css'
 
-const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) => {
+const GuidedLiveTemplate =  ({ listOfTemplates, usedSections, updatedSections, templateFromVoice }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('ext1')
+  const [templatePropsReceived, setTemplatePropsReceived] = useState(false)
   const [sectionHeaders, setSectionHeaders] = useState([
     { name: 'KONTAKTORSAK', done: true },
     { name: 'AT', done: false },
     { name: 'LUNGOR', done: false },
     { name: 'BUK', done: false },
     { name: 'DIAGNOS', done: false }])
-    
+
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
     updateSectionHeader()
-  });
-  
+  })
+
   const getHeaderWithSynonyms = (sectionHeadersInfo) => {
     let headersWithSynonyms = {}
     sectionHeadersInfo.forEach(sectionHeader => {
@@ -35,6 +32,16 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   }
 
   const updateSectionHeader = () => {
+    console.log('templateFromVoice')
+    console.log(templateFromVoice)
+    console.log('templateFromVoice')
+    if (!templatePropsReceived) {
+      listOfTemplates.forEach(template => {
+        if (template.name.trim().toLowerCase() === templateFromVoice.trim().toLowerCase()) {
+          setSelectedTemplate(template.id)
+          setTemplatePropsReceived(true)}
+      })
+    }
     listOfTemplates.forEach(template => {
       if (template.id === selectedTemplate) {
         const updatedSectionHeaders = template.sections.map(section => {
@@ -64,7 +71,7 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   const onTemplateChange = (e) => {
     setSelectedTemplate(e)
     listOfTemplates.forEach(template => {
-      if(template.id===e) {
+      if (template.id === e) {
         const updatedSectionHeaders = template.sections.map(section => {
           if (usedSections.includes(section.name)) {
             if (section.synonyms) {
@@ -91,7 +98,7 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
     return {
       value: template.id,
       inputDisplay: template.name,
-      dropdownDisplay: ( <DropDown title={template.name} />)
+      dropdownDisplay: (<DropDown title={template.name} />)
     }
   })
 
@@ -114,4 +121,4 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   )
 }
 
-export default LiveTemplateEngine
+export default GuidedLiveTemplate
