@@ -190,18 +190,19 @@ export default class App extends Component {
                         .focus()
                     }
                   }
-                }, {
-                  href: '/#/guided-live',
-                  id: 8,
-                  isSelected: selectedItemName === 'Live',
-                  name: 'Live Flow',
-                  onClick: () => {
-                    this.selectItem('Live')
-                    this.setState({
-                      isCollupsed: true
-                    })
-                  }
                 }
+                // , {
+                //   href: '/#/guided-live',
+                //   id: 8,
+                //   isSelected: selectedItemName === 'Live',
+                //   name: 'Live Flow',
+                //   onClick: () => {
+                //     this.selectItem('Live')
+                //     this.setState({
+                //       isCollupsed: true
+                //     })
+                //   }
+                // }
               ],
               name: ''
             }

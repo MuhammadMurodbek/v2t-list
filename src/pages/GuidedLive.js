@@ -95,20 +95,7 @@ export default class GuidedLive extends Component {
       if (microphoneBeingPressed) {    
         const currentTime = new Date()
         if (currentTime.getSeconds() !== previousCurrentTime.getSeconds()) {
-          console.log('.......')
-          console.log('seconds')
-          console.log(seconds)
           prevState.setState({ seconds: seconds + 1 })
-          // console.log('duration')
-          // console.log(duration)
-          // console.log('previousDuration')
-          // console.log(previousDuration)
-          // console.log('previousCurrentTime')
-          // console.log(previousCurrentTime)
-          // console.log('initialRecordTime')
-          // console.log(initialRecordTime)
-          
-          console.log('--------')
           prevState.setState({
             toasts: [{
               id: 'toast-0',
