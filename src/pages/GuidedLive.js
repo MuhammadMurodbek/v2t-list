@@ -1,17 +1,14 @@
 // @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
-import {
-  EuiFlexGroup,
-  EuiFlexItem
-} from '@elastic/eui'
+import { EuiGlobalToastList, EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
 import api from '../api'
 import Mic from '../components/Mic'
 import interpolateArray from '../models/interpolateArray'
 import io from 'socket.io-client'
 import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
-import { EuiSpacer } from '@elastic/eui'
+import formattedTime from '../models/live/formattedTime'
 
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -39,8 +36,14 @@ export default class GuidedLive extends Component {
     tags: [],
     finalText: '',
     counter: 0,
-    writeAudioMessgae: 'write-audio-pnr',
-    templatesForMenu: []
+    writeAudioMessage: 'write-audio-pnr',
+    templatesForMenu: [],
+    duration: 0.0,
+    previousDuration: 0.0,
+    previousCurrentTime: new Date(),
+    initialRecordTime: null,
+    seconds: 0,
+    toasts: []
   }
 
   componentDidMount = () => {
@@ -51,20 +54,12 @@ export default class GuidedLive extends Component {
   templates = async () => {
     const templateList = await api.getSectionTemplates()
     const tempTemplates = templateList.data.templates.map((template) => {
-      return {
-        name: template.name,
-        id: template.id
-      }
+      return { name: template.name, id: template.id }
     })
-    const finalTemplates = {
-      id: 0,
-      title: 'Journalmallar',
-      items: tempTemplates
-    }
+    const finalTemplates = { id: 0, title: 'Journalmallar', items: tempTemplates }
     this.setState({ templatesForMenu: finalTemplates })
-    this.setState({
-      listOfTemplates: templateList.data.templates,
-      templatesForMenu: finalTemplates
+    this.setState({ 
+      listOfTemplates: templateList.data.templates, templatesForMenu: finalTemplates 
     })
   }
 
@@ -80,27 +75,55 @@ export default class GuidedLive extends Component {
   gotStream = (stream) => {
     const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
-
     // Create an AudioNode from the stream.
     const realAudioInput = this.audioContext.createMediaStreamSource(stream)
     let audioInput = realAudioInput
-
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
-
     const analyserNode = this.audioContext.createAnalyser()
     analyserNode.fftSize = 2048
     inputPoint.connect(analyserNode)
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
-
-
-
-
     const prevState = this
+
     scriptNode.onaudioprocess = (audioEvent) => {
+      const {
+        initialRecordTime, previousCurrentTime, microphoneBeingPressed, seconds
+      } = prevState.state
+      if (microphoneBeingPressed) {    
+        const currentTime = new Date()
+        if (currentTime.getSeconds() !== previousCurrentTime.getSeconds()) {
+          console.log('.......')
+          console.log('seconds')
+          console.log(seconds)
+          prevState.setState({ seconds: seconds + 1 })
+          // console.log('duration')
+          // console.log(duration)
+          // console.log('previousDuration')
+          // console.log(previousDuration)
+          // console.log('previousCurrentTime')
+          // console.log(previousCurrentTime)
+          // console.log('initialRecordTime')
+          // console.log(initialRecordTime)
+          
+          console.log('--------')
+          prevState.setState({
+            toasts: [{
+              id: 'toast-0',
+              title: <p><strong><span role="img" aria-label="recording-icon">🔴</span>&nbsp;&nbsp;Inspelning</strong></p>,
+              color: 'danger',
+              text: (<h1>{formattedTime(seconds)}</h1>)
+            }],
+            // duration: Math.floor((currentTime.getTime() - initialRecordTime.getTime()) / 1000),
+            previousCurrentTime: currentTime,
+            duration:  Math.floor((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
+          })
+        }
+      } 
       if (recording === true) {
+     
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
         // convert float audio data to 16-bit PCM
@@ -110,14 +133,13 @@ export default class GuidedLive extends Component {
           var s = Math.max(-1, Math.min(1, input[i]))
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
-
-        console.log(this.state.writeAudioMessgae)
+        // console.log(this.state.writeAudioMessage)
         if (this.state.counter === 4) {
           prevState.setState({
-            writeAudioMessgae: 'write-audio'
+            writeAudioMessage: 'write-audio'
           })
         }
-        prevState.socketio.emit(prevState.state.writeAudioMessgae, buffer)
+        prevState.socketio.emit(prevState.state.writeAudioMessage, buffer)
       }
     }
 
@@ -127,34 +149,27 @@ export default class GuidedLive extends Component {
     zeroGain.gain.value = 0.0
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
-    // updateAnalysers();
-    this.socketio.on('add-transcript-pnr', function (text) {
-      // add new recording to page
 
-      console.log('prevState.state.counter')
-      console.log(prevState.state.counter)
+    
+
+    this.socketio.on('add-transcript-pnr', function (text) {
       const { originalText } = prevState.state
       prevState.setState({ currentText: text }, () => {
         const finalText = `${originalText} ${prevState.state.currentText}`
-        prevState.setState({ finalText })
-        prevState.setState({ counter: prevState.state.counter + 1 })
+        prevState.setState({ finalText, counter: prevState.state.counter + 1 })
       })
     })
+
     this.socketio.on('add-transcript', function (text) {
-      // add new recording to page
-      // const { originalText } = prevState.state
       if (text.includes('slut diktat') || text.includes('slut på diktat')) {
         prevState.setState({ recording: false }, () => {
-          prevState.setState({ microphoneBeingPressed: false })
-          prevState.setState({ recordingAction: 'Starta' })
+          prevState.setState({ microphoneBeingPressed: false, recordingAction: 'Starta' })
           prevState.socketio.emit('end-recording')
           prevState.socketio.close()
         })
       } else {
         prevState.setState({ currentText: text }, () => {
-        // const finalText = `${originalText} ${prevState.state.currentText}`
-          prevState.setState({ finalText: text })
-          prevState.setState({ counter: prevState.state.counter + 1 })
+          prevState.setState({ finalText: text , counter: prevState.state.counter + 1 })
         })
       }
     })
@@ -165,19 +180,15 @@ export default class GuidedLive extends Component {
       navigator.mediaDevices = {}
     }
 
-    // Some browsers partially implement mediaDevices.
-    // We can't just assign an object
-    // with getUserMedia as it would overwrite existing properties.
-    // Here, we will just add the getUserMedia property if it's missing.
+    // Some browsers partially implement mediaDevices. We can't just assign an object with 
+    // getUserMedia as it would overwrite existing properties. Here, we will just add the 
+    // getUserMedia property if it's missing.
     if (navigator.mediaDevices.getUserMedia === undefined) {
       navigator.mediaDevices.getUserMedia = function (constraints) {
-
         // First get ahold of the legacy getUserMedia, if present
         const getUserMedia
           = navigator.webkitGetUserMedia || navigator.mozGetUserMedia
-
-        // Some browsers just don't implement it 
-        // - return a rejected promise with an error
+        // Some browsers just don't implement it - return a rejected promise with an error
         // to keep a consistent interface
         if (!getUserMedia) {
           return Promise
@@ -186,8 +197,7 @@ export default class GuidedLive extends Component {
             )
         }
 
-        // Otherwise, wrap the call to the old 
-        // navigator.getUserMedia with a Promise
+        // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
         return new Promise(function (resolve, reject) {
           getUserMedia.call(navigator, constraints, resolve, reject)
         })
@@ -203,15 +213,16 @@ export default class GuidedLive extends Component {
       })
   }
 
-
   toggleRecord = () => {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { microphoneBeingPressed, originalText, currentText } = this.state
+    const { microphoneBeingPressed, originalText, currentText, initialRecordTime } = this.state
     if (microphoneBeingPressed === true) {
-      // console.log('stop recording')
+      this.removeToast()
       this.setState({ recording: false }, () => {
-        this.setState({ microphoneBeingPressed: false })
-        this.setState({ recordingAction: 'Starta' })
+        this.setState({ 
+          microphoneBeingPressed: false,
+          recordingAction: 'Starta'
+        })
         // Close the socket
         this.socketio.emit('end-recording')
         this.socketio.close()
@@ -219,6 +230,12 @@ export default class GuidedLive extends Component {
       })
     } else {
       this.setState({ recording: true }, () => {
+        if (!initialRecordTime) {
+          const recordTime = new Date()
+          this.setState({
+            initialRecordTime: recordTime
+          })
+        }
         this.setState({ microphoneBeingPressed: true })
         this.setState({ recordingAction: 'Avsluta' })
         this.initAudio()
@@ -231,10 +248,15 @@ export default class GuidedLive extends Component {
     }
   }
 
+  removeToast = () => {
+    this.setState({ toasts: [] })
+  }
+
+
   render() {
     const {
       recordingAction, microphoneBeingPressed, finalText, currentText,
-      listOfTemplates, templatesForMenu
+      listOfTemplates, templatesForMenu, toasts
     } = this.state
 
     return (
@@ -259,6 +281,11 @@ export default class GuidedLive extends Component {
             />
           </EuiFlexItem>
         </EuiFlexGroup>
+        <EuiGlobalToastList
+          toasts={toasts}
+          dismissToast={this.removeToast}
+          toastLifeTimeMs={100000000}
+        />
       </Page>
     )
   }
