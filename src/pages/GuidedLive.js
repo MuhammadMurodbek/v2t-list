@@ -10,17 +10,13 @@ import Mic from '../components/Mic'
 import interpolateArray from '../models/interpolateArray'
 import io from 'socket.io-client'
 import Page from '../components/Page'
-// import inoviaLogo from '../img/livediktering.png'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 import { EuiSpacer } from '@elastic/eui'
 
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
-  socketio = io
-    .connect(
-      'wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] }
-    )
+  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
   state = {
     recording: false,
     recordingAction: 'Starta',
@@ -54,34 +50,18 @@ export default class GuidedLive extends Component {
 
   templates = async () => {
     const templateList = await api.getSectionTemplates()
-    // console.log('templates')
-    // console.log(templateList)
-    console.log('templates')
-    console.log(templateList)
-    const tempTemplates = templateList.data.templates.map((template, index) => {
+    const tempTemplates = templateList.data.templates.map((template) => {
       return {
         name: template.name,
-        id: template.id,
-        // panel: {
-        //   id: index,
-        //   title: 'sections',
-        //   items: template.sections
-        // }
+        id: template.id
       }
     })
-
-
-
-
     const finalTemplates = {
       id: 0,
       title: 'Journalmallar',
       items: tempTemplates
     }
-    console.log('tempTemplates')
-    console.log(finalTemplates)
     this.setState({ templatesForMenu: finalTemplates })
-    console.log('tempTemplates end')
     this.setState({
       listOfTemplates: templateList.data.templates,
       templatesForMenu: finalTemplates
@@ -253,12 +233,8 @@ export default class GuidedLive extends Component {
 
   render() {
     const {
-      recordingAction,
-      microphoneBeingPressed,
-      finalText,
-      currentText,
-      listOfTemplates,
-      templatesForMenu
+      recordingAction, microphoneBeingPressed, finalText, currentText,
+      listOfTemplates, templatesForMenu
     } = this.state
 
     return (

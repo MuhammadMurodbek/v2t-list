@@ -22,10 +22,10 @@ const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) 
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
     updateSectionHeader()
-  });
+  })
   
   const getHeaderWithSynonyms = (sectionHeadersInfo) => {
-    let headersWithSynonyms = {}
+    const headersWithSynonyms = {}
     sectionHeadersInfo.forEach(sectionHeader => {
       headersWithSynonyms['a'] = sectionHeader.synonyms
       headersWithSynonyms[sectionHeader.name] = headersWithSynonyms['a']

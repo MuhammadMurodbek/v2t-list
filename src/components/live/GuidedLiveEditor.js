@@ -89,16 +89,6 @@ const GuidedLiveEditor = ({
           setEditorVisible(true)
         }
         if (currentStepIndex > 3) {
-          // if(currentContent.includes('slut på diktat')) {
-          //   console.log('******')
-          //   console.log('******')
-          //   console.log('******')
-          //   console.log('******')
-          //   // currentContent = currentContent.trim()
-          //   // const wordsOfCurrentContent = currentContent.split(' ')
-          //   // wordsOfCurrentContent.pop()
-          //   // currentContent = wordsOfCurrentContent.map(word => `${word} `)
-          // }
           setChapters(processChapters(currentContent, sections))
         }
       }

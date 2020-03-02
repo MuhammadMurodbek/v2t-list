@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-console */
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
@@ -6,7 +7,9 @@ import { EuiSpacer, EuiForm, EuiFormRow, EuiSuperSelect } from '@elastic/eui'
 import ListOfHeaders from '../ListOfHeaders'
 import '../../App.css'
 
-const GuidedLiveTemplate =  ({ listOfTemplates, usedSections, updatedSections, templateFromVoice }) => {
+const GuidedLiveTemplate =  ({
+  listOfTemplates, usedSections, updatedSections, templateFromVoice
+}) => {
   const [selectedTemplate, setSelectedTemplate] = useState('ext1')
   const [templatePropsReceived, setTemplatePropsReceived] = useState(false)
   const [sectionHeaders, setSectionHeaders] = useState([
@@ -22,7 +25,7 @@ const GuidedLiveTemplate =  ({ listOfTemplates, usedSections, updatedSections, t
   })
 
   const getHeaderWithSynonyms = (sectionHeadersInfo) => {
-    let headersWithSynonyms = {}
+    const headersWithSynonyms = {}
     sectionHeadersInfo.forEach(sectionHeader => {
       headersWithSynonyms['a'] = sectionHeader.synonyms
       headersWithSynonyms[sectionHeader.name] = headersWithSynonyms['a']
@@ -32,9 +35,6 @@ const GuidedLiveTemplate =  ({ listOfTemplates, usedSections, updatedSections, t
   }
 
   const updateSectionHeader = () => {
-    console.log('templateFromVoice')
-    console.log(templateFromVoice)
-    console.log('templateFromVoice')
     if (!templatePropsReceived) {
       listOfTemplates.forEach(template => {
         if (template.name.trim().toLowerCase() === templateFromVoice.trim().toLowerCase()) {
