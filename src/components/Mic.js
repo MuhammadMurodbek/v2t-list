@@ -6,13 +6,14 @@ import { EuiSpacer, EuiTextAlign, EuiProgress } from '@elastic/eui'
 import mic from '../img/voice-recording.png'
 import micRecording from '../img/voice-recording-red.png'
 import '../styles/mic.css'
+import formattedTime from '../models/live/formattedTime'
 
 const Mic = ({
-  recordingAction,
   microphoneBeingPressed,
-  toggleRecord
+  toggleRecord,
+  seconds
 }) => (
-    <EuiTextAlign textAlign="center" style={{ zIndex: 10}}>
+  <EuiTextAlign textAlign="center" style={{ zIndex: 10}}>
     <img
       src={mic}
       className="mic"
@@ -20,23 +21,22 @@ const Mic = ({
       alt="mic"
       onClick={toggleRecord}
     />
-    <span style={microphoneBeingPressed ? { display: 'inline' } : { display: 'none' }}>
-      <img
-        src={micRecording}
-        className="micRecording"
-        style={microphoneBeingPressed ? { display: 'inline' } : { display: 'none' }}
-        alt="mic"
-        onClick={toggleRecord}
-      />
-      <EuiSpacer size="m" />
-      <EuiProgress size="s" color="subdued" />
+    
+    <img
+      src={micRecording}
+      className="micRecording"
+      style={microphoneBeingPressed ? { display: 'inline' } : { display: 'none' }}
+      alt="mic"
+      onClick={toggleRecord}
+    />
+    {/* <EuiProgress size="s" color="subdued" /> */}
+    
+    <EuiSpacer size="s" />
+    <span style={{ display: microphoneBeingPressed ? 'inline' :'none', fontSize: 20 }}>
+      {formattedTime(seconds)}
     </span>
-    <EuiSpacer size="m" />
-    <span>
-      &nbsp;
-      {recordingAction}
-      &nbsp;
-      diktering
+    <span style={{ display: microphoneBeingPressed ? 'none' : 'inline', fontSize: 20 }}>
+      Starta Diktering
     </span>
   </EuiTextAlign>
 )

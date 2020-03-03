@@ -1,14 +1,13 @@
 // @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
-import { EuiGlobalToastList, EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
 import api from '../api'
 import Mic from '../components/Mic'
 import interpolateArray from '../models/interpolateArray'
 import io from 'socket.io-client'
 import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
-import formattedTime from '../models/live/formattedTime'
 
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -95,22 +94,14 @@ export default class GuidedLive extends Component {
       if (microphoneBeingPressed) {    
         const currentTime = new Date()
         if (currentTime.getSeconds() !== previousCurrentTime.getSeconds()) {
-          prevState.setState({ seconds: seconds + 1 })
           prevState.setState({
-            toasts: [{
-              id: 'toast-0',
-              title: <p><strong><span role="img" aria-label="recording-icon">🔴</span>&nbsp;&nbsp;Inspelning</strong></p>,
-              color: 'danger',
-              text: (<h1>{formattedTime(seconds)}</h1>)
-            }],
-            // duration: Math.floor((currentTime.getTime() - initialRecordTime.getTime()) / 1000),
+            seconds: seconds + 1,
             previousCurrentTime: currentTime,
-            duration:  Math.floor((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
+            duration:  Math.ceil((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
           })
         }
       } 
       if (recording === true) {
-     
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
         // convert float audio data to 16-bit PCM
@@ -243,7 +234,7 @@ export default class GuidedLive extends Component {
   render() {
     const {
       recordingAction, microphoneBeingPressed, finalText, currentText,
-      listOfTemplates, templatesForMenu, toasts
+      listOfTemplates, templatesForMenu, toasts, seconds
     } = this.state
 
     return (
@@ -251,9 +242,10 @@ export default class GuidedLive extends Component {
         <EuiFlexGroup justifyContent="center">
           <EuiFlexItem grow={false} style={{ maxWidth: 300, marginLeft: 30 }}>
             <Mic
-              recordingAction={recordingAction}
+              // recordingAction={recordingAction}
               microphoneBeingPressed={microphoneBeingPressed}
               toggleRecord={this.toggleRecord}
+              seconds={seconds}
             />
             <EuiSpacer size="l" />
           </EuiFlexItem>
@@ -268,11 +260,6 @@ export default class GuidedLive extends Component {
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiGlobalToastList
-          toasts={toasts}
-          dismissToast={this.removeToast}
-          toastLifeTimeMs={100000000}
-        />
       </Page>
     )
   }
