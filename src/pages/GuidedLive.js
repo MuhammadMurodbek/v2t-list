@@ -233,8 +233,8 @@ export default class GuidedLive extends Component {
 
   render() {
     const {
-      recordingAction, microphoneBeingPressed, finalText, currentText,
-      listOfTemplates, templatesForMenu, toasts, seconds
+      microphoneBeingPressed, finalText, currentText,
+      listOfTemplates, templatesForMenu, seconds
     } = this.state
 
     return (
