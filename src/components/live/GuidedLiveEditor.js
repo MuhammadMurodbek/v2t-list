@@ -56,7 +56,7 @@ const GuidedLiveEditor = ({
       status: 'disabled',
       onClick: () => { }
     }, {
-      title: 'Template',
+      title: 'Journalmall',
       children: <p></p>,
       disabled: true,
       status: 'disabled',
