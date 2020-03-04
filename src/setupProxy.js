@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const proxy = require('http-proxy-middleware')
 
 module.exports = (app) => {
