@@ -321,7 +321,7 @@ export default class LiveDiktering extends Component {
         <EuiFlexGroup>
           <EuiFlexItem grow={false}>
             <EuiButton fill color="secondary" onClick={() => { }}>Skicka till
-                Co-Worker</EuiButton>
+                Webdoc</EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton 

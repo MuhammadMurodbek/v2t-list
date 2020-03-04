@@ -196,7 +196,7 @@ export default class EditPage extends Component {
       }
     } else {
       swal({
-        title: 'Det är inte möjligt att skicka till Co-Worker.',
+        title: 'Det är inte möjligt att skicka till Webdoc.',
         text: 'Personnummer saknas',
         icon: 'error',
         button: 'Ok'
@@ -214,7 +214,7 @@ export default class EditPage extends Component {
       window.location = '/'
     } else {
       swal({
-        title: 'Det är inte möjligt att skicka till Co-Worker, vänligen prova igen senare.',
+        title: 'Det är inte möjligt att skicka till Webdoc, vänligen prova igen senare.',
         text: '',
         icon: 'error',
         button: 'Ok'
@@ -473,7 +473,7 @@ export default class EditPage extends Component {
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
               <EuiButton fill color="secondary" onClick={this.finalize}>
-                Skicka till Co-Worker
+                Skicka till Webdoc
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>

@@ -257,7 +257,7 @@ const GuidedLiveEditor = ({
                   borderRadius: '25px'
                 }}
                 onClick={() => { }}>
-                Skicka till Co-Worker
+                Skicka till Webdoc
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
