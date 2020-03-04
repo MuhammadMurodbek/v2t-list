@@ -15,6 +15,7 @@ import '../../styles/guided.css'
 import processChapters from '../../models/processChapters'
 import TemplateMenu from './TemplateMenu'
 import PersonalInfoLive from './PersonalInfoLive'
+import api from '../../api'
 
 const GuidedLiveEditor = ({
   prevContent,
@@ -90,11 +91,28 @@ const GuidedLiveEditor = ({
         }
         if (currentStepIndex > 3) {
           setChapters(processChapters(currentContent, sections))
+          checkForCodes(chapters)
         }
       }
     }
   }, [currentContent, prevContent])
 
+  const checkForCodes = async () => {
+    const listOfKeywords = chapters.map(chapter => chapter.keyword.trim().toLowerCase())
+    if(!listOfKeywords.includes('diagnos')) {
+      return
+    } else {
+      let textData = ''
+      chapters.map(chapter => {
+        if (chapter.keyword.trim().toLowerCase() === 'diagnos') {
+          return chapter.segments[0].words
+        } else return '' 
+      }).forEach(text => {if (text) textData = textData + text })
+      const result = await api.keywordsSearch(textData)
+      if (result.data) 
+        setTags([{ id: result.data[0].value, description: result.data[0].description}])
+    }
+  }
 
   const onUpdateTags = (tags) => {
     setTags(tags)

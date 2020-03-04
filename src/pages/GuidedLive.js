@@ -242,7 +242,6 @@ export default class GuidedLive extends Component {
         <EuiFlexGroup justifyContent="center">
           <EuiFlexItem grow={false} style={{ maxWidth: 300, marginLeft: 30 }}>
             <Mic
-              // recordingAction={recordingAction}
               microphoneBeingPressed={microphoneBeingPressed}
               toggleRecord={this.toggleRecord}
               seconds={seconds}
