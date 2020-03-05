@@ -72,8 +72,34 @@ export default class EditPage extends Component {
     // const [preferences] = this.context
     // const { words } = preferences
     const response = await api.loadTranscription(transcript.external_id)
+    let capitalizedTranscript
+    // Capitalize the first char of each segment
+    if(response.data){
+      if(response.data.transcriptions){
+        capitalizedTranscript = response.data.transcriptions.map(
+          (chapter) => {
+            return {
+              ...chapter,
+              segments: chapter.segments ?
+                chapter.segments.map(
+                  (segment, i) => {
+                    if (i === 0) {
+                      return {
+                        ...segment, 
+                        words: segment.words.charAt(0).toUpperCase() + segment.words.slice(1)
+                      }
+                    } else {
+                      return { ...segment }
+                    }
+                  }) : []
+            }
+          })
+      }
+    }
+    
+    
     const templates = await api.getSectionTemplates()
-    const originalChapters = this.parseTranscriptions(response.data.transcriptions)
+    const originalChapters = this.parseTranscriptions(capitalizedTranscript)
     const { tags, fields, media_content_type, template_id } = response.data
     if (tags) {
       const processedTags = tags.map((tag) => { 

@@ -17,16 +17,16 @@ export default class TranscriptionList extends Component {
     const pagination = {
       initialPageSize: 20,
       pageSizeOptions: [20, 50, 100]
-    };
+    }
 
     return (
       <Fragment>
-      <EuiInMemoryTable
-        pagination={pagination}
-        columns={preferences.columnsForTranscriptList}
-        items={transcripts}
-        compressed={true}
-      />
+        <EuiInMemoryTable
+          pagination={pagination}
+          columns={preferences.columnsForTranscriptList}
+          items={transcripts}
+          compressed={true}
+        />
       </Fragment>
     )
   }
