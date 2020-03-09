@@ -1,6 +1,6 @@
 import React, {Fragment, useState, useEffect} from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiTextArea
+  EuiFlexGroup, EuiFlexItem, EuiTextArea, EuiText, EuiFormRow
 } from '@elastic/eui'
 
 const SideNote = ({value}) => {
@@ -16,6 +16,7 @@ const SideNote = ({value}) => {
     <Fragment>
       <EuiFlexGroup>
         <EuiFlexItem>
+          <EuiFormRow label="Antecknigar">
           <EuiTextArea
             placeholder="Skriv en anteckning till Co-worker"
             aria-label="Skriv en anteckning till Co-worker"
@@ -23,6 +24,7 @@ const SideNote = ({value}) => {
             onChange={onChange}
             style={{resize: 'none'}}
           />
+          </EuiFormRow>
         </EuiFlexItem>
       </EuiFlexGroup>
     </Fragment>
