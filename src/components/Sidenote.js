@@ -1,6 +1,6 @@
 import React, {Fragment, useState, useEffect} from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiTextArea, EuiText, EuiFormRow
+  EuiFlexGroup, EuiFlexItem, EuiTextArea, EuiFormRow
 } from '@elastic/eui'
 
 const SideNote = ({value}) => {
