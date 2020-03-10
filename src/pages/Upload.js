@@ -14,6 +14,7 @@ import {
   EuiFieldText
 } from '@elastic/eui'
 import api from '../api'
+import swal from 'sweetalert'
 import Page from '../components/Page'
 
 
@@ -97,9 +98,19 @@ export default class UploadPage extends Component {
   }
 
   onSubmit = () => {
-    const loading = true
-    this.setState({ loading })
-    this.uploadFiles()
+    const {files} = this.state
+    if (files.length === 0) {
+      swal({
+        title: 'Det är inte möjligt att ladda upp.',
+        text: 'Fil saknas',
+        icon: 'error',
+        button: 'Ok'
+      })
+    } else {
+      const loading = true
+      this.setState({ loading })
+      this.uploadFiles()
+    }
   }
 
   uploadFiles = async () => {
