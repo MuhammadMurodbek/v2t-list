@@ -19,19 +19,19 @@ const TrainingInstructions = () => {
   const items = [
     {
       action: 'Spela Upp',
-      shortcut: 'alt + space'
+      shortcut: 'alt + p'
     },
     {
       action: 'Pausa',
-      shortcut: 'alt + space'
+      shortcut: 'alt + p'
     },
     {
       action: 'Uppspelningshastighet (snabbare)',
-      shortcut: 'shift + k'
+      shortcut: 'alt + k'
     },
     {
       action: 'Uppspelningshastighet (långsammare)',
-      shortcut: 'shift + m'
+      shortcut: 'alt + m'
     },
     {
       action: 'Höj volymen',

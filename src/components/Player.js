@@ -251,7 +251,7 @@ class Player extends Component {
       const title = v => 'Uppspelningshastighet'
       const text = v => `${v * 100}%`
       this.updateMedia('playbackRate', title, text, .2, 2, playbackRate, change)
-    } else if (e.altKey && e.keyCode === 32) {
+    } else if (e.altKey && e.keyCode === 80) { // keycode for p
       e.preventDefault()
       if (isPlaying) {
         this.pauseMusic()
@@ -325,7 +325,7 @@ class Player extends Component {
         <div className="sticky-controls">
           <div className={preferences.stopButtonVisibilityStatus === false ? "controls" : "controlsWithStopButtonEnabled" }>
             <button
-              title="Tryck alt+space för att spela"
+              title="Tryck alt+p för att spela"
               style={{ display: isPlaying === false ? 'block' : 'none' }}
               className="play"
               id="play"
@@ -336,7 +336,7 @@ class Player extends Component {
             />
 
             <button
-              title="Tryck alt+space för att pausa"
+              title="Tryck alt+p för att pausa"
               style={{ display: isPlaying === true ? 'block' : 'none' }}
               className="play"
               id="pause"
@@ -347,7 +347,7 @@ class Player extends Component {
             />
 
             <button
-              title="Tryck alt+space för att sluta"
+              title="Tryck för att sluta"
               style={{ display: preferences.stopButtonVisibilityStatus === true ? 'block' : 'none' }}
               className="play"
               id="stop"
@@ -416,7 +416,7 @@ class Player extends Component {
         />
         <EuiSpacer size="l" />
         <EuiText textAlign="left" className="tips">
-          <span>Tryck alt+space för att </span>
+          <span>Tryck alt+p för att </span>
           <span style={{ display: isPlaying === true ? 'inline-block' : 'none' }}>pausa</span>
           <span style={{ display: isPlaying === false ? 'inline-block' : 'none' }}>spela</span>
         </EuiText>
