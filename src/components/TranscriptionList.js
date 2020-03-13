@@ -23,21 +23,12 @@ export default class TranscriptionList extends Component {
   
   updateItems = (id) => {
     const { items, edited } = this.state
-    console.log('hello')
-    console.log(id)
-    this.setState({ items: items.filter(item => item.id !== id), edited: true },()=>{
-      console.log(items)
-      console.log(edited)
-    })
-    
+    this.setState({ items: items.filter(item => item.id !== id), edited: true })
   }
 
   render() {
     const { transcripts, job } = this.props
     const { items, edited, previousJob} = this.state
-      // (transcripts.length !== items.length && edited === false) |
-    console.log('job')
-    console.log(job)
     if ((transcripts.length !== items.length && edited === false) || (job !== previousJob)) {
       this.setState({ items: transcripts, previousJob: job})
     }
@@ -47,9 +38,7 @@ export default class TranscriptionList extends Component {
       pageSizeOptions: [20, 50, 100]
     }
 
-    
-
-    let columns = [...preferences.columnsForTranscriptList,
+    const columns = [...preferences.columnsForTranscriptList,
       {
         label: 'Öppna',
         field: 'external_id',
@@ -82,13 +71,7 @@ export default class TranscriptionList extends Component {
                     swal('Diktatet tas bort!', {
                       icon: 'success'
                     })
-                    console.log('items')
-                    // this.setState({ items: items.filter(item => item.id !== id) })
-                    // this.setState({ items: [] },()=>{
-                    //   console.log(items)
-                    // })
                     this.updateItems(id)
-                    console.log('items')
                   }
                 })
             }} />
