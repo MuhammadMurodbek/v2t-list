@@ -22,7 +22,7 @@ export default class TranscriptionList extends Component {
 
   
   updateItems = (id) => {
-    const { items, edited } = this.state
+    const { items } = this.state
     this.setState({ items: items.filter(item => item.id !== id), edited: true })
   }
 
