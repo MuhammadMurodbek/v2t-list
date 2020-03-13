@@ -1,8 +1,5 @@
 /* eslint-disable no-console */
-import React from 'react'
 import moment from 'moment'
-import swal from 'sweetalert'
-import { EuiButtonEmpty, EuiButtonIcon } from '@elastic/eui'
 import api from '../api'
 
 export const WORD_OPTIONS = [
@@ -34,93 +31,41 @@ export const COLUMN_OPTIONS = [
     label: 'Typ',
     name: 'Typ',
     width: '70px',
-    render: transcript => `${(transcript || {}).media_content_type ? transcript.media_content_type : 'ljud'}`
+    render:
+      transcript => 
+        `${(transcript || {}).media_content_type ? transcript.media_content_type : 'ljud'}`
   },
   {
     label: 'Doktor',
     name: 'Doktor',
     width: '140px',
-    render: transcript => `${((transcript || {}).fields || {}).doctor_full_name ? transcript.fields.doctor_full_name : ''}`
+    render: 
+      transcript => 
+        `${((transcript || {}).fields || {})
+          .doctor_full_name ? transcript.fields.doctor_full_name : ''}`
   },
   {
     label: 'Patient',
     name: 'Patient',
     width: '140px',
-    render: transcript => `${((transcript || {}).fields || {}).patient_full_name ? transcript.fields.patient_full_name : ''}`
+    render: transcript => 
+      `${((transcript || {}).fields || {})
+        .patient_full_name ? transcript.fields.patient_full_name : ''}`
   },
   {
     label: 'PatientId',
     name: 'PatientId',
     width: '150px',
-    render: transcript => `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}`
+    render: transcript => 
+      `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}`
   },
   {
     label: 'Avdelning',
     name: 'Avdelning',
     width: '200px',
-    render: transcript => `${((transcript || {}).fields || {}).department_name ? transcript.fields.department_name : ''}`
-  },
-  {
-    label: 'Id',
-    field: 'id',
-    name: 'Id',
-    disabled: true
-    // sortable: true
-  },
-  {
-    label: 'Öppna',
-    field: 'external_id',
-    name: '',
-    width: '100px',
-    render: external_id => <EuiButtonEmpty href={`/#edit/${external_id}`}>Öppna</EuiButtonEmpty>,
-    disabled: true
-  },
-  {
-    label: 'Ta bort',
-    field: 'id',
-    name: '',
-    disabled: true,
-    width: '100px',
-    render: id => 
-    
-    // <EuiButtonIcon color='danger' onClick={()=>{
-    //   swal({
-    //     title: "Vill du verkligen ta bort diktatet?",
-    //     text: "",
-    //     icon: "warning",
-    //     buttons: ["Avbryt","OK"],
-    //     dangerMode: true
-    //   })
-    //     .then((willDelete) => {
-    //       if (willDelete) {
-    //         swal("Diktatet tas bort!", {
-    //           icon: "success",
-    //         })
-    //       }
-    //     })
-    // }}>Ta bort</EuiButtonEmpty>
-      <EuiButtonIcon 
-        color="danger"
-        iconType="trash"
-        onClick={()=>{
-          swal({
-            title: 'Vill du verkligen ta bort diktatet?',
-            text: '',
-            icon: 'warning',
-            buttons: ['Avbryt', 'OK'],
-            dangerMode: true
-          })
-            .then((willDelete) => {
-              if (willDelete) {
-                swal('Diktatet tas bort!', {
-                  icon: 'success',
-                })
-              }
-            })
-        }} />
-      // </EuiButtonIcon>
-
-
+    render: transcript => 
+      `${((transcript || {}).fields || {})
+        .department_name ? transcript.fields.department_name : ''}`
   }
 ]
 

@@ -119,6 +119,13 @@ const approveTranscription = (transcriptionId) => {
     })
 }
 
+const rejectTranscription = (transcriptionId) => {
+  return axios.post(`/api/transcriptions/v1/${transcriptionId}/reject`)
+    .catch((error) => {
+      logout()
+    })
+}
+
 const updateTranscription = (transcriptionId, tags, chapters, template_id) => {
   return axios.put(`/api/transcriptions/v1/${transcriptionId}`,
     {
@@ -170,6 +177,7 @@ const getChartData = () => {
 
 export default {
   approveTranscription,
+  rejectTranscription,
   setToken,
   keywordsSearch,
   login,

@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 import Page from '../components/Page'
 import TranscriptionList from '../components/TranscriptionList'
 
-const StartPage = ({ transcripts }) => (
+const StartPage = ({ transcripts, job }) => (
   <Page preferences title="Aktivitietslista">
-    <TranscriptionList transcripts={transcripts} />
+    <TranscriptionList transcripts={transcripts} job={job}/>
   </Page>
 )
 

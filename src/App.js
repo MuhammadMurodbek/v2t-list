@@ -35,7 +35,8 @@ export default class App extends Component {
     isLoggedIn: false,
     isTokenFromUrl: false,
     token: null,
-    isCollupsed: false
+    isCollapsed: false,
+    job: null
   }
 
   componentDidMount() {
@@ -108,7 +109,7 @@ export default class App extends Component {
                   .then((tickets) => {
                     // transcripts after job selection
                     // Check which one are audio and which are video
-                    this.setState({ transcripts: tickets })
+                    this.setState({ transcripts: tickets, job: tag.value })      
                   })
               },
               href: '/#/'
@@ -199,7 +200,7 @@ export default class App extends Component {
                 //   onClick: () => {
                 //     this.selectItem('Live')
                 //     this.setState({
-                //       isCollupsed: true
+                //       isCollapsed: true
                 //     })
                 //   }
                 // }
@@ -230,9 +231,9 @@ export default class App extends Component {
   }
 
   collapse = () => {
-    const { isCollupsed } = this.state
+    const { isCollapsed } = this.state
     this.setState({
-      isCollupsed: !isCollupsed
+      isCollapsed: !isCollapsed
     })
   }
 
@@ -244,7 +245,8 @@ export default class App extends Component {
       isLoggedIn,
       isTokenFromUrl,
       token,
-      isCollupsed
+      isCollapsed,
+      job
     } = this.state
 
     return (
@@ -256,7 +258,7 @@ export default class App extends Component {
                 display: 
                   isLoggedIn 
                   && !isTokenFromUrl 
-                  && isCollupsed === false ? 'inline-block' : 'none'
+                    && isCollapsed === false ? 'inline-block' : 'none'
               }}>
               <EuiImage
                 className="logo"
@@ -308,7 +310,7 @@ export default class App extends Component {
                 display:
                   isLoggedIn
                     && !isTokenFromUrl
-                    && isCollupsed === true ? 'inline-block' : 'none',
+                    && isCollapsed === true ? 'inline-block' : 'none',
                     minWidth: '20px'
               }}>
       
@@ -353,7 +355,7 @@ export default class App extends Component {
                 exact
                 path="/"
                 render={props => isLoggedIn ? <StartPage {...{
-                  ...props, transcripts
+                  ...props, transcripts, job
                 }} /> : <LoginPage/>}/>
               <Route
                 path="/edit/:id"
