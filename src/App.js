@@ -18,6 +18,7 @@ import UploadPage from './pages/Upload'
 // import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
+import LiveDikteringEnglishPage from './pages/LiveDikteringEnglish'
 import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
@@ -379,6 +380,9 @@ export default class App extends Component {
                 render={() => isLoggedIn ? <GuidedLivePage/> : <LoginPage/>}/>
               <Route path="/livediktering/"
                 render={() => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}
+              />
+              <Route path="/live-diktering-engelska/"
+                render={() => isLoggedIn ? <LiveDikteringEnglishPage/> : <LoginPage/>}
               />
               <Route path="/visualization/"
                 render={() => isLoggedIn ? <Visualization /> : <LoginPage/>}/>
