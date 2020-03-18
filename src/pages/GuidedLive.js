@@ -63,8 +63,8 @@ export default class GuidedLive extends Component {
   }
 
   convertToMono = (input) => {
-    var splitter = this.audioContext.createChannelSplitter(2)
-    var merger = this.audioContext.createChannelMerger(2)
+    const splitter = this.audioContext.createChannelSplitter(2)
+    const merger = this.audioContext.createChannelMerger(2)
     input.connect(splitter)
     splitter.connect(merger, 0, 0)
     splitter.connect(merger, 0, 1)
@@ -202,11 +202,14 @@ export default class GuidedLive extends Component {
           recordingAction: 'Starta'
         })
         // Close the socket
-        this.socketio.emit('end-recording')
-        this.socketio.close()
+        //this.socketio.emit('end-recording')
+        //this.socketio.close()
+        //this.audioContext.close()
+        this.audioContext.suspend()
         this.setState({ originalText: `${originalText} ${currentText}` })
       })
     } else {
+      this.audioContext.resume()
       this.setState({ recording: true }, () => {
         if (!initialRecordTime) {
           const recordTime = new Date()
