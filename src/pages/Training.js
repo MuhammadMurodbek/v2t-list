@@ -52,6 +52,7 @@ export default class UploadPage extends Component {
     }, () => {
       this.loadCurrentTranscript()
     })
+    localStorage.setItem('transcriptId', '')
   }
 
   loadCurrentTranscript = async () => {

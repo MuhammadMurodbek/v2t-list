@@ -27,6 +27,7 @@ export default class TranscriptionList extends Component {
   }
 
   render() {
+    localStorage.setItem('transcriptId', '')
     const { transcripts, job } = this.props
     const { items, edited, previousJob} = this.state
     if ((transcripts.length !== items.length && edited === false) || (job !== previousJob)) {

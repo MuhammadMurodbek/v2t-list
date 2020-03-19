@@ -10,6 +10,7 @@ import help from '../img/help.png'
 import Logout from '../components/Logout'
 import { usePreferences } from './PreferencesProvider'
 import { COLUMN_OPTIONS } from '../models/Preference'
+import TranscriptId from './TranscriptId'
 
 const Preferences = () => {
   const [visible, setVisible] = useState(false)
@@ -57,6 +58,7 @@ const Flyout = ({ visible, onClose }) => {
   const setShowVideo = showVideo => setPreferences({ showVideo })
   const setFontSize = currentFontSize => setPreferences({ currentFontSize })
   const [selectedTabId, setSelectedTabId] = useState('0')
+  const transcriptId = localStorage.getItem('transcriptId')
   const tabs = [
     {
       id: '0',
@@ -86,6 +88,8 @@ const Flyout = ({ visible, onClose }) => {
               hasDividers
             />
           </EuiFormRow>
+          <EuiSpacer size="l" />
+          <TranscriptId id={transcriptId} />
           <Logout setPreferences={setPreferences} />
         </Fragment>
       )
@@ -123,6 +127,8 @@ const Flyout = ({ visible, onClose }) => {
               onChange={setShowVideo}
             />
           </EuiFormRow>
+          <EuiSpacer size="l" />
+          <TranscriptId id={transcriptId} />
           <Logout setPreferences={setPreferences} />
         </Fragment>
       )

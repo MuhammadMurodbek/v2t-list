@@ -69,6 +69,10 @@ export default class EditPage extends Component {
 
   loadSegments = async () => {
     const { transcript } = this.props
+    console.log('aåple')
+    console.log(transcript.id)
+    console.log(transcript.external_id)
+    localStorage.setItem('transcriptId', transcript.id)
     // const [preferences] = this.context
     // const { words } = preferences
     const response = await api.loadTranscription(transcript.external_id)

@@ -81,6 +81,7 @@ export default class UploadPage extends Component {
 
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Ladda Upp'
+    localStorage.setItem('transcriptId', '')
   }
 
   onMetadataChange = (metaData) => {
@@ -180,6 +181,7 @@ export default class UploadPage extends Component {
       selectedJob,
       jobs
     } = this.state
+    
     return (
       <Page preferences title="Ladda Upp">
         <EuiForm>
