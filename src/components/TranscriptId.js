@@ -37,7 +37,7 @@ const TranscriptId = ({ id }) => {
           color="primary"
           onClick={copyToClipBoard}
         >
-          {id}
+          Klicka för att kopiera dokument ID
         </EuiButtonEmpty>  
       </EuiFormRow>
     </Fragment>
