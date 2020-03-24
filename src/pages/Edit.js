@@ -17,7 +17,8 @@ import Templates from '../components/Templates'
 import Info from '../components/Info'
 import isSuperset from '../models/isSuperset'
 import Sidenote from '../components/Sidenote'
-// import processChaptersRegular from '../models/processChaptersRegular'
+import processChaptersRegular from '../models/processChaptersRegular'
+import processChapters from '../models/processChapters'
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -394,16 +395,18 @@ export default class EditPage extends Component {
   }
 
   updateSectionHeader = (sectionHeaders) => {
-    // const {chapters} = this.state
+    const {chapters} = this.state
     this.setState({ sectionHeaders }, () => {
       console.log('selected section headers')
       console.log(sectionHeaders)
       console.log('chapters')
       console.log(this.state.chapters)
       // let chapterFinalText = chapters.maps(chapter)
-      // const processedCh = processChaptersRegular(chapters, sectionHeaders)
-      // console.log('processed chapters')
+
+      const processedCh = processChaptersRegular(chapters, sectionHeaders)
+      //console.log('processed chapters')
       // console.log(processedCh)
+      this.setState({ chapters: processedCh})
     })
   }
 
