@@ -18,7 +18,7 @@ import Info from '../components/Info'
 import isSuperset from '../models/isSuperset'
 import Sidenote from '../components/Sidenote'
 import processChaptersRegular from '../models/processChaptersRegular'
-import processChapters from '../models/processChapters'
+// import processChapters from '../models/processChapters'
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext

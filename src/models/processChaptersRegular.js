@@ -16,7 +16,7 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
   let usedSectionHeaders = []
   let newlyOrientedWords = []
   let latestKeyword = 'kontaktorsak'
-  wordsOfTheChapter.map((segment,i)=>{
+  wordsOfTheChapter.forEach((segment)=>{
     if (
       sectionHeadersInLowerCase.includes(segment.words.trim().toLowerCase())
       && !usedSectionHeaders.includes(segment.words.trim().toLowerCase())
