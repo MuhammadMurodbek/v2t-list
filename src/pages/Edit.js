@@ -17,6 +17,7 @@ import Templates from '../components/Templates'
 import Info from '../components/Info'
 import isSuperset from '../models/isSuperset'
 import Sidenote from '../components/Sidenote'
+import processChaptersRegular from '../models/processChaptersRegular'
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -69,9 +70,6 @@ export default class EditPage extends Component {
 
   loadSegments = async () => {
     const { transcript } = this.props
-    console.log('aåple')
-    console.log(transcript.id)
-    console.log(transcript.external_id)
     localStorage.setItem('transcriptId', transcript.id)
     // const [preferences] = this.context
     // const { words } = preferences
@@ -143,6 +141,7 @@ export default class EditPage extends Component {
 
     if (templates) {
       const { data } = templates
+      console.log(templates)
       this.setState({
         templates: data,
         defaultTemplate: template_id,
@@ -395,11 +394,24 @@ export default class EditPage extends Component {
   }
 
   updateSectionHeader = (sectionHeaders) => {
-    this.setState({ sectionHeaders })
+    const {chapters} = this.state
+    this.setState({ sectionHeaders }, () => {
+      console.log('selected section headers')
+      console.log(sectionHeaders)
+      console.log('chapters')
+      console.log(this.state.chapters)
+      // let chapterFinalText = chapters.maps(chapter)
+      const processedCh = processChaptersRegular(chapters, sectionHeaders)
+      console.log('processed chapters')
+      // console.log(processedCh)
+    })
   }
 
   updateTemplateId = (templateId) => {
-    this.setState({ templateId })
+    this.setState({ templateId }, ()=>{
+      console.log('selected template')
+      console.log(templateId)
+    })
   }
 
   onUpdateTranscript = (chapters) => {
