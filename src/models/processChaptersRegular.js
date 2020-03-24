@@ -1,6 +1,6 @@
 const processChaptersRegular = (chapters, sectionHeaders) => {
   // get the flat string 
-    const sectionHeadersInLowerCase = sectionHeaders.map(sectionHeader=>sectionHeader.toLowerCase())
+  const sectionHeadersInLowerCase = sectionHeaders.map(sectionHeader=>sectionHeader.toLowerCase())
   let wordsOfTheChapter = []
   if(chapters)
     chapters.forEach(chapter=>{
@@ -13,17 +13,23 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
     }) 
 
   let usedSectionHeaders = []
+  let newlyOrientedWords = []
   wordsOfTheChapter.map(segment=>{
     if (
       sectionHeadersInLowerCase.includes(segment.words.trim().toLowerCase())
       && !usedSectionHeaders.includes(segment.words.trim().toLowerCase())
     ) {
-      console.log('word')
-      console.log(segment )
-      console.log('word')
       usedSectionHeaders.push(segment.words.trim().toLowerCase())
+    } else {
+      newlyOrientedWords.push({
+        words: segment.words.trim().toLowerCase(),
+        startTime: segment.startTime,
+        endTime: segment.endTime
+      })
     }
   })
+  
+  return newlyOrientedWords
 }
 
 
