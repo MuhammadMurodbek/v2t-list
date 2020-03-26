@@ -270,7 +270,6 @@ export default class LiveDikteringEnglish extends Component {
   render() {
     const {
       chapters,
-      recordingAction,
       microphoneBeingPressed,
       listOfTemplates,
       sections,

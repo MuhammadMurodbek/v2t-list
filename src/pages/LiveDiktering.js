@@ -293,7 +293,6 @@ export default class LiveDiktering extends Component {
   render() {
     const {
       chapters,
-      recordingAction,
       microphoneBeingPressed,
       listOfTemplates,
       sections,
