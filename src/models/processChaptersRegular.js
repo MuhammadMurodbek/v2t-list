@@ -1,8 +1,30 @@
 /* eslint-disable no-console */
+
+const capitalizedTranscript = (transcript) => transcript.map(
+  (chapter) => {
+    return {
+      ...chapter,
+      segments: chapter.segments ?
+        chapter.segments.map(
+          (segment, i) => {
+            if (i === 0) {
+              return {
+                ...segment,
+                words: segment.words.charAt(0).toUpperCase() + segment.words.slice(1)
+              }
+            } else {
+              return { ...segment }
+            }
+          }) : []
+    }
+  })
+
 const processChaptersRegular = (chapters, sectionHeaders) => {
+
+
   // get the flat string 
   const sectionHeadersInLowerCase = sectionHeaders.map(sectionHeader=>sectionHeader.toLowerCase())
-  let wordsOfTheChapter = []
+  const wordsOfTheChapter = []
   if(chapters)
     chapters.forEach(chapter=>{
       wordsOfTheChapter.push({words: chapter.keyword, startTime: 0.0, endTime: 0.0})
@@ -13,23 +35,8 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
       })
     }) 
 
-
-  //   console.log('..............:')
-  //   console.log('..............:')
-  //   console.log('wordsOfTheChapter')
-  //   console.log(wordsOfTheChapter)
-  //   console.log('..............:')
-  //   console.log('..............:')
-  //   console.log('..............:')
-  // console.log('sectionHeadersInLowerCase')
-  // console.log(sectionHeadersInLowerCase)
-  //   console.log('..............:')
-  //   console.log('..............:')
-
-
-  //   // 
-  let usedSectionHeaders = []
-  let newlyOrientedWords = []
+  const usedSectionHeaders = []
+  const newlyOrientedWords = []
   let latestKeyword = 'kontaktorsak'
   wordsOfTheChapter.forEach((segment)=>{
     if (
@@ -48,17 +55,7 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
     }
   })
 
-  // console.log('..............:')
-  // console.log('..............:')
-  // console.log('used section headers')
-  // console.log(usedSectionHeaders)
-  // console.log('..............:')
-  // console.log('..............:')
-
-  // console.log('newlyOrientedWords')
-  // console.log(newlyOrientedWords)
-  // console.log('newlyOrientedWords end')
-  let finalChapters = []
+  const finalChapters = []
   let tempObject = {segments:[]}
   newlyOrientedWords.forEach((word, i)=> {
     if(tempObject.keyword) {
@@ -84,15 +81,11 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
     }
   })
 
-  // console.log('finalObject')
-  // console.log(finalChapters)
-  // console.log('finalObject')
-    return finalChapters
+  // Capitalize
+  const finalChaptersCapitalized = capitalizedTranscript(finalChapters)
+  // Correct the case of the keyword
+
+  return finalChaptersCapitalized
 }
 
-
 export default processChaptersRegular
-
-
-
-// Check if the first keyword not present
