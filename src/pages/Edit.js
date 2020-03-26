@@ -401,12 +401,8 @@ export default class EditPage extends Component {
       console.log(sectionHeaders)
       console.log('chapters')
       console.log(this.state.chapters)
-      // let chapterFinalText = chapters.maps(chapter)
-
       const processedCh = processChaptersRegular(chapters, sectionHeaders)
-      //console.log('processed chapters')
-      // console.log(processedCh)
-      this.setState({ chapters: processedCh})
+      this.setState({ chapters: processedCh })
     })
   }
 

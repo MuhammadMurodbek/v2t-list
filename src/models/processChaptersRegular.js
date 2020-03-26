@@ -12,7 +12,6 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
         })
       })
     }) 
-
   let usedSectionHeaders = []
   let newlyOrientedWords = []
   let latestKeyword = 'kontaktorsak'
@@ -33,30 +32,45 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
     }
   })
 
-  console.log('newlyOrientedWords')
-  console.log(newlyOrientedWords)
-  console.log('newlyOrientedWords end')
+  // console.log('..............:')
+  // console.log('..............:')
+  // console.log('used section headers')
+  // console.log(usedSectionHeaders)
+  // console.log('..............:')
+  // console.log('..............:')
+
+  // console.log('newlyOrientedWords')
+  // console.log(newlyOrientedWords)
+  // console.log('newlyOrientedWords end')
   let finalChapters = []
   let tempObject = {segments:[]}
-  newlyOrientedWords.forEach(word=> {
+  newlyOrientedWords.forEach((word, i)=> {
     if(tempObject.keyword) {
-      if (tempObject.keyword===word.keyword)
+      if (tempObject.keyword===word.keyword){
         tempObject.segments.push({
-          words: word.words, startTime: word.startTime, endTime: word.endTime
+          words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
         })
+        if (i === newlyOrientedWords.length - 1) finalChapters.push(tempObject)
+      }
       else {
         finalChapters.push(tempObject)
-          tempObject = { segments: []}  
+        tempObject = { segments: []}  
         tempObject.keyword = word.keyword  
-      }
-    } else {
-      tempObject.keyword = word.keyword
-    }
-  })
+        tempObject.segments.push({
+          words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
+  //       })
+  //     }
+  //   } else {
+  //     tempObject.keyword = word.keyword
+  //     tempObject.segments.push({
+  //       words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
+  //     })
+  //   }
+  // })
 
-  console.log('finalObject')
-  console.log(finalChapters)
-  console.log('finalObject')
+  // console.log('finalObject')
+  // console.log(finalChapters)
+  // console.log('finalObject')
     return finalChapters
 }
 
