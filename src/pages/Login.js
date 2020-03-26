@@ -29,7 +29,8 @@ const LoginPage = () => {
     document.title = 'Inovia AI :: Log in 🗝'
   })
 
-  const login = () => {
+  const login = (e) => {
+    e.preventDefault()
     if (username === '' || password === '') {
       swal({
         title: 'Felaktigt användarnamn eller lösenord',
@@ -67,8 +68,10 @@ const LoginPage = () => {
   }
 
   return (
-      <div className="login">
-
+      <form
+        className="login"
+        onSubmit={login}
+      >
         <EuiImage
           className="logo"
           size="m"
@@ -100,13 +103,12 @@ const LoginPage = () => {
             size="l"
             style={{color:"white"}}
             type="submit"
-            onClick={() => login()}
           >
             Logga In
           </EuiButtonEmpty>
         </EuiFlexItem>
       </EuiFlexGroup>
-      </div>
+      </form>
   )
 }
 

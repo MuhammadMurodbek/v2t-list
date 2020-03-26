@@ -1,3 +1,7 @@
+body, #root {
+  height: 100%;
+}
+
 .euiImage.logo {
   margin-bottom: 5vh;
 }
