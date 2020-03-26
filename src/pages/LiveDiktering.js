@@ -43,7 +43,12 @@ export default class LiveDiktering extends Component {
       'DIAGNOS': [] 
     }, 
     isMicrophoneStarted: false,
-    tags: []
+    tags: [],
+    seconds: 0,
+    duration: 0.0,
+    previousDuration: 0.0,
+    previousCurrentTime: new Date(),
+    initialRecordTime: null
   }
 
   componentDidMount = () => {
@@ -134,6 +139,19 @@ export default class LiveDiktering extends Component {
       .call(this.audioContext, 1024, 1, 1)
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
+      const {
+        initialRecordTime, previousCurrentTime, microphoneBeingPressed, seconds
+      } = prevState.state
+      if (microphoneBeingPressed) {
+        const currentTime = new Date()
+        if (currentTime.getSeconds() !== previousCurrentTime.getSeconds()) {
+          prevState.setState({
+            seconds: seconds + 1,
+            previousCurrentTime: currentTime,
+            duration: Math.ceil((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
+          })
+        }
+      } 
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
@@ -217,7 +235,7 @@ export default class LiveDiktering extends Component {
 
   toggleRecord = () => {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { microphoneBeingPressed, originalText, currentText } = this.state
+    const { microphoneBeingPressed, originalText, currentText, initialRecordTime } = this.state
     if (microphoneBeingPressed === true) {
       // console.log('stop recording')
       this.setState({ recording: false }, () => {
@@ -232,6 +250,12 @@ export default class LiveDiktering extends Component {
       // console.log('start recording')
       // console.log(this.socketio.connected)
       this.setState({ recording: true }, ()=> {
+        if (!initialRecordTime) {
+          const recordTime = new Date()
+          this.setState({
+            initialRecordTime: recordTime
+          })
+        }
         // console.log('then')
         // console.log(this.socketio.connected)
         this.setState({ microphoneBeingPressed: true })
@@ -273,7 +297,9 @@ export default class LiveDiktering extends Component {
       microphoneBeingPressed,
       listOfTemplates,
       sections,
-      tags
+      tags,
+      seconds
+
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
@@ -301,9 +327,9 @@ export default class LiveDiktering extends Component {
           </EuiFlexItem>
           <EuiFlexItem grow={false} style={{ minWidth: 230, marginLeft: 30 }}>
             <Mic
-              recordingAction={recordingAction}
               microphoneBeingPressed={microphoneBeingPressed}
               toggleRecord={this.toggleRecord}
+              seconds={seconds}
             />
             <EuiSpacer size="l" />
             <Tags
