@@ -12,6 +12,22 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
         })
       })
     }) 
+
+
+  //   console.log('..............:')
+  //   console.log('..............:')
+  //   console.log('wordsOfTheChapter')
+  //   console.log(wordsOfTheChapter)
+  //   console.log('..............:')
+  //   console.log('..............:')
+  //   console.log('..............:')
+  // console.log('sectionHeadersInLowerCase')
+  // console.log(sectionHeadersInLowerCase)
+  //   console.log('..............:')
+  //   console.log('..............:')
+
+
+  //   // 
   let usedSectionHeaders = []
   let newlyOrientedWords = []
   let latestKeyword = 'kontaktorsak'
@@ -58,15 +74,15 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
         tempObject.keyword = word.keyword  
         tempObject.segments.push({
           words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
-  //       })
-  //     }
-  //   } else {
-  //     tempObject.keyword = word.keyword
-  //     tempObject.segments.push({
-  //       words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
-  //     })
-  //   }
-  // })
+        })
+      }
+    } else {
+      tempObject.keyword = word.keyword
+      tempObject.segments.push({
+        words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
+      })
+    }
+  })
 
   // console.log('finalObject')
   // console.log(finalChapters)
