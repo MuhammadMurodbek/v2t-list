@@ -6,7 +6,7 @@ import '../styles/pageNotFound.css'
 
 const Invalid = () => {
   return (
-    <div>
+    <div className="land-wrapper">
       <div id="land">
         <EuiFlexGroup>
           <EuiFlexItem>
