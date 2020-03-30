@@ -48,7 +48,7 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
     } else {
       newlyOrientedWords.push({
         keyword: latestKeyword,     
-        words: segment.words.trim().toLowerCase(),
+        words: segment.words.trim(),
         startTime: segment.startTime,
         endTime: segment.endTime
       })
