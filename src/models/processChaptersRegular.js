@@ -37,13 +37,13 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
 
   const usedSectionHeaders = []
   const newlyOrientedWords = []
-  let latestKeyword = 'kontaktorsak'
+  let latestKeyword = sectionHeaders[0]
   wordsOfTheChapter.forEach((segment)=>{
     if (
       sectionHeadersInLowerCase.includes(segment.words.trim().toLowerCase())
       && !usedSectionHeaders.includes(segment.words.trim().toLowerCase())
     ) {
-      latestKeyword = segment.words.trim().toLowerCase()
+      latestKeyword = segment.words.trim()
       usedSectionHeaders.push(segment.words.trim().toLowerCase())
     } else {
       newlyOrientedWords.push({
@@ -55,6 +55,9 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
     }
   })
 
+// console.log('newlyOrientedWords')
+// console.log(newlyOrientedWords)
+  
   const finalChapters = []
   let tempObject = {segments:[]}
   newlyOrientedWords.forEach((word, i)=> {
@@ -81,6 +84,9 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
     }
   })
 
+
+  // console.log('finalChapters')
+  // console.log(finalChapters)
   // Capitalize
   const finalChaptersCapitalized = capitalizedTranscript(finalChapters)
   // Correct the case of the keyword

@@ -142,7 +142,8 @@ export default class EditPage extends Component {
 
     if (templates) {
       const { data } = templates
-      console.log(templates)
+      // console.log('templates')
+      // console.log(templates)
       this.setState({
         templates: data,
         defaultTemplate: template_id,
