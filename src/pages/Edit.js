@@ -1,10 +1,11 @@
+// @ts-nocheck
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 /* eslint-disable camelcase */
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton, EuiHorizontalRule
+  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton, EuiHorizontalRule, EuiButtonEmpty
 } from '@elastic/eui'
 import swal from 'sweetalert'
 import api from '../api'
@@ -514,18 +515,30 @@ export default class EditPage extends Component {
           </EuiFlexGroup>
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="secondary" onClick={this.finalize}>
-                Skicka till Webdoc
-              </EuiButton>
+              <EuiButtonEmpty color="#000000" onClick={this.cancel}>
+                Avbryt
+              </EuiButtonEmpty>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton color="secondary" onClick={this.save}>
+              <EuiButton
+                color="subdued"
+                style={{
+                  border: 'solid 1px black',
+                  borderRadius: '25px'
+                }}
+                onClick={this.save}>
                 Spara ändringar
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-              <EuiButton fill color="danger" onClick={this.cancel}>
-                Avbryt
+              <EuiButton
+                style={{
+                  background: 'rgb(9, 99, 255)',
+                  color: 'white',
+                  borderRadius: '25px'
+                }}
+                onClick={this.finalize}>
+                Skicka till Webdoc
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
