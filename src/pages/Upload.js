@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import {
@@ -30,6 +31,8 @@ export default class UploadPage extends Component {
     doktorsnamn: '',
     avdelning: '',
     selectedJob: 'KS Lungs',
+    selectedTemplate: 'ext1',
+    templates:[],
     jobs: [{
       value: 'KS Lungs',
       inputDisplay: 'KS - Lungs',
@@ -82,6 +85,25 @@ export default class UploadPage extends Component {
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Ladda Upp'
     localStorage.setItem('transcriptId', '')
+    // load the list of templates
+    const templates = await api.getSectionTemplates()
+    if(templates.data) {
+      const listOfTemplates = templates.data.templates
+      if (listOfTemplates){
+        const templateOptions = listOfTemplates.map((template)=>{
+          return {
+            value: template.id,
+            inputDisplay: template.name,
+            dropdownDisplay: (
+              <DropDown
+                title={template.name}
+              />
+            )        
+          }
+        })
+        this.setState({ templates: templateOptions })
+      }
+    }
   }
 
   onMetadataChange = (metaData) => {
@@ -173,13 +195,13 @@ export default class UploadPage extends Component {
     this.setState({ toasts: [] })
   }
 
+  onTemplateChange = (selectedTemplate) => {
+    this.setState({ selectedTemplate })
+  }
+
   render() {
     const {
-      loading,
-      metaData,
-      toasts,
-      selectedJob,
-      jobs
+      loading, metaData, toasts, selectedJob, jobs, templates, selectedTemplate
     } = this.state
     
     return (
@@ -206,6 +228,16 @@ export default class UploadPage extends Component {
               options={jobs}
               valueOfSelected={selectedJob}
               onChange={this.onJobChange}
+              itemLayoutAlign="top"
+              hasDividers
+            />
+          </EuiFormRow>
+          <EuiSpacer size="l" />
+          <EuiFormRow label="Välj template för transkriptet">
+            <EuiSuperSelect
+              options={templates}
+              valueOfSelected={selectedTemplate}
+              onChange={this.onTemplateChange}
               itemLayoutAlign="top"
               hasDividers
             />
