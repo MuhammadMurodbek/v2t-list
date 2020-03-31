@@ -9,6 +9,9 @@ import io from 'socket.io-client'
 import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 
+import * as recorder from '../utils/recorder'
+import RecordList from '../components/RecordList'
+
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
@@ -42,7 +45,8 @@ export default class GuidedLive extends Component {
     previousCurrentTime: new Date(),
     initialRecordTime: null,
     seconds: 0,
-    toasts: []
+    toasts: [],
+    recordedAudioClips: []
   }
 
   componentDidMount = () => {
@@ -63,8 +67,8 @@ export default class GuidedLive extends Component {
   }
 
   convertToMono = (input) => {
-    var splitter = this.audioContext.createChannelSplitter(2)
-    var merger = this.audioContext.createChannelMerger(2)
+    const splitter = this.audioContext.createChannelSplitter(2)
+    const merger = this.audioContext.createChannelMerger(2)
     input.connect(splitter)
     splitter.connect(merger, 0, 0)
     splitter.connect(merger, 0, 1)
@@ -76,12 +80,15 @@ export default class GuidedLive extends Component {
     const inputPoint = this.audioContext.createGain()
     // Create an AudioNode from the stream.
     const realAudioInput = this.audioContext.createMediaStreamSource(stream)
+
     let audioInput = realAudioInput
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
+
     const analyserNode = this.audioContext.createAnalyser()
     analyserNode.fftSize = 2048
     inputPoint.connect(analyserNode)
+
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
@@ -144,6 +151,7 @@ export default class GuidedLive extends Component {
           prevState.setState({ microphoneBeingPressed: false, recordingAction: 'Starta' })
           prevState.socketio.emit('end-recording')
           prevState.socketio.close()
+          recorder.stop()
         })
       } else {
         prevState.setState({ currentText: text }, () => {
@@ -153,7 +161,7 @@ export default class GuidedLive extends Component {
     })
   }
 
-  initAudio = () => {
+  initAudio = async () => {
     if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {}
     }
@@ -182,13 +190,20 @@ export default class GuidedLive extends Component {
       }
     }
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
+    await navigator.mediaDevices.getUserMedia({ audio: true })
       .then((stream) => {
+        recorder.init(stream, this.addClipHandler)
         this.gotStream(stream)
       })
       .catch(function (err) {
         console.log(`${err.name} : ${err.message}`)
       })
+  }
+
+  addClipHandler = (clip) => {
+    this.setState({
+      recordedAudioClips: [...this.state.recordedAudioClips, clip]
+    })
   }
 
   toggleRecord = () => {
@@ -204,10 +219,12 @@ export default class GuidedLive extends Component {
         // Close the socket
         this.socketio.emit('end-recording')
         this.socketio.close()
+        recorder.stop()
+        //this.audioContext.close()
         this.setState({ originalText: `${originalText} ${currentText}` })
       })
     } else {
-      this.setState({ recording: true }, () => {
+      this.setState({ recording: true }, async() => {
         if (!initialRecordTime) {
           const recordTime = new Date()
           this.setState({
@@ -216,12 +233,13 @@ export default class GuidedLive extends Component {
         }
         this.setState({ microphoneBeingPressed: true })
         this.setState({ recordingAction: 'Avsluta' })
-        this.initAudio()
+        await this.initAudio()
         this.socketio.emit('start-recording', {
           numChannels: 1,
           bps: 16,
           fps: parseInt(this.audioContext.sampleRate)
         })
+        recorder.start()
       })
     }
   }
@@ -234,7 +252,8 @@ export default class GuidedLive extends Component {
   render() {
     const {
       microphoneBeingPressed, finalText, currentText,
-      listOfTemplates, templatesForMenu, seconds
+      listOfTemplates, templatesForMenu, seconds,
+      recordedAudioClips
     } = this.state
 
     return (
@@ -257,6 +276,11 @@ export default class GuidedLive extends Component {
               listOfTemplates={listOfTemplates}
               templatesForMenu={templatesForMenu}
             />
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup>
+          <EuiFlexItem>
+            <RecordList audioClips={recordedAudioClips}/>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
