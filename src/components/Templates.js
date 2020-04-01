@@ -42,8 +42,7 @@ const Templates = ({
   const template = listOfTemplates
     .find(template => template.id === selectedTemplate)
   const sections = template ? template.sections : []
-  const sectionNames = sections.map(section => section.name)
-  
+  const sectionNames = sections ? sections.map(section => section.name) : []
   return (  
     <Fragment>
       <EuiText size="xs">
