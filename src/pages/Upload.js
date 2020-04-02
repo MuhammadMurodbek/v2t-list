@@ -32,7 +32,6 @@ export default class UploadPage extends Component {
     avdelning: '',
     selectedJob: 'KS Lungs',
     selectedTemplate: 'ext1',
-    templates:[],
     jobs: [{
       value: 'KS Lungs',
       inputDisplay: 'KS - Lungs',
@@ -60,7 +59,10 @@ export default class UploadPage extends Component {
     }]
   }
 
-  state = this.DEFAULT_STATE
+  state = {
+    ...this.DEFAULT_STATE, 
+    templates: []
+  }
 
   options = [{
     value: 'default',
