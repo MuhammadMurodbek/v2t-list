@@ -176,15 +176,22 @@ export default class LiveDikteringEnglish extends Component {
     zeroGain.connect(this.audioContext.destination)
     // updateAnalysers();
     this.socketio.on('add-transcript', function (text) {
-      // add new recording to page
-      const { originalText } = prevState.state
-      prevState.setState({ currentText: text }, () => {
-        // console.log('prevState.state.whole')
-        const finalText = `${originalText} ${prevState.state.currentText}`
-        // console.log(finalText)
-        const { sections } = prevState.state
-        prevState.setState({ chapters: processChapters(finalText, sections, Object.keys(sections)[0]) })
-      })
+      if (text.includes('stop recording') || text.includes('Stop recording')) {
+        prevState.setState({ recording: false, microphoneBeingPressed: false }, () => {
+          prevState.socketio.emit('end-recording')
+          prevState.socketio.close()
+        })
+      } else {
+        // add new recording to page
+        const { originalText } = prevState.state
+        prevState.setState({ currentText: text }, () => {
+          // console.log('prevState.state.whole')
+          const finalText = `${originalText} ${prevState.state.currentText}`
+          // console.log(finalText)
+          const { sections } = prevState.state
+          prevState.setState({ chapters: processChapters(finalText, sections, Object.keys(sections)[0]) })
+        })
+      }
     })
   }
 
