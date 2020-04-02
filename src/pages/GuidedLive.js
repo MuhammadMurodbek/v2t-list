@@ -83,7 +83,7 @@ export default class GuidedLive extends Component {
     const prevState = this
 
     scriptNode.onaudioprocess = (audioEvent) => {
-      if(prevState.seconds !== Math.ceil(this.audioContext.currentTime)) {
+      if(prevState.state.seconds !== Math.ceil(this.audioContext.currentTime)) {
         prevState.setState({
           seconds: Math.ceil(this.audioContext.currentTime)
         })
