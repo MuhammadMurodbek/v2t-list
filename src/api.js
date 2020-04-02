@@ -61,7 +61,7 @@ const keywordsSearch = (searchTerm) => {
     })
 }
 
-const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning) => {
+const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate) => {
   const body = new FormData()
   body.append('media', file)
   if (metadata) {
@@ -69,6 +69,7 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
       transcription: {
         model: metadata,
         tags: [selectedJob],
+        language: 'sv',
         fields: {
           department_id: 'KS_Heart',
           department_name: avdelning,
@@ -82,7 +83,7 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
         }
       },
       word_spotter: {
-        section_template: 'ext1',
+        section_template: selectedTemplate,
         categories: ["icd-10"]
       },
       export: [

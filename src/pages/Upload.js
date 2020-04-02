@@ -144,11 +144,12 @@ export default class UploadPage extends Component {
       patientsnamn,
       patientnummer,
       doktorsnamn,
-      avdelning
+      avdelning,
+      selectedTemplate
     } = this.state
 
     const requests = Array.from(files)
-      .map(file => api.uploadMedia(file, metaData, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning))
+      .map(file => api.uploadMedia(file, metaData, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate))
     await Promise.all(requests)
       .catch(this.onUploadFailed)
     return this.onUploaded()
