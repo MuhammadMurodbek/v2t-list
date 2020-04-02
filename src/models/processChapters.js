@@ -38,7 +38,8 @@ const isItAValidKeyword = (listOfProbableKeywords, finalText, i) => {
 }
 
 const capitalize = (str) => str
-  .trim().charAt(0).toUpperCase() + str.trim().slice(1)
+  // .trim().charAt(0).toUpperCase() + str.trim().slice(1)
+  .trim().charAt(0).toUpperCase() + str.slice(1)
 
 const capitalizeSections = (tempChapters) => {
   return tempChapters.map(({ keyword, segments }) => {
@@ -53,6 +54,33 @@ const capitalizeSections = (tempChapters) => {
       ]
     }
   })
+}
+
+const getCorrectKeyword = (keyword, updatedSections) => {
+  const allTheKeywords = Object.keys(updatedSections)
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  const keywords = allTheKeywords.map(section=>
+    section.toUpperCase() === keyword.toUpperCase() ? section: ''
+  )
+  const correctCasedKeyword = keywords.filter(k=>k.length>0)[0]
+  return correctCasedKeyword
+}
+const fixedCaseSections = (tempChapters, updatedSectionNames) => {
+
+  return tempChapters.map(({ keyword, segments }) => {
+    return {
+      keyword: getCorrectKeyword(keyword, updatedSectionNames),
+      segments
+    }
+  })
+
 }
 
 const putPunkt = (str) =>
@@ -75,18 +103,19 @@ const setThePunkt = (tempChapters) => {
   })
 }
 
-const processChapters = (finalText, updatedSections) => {
-  const usedKeywords = ['KONTAKTORSAK']
+const processChapters = (finalText, updatedSections, firstKeyword) => {
+  let usedKeywords = ['Examination']
   const words = finalText.split(' ')
   const tempChapters = [{
-    keyword: 'KONTAKTORSAK',
+    keyword: firstKeyword,
     segments: [{ words: '', startTime: 0.00, endTime: 0.00 }]
   }]
 
   for (let i = 0; i <= words.length - 1; i++) {
     // If the current word is a section header/ or substring of a 
     // section header and never used as a keyword
-    if (words[i].trim().length > 0) {
+    // if (words[i].trim().length > 0) {
+    if (words[i].length > 0) {
       if (
         Object
           .keys(updatedSections)
@@ -104,10 +133,12 @@ const processChapters = (finalText, updatedSections) => {
           .map(section => section.toUpperCase())
           .includes(words[i].toUpperCase())) {
           tempChapters.push({
-            keyword: words[i].toUpperCase(),
+            // keyword: words[i].toUpperCase(),
+            keyword: words[i],
             segments: [{ words: '', startTime: 0.00, endTime: 0.00 }]
           })
-          usedKeywords.push(words[i].toUpperCase())
+          // usedKeywords.push(words[i].toUpperCase())
+          usedKeywords.push(words[i])
         } else {
           const listOfProbableKeywords = getTheFullKeyWords(words[i],
             Object
@@ -167,7 +198,8 @@ const processChapters = (finalText, updatedSections) => {
             } else {
               if (words[i] === '\n') {
                 tempChapters[tempChapters.length - 1].segments[0].words
-                  = `${tempChapters[tempChapters.length - 1].segments[0].words} `
+                  = `${tempChapters[tempChapters.length - 1].segments[0].words} \n`
+                console.log('a')
               } else {
                 tempChapters[tempChapters.length - 1].segments[0].words
                   = `${tempChapters[tempChapters.length - 1]
@@ -177,7 +209,8 @@ const processChapters = (finalText, updatedSections) => {
           } else {
             if (words[i] === '\n') {
               tempChapters[tempChapters.length - 1].segments[0].words
-                = `${tempChapters[tempChapters.length - 1].segments[0].words} `
+                = `${tempChapters[tempChapters.length - 1].segments[0].words} \n`
+              console.log('b')
             } else {
               tempChapters[tempChapters.length - 1].segments[0].words
                 = `${tempChapters[tempChapters.length - 1]
@@ -211,7 +244,8 @@ const processChapters = (finalText, updatedSections) => {
         } else {
           if (words[i] === '\n') {
             tempChapters[tempChapters.length - 1].segments[0].words
-              = `${tempChapters[tempChapters.length - 1].segments[0].words} `
+              = `${tempChapters[tempChapters.length - 1].segments[0].words} \n`
+            console.log('c')
           } else {
             tempChapters[tempChapters.length - 1].segments[0].words
               = `${tempChapters[tempChapters.length - 1]
@@ -221,7 +255,8 @@ const processChapters = (finalText, updatedSections) => {
       } else {
         if (words[i] === '\n') {
           tempChapters[tempChapters.length - 1].segments[0].words
-            = `${tempChapters[tempChapters.length - 1].segments[0].words} `
+            = `${tempChapters[tempChapters.length - 1].segments[0].words} \r`
+          console.log('d')
         } else {
           tempChapters[tempChapters.length - 1].segments[0].words
             = `${tempChapters[tempChapters.length - 1]
@@ -231,10 +266,12 @@ const processChapters = (finalText, updatedSections) => {
     }
   }
 
-
+  // Fix the case of a section header as per backend data
+  const fixedCase = fixedCaseSections(tempChapters, updatedSections)
   // Capitalize the transcript
-  const capitalized = capitalizeSections(tempChapters)
+  const capitalized = capitalizeSections(fixedCase)
   return capitalized ? setThePunkt(capitalized) : tempChapters
+  // return tempChapters
 }
 
 export default processChapters
