@@ -5,7 +5,7 @@ const init =  (stream, addClip) => {
   if(!mediaRecorder)
     mediaRecorder = new MediaRecorder(stream)
 
-  mediaRecorder.onstop = function(e) {
+  mediaRecorder.onstop = function() {
     const currentTime = new Date()
     const year = currentTime.getFullYear()
     const month = currentTime.getMonth() + 1
@@ -31,11 +31,15 @@ const init =  (stream, addClip) => {
 }
 
 function start() {
-  mediaRecorder.start()
+  if(mediaRecorder.state === 'inactive'){
+    mediaRecorder.start()
+  }
 }
 
 function stop() {
-  mediaRecorder.stop()
+  if(mediaRecorder.state === 'recording'){
+    mediaRecorder.stop()
+  }
 }
 
 export { init, start, stop }
