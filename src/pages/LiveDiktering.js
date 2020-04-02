@@ -185,7 +185,6 @@ export default class LiveDiktering extends Component {
     zeroGain.connect(this.audioContext.destination)
     // updateAnalysers();
     // @ts-ignore
-    const {sections} = this.state
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
       const { originalText } = prevState.state

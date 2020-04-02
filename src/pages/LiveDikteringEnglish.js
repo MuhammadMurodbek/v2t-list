@@ -175,7 +175,6 @@ export default class LiveDikteringEnglish extends Component {
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
     // updateAnalysers();
-    const { sections } = this.state
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
       const { originalText } = prevState.state
