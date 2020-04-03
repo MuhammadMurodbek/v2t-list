@@ -236,7 +236,7 @@ export default class UploadPage extends Component {
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
-          <EuiFormRow label="Välj template för transkriptet">
+          <EuiFormRow label="Välj journalmall för transkriptet">
             <EuiSuperSelect
               options={templates}
               valueOfSelected={selectedTemplate}
