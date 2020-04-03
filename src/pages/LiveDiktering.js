@@ -3,6 +3,7 @@
 import React, { Component } from 'react'
 // @ts-ignore
 import {
+  EuiButtonEmpty,
   EuiText,
   EuiSpacer,
   EuiFlexGroup,
@@ -373,30 +374,46 @@ export default class LiveDiktering extends Component {
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiFlexGroup>
+        <EuiFlexGroup justifyContent="flexStart">
           <EuiFlexItem grow={false}>
-            <EuiButton fill color="secondary" onClick={() => { }}>Skicka till
-                Webdoc</EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton 
-              fill
-              color="danger"
-              onClick={this.sendAsHorrribleTranscription}>
-              “Skicka för granskning”
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton color="secondary" onClick={this.save}>
-              Spara ändringar
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton fill color="danger" onClick={() => { }}>
+            <EuiButtonEmpty color="#000000" onClick={() => { }}>
               Avbryt
-            </EuiButton>
+              </EuiButtonEmpty>
           </EuiFlexItem>
-        </EuiFlexGroup>
+          <EuiFlexItem grow={false}>
+            <EuiButton
+              color="subdued"
+              style={{
+                border: 'solid 1px black',
+                borderRadius: '25px'
+              }}
+              onClick={() => { }}>
+              Spara ändringar
+              </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton
+              style={{
+                background: 'rgb(112, 221, 127)',
+                borderRadius: '25px',
+                color: 'black'
+              }}
+              onClick={() => { }}>
+              “Skicka för granskning”
+              </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem grow={false}>
+            <EuiButton
+              style={{
+                background: 'rgb(9, 99, 255)',
+                color: 'white',
+                borderRadius: '25px'
+              }}
+              onClick={() => { }}>
+              Skicka till Webdoc
+              </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>      
       </Page>
     )
   }
