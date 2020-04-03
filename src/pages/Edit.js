@@ -143,8 +143,8 @@ export default class EditPage extends Component {
 
     if (templates) {
       const { data } = templates
-      // console.log('templates')
-      // console.log(templates)
+      console.log('templates')
+      console.log(templates)
       this.setState({
         templates: data,
         defaultTemplate: template_id,
@@ -397,12 +397,32 @@ export default class EditPage extends Component {
   }
 
   updateSectionHeader = (sectionHeaders) => {
-    const {chapters} = this.state
+    const {chapters, templates, templateId} = this.state
     this.setState({ sectionHeaders }, () => {
       console.log('selected section headers')
       console.log(sectionHeaders)
-      console.log('chapters')
-      console.log(this.state.chapters)
+      console.log('template xxx')
+      console.log(templates)
+      // console.log('chapters')
+      // console.log(this.state.chapters)
+      //Add synonyms with the section headers
+      // without synonyms
+      let sectionHeadersWithSynonyms = sectionHeaders
+      const selectedTemplate = templates
+        .templates
+        .filter(template => template.id === templateId)
+        .map(template => template.sections)
+
+      if (selectedTemplate[0]){
+        const synonyms = selectedTemplate.map(section => section.synonyms ? section.synonyms : []).flat()
+        const derivedKeywords = selectedTemplate.map(section => section.name)
+        // sectionHeadersWithSynonyms = sectionHeadersWithSynonyms.push(synonyms)
+        console.log('selectedTemplate...............')
+        console.log(selectedTemplate)
+        // console.log(derivedKeywords)
+        console.log('selectedTemplate...............')
+      }
+
       const processedCh = processChaptersRegular(chapters, sectionHeaders)
       this.setState({ chapters: processedCh })
     })

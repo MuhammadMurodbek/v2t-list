@@ -38,8 +38,7 @@ const isItAValidKeyword = (listOfProbableKeywords, finalText, i) => {
 }
 
 const capitalize = (str) => str
-  .trim().charAt(0).toUpperCase() + str.trim().slice(1)
-  // .trim().charAt(0).toUpperCase() + str.slice(1)
+  .trim().charAt(0).toUpperCase() + str.trim().slice(1) 
 
 const capitalizeSections = (tempChapters) => {
   return tempChapters.map(({ keyword, segments }) => {
@@ -73,7 +72,6 @@ const getCorrectKeyword = (keyword, updatedSections) => {
   return correctCasedKeyword
 }
 const fixedCaseSections = (tempChapters, updatedSectionNames) => {
-
   return tempChapters.map(({ keyword, segments }) => {
     return {
       keyword: getCorrectKeyword(keyword, updatedSectionNames),
