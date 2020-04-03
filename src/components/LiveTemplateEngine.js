@@ -10,17 +10,21 @@ import {
 import ListOfHeaders from './ListOfHeaders'
 import '../App.css'
 
-const LiveTemplateEngine = ({ listOfTemplates, usedSections, updatedSections }) => {
+const LiveTemplateEngine = ({ listOfTemplates, usedSections, defaultTemplate, updatedSections }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('ext1')
+  const [defaultTemplateLoadStatus, setDefaultTemplateLoadStatus] = useState(false)
   const [sectionHeaders, setSectionHeaders] = useState([
-    { name: 'KONTAKTORSAK', done: true },
-    { name: 'AT', done: false },
-    { name: 'LUNGOR', done: false },
-    { name: 'BUK', done: false },
-    { name: 'DIAGNOS', done: false }])
+    { name: 'Examination', done: true },
+    { name: 'Clinical details', done: false },
+    { name: 'Findings', done: false },
+    { name: 'Comment', done: false }])
     
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
+    if (defaultTemplateLoadStatus===false) {
+      setDefaultTemplateLoadStatus(true)  
+      setSelectedTemplate(defaultTemplate)
+    }
     updateSectionHeader()
   })
   

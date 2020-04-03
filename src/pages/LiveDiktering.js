@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
+// @ts-ignore
 import React, { Component } from 'react'
+// @ts-ignore
 import {
   EuiText,
   EuiSpacer,
@@ -8,18 +10,26 @@ import {
   EuiButton 
 } from '@elastic/eui'
 import api from '../api'
+// @ts-ignore
 import LiveEditor from '../components/LiveEditor'
+// @ts-ignore
 import Mic from '../components/Mic'
+// @ts-ignore
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import interpolateArray from '../models/interpolateArray'
+// @ts-ignore
 import PersonalInformation from '../components/PersonalInformation'
+// @ts-ignore
 import Tags from '../components/Tags'
 import io from 'socket.io-client'
+// @ts-ignore
 import Page from '../components/Page'
 import processChapters from '../models/processChapters'
+// @ts-ignore
 import inoviaLogo from '../img/livediktering.png'
 
 export default class LiveDiktering extends Component {
+  // @ts-ignore
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
@@ -108,11 +118,12 @@ export default class LiveDiktering extends Component {
       updatedText = updatedText.replace(/ny rad/g, '')
       updatedText = updatedText.replace(/\n/g, '')
       this.setState({
-        chapters: processChapters(updatedText, updatedSectionNames)
+        chapters: processChapters(updatedText, updatedSectionNames, Object.keys(updatedSectionNames)[0])
       })
     } // else do nothing 
   }
 
+  // @ts-ignore
   updatedSections = (sections) => {
     console.log('before validating')
     console.log(sections)
@@ -120,6 +131,7 @@ export default class LiveDiktering extends Component {
     this.setState({ sections })
   }
 
+  // @ts-ignore
   gotStream = (stream) => {
     const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
@@ -172,7 +184,7 @@ export default class LiveDiktering extends Component {
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
     // updateAnalysers();
-    const {sections} = this.state
+    // @ts-ignore
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
       const { originalText } = prevState.state
@@ -180,17 +192,22 @@ export default class LiveDiktering extends Component {
         // console.log('prevState.state.whole')
         const finalText = `${originalText} ${prevState.state.currentText}`
         // console.log(finalText)
-        prevState.setState({ chapters: processChapters(finalText, sections) })
+        const { sections } = prevState.state
+        prevState.setState({ chapters: processChapters(finalText, sections, Object.keys(sections)[0]) })
+        // prevState.setState({ chapters: processChapters(finalText, sections) })
       })
     })
   }
 
+  // @ts-ignore
   onCursorTimeChange = () => {
     
   }
 
+  // @ts-ignore
   initAudio = () => {
     if (navigator.mediaDevices === undefined) {
+      // @ts-ignore
       navigator.mediaDevices = {}
     }
 
@@ -203,6 +220,7 @@ export default class LiveDiktering extends Component {
 
         // First get ahold of the legacy getUserMedia, if present
         const getUserMedia 
+          // @ts-ignore
           = navigator.webkitGetUserMedia || navigator.mozGetUserMedia
 
         // Some browsers just don't implement it 
@@ -233,7 +251,9 @@ export default class LiveDiktering extends Component {
   }
 
 
+  // @ts-ignore
   toggleRecord = () => {
+    // @ts-ignore
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { microphoneBeingPressed, originalText, currentText, initialRecordTime } = this.state
     if (microphoneBeingPressed === true) {
@@ -271,10 +291,12 @@ export default class LiveDiktering extends Component {
     }
   }
 
+  // @ts-ignore
   sendAsHorrribleTranscription = () => {
 
   }
 
+  // @ts-ignore
   save = () => {
     /* Check the template compatibility, 
     // if the section headers don't belong to the template, 
@@ -290,16 +312,23 @@ export default class LiveDiktering extends Component {
     }
   }
 
+  // @ts-ignore
   render() {
     const {
       chapters,
+      // @ts-ignore
       microphoneBeingPressed,
+      // @ts-ignore
       listOfTemplates,
+      // @ts-ignore
       sections,
+      // @ts-ignore
       tags,
+      // @ts-ignore
       seconds
 
     } = this.state
+    // @ts-ignore
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
       <Page preferences logo={inoviaLogo}>
@@ -339,6 +368,7 @@ export default class LiveDiktering extends Component {
             <LiveTemplateEngine
               listOfTemplates={listOfTemplates}
               usedSections={usedSections}
+              defaultTemplate={'ext1'}
               updatedSections={this.updatedSections} 
             />
           </EuiFlexItem>

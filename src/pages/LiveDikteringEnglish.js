@@ -18,14 +18,14 @@ export default class LiveDikteringEnglish extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  socketio = io.connect('ilxgpu9000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
+  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
   state = {
     recording: false,
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
     listOfTemplates: [],
     chapters: [{
-      keyword: 'KONTAKTORSAK',
+      keyword: '',
       segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
     }],
     originalText: '',
@@ -65,7 +65,10 @@ export default class LiveDikteringEnglish extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
+    const { usedSections } = this.state
     // micStream.stop()
+    console.log('lets see')
+    console.log(usedSections)
     this.setState({ chapters })
   }
 
@@ -80,6 +83,11 @@ export default class LiveDikteringEnglish extends Component {
 
   validateSections = (updatedSectionNames) => {
     const { sections, chapters } = this.state
+    // console.log('validating')
+    // console.log(sections)
+    // console.log('updatedSectionNames')
+    const firstKeyword = Object.keys(updatedSectionNames)[0]
+
     if (JSON.stringify(sections) !== JSON.stringify(updatedSectionNames)) {
       // cheeck if the current sections are incompatible  
       // shuffle chapters according to the new template
@@ -90,19 +98,28 @@ export default class LiveDikteringEnglish extends Component {
           updatedText = `${updatedText} ${segment.words}`
         })
       })
-      updatedText = updatedText.replace('KONTAKTORSAK', '')
+
+      updatedText = updatedText.replace(firstKeyword, '')
       updatedText = updatedText.replace(/\s\s+/g, ' ')
       updatedText = updatedText.replace(/ny rad/g, '')
       updatedText = updatedText.replace(/\n/g, '')
+
       this.setState({
-        chapters: processChapters(updatedText, updatedSectionNames)
+        chapters: processChapters(updatedText, updatedSectionNames, firstKeyword)
       })
     } // else do nothing 
   }
 
   updatedSections = (sections) => {
-    this.validateSections(sections)
+    // console.log('hoho ho')
+    // console.log('hoho ho')
+    // console.log('hoho ho')
+    // console.log('hoho ho')
+    // console.log('hoho ho')
+    // console.log('hoho ho')
     this.setState({ sections })
+    this.validateSections(sections)
+
   }
 
   gotStream = (stream) => {
@@ -136,7 +153,7 @@ export default class LiveDikteringEnglish extends Component {
           })
         }
       }
-      
+
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
@@ -150,7 +167,7 @@ export default class LiveDikteringEnglish extends Component {
         prevState.socketio.emit('write-audio', buffer)
       }
     }
-    
+
     inputPoint.connect(scriptNode)
     scriptNode.connect(this.audioContext.destination)
     const zeroGain = this.audioContext.createGain()
@@ -158,20 +175,27 @@ export default class LiveDikteringEnglish extends Component {
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
     // updateAnalysers();
-    const { sections } = this.state
     this.socketio.on('add-transcript', function (text) {
-      // add new recording to page
-      const { originalText } = prevState.state
-      prevState.setState({ currentText: text }, () => {
-        // console.log('prevState.state.whole')
-        const finalText = `${originalText} ${prevState.state.currentText}`
-        // console.log(finalText)
-        prevState.setState({ chapters: processChapters(finalText, sections) })
-      })
+      if (text.includes('stop recording') || text.includes('Stop recording')) {
+        prevState.setState({ recording: false, microphoneBeingPressed: false }, () => {
+          prevState.socketio.emit('end-recording')
+          prevState.socketio.close()
+        })
+      } else {
+        // add new recording to page
+        const { originalText } = prevState.state
+        prevState.setState({ currentText: text }, () => {
+          // console.log('prevState.state.whole')
+          const finalText = `${originalText} ${prevState.state.currentText}`
+          // console.log(finalText)
+          const { sections } = prevState.state
+          prevState.setState({ chapters: processChapters(finalText, sections, Object.keys(sections)[0]) })
+        })
+      }
     })
   }
 
-  onCursorTimeChange = () => {}
+  onCursorTimeChange = () => { }
 
   initAudio = () => {
     if (navigator.mediaDevices === undefined) {
@@ -184,7 +208,7 @@ export default class LiveDikteringEnglish extends Component {
     // Here, we will just add the getUserMedia property if it's missing.
     if (navigator.mediaDevices.getUserMedia === undefined) {
       navigator.mediaDevices.getUserMedia = function (constraints) {
-      // First get ahold of the legacy getUserMedia, if present
+        // First get ahold of the legacy getUserMedia, if present
         const getUserMedia
           = navigator.webkitGetUserMedia || navigator.mozGetUserMedia
 
@@ -252,7 +276,7 @@ export default class LiveDikteringEnglish extends Component {
     }
   }
 
-  sendAsHorrribleTranscription = () => {}
+  sendAsHorrribleTranscription = () => { }
 
   save = () => {
     /* Check the template compatibility, 
@@ -263,7 +287,7 @@ export default class LiveDikteringEnglish extends Component {
     */
     if (!this.socketio.connected) {
       this.socketio
-        .connect('ilxgpu9000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
+        .connect('wss://ilxgpu9000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
     }
   }
 
@@ -278,7 +302,7 @@ export default class LiveDikteringEnglish extends Component {
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
-      <Page preferences logo={inoviaLogo}>
+      <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup >
           <EuiFlexItem>
             <PersonalInformation />
@@ -314,6 +338,7 @@ export default class LiveDikteringEnglish extends Component {
             <EuiSpacer size="l" />
             <LiveTemplateEngine
               listOfTemplates={listOfTemplates}
+              defaultTemplate={'English'}
               usedSections={usedSections}
               updatedSections={this.updatedSections}
             />
@@ -329,7 +354,7 @@ export default class LiveDikteringEnglish extends Component {
               fill
               color="danger"
               onClick={this.sendAsHorrribleTranscription}>
-                “Skicka för granskning”
+              “Skicka för granskning”
             </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>

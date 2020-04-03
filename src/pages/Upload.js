@@ -32,7 +32,6 @@ export default class UploadPage extends Component {
     avdelning: '',
     selectedJob: 'KS Lungs',
     selectedTemplate: 'ext1',
-    templates:[],
     jobs: [{
       value: 'KS Lungs',
       inputDisplay: 'KS - Lungs',
@@ -60,7 +59,10 @@ export default class UploadPage extends Component {
     }]
   }
 
-  state = this.DEFAULT_STATE
+  state = {
+    ...this.DEFAULT_STATE, 
+    templates: []
+  }
 
   options = [{
     value: 'default',
@@ -144,11 +146,12 @@ export default class UploadPage extends Component {
       patientsnamn,
       patientnummer,
       doktorsnamn,
-      avdelning
+      avdelning,
+      selectedTemplate
     } = this.state
 
     const requests = Array.from(files)
-      .map(file => api.uploadMedia(file, metaData, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning))
+      .map(file => api.uploadMedia(file, metaData, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate))
     await Promise.all(requests)
       .catch(this.onUploadFailed)
     return this.onUploaded()
