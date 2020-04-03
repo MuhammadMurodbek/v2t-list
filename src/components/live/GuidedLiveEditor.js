@@ -90,7 +90,7 @@ const GuidedLiveEditor = ({
           setEditorVisible(true)
         }
         if (currentStepIndex > 3) {
-          setChapters(processChapters(currentContent, sections))
+          setChapters(processChapters(currentContent, sections, Object.keys(sections)[0]))
           checkForCodes(chapters)
         }
       }
