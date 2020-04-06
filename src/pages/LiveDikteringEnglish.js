@@ -25,8 +25,8 @@ export default class LiveDikteringEnglish extends Component {
     microphoneBeingPressed: false,
     listOfTemplates: [],
     chapters: [{
-      keyword: '',
-      segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
+      keyword: 'ööö',
+      segments: [{ words: `... hello \n world `, startTime: 0.00, endTime: 0.00 }]
     }],
     originalText: '',
     currentText: '',
@@ -346,20 +346,20 @@ export default class LiveDikteringEnglish extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup justifyContent="flexStart">
           <EuiFlexItem grow={false}>
-            <EuiButtonEmpty color="#000000" onClick={() => { }}>
+            <EuiButtonEmpty style={{color: '#000000'}} onClick={() => { }}>
               Avbryt
-              </EuiButtonEmpty>
+            </EuiButtonEmpty>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton
-              color="subdued"
               style={{
+                color: 'black',
                 border: 'solid 1px black',
                 borderRadius: '25px'
               }}
               onClick={() => { }}>
               Spara ändringar
-              </EuiButton>
+            </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton
@@ -370,7 +370,7 @@ export default class LiveDikteringEnglish extends Component {
               }}
               onClick={()=>{}}>
               “Skicka för granskning”
-              </EuiButton>
+            </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton
@@ -381,7 +381,7 @@ export default class LiveDikteringEnglish extends Component {
               }}
               onClick={() => { }}>
               Skicka till Webdoc
-              </EuiButton>
+            </EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>

@@ -26,7 +26,8 @@ export default class Editor extends Component {
 
     state = {
       diff: null,
-      error: []
+      error: [],
+      componentLoadStatus: false
     }
 
     componentDidMount() {
@@ -41,24 +42,80 @@ export default class Editor extends Component {
       else
         this.updateCursor()
 
-      if (prevProps.originalChapters !== originalChapters) {
+      if (this.areChaptersEqual(prevProps.originalChapters, originalChapters)===false) {
+        console.log('yo')
+        console.log(prevProps.originalChapters)
+        console.log(originalChapters)
+        console.log('yo end')
         this.initChapters()
       }
+      
     }
 
-    initChapters = () => {
-      const { originalChapters, updateTranscript } = this.props
-      const chapters = originalChapters
-      if (chapters) {
-        chapters.forEach((chapter) => {
-          chapter.segments.forEach((segment) => {
-            if (segment.words.indexOf('\n') > -1) { segment.words = '\n' }
-            segment.words = segment.words.replace(/ +$/, ' ')
+  areChaptersEqual = (o1, o2, ignorePropsArr = []) => {
+  // Deep Clone objects
+  let _obj1 = JSON.parse(JSON.stringify(o1)),
+    _obj2 = JSON.parse(JSON.stringify(o2));
+  // Remove props to ignore
+  ignorePropsArr.map(p => {
+    eval('_obj1.' + p + ' = _obj2.' + p + ' = "IGNORED"');
+  });
+  // compare as strings
+  let s1 = JSON.stringify(_obj1),
+    s2 = JSON.stringify(_obj2);
+  // return [s1==s2,s1,s2];
+  return s1 == s2;
+}
+
+    // initChapters = () => {
+    //   const { originalChapters, updateTranscript } = this.props
+    //   const chapters = originalChapters
+    //   if (chapters) {
+    //     chapters.forEach((chapter) => {
+    //       chapter.segments.forEach((segment) => {
+    //         if (segment.words.indexOf('\n') > -1) { segment.words = '\n' }
+    //         segment.words = segment.words.replace(/ +$/, ' ')
+    //       })
+    //     })
+    //     updateTranscript(chapters)
+    //   }
+    // }
+
+  initChapters = () => {
+    const { originalChapters, updateTranscript } = this.props
+    const chapters = originalChapters
+    let tempChapters = []
+    if (chapters) {
+      chapters.forEach((chapter) => {
+        let tempChapter = {
+          keyword: chapter.keyword,
+          segments: []
+        }
+
+        chapter.segments.forEach((segment, j) => {
+          if (segment.words!=="\n"){
+          const segs = segment.words.split('\n')
+          // console.log(`segs ${j}`)
+          // console.log(segs)
+          segs.forEach((seg, i) => {
+            tempChapter.segments.push({ words: seg, startTime: segment.startTime, endTime: segment.endTime })
+            if (i !== segs.length - 1) {
+              tempChapter.segments.push({ words: "\n", startTime: segment.startTime, endTime: segment.endTime })
+            }
           })
+        } else {
+            tempChapter.segments.push(segment)
+        }
         })
-        updateTranscript(chapters)
-      }
+        tempChapter.segments.forEach(segment => {
+          segment.words = segment.words.replace(/ +$/, ' ')
+        })
+        tempChapters.push(tempChapter)
+      })
+
+      updateTranscript(tempChapters)
     }
+  }
 
     setCursor = (timestamp, select) => {
       const { chapters } = this.props
@@ -391,7 +448,7 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown
   return (
     <pre>
       <code
-        style={{ minHeight: '20px' }}
+        style={{ minHeight: '22px' }}
         key={segments.toString()}
         onInput={e => onChange(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}
