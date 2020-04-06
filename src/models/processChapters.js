@@ -253,7 +253,7 @@ const processChapters = (finalText, updatedSections, firstKeyword) => {
       } else {
         if (words[i] === '\n') {
           tempChapters[tempChapters.length - 1].segments[0].words
-            = `${tempChapters[tempChapters.length - 1].segments[0].words} \r`
+            = `${tempChapters[tempChapters.length - 1].segments[0].words} \n`
           console.log('d')
         } else {
           tempChapters[tempChapters.length - 1].segments[0].words

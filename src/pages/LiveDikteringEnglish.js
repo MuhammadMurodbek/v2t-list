@@ -65,10 +65,10 @@ export default class LiveDikteringEnglish extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    const { usedSections } = this.state
+    // const { usedSections } = this.state
     // micStream.stop()
-    console.log('lets see')
-    console.log(usedSections)
+    // console.log('lets see')
+    // console.log(usedSections)
     this.setState({ chapters })
   }
 
@@ -100,9 +100,9 @@ export default class LiveDikteringEnglish extends Component {
       })
 
       updatedText = updatedText.replace(firstKeyword, '')
-      updatedText = updatedText.replace(/\s\s+/g, ' ')
+      // updatedText = updatedText.replace(/\s\s+/g, ' ')
       updatedText = updatedText.replace(/ny rad/g, '')
-      updatedText = updatedText.replace(/\n/g, '')
+      // updatedText = updatedText.replace(/\n/g, '')
 
       this.setState({
         chapters: processChapters(updatedText, updatedSectionNames, firstKeyword)

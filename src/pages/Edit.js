@@ -405,7 +405,7 @@ export default class EditPage extends Component {
       // //Add synonyms with the section headers
       // // without synonyms
       let sectionHeadersWithSynonyms = []
-      sectionHeaders.map((sectionHeader)=>{
+      sectionHeaders.forEach((sectionHeader)=>{
         sectionHeadersWithSynonyms.push(sectionHeader)
       })
       const selectedTemplate = templates
