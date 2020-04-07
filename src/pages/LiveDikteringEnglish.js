@@ -25,8 +25,8 @@ export default class LiveDikteringEnglish extends Component {
     microphoneBeingPressed: false,
     listOfTemplates: [],
     chapters: [{
-      keyword: 'ööö',
-      segments: [{ words: `... hello \n world `, startTime: 0.00, endTime: 0.00 }]
+      keyword: '',
+      segments: [{ words: `...`, startTime: 0.00, endTime: 0.00 }]
     }],
     originalText: '',
     currentText: '',
@@ -100,7 +100,7 @@ export default class LiveDikteringEnglish extends Component {
       })
 
       updatedText = updatedText.replace(firstKeyword, '')
-      // updatedText = updatedText.replace(/\s\s+/g, ' ')
+      // updatedText = updatedText.replace(/\s\s+/g, ' ') 
       updatedText = updatedText.replace(/ny rad/g, '')
       // updatedText = updatedText.replace(/\n/g, '')
 

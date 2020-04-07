@@ -43,10 +43,10 @@ export default class Editor extends Component {
         this.updateCursor()
 
       if (this.areChaptersEqual(prevProps.originalChapters, originalChapters)===false) {
-        console.log('yo')
-        console.log(prevProps.originalChapters)
-        console.log(originalChapters)
-        console.log('yo end')
+        // console.log('transcription start')
+        // console.log(prevProps.originalChapters)
+        // console.log(originalChapters)
+        // console.log('transcription end')
         this.initChapters()
       }
       
@@ -67,20 +67,6 @@ export default class Editor extends Component {
     return s1 === s2
   }
 
-    // initChapters = () => {
-    //   const { originalChapters, updateTranscript } = this.props
-    //   const chapters = originalChapters
-    //   if (chapters) {
-    //     chapters.forEach((chapter) => {
-    //       chapter.segments.forEach((segment) => {
-    //         if (segment.words.indexOf('\n') > -1) { segment.words = '\n' }
-    //         segment.words = segment.words.replace(/ +$/, ' ')
-    //       })
-    //     })
-    //     updateTranscript(chapters)
-    //   }
-    // }
-
   initChapters = () => {
     const { originalChapters, updateTranscript } = this.props
     const chapters = originalChapters
@@ -92,20 +78,25 @@ export default class Editor extends Component {
           segments: []
         }
 
-        chapter.segments.forEach((segment, j) => {
+        chapter.segments.forEach((segment) => {
           if (segment.words!=="\n"){
-          const segs = segment.words.split('\n')
-          // console.log(`segs ${j}`)
-          // console.log(segs)
-          segs.forEach((seg, i) => {
-            tempChapter.segments.push({ words: seg, startTime: segment.startTime, endTime: segment.endTime })
-            if (i !== segs.length - 1) {
-              tempChapter.segments.push({ words: "\n", startTime: segment.startTime, endTime: segment.endTime })
-            }
-          })
-        } else {
+            const segs = segment.words.split('\n')
+            // console.log(`segs ${j}`)
+            // console.log(segs)
+            segs.forEach((seg, i) => {
+              tempChapter.segments.push({
+                words: seg.trim(), startTime: segment.startTime, endTime: segment.endTime 
+              })
+              if (i !== segs.length - 1) {
+                tempChapter.segments
+                  .push({ 
+                    words: "\n", startTime: segment.startTime, endTime: segment.endTime
+                  })
+              }
+            })
+          } else {
             tempChapter.segments.push(segment)
-        }
+          }
         })
         tempChapter.segments.forEach(segment => {
           segment.words = segment.words.replace(/ +$/, ' ')
