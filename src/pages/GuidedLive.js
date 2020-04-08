@@ -18,8 +18,6 @@ export default class GuidedLive extends Component {
   socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
   state = {
     recording: false,
-    recordingAction: 'Starta',
-    microphoneBeingPressed: false,
     listOfTemplates: [],
     chapters: [{
       keyword: 'KONTAKTORSAK',
@@ -35,17 +33,11 @@ export default class GuidedLive extends Component {
       'DIAGNOS': []
     },
     isMicrophoneStarted: false,
-    tags: [],
     finalText: '',
     counter: 0,
     writeAudioMessage: 'write-audio-pnr',
     templatesForMenu: [],
-    duration: 0.0,
-    previousDuration: 0.0,
-    previousCurrentTime: new Date(),
-    initialRecordTime: null,
     seconds: 0,
-    toasts: [],
     recordedAudioClips: []
   }
 
@@ -61,8 +53,8 @@ export default class GuidedLive extends Component {
     })
     const finalTemplates = { id: 0, title: 'Journalmallar', items: tempTemplates }
     this.setState({ templatesForMenu: finalTemplates })
-    this.setState({
-      listOfTemplates: templateList.data.templates, templatesForMenu: finalTemplates
+    this.setState({ 
+      listOfTemplates: templateList.data.templates, templatesForMenu: finalTemplates 
     })
   }
 
@@ -85,28 +77,16 @@ export default class GuidedLive extends Component {
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
 
-    const analyserNode = this.audioContext.createAnalyser()
-    analyserNode.fftSize = 2048
-    inputPoint.connect(analyserNode)
-
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
     const prevState = this
 
     scriptNode.onaudioprocess = (audioEvent) => {
-      const {
-        initialRecordTime, previousCurrentTime, microphoneBeingPressed, seconds
-      } = prevState.state
-      if (microphoneBeingPressed) {
-        const currentTime = new Date()
-        if (currentTime.getSeconds() !== previousCurrentTime.getSeconds()) {
-          prevState.setState({
-            seconds: seconds + 1,
-            previousCurrentTime: currentTime,
-            duration: Math.ceil((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
-          })
-        }
+      if(prevState.state.seconds !== Math.ceil(this.audioContext.currentTime)) {
+        prevState.setState({
+          seconds: Math.ceil(this.audioContext.currentTime)
+        })
       }
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
@@ -114,7 +94,7 @@ export default class GuidedLive extends Component {
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer)
-        for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
+        for (var i = 0, offset = 0; i < input.length; i++ , offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
@@ -135,7 +115,7 @@ export default class GuidedLive extends Component {
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
 
-
+    
 
     this.socketio.on('add-transcript-pnr', function (text) {
       const { originalText } = prevState.state
@@ -148,14 +128,13 @@ export default class GuidedLive extends Component {
     this.socketio.on('add-transcript', function (text) {
       if (text.includes('slut diktat') || text.includes('slut på diktat')) {
         prevState.setState({ recording: false }, () => {
-          prevState.setState({ microphoneBeingPressed: false, recordingAction: 'Starta' })
           prevState.socketio.emit('end-recording')
           prevState.socketio.close()
           recorder.stop()
         })
       } else {
         prevState.setState({ currentText: text }, () => {
-          prevState.setState({ finalText: text, counter: prevState.state.counter + 1 })
+          prevState.setState({ finalText: text , counter: prevState.state.counter + 1 })
         })
       }
     })
@@ -208,50 +187,33 @@ export default class GuidedLive extends Component {
 
   toggleRecord = () => {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { microphoneBeingPressed, originalText, currentText, initialRecordTime } = this.state
-    if (microphoneBeingPressed === true) {
-      this.removeToast()
+    const { recording } = this.state
+    if (recording === true) {
       this.setState({ recording: false }, () => {
-        this.setState({
-          microphoneBeingPressed: false,
-          recordingAction: 'Starta'
-        })
         // Close the socket
-        this.socketio.emit('end-recording')
-        this.socketio.close()
         recorder.stop()
-        //this.audioContext.close()
-        this.setState({ originalText: `${originalText} ${currentText}` })
+        this.audioContext.suspend()
       })
     } else {
-      this.setState({ recording: true }, async () => {
-        if (!initialRecordTime) {
-          const recordTime = new Date()
-          this.setState({
-            initialRecordTime: recordTime
+      this.setState({ recording: true }, async() => {
+        if(this.audioContext.state === 'suspended') {
+          this.audioContext.resume()
+        } else {
+          await this.initAudio()
+          this.socketio.emit('start-recording', {
+            numChannels: 1,
+            bps: 16,
+            fps: parseInt(this.audioContext.sampleRate)
           })
         }
-        this.setState({ microphoneBeingPressed: true })
-        this.setState({ recordingAction: 'Avsluta' })
-        await this.initAudio()
-        this.socketio.emit('start-recording', {
-          numChannels: 1,
-          bps: 16,
-          fps: parseInt(this.audioContext.sampleRate)
-        })
         recorder.start()
       })
     }
   }
 
-  removeToast = () => {
-    this.setState({ toasts: [] })
-  }
-
-
   render() {
     const {
-      microphoneBeingPressed, finalText, currentText,
+      recording, finalText, currentText,
       listOfTemplates, templatesForMenu, seconds,
       recordedAudioClips
     } = this.state
@@ -261,7 +223,7 @@ export default class GuidedLive extends Component {
         <EuiFlexGroup justifyContent="center">
           <EuiFlexItem grow={false} style={{ maxWidth: 300, marginLeft: 30 }}>
             <Mic
-              microphoneBeingPressed={microphoneBeingPressed}
+              microphoneBeingPressed={recording}
               toggleRecord={this.toggleRecord}
               seconds={seconds}
             />
@@ -280,7 +242,7 @@ export default class GuidedLive extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup>
           <EuiFlexItem>
-            <RecordList audioClips={recordedAudioClips} />
+            <RecordList audioClips={recordedAudioClips}/>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
