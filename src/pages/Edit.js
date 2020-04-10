@@ -31,6 +31,7 @@ export default class EditPage extends Component {
   state = {
     sidenoteContent: '',
     originalChapters: null,
+    headerUpdatedChapters: null,
     currentTime: 0,
     queryTerm: '',
     tags: [],
@@ -435,7 +436,10 @@ export default class EditPage extends Component {
       // }
 
       const processedCh = processChaptersRegular(chapters, sectionHeaders)
-      this.setState({ chapters: processedCh })
+      this.setState({
+        chapters: processedCh,
+        headerUpdatedChapters: processedCh
+      })
     })
   }
 
@@ -470,6 +474,7 @@ export default class EditPage extends Component {
       currentTime,
       cursorTime,
       originalChapters,
+      headerUpdatedChapters,
       chapters,
       queryTerm,
       tags,
@@ -512,6 +517,7 @@ export default class EditPage extends Component {
               <Editor
                 transcript={transcript}
                 originalChapters={originalChapters}
+                headerUpdatedChapters={headerUpdatedChapters}
                 chapters={chapters}
                 currentTime={currentTime}
                 onCursorTimeChange={this.onCursorTimeChange}
