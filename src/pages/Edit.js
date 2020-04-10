@@ -397,45 +397,31 @@ export default class EditPage extends Component {
     this.setState({ tags })
   }
 
-  updateSectionHeader = (sectionHeaders) => {
+  updateSectionHeader = (sectionHeaders, templateId) => {
     const {
-      chapters //, 
-      // templates,
-      // templateId
+      chapters,
+      templates
     } = this.state
     this.setState({ sectionHeaders }, () => {
-      // console.log('selected section headers')
-      // console.log(sectionHeaders)
-      // console.log('template xxx')
-      // console.log(templates)
-      // // console.log('chapters')
-      // // console.log(this.state.chapters)
       // //Add synonyms with the section headers
       // // without synonyms
-      // let sectionHeadersWithSynonyms = []
-      // sectionHeaders.map((sectionHeader)=>{
-      //   sectionHeadersWithSynonyms.push(sectionHeader)
-      // })
-      // console.log('sectionHeadersWithSynonyms')
-      // console.log(sectionHeadersWithSynonyms)
-      // console.log('templateId')
-      // console.log(templateId)
-      // const selectedTemplate = templates
-      //   .templates
-      //   .filter(template => template.id === templateId)
-      //   .map(template => template.sections)
+      let sectionHeadersWithSynonyms = []
+      sectionHeaders.forEach((sectionHeader)=>{
+        sectionHeadersWithSynonyms.push(sectionHeader)
+      })
+      const selectedTemplate = templates
+        .templates
+        .filter(template => template.id === templateId)
+        .map(template => template.sections)
+      let finalTemplate = []
+      if (selectedTemplate[0]){
+        const synonyms = selectedTemplate[0].map(section => section.synonyms ? section.synonyms : []).flat()
+        const derivedKeywords = selectedTemplate[0].map(section => section.name)
+        finalTemplate = derivedKeywords.concat(synonyms)
+      }
 
-      // if (selectedTemplate[0]){
-      //   const synonyms = selectedTemplate.map(section => section.synonyms ? section.synonyms : []).flat()
-      //   const derivedKeywords = selectedTemplate.map(section => section.name)
-      //   // sectionHeadersWithSynonyms = sectionHeadersWithSynonyms.push(synonyms)
-      //   console.log('selectedTemplate...............')
-      //   console.log(selectedTemplate)
-      //   // console.log(derivedKeywords)
-      //   console.log('selectedTemplate...............')
-      // }
-
-      const processedCh = processChaptersRegular(chapters, sectionHeaders)
+      // const processedCh = processChaptersRegular(chapters, sectionHeaders)
+      const processedCh = processChaptersRegular(chapters, finalTemplate)
       this.setState({
         chapters: processedCh,
         headerUpdatedChapters: processedCh

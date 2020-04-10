@@ -18,7 +18,7 @@ const Templates = ({
   const [templateId, setTemplateId] = useState(defaultTemplate)
   
   useEffect(()=>{
-    updateSectionHeader(sectionNames)
+    updateSectionHeader(sectionNames, templateId)
     updateTemplateId(templateId)
   }, [selectedTemplate])
 

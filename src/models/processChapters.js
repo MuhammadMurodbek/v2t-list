@@ -196,7 +196,7 @@ const processChapters = (finalText, updatedSections, firstKeyword) => {
             } else {
               if (words[i] === '\n') {
                 tempChapters[tempChapters.length - 1].segments[0].words
-                  = `${tempChapters[tempChapters.length - 1].segments[0].words} \n`
+                  = `${tempChapters[tempChapters.length - 1].segments[0].words}\n`
                 console.log('a')
               } else {
                 tempChapters[tempChapters.length - 1].segments[0].words
@@ -207,7 +207,7 @@ const processChapters = (finalText, updatedSections, firstKeyword) => {
           } else {
             if (words[i] === '\n') {
               tempChapters[tempChapters.length - 1].segments[0].words
-                = `${tempChapters[tempChapters.length - 1].segments[0].words} \n`
+                = `${tempChapters[tempChapters.length - 1].segments[0].words}\n`
               console.log('b')
             } else {
               tempChapters[tempChapters.length - 1].segments[0].words
@@ -242,7 +242,7 @@ const processChapters = (finalText, updatedSections, firstKeyword) => {
         } else {
           if (words[i] === '\n') {
             tempChapters[tempChapters.length - 1].segments[0].words
-              = `${tempChapters[tempChapters.length - 1].segments[0].words} \n`
+              = `${tempChapters[tempChapters.length - 1].segments[0].words}\n`
             console.log('c')
           } else {
             tempChapters[tempChapters.length - 1].segments[0].words
@@ -253,7 +253,7 @@ const processChapters = (finalText, updatedSections, firstKeyword) => {
       } else {
         if (words[i] === '\n') {
           tempChapters[tempChapters.length - 1].segments[0].words
-            = `${tempChapters[tempChapters.length - 1].segments[0].words} \r`
+            = `${tempChapters[tempChapters.length - 1].segments[0].words}\n`
           console.log('d')
         } else {
           tempChapters[tempChapters.length - 1].segments[0].words

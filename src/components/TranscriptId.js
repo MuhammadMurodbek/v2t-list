@@ -10,7 +10,7 @@ const TranscriptId = ({ id }) => {
         navigator.clipboard.writeText(id).then(function () {
           /* clipboard successfully set */
           swal({
-            title: 'id is copied to clipboard',
+            title: 'ID är kopierat till klippbordet',
             text: '',
             icon: 'info',
             button: 'Ok'
@@ -18,7 +18,7 @@ const TranscriptId = ({ id }) => {
         }, function () {
           /* clipboard write failed */
           swal({
-            title: 'The browser is not supported',
+            title: 'Web browsern stöds inte, använd t ex Chrome eller Firefox',
             text: '',
             icon: 'info',
             button: 'Ok'
