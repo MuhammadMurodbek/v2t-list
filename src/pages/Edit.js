@@ -37,6 +37,7 @@ export default class EditPage extends Component {
   state = {
     sidenoteContent: '',
     originalChapters: null,
+    headerUpdatedChapters: null,
     currentTime: 0,
     queryTerm: '',
     tags: [],
@@ -427,7 +428,10 @@ export default class EditPage extends Component {
   }
 
   updateSectionHeader = (sectionHeaders, templateId) => {
-    const { chapters, templates } = this.state
+    const {
+      chapters,
+      templates
+    } = this.state
     this.setState({ sectionHeaders }, () => {
       // //Add synonyms with the section headers
       // // without synonyms
@@ -451,7 +455,10 @@ export default class EditPage extends Component {
 
       // const processedCh = processChaptersRegular(chapters, sectionHeaders)
       const processedCh = processChaptersRegular(chapters, finalTemplate)
-      this.setState({ chapters: processedCh })
+      this.setState({
+        chapters: processedCh,
+        headerUpdatedChapters: processedCh
+      })
     })
   }
 
@@ -484,6 +491,7 @@ export default class EditPage extends Component {
       currentTime,
       cursorTime,
       originalChapters,
+      headerUpdatedChapters,
       chapters,
       queryTerm,
       tags,
@@ -526,6 +534,7 @@ export default class EditPage extends Component {
               <Editor
                 transcript={transcript}
                 originalChapters={originalChapters}
+                headerUpdatedChapters={headerUpdatedChapters}
                 chapters={chapters}
                 currentTime={currentTime}
                 onCursorTimeChange={this.onCursorTimeChange}

@@ -316,10 +316,15 @@ export default class Editor extends Component {
   }
 
   getDiff = (chapters) => {
-    const { diffInstance, originalChapters } = this.props
+    const { diffInstance, headerUpdatedChapters, originalChapters } = this.props
     if (!this.inputRef || !this.inputRef.current) return null
     const content = chapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    const originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
+    let originalText
+    if( headerUpdatedChapters.length > 0 ) {
+      originalText = headerUpdatedChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
+    } else {
+      originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
+    }
     const diff = diffInstance.main(originalText, content)
     diffInstance.cleanupSemantic(diff)
     return diff.map((d, i) => this.parseDiff(i, d, diff)).filter(d => d)
@@ -343,6 +348,7 @@ export default class Editor extends Component {
 
   render() {
     const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
+    console.log("Section headers", chapters)
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
