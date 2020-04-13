@@ -10,7 +10,8 @@ import {
   EuiTextAlign,
   EuiText,
   EuiButtonEmpty,
-  EuiTextArea
+  EuiTextArea,
+  EuiI18n
 } from '@elastic/eui'
 import swal from 'sweetalert'
 import api from '../api'
@@ -38,32 +39,46 @@ export default class UploadPage extends Component {
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Träning ⛷'
     this.playerRef = React.createRef()
-    this.setState({
-      toasts: [{
-        id: '0',
-        title: '',
-        color: 'primary',
-        text: (
-          <Fragment>
-            <h3>Träningdata kommer</h3>
-            <EuiProgress size="s" color="subdued" />
-          </Fragment>)
-      }]
-    }, () => {
-      this.loadCurrentTranscript()
-    })
+    this.setState(
+      {
+        toasts: [
+          {
+            id: '0',
+            title: '',
+            color: 'primary',
+            text: (
+              <Fragment>
+                <h3>
+                  <EuiI18n
+                    token="trainingDataWillCome"
+                    default="Training data will come"
+                  />
+                </h3>
+                <EuiProgress size="s" color="subdued" />
+              </Fragment>
+            )
+          }
+        ]
+      },
+      () => {
+        this.loadCurrentTranscript()
+      }
+    )
     localStorage.setItem('transcriptId', '')
   }
 
   loadCurrentTranscript = async () => {
     const status = await api.trainingGetNext()
     if (status.data.data) {
-      this.setState({
-        transcriptionId: status.data.data.id,
-        mediaId: status.data.data.id
-      }, () => {
-        this.loadSubtitle(status)
-      })
+      this.setState(
+        {
+          transcriptionId: status.data.data.id,
+          mediaId: status.data.data.id
+        },
+        () => {
+          this.loadSubtitle(status)
+        }
+      )
     } else {
       this.setState({ incompleteTranscriptExists: false })
     }
@@ -118,13 +133,13 @@ export default class UploadPage extends Component {
     const allTheWords = finalChapters.split(' ')
     let updatedChapters = ''
     if (finalChapters) {
-        allTheWords.forEach((word, i) => {
-          if (i < allTheWords.length-1) {
-            updatedChapters += this.textReplacementForTraining(word) + ' '
-          } else {
-            updatedChapters += this.textReplacementForTraining(word)
-          }
-        })
+      allTheWords.forEach((word, i) => {
+        if (i < allTheWords.length - 1) {
+          updatedChapters += `${this.textReplacementForTraining(word)} `
+        } else {
+          updatedChapters += this.textReplacementForTraining(word)
+        }
+      })
     }
     return updatedChapters
   }
@@ -135,33 +150,42 @@ export default class UploadPage extends Component {
   }
 
   completeTranscript = () => {
-    const {
-      transcriptionId,
-      previewContents
-    } = this.state
+    const { transcriptionId, previewContents } = this.state
     this.textProcessBeforeCompletion()
-    let reg = /^[A-Za-z åäöé']+$/
+    const reg = /^[A-Za-z åäöé']+$/
     if (previewContents.match(reg)) {
-      this.setState({
-        toasts: [{
-          id: '0',
-          title: '',
-          color: 'success',
-          text: (
-            <Fragment>
-              <h3>Träningdata sparar</h3>
-              <EuiProgress size="s" color="subdued" />
-            </Fragment>)
-        }]
-      }, async () => {
-        this.setState({ chapters: '' })
-        await api.trainingUpdate(transcriptionId, previewContents)
-        this.loadCurrentTranscript()
-      })
-    } else {      
+      this.setState(
+        {
+          toasts: [
+            {
+              id: '0',
+              title: '',
+              color: 'success',
+              text: (
+                <Fragment>
+                  <h3>
+                    <EuiI18n
+                      token="exerciseDataSaves"
+                      default="Exercise data saves"
+                    />
+                  </h3>
+                  <EuiProgress size="s" color="subdued" />
+                </Fragment>
+              )
+            }
+          ]
+        },
+        async () => {
+          this.setState({ chapters: '' })
+          await api.trainingUpdate(transcriptionId, previewContents)
+          this.loadCurrentTranscript()
+        }
+      )
+    } else {
       swal({
         title: '',
-        text: 'Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!',
+        text:
+          'Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!',
         icon: 'warning',
         button: 'Avbryt'
       })
@@ -169,44 +193,64 @@ export default class UploadPage extends Component {
   }
 
   skipTranscript = () => {
-    this.setState({
-      toasts: [{
-        id: '0',
-        title: '',
-        color: 'primary',
-        text: (
-          <Fragment>
-            <h3>Träningdata kommer</h3>
-            <EuiProgress size="s" color="subdued" />
-          </Fragment>)
-      }]
-    }, () => {
-      this.setState({ chapters: '' })
-      this.loadCurrentTranscript()
-    })
+    this.setState(
+      {
+        toasts: [
+          {
+            id: '0',
+            title: '',
+            color: 'primary',
+            text: (
+              <Fragment>
+                <h3>
+                  <EuiI18n
+                    token="trainingDataWillCome"
+                    default="Training data will come"
+                  />
+                </h3>
+                <EuiProgress size="s" color="subdued" />
+              </Fragment>
+            )
+          }
+        ]
+      },
+      () => {
+        this.setState({ chapters: '' })
+        this.loadCurrentTranscript()
+      }
+    )
   }
 
   rejectTranscript = () => {
-    const {
-      transcriptionId
-    } = this.state
+    const { transcriptionId } = this.state
 
-    this.setState({
-      toasts: [{
-        id: '0',
-        title: '',
-        color: 'danger',
-        text: (
-          <Fragment>
-            <h3>Träningdata hoppas över</h3>
-            <EuiProgress size="s" color="subdued" />
-          </Fragment>)
-      }]
-    }, async () => {
-      this.setState({ chapters: [] })
-      await api.trainingReject(transcriptionId)
-      this.loadCurrentTranscript()
-    })
+    this.setState(
+      {
+        toasts: [
+          {
+            id: '0',
+            title: '',
+            color: 'danger',
+            text: (
+              <Fragment>
+                <h3>
+                  <EuiI18n
+                    token="exerciseDataIsSkipped"
+                    default="Exercise data is skipped"
+                  />
+                </h3>
+                <EuiProgress size="s" color="subdued" />
+              </Fragment>
+            )
+          }
+        ]
+      },
+      async () => {
+        this.setState({ chapters: [] })
+        await api.trainingReject(transcriptionId)
+        this.loadCurrentTranscript()
+      }
+    )
   }
 
   onValidateTranscript = (errors) => {
@@ -225,7 +269,6 @@ export default class UploadPage extends Component {
     })
   }
 
-
   render() {
     const {
       isMediaAudio,
@@ -240,12 +283,22 @@ export default class UploadPage extends Component {
       token
     } = this.state
 
-    const visibilityChange = isPreviewVisible ? 'Dolj' : 'Visa'
+    const visibilityChange = (
+      <EuiI18n
+        token={isPreviewVisible ? 'show' : 'hide'}
+        default={isPreviewVisible ? 'Show' : 'Hide'}
+      />
+    )
 
     return (
       <Page preferences title="">
-        <EuiTitle size="l" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
-          <h1>Träning</h1>
+        <EuiTitle
+          size="l"
+          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
+        >
+          <h1>
+            <EuiI18n token="training" default="Training" />
+          </h1>
         </EuiTitle>
         <EuiSpacer size="l" />
         <EuiFlexGroup
@@ -261,7 +314,7 @@ export default class UploadPage extends Component {
                   </span>
                 </h1>
                 <h1 style={{ fontSize: '50px', marginTop: '5vh' }}>
-                  All done
+                  <EuiI18n token="allDone" default="All done" />
                 </h1>
               </EuiText>
             </EuiTextAlign>
@@ -282,7 +335,7 @@ export default class UploadPage extends Component {
               searchBoxVisible={false}
               isTraining
               autoplayEnabled={autoplayStatus}
-              onPause={()=>{}}
+              onPause={() => {}}
               token={token}
             />
           </EuiFlexItem>
@@ -295,7 +348,7 @@ export default class UploadPage extends Component {
         >
           <EuiFlexItem style={{ fontSize: '22px' }}>
             <EuiTextArea
-              style={{ width: "760px" }}
+              style={{ width: '760px' }}
               value={chapters}
               onChange={this.onUpdateTranscript}
               resize="none"
@@ -303,10 +356,17 @@ export default class UploadPage extends Component {
             />
             <EuiSpacer size="m" />
             <EuiText textAlign="right">
-              <EuiButtonEmpty onClick={this.changePreviewVisibility} style={{ display: incompleteTranscriptExists && chapters.length ? 'flex' : 'none' }}>
+              <EuiButtonEmpty
+                onClick={this.changePreviewVisibility}
+                style={{
+                  display:
+                    incompleteTranscriptExists && chapters.length
+                      ? 'flex'
+                      : 'none'
+                }}
+              >
                 {visibilityChange}
-                &nbsp;
-                Förhandsvisning
+                &nbsp; <EuiI18n token="preview" default="Preview" />
               </EuiButtonEmpty>
             </EuiText>
           </EuiFlexItem>
@@ -321,20 +381,45 @@ export default class UploadPage extends Component {
           style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
         >
           <EuiFlexItem grow={false}>
-            <EuiButton className="complete" fill color="secondary" onClick={this.completeTranscript}>Godkänn</EuiButton>
+            <EuiButton
+              className="complete"
+              fill
+              color="secondary"
+              onClick={this.completeTranscript}
+            >
+              <EuiI18n token="accept" default="Accept" />
+            </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton className="skip" color="warning" onClick={this.skipTranscript}>Hoppa över</EuiButton>
+            <EuiButton
+              className="skip"
+              color="warning"
+              onClick={this.skipTranscript}
+            >
+              <EuiI18n token="skip" default="Skip" />
+            </EuiButton>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
-            <EuiButton className="reject" fill color="danger" onClick={this.rejectTranscript}>Reject</EuiButton>
+            <EuiButton
+              className="reject"
+              fill
+              color="danger"
+              onClick={this.rejectTranscript}
+            >
+              <EuiI18n token="reject" default="Reject" />
+            </EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="xxl" />
         <EuiSpacer size="xxl" />
         <EuiSpacer size="m" />
-        <EuiTitle size="s" style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}>
-          <h6>Instruktioner</h6>
+        <EuiTitle
+          size="s"
+          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
+        >
+          <h6>
+            <EuiI18n token="instructions" default="Instructions" />
+          </h6>
         </EuiTitle>
         <EuiSpacer size="m" />
         <EuiFlexGroup

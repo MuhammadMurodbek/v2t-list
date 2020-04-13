@@ -5,7 +5,13 @@
 /* eslint-disable no-alert */
 import React, { Component } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiButton, EuiHorizontalRule, EuiButtonEmpty
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSpacer,
+  EuiButton,
+  EuiHorizontalRule,
+  EuiButtonEmpty,
+  EuiI18n
 } from '@elastic/eui'
 import swal from 'sweetalert'
 import api from '../api'
@@ -78,39 +84,39 @@ export default class EditPage extends Component {
     const response = await api.loadTranscription(transcript.external_id)
     let capitalizedTranscript
     // Capitalize the first char of each segment
-    if(response.data){
-      if(response.data.transcriptions){
-        capitalizedTranscript = response.data.transcriptions.map(
-          (chapter) => {
-            return {
-              ...chapter,
-              segments: chapter.segments ?
-                chapter.segments.map(
-                  (segment, i) => {
-                    if (i === 0) {
-                      return {
-                        ...segment, 
-                        words: segment.words.charAt(0).toUpperCase() + segment.words.slice(1)
-                      }
-                    } else {
-                      return { ...segment }
-                    }
-                  }) : []
-            }
-          })
+    if (response.data) {
+      if (response.data.transcriptions) {
+        capitalizedTranscript = response.data.transcriptions.map((chapter) => {
+          return {
+            ...chapter,
+            segments: chapter.segments
+              ? chapter.segments.map((segment, i) => {
+                if (i === 0) {
+                  return {
+                    ...segment,
+                    words:
+                      segment.words.charAt(0).toUpperCase() +
+                      segment.words.slice(1)
+                  }
+                } else {
+                  return { ...segment }
+                }
+              })
+              : []
+          }
+        })
       }
     }
-    
-    
+
     const templates = await api.getSectionTemplates()
     const originalChapters = this.parseTranscriptions(capitalizedTranscript)
     const { tags, fields, media_content_type, template_id } = response.data
     if (tags) {
-      const processedTags = tags.map((tag) => { 
-        return { 
+      const processedTags = tags.map((tag) => {
+        return {
           id: tag.id.toUpperCase(),
           description: tag.description
-        } 
+        }
       })
       this.setState({
         originalChapters,
@@ -145,28 +151,33 @@ export default class EditPage extends Component {
       const { data } = templates
       console.log('templates')
       console.log(templates)
-      this.setState({
-        templates: data,
-        defaultTemplate: template_id,
-        templateId: template_id,
-        originalTemplate: template_id
-      }, () => {
-        const { templates } = this.state
-        const { defaultTemplate } = this.state
-        const template = templates
-          .templates.find(template => template.id === defaultTemplate)
-        const sections = template ? template.sections : []
-        const sectionHeaders = sections.map(section => section.name)
-        this.setState({ sectionHeaders })
-      })
+      this.setState(
+        {
+          templates: data,
+          defaultTemplate: template_id,
+          templateId: template_id,
+          originalTemplate: template_id
+        },
+        () => {
+          const { templates } = this.state
+          const { defaultTemplate } = this.state
+          const template = templates.templates.find(
+            (template) => template.id === defaultTemplate
+          )
+          const sections = template ? template.sections : []
+          const sectionHeaders = sections.map((section) => section.name)
+          this.setState({ sectionHeaders })
+        }
+      )
     }
   }
 
   parseTranscriptions = (transcriptions) => {
     if (transcriptions) {
       return transcriptions.map((transcript) => {
-        const keyword = transcript
-          .keyword.length ? transcript.keyword : 'Kontaktorsak'
+        const keyword = transcript.keyword.length
+          ? transcript.keyword
+          : 'Kontaktorsak'
         const segments = transcript.segments.map((chunk, i) => {
           const isLast = i >= transcript.segments.length - 1
           const noSpaceSuffix = isLast || /^\s*$/.test(chunk.words)
@@ -199,8 +210,7 @@ export default class EditPage extends Component {
   }
 
   onSelectText = () => {
-    const selctedText = window.getSelection()
-      .toString()
+    const selctedText = window.getSelection().toString()
     this.setState({ queryTerm: selctedText }, () => {
       this.playerRef.current.searchKeyword()
     })
@@ -216,11 +226,11 @@ export default class EditPage extends Component {
       templateId,
       originalTemplate
     } = this.state
-    if(fields.patient_id){
+    if (fields.patient_id) {
       if (
-        JSON.stringify(originalChapters) === JSON.stringify(chapters) 
-        && JSON.stringify(tags) === JSON.stringify(originalTags)
-        && originalTemplate === templateId
+        JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
+        JSON.stringify(tags) === JSON.stringify(originalTags) &&
+        originalTemplate === templateId
       ) {
         this.sendToCoworker()
       } else {
@@ -236,17 +246,17 @@ export default class EditPage extends Component {
     }
   }
 
-
-
   sendToCoworker = async () => {
     const { transcript } = this.props
-    const sendingToCoworker = await api.approveTranscription(transcript.external_id)
+    const sendingToCoworker = await api
+      .approveTranscription(transcript.external_id)
       .catch(this.trowAsyncError)
     if (sendingToCoworker) {
       window.location = '/'
     } else {
       swal({
-        title: 'Det är inte möjligt att skicka till Webdoc, vänligen prova igen senare.',
+        title:
+          'Det är inte möjligt att skicka till Webdoc, vänligen prova igen senare.',
         text: '',
         icon: 'error',
         button: 'Ok'
@@ -265,28 +275,27 @@ export default class EditPage extends Component {
     // const templateNames = templates.templates.map(template=>template.id)
     // get the current template
     // get the list of valid headers
-    const sectionHeadersForSelectedTemplate = templates
-      .templates
-      .filter(template=> template.id===templateId)
-      .map(template=>template.sections)[0]
-      .map(section=>section.name)
+    const sectionHeadersForSelectedTemplate = templates.templates
+      .filter((template) => template.id === templateId)
+      .map((template) => template.sections)[0]
+      .map((section) => section.name)
     // get the current headers
-    const currentKeyWords = chapters.map(chapter=>chapter.keyword)
+    const currentKeyWords = chapters.map((chapter) => chapter.keyword)
     // check if the headers are compatible with the template
     //
     const set1 = new Set(sectionHeadersForSelectedTemplate)
     const set2 = new Set(currentKeyWords)
     // Check if they are same, but having different case
-    // Conver the set into array to use map 
+    // Conver the set into array to use map
     // function and then convert it back to a set
     const set1LowerCase = new Set(
-      Array.from(set1).map(keyword=>keyword.toLowerCase())
+      Array.from(set1).map((keyword) => keyword.toLowerCase())
     )
     const set2LowerCase = new Set(
-      Array.from(set2).map(keyword=>keyword.toLowerCase())
+      Array.from(set2).map((keyword) => keyword.toLowerCase())
     )
     if (isSuperset(set1LowerCase, set2LowerCase)) {
-    // check if they are exactly same
+      // check if they are exactly same
       if (isSuperset(set1, set2)) {
         return {
           message: true
@@ -296,9 +305,11 @@ export default class EditPage extends Component {
         const set1Array = Array.from(set1)
         const set2CorrespondingKeywords = Array.from(set2)
         const newKeywords = []
-        set2CorrespondingKeywords.forEach(currentKeyword => {
-          set1Array.forEach(keyWordFromTemplate=> {
-            if (keyWordFromTemplate.toLowerCase() === currentKeyword.toLowerCase()) {
+        set2CorrespondingKeywords.forEach((currentKeyword) => {
+          set1Array.forEach((keyWordFromTemplate) => {
+            if (
+              keyWordFromTemplate.toLowerCase() === currentKeyword.toLowerCase()
+            ) {
               newKeywords.push(keyWordFromTemplate)
             }
           })
@@ -309,20 +320,29 @@ export default class EditPage extends Component {
           message: 'FUZZY',
           newKeywords
         }
-      }   
+      }
     } else {
       return {
         message: false
-      } 
+      }
     }
   }
 
-  save = async (shouldBeSentToCoworker=false) => {
+  save = async (shouldBeSentToCoworker = false) => {
     const { transcript } = this.props
-    const { originalChapters, chapters, tags, originalTags, templateId, originalTemplate } = this.state
-    if (JSON.stringify(originalChapters) === JSON.stringify(chapters)
-      && JSON.stringify(tags) === JSON.stringify(originalTags)
-      && (originalTemplate === templateId)) {
+    const {
+      originalChapters,
+      chapters,
+      tags,
+      originalTags,
+      templateId,
+      originalTemplate
+    } = this.state
+    if (
+      JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
+      JSON.stringify(tags) === JSON.stringify(originalTags) &&
+      originalTemplate === templateId
+    ) {
       swal({
         title: 'Det finns inget att uppdatera!',
         text: 'Diktatet är inte ändrat',
@@ -332,7 +352,7 @@ export default class EditPage extends Component {
       return
     }
 
-    const headers = chapters.map(chapter => chapter.keyword)
+    const headers = chapters.map((chapter) => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
     if (headers.length !== uniqueHeaders.length) {
       swal({
@@ -352,8 +372,11 @@ export default class EditPage extends Component {
         button: 'Ok'
       })
       return
-    } else if (this.areSectionHeadersBelongToTheTemplate().message === 'FUZZY') {
-      const keywordsAfterTemplateChange = this.areSectionHeadersBelongToTheTemplate().newKeywords
+    } else if (
+      this.areSectionHeadersBelongToTheTemplate().message === 'FUZZY'
+    ) {
+      const keywordsAfterTemplateChange = this.areSectionHeadersBelongToTheTemplate()
+        .newKeywords
       chapters.forEach((chapter, i) => {
         chapter.keyword = keywordsAfterTemplateChange[i]
       })
@@ -361,31 +384,38 @@ export default class EditPage extends Component {
 
     chapters.forEach((chapter) => {
       chapter.segments.forEach((segment) => {
-        if(/\s$/.test(segment.words)){ segment.words = segment.words.slice(0, -1)}
+        if (/\s$/.test(segment.words)) {
+          segment.words = segment.words.slice(0, -1)
+        }
       })
     })
 
-
-
     try {
-      await api.updateTranscription(transcript.external_id, tags, chapters, templateId)
-      this.setState({
-        originalChapters: this.parseTranscriptions(chapters),
-        originalTags: tags
-      }, () => {
-        swal({
-          title: 'Diktatet är uppdaterat',
-          text: '',
-          icon: 'success',
-          button: 'Ok'
-        })
-        if(shouldBeSentToCoworker===true){
-          this.sendToCoworker()
+      await api.updateTranscription(
+        transcript.external_id,
+        tags,
+        chapters,
+        templateId
+      )
+      this.setState(
+        {
+          originalChapters: this.parseTranscriptions(chapters),
+          originalTags: tags
+        },
+        () => {
+          swal({
+            title: 'Diktatet är uppdaterat',
+            text: '',
+            icon: 'success',
+            button: 'Ok'
+          })
+          if (shouldBeSentToCoworker === true) {
+            this.sendToCoworker()
+          }
+          return true
         }
-        return true
-      })
-    }
-    catch (error) {
+      )
+    } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error)
       return false
@@ -397,25 +427,25 @@ export default class EditPage extends Component {
   }
 
   updateSectionHeader = (sectionHeaders, templateId) => {
-    const {
-      chapters, 
-      templates
-    } = this.state
+    const { chapters, templates } = this.state
     this.setState({ sectionHeaders }, () => {
       // //Add synonyms with the section headers
       // // without synonyms
       let sectionHeadersWithSynonyms = []
-      sectionHeaders.forEach((sectionHeader)=>{
+      sectionHeaders.forEach((sectionHeader) => {
         sectionHeadersWithSynonyms.push(sectionHeader)
       })
-      const selectedTemplate = templates
-        .templates
-        .filter(template => template.id === templateId)
-        .map(template => template.sections)
+      const selectedTemplate = templates.templates
+        .filter((template) => template.id === templateId)
+        .map((template) => template.sections)
       let finalTemplate = []
-      if (selectedTemplate[0]){
-        const synonyms = selectedTemplate[0].map(section => section.synonyms ? section.synonyms : []).flat()
-        const derivedKeywords = selectedTemplate[0].map(section => section.name)
+      if (selectedTemplate[0]) {
+        const synonyms = selectedTemplate[0]
+          .map((section) => (section.synonyms ? section.synonyms : []))
+          .flat()
+        const derivedKeywords = selectedTemplate[0].map(
+          (section) => section.name
+        )
         finalTemplate = derivedKeywords.concat(synonyms)
       }
 
@@ -426,7 +456,7 @@ export default class EditPage extends Component {
   }
 
   updateTemplateId = (templateId) => {
-    this.setState({ templateId }, ()=>{
+    this.setState({ templateId }, () => {
       console.log('selected template------id')
       console.log(templateId)
     })
@@ -446,9 +476,7 @@ export default class EditPage extends Component {
     window.location = '/'
   }
 
-  updateSidenote = () => {
-    
-  }
+  updateSidenote = () => {}
 
   render() {
     const { transcript, token } = this.props
@@ -470,7 +498,7 @@ export default class EditPage extends Component {
     } = this.state
     if (!transcript) return null
     return (
-      <Page preferences title="Editor">
+      <Page preferences title={<EuiI18n token="editor" default="Editor" />}>
         <div>
           <Player
             audioTranscript={originalChapters}
@@ -487,11 +515,11 @@ export default class EditPage extends Component {
             onPause={this.onPause}
             token={token}
           />
-          <EuiSpacer size="l"/>
-          <EuiSpacer size="l"/>
+          <EuiSpacer size="l" />
+          <EuiSpacer size="l" />
           <EuiHorizontalRule margin="xs" />
-          <EuiSpacer size="l"/>
-          <EuiSpacer size="l"/>
+          <EuiSpacer size="l" />
+          <EuiSpacer size="l" />
 
           <EuiFlexGroup wrap gutterSize="xl">
             <EuiFlexItem>
@@ -511,10 +539,7 @@ export default class EditPage extends Component {
             <EuiFlexItem grow={false}>
               <Info fields={fields} />
               <EuiSpacer size="xxl" />
-              <Tags
-                tags={tags}
-                updateTags={this.onUpdateTags}
-              />
+              <Tags tags={tags} updateTags={this.onUpdateTags} />
               <EuiSpacer size="xxl" />
               <Templates
                 listOfTemplates={templates.templates}
@@ -533,7 +558,7 @@ export default class EditPage extends Component {
           <EuiFlexGroup>
             <EuiFlexItem grow={false}>
               <EuiButtonEmpty color="#000000" onClick={this.cancel}>
-                Avbryt
+                <EuiI18n token="cancel" default="Cancel" />
               </EuiButtonEmpty>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -543,8 +568,9 @@ export default class EditPage extends Component {
                   border: 'solid 1px black',
                   borderRadius: '25px'
                 }}
-                onClick={this.save}>
-                Spara ändringar
+                onClick={this.save}
+              >
+                <EuiI18n token="saveChanges" default="Save Changes" />
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -554,8 +580,9 @@ export default class EditPage extends Component {
                   color: 'white',
                   borderRadius: '25px'
                 }}
-                onClick={this.finalize}>
-                Skicka till Webdoc
+                onClick={this.finalize}
+              >
+                <EuiI18n token="sendToWebdoc" default="Send to Webdoc" />
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>

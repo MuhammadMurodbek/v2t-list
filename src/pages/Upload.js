@@ -17,7 +17,7 @@ import {
 import api from '../api'
 import swal from 'sweetalert'
 import Page from '../components/Page'
-
+import { EuiI18n } from '@elastic/eui'
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
@@ -32,75 +32,56 @@ export default class UploadPage extends Component {
     avdelning: '',
     selectedJob: 'KS Lungs',
     selectedTemplate: 'ext1',
-    jobs: [{
-      value: 'KS Lungs',
-      inputDisplay: 'KS - Lungs',
-      dropdownDisplay: (
-        <DropDown
-          title="KS - Lungs"
-        />
-      )
-    }, {
-      value: 'KS - Heart',
-      inputDisplay: 'KS - Heart',
-      dropdownDisplay: (
-        <DropDown
-          title="KS - Heart"
-        />
-      )
-    }, {
-      value: 'Akuten',
-      inputDisplay: 'Akuten',
-      dropdownDisplay: (
-        <DropDown
-          title="Akuten"
-        />
-      )
-    }]
+    jobs: [
+      {
+        value: 'KS Lungs',
+        inputDisplay: 'KS - Lungs',
+        dropdownDisplay: <DropDown title="KS - Lungs" />
+      },
+      {
+        value: 'KS - Heart',
+        inputDisplay: 'KS - Heart',
+        dropdownDisplay: <DropDown title="KS - Heart" />
+      },
+      {
+        value: 'Akuten',
+        inputDisplay: 'Akuten',
+        dropdownDisplay: <DropDown title="Akuten" />
+      }
+    ]
   }
 
   state = {
-    ...this.DEFAULT_STATE, 
+    ...this.DEFAULT_STATE,
     templates: []
   }
 
-  options = [{
-    value: 'default',
-    inputDisplay: 'Default',
-    dropdownDisplay: (
-      <DropDown
-        title="Default"
-      />
-    )
-  },
-  {
-    value: 'jasper',
-    inputDisplay: 'Jasper 10x3',
-    dropdownDisplay: (
-      <DropDown
-        title="Jasper 10x3"
-      />
-    )
-  }]
-
+  options = [
+    {
+      value: 'default',
+      inputDisplay: 'Default',
+      dropdownDisplay: <DropDown title="Default" />
+    },
+    {
+      value: 'jasper',
+      inputDisplay: 'Jasper 10x3',
+      dropdownDisplay: <DropDown title="Jasper 10x3" />
+    }
+  ]
 
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Ladda Upp'
     localStorage.setItem('transcriptId', '')
     // load the list of templates
     const templates = await api.getSectionTemplates()
-    if(templates.data) {
+    if (templates.data) {
       const listOfTemplates = templates.data.templates
-      if (listOfTemplates){
-        const templateOptions = listOfTemplates.map((template)=>{
+      if (listOfTemplates) {
+        const templateOptions = listOfTemplates.map((template) => {
           return {
             value: template.id,
             inputDisplay: template.name,
-            dropdownDisplay: (
-              <DropDown
-                title={template.name}
-              />
-            )        
+            dropdownDisplay: <DropDown title={template.name} />
           }
         })
         this.setState({ templates: templateOptions })
@@ -123,7 +104,7 @@ export default class UploadPage extends Component {
   }
 
   onSubmit = () => {
-    const {files} = this.state
+    const { files } = this.state
     if (files.length === 0) {
       swal({
         title: 'Det är inte möjligt att ladda upp.',
@@ -150,26 +131,43 @@ export default class UploadPage extends Component {
       selectedTemplate
     } = this.state
 
-    const requests = Array.from(files)
-      .map(file => api.uploadMedia(file, metaData, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate))
-    await Promise.all(requests)
-      .catch(this.onUploadFailed)
+    const requests = Array.from(files).map((file) =>
+      api.uploadMedia(
+        file,
+        metaData,
+        selectedJob,
+        patientsnamn,
+        patientnummer,
+        doktorsnamn,
+        avdelning,
+        selectedTemplate
+      )
+    )
+    await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
   }
 
   onUploaded = () => {
     this.setState({
       ...this.DEFAULT_STATE,
-      toasts: [{
-        id: '0',
-        title: '',
-        color: 'primary',
-        text: (
-          <Fragment>
-            <h3>Successfully uploaded files</h3>
-            <EuiProgress size="s" color="subdued" />
-          </Fragment>)
-      }]
+      toasts: [
+        {
+          id: '0',
+          title: '',
+          color: 'primary',
+          text: (
+            <Fragment>
+              <h3>
+                <EuiI18n
+                  token="successfullyUploadedFiles"
+                  default="Successfully uploaded files"
+                />
+              </h3>
+              <EuiProgress size="s" color="subdued" />
+            </Fragment>
+          )
+        }
+      ]
     })
   }
 
@@ -204,19 +202,37 @@ export default class UploadPage extends Component {
 
   render() {
     const {
-      loading, metaData, toasts, selectedJob, jobs, templates, selectedTemplate
+      loading,
+      metaData,
+      toasts,
+      selectedJob,
+      jobs,
+      templates,
+      selectedTemplate
     } = this.state
-    
+
     return (
-      <Page preferences title="Ladda Upp">
+      <Page preferences title={<EuiI18n token="upload" default="Upload" />}>
         <EuiForm>
-          <EuiFormRow label="Välj fil">
+          <EuiFormRow
+            label={<EuiI18n token="uploadFile" default="Upload File" />}
+          >
             <EuiFilePicker
-              initialPromptText="Ladda upp fil"
-              onChange={this.onFilesChange} />
+              initialPromptText={
+                <EuiI18n token="uploadFile" default="Upload File" />
+              }
+              onChange={this.onFilesChange}
+            />
           </EuiFormRow>
           <EuiSpacer size="xs" />
-          <EuiFormRow label="Välj AI modell för transkriberingen">
+          <EuiFormRow
+            label={
+              <EuiI18n
+                token="chooseTheModelForTheTranscription"
+                default="Choose the model for the transcription"
+              />
+            }
+          >
             <EuiSuperSelect
               options={this.options}
               valueOfSelected={metaData}
@@ -226,7 +242,14 @@ export default class UploadPage extends Component {
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
-          <EuiFormRow label="Välj job för transkriptet">
+          <EuiFormRow
+            label={
+              <EuiI18n
+                token="selectTheJobForTheTranscription"
+                default="Select the job for the transcription"
+              />
+            }
+          >
             <EuiSuperSelect
               options={jobs}
               valueOfSelected={selectedJob}
@@ -236,7 +259,14 @@ export default class UploadPage extends Component {
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
-          <EuiFormRow label="Välj journalmall för transkriptet">
+          <EuiFormRow
+            label={
+              <EuiI18n
+                token="selectJournalTemplateForTheTranscription"
+                default="Select journal template for the transcription"
+              />
+            }
+          >
             <EuiSuperSelect
               options={templates}
               valueOfSelected={selectedTemplate}
@@ -246,46 +276,61 @@ export default class UploadPage extends Component {
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
-          <EuiFormRow label="Patients Namn">
-            <EuiFieldText
-              placeholder="Patients Namn"
-              value={this.state.patientsnamn}
-              onChange={this.onPatientNameChange}
-              aria-label="Use aria labels when no actual label is in use"
-            />
-          </EuiFormRow>
+          <EuiI18n token="patientsName" default="Patient's Name">
+            {(translation) => (
+              <EuiFormRow label={translation}>
+                <EuiFieldText
+                  placeholder={translation}
+                  value={this.state.patientsnamn}
+                  onChange={this.onPatientNameChange}
+                />
+              </EuiFormRow>
+            )}
+          </EuiI18n>
           <EuiSpacer size="l" />
-          <EuiFormRow label="Patients Personnummer">
-            <EuiFieldText
-              placeholder="Patients Personnummer"
-              value={this.state.patientnummer}
-              onChange={this.onPatientNumberChange}
-              aria-label="Use aria labels when no actual label is in use"
-            />
-          </EuiFormRow>
+          <EuiI18n
+            token="patientsPersonalNumber"
+            default="Patient's Personal Number"
+          >
+            {(translation) => (
+              <EuiFormRow label={translation}>
+                <EuiFieldText
+                  placeholder={translation}
+                  value={this.state.patientnummer}
+                  onChange={this.onPatientNumberChange}
+                />
+              </EuiFormRow>
+            )}
+          </EuiI18n>
           <EuiSpacer size="l" />
-          <EuiFormRow label="Doktors Namn">
-            <EuiFieldText
-              placeholder="Doktors Namn"
-              value={this.state.doktorsnamn}
-              onChange={this.onDoctorsNameChange}
-              aria-label="Use aria labels when no actual label is in use"
-            />
-          </EuiFormRow>
+          <EuiI18n token="doctorsName" default="Doctor's Name">
+            {(translation) => (
+              <EuiFormRow label={translation}>
+                <EuiFieldText
+                  placeholder={translation}
+                  value={this.state.doktorsnamn}
+                  onChange={this.onDoctorsNameChange}
+                />
+              </EuiFormRow>
+            )}
+          </EuiI18n>
           <EuiSpacer size="l" />
-          <EuiFormRow label="Avdelning">
-            <EuiFieldText
-              placeholder="Avdelning"
-              value={this.state.avdelning}
-              onChange={this.onDepartmentChange}
-              aria-label="Use aria labels when no actual label is in use"
-            />
-          </EuiFormRow>
+          <EuiI18n token="section" default="Section">
+            {(translation) => (
+              <EuiFormRow label={translation}>
+                <EuiFieldText
+                  placeholder={translation}
+                  value={this.state.avdelning}
+                  onChange={this.onDepartmentChange}
+                />
+              </EuiFormRow>
+            )}
+          </EuiI18n>
           <EuiSpacer size="l" />
           <EuiFlexGroup alignItems="center">
             <EuiFlexItem grow={false}>
               <EuiButton fill onClick={this.onSubmit} isLoading={loading}>
-                Ladda Upp
+                <EuiI18n token="upload" default="Upload" />
               </EuiButton>
             </EuiFlexItem>
             {/* <EuiFlexItem>

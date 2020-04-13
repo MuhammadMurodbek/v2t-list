@@ -1,12 +1,16 @@
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { Component, Fragment } from 'react'
 import {
-  EuiGlobalToastList, EuiText, EuiSpacer, EuiToolTip
+  EuiGlobalToastList,
+  EuiText,
+  EuiSpacer,
+  EuiToolTip
 } from '@elastic/eui'
 import '../styles/player.css'
 import Seek from './Seek'
 
 import { PreferenceContext } from './PreferencesProvider'
+import { EuiI18n } from '@elastic/eui'
 
 const KEYCODE = {
   J: 'KeyJ',
@@ -56,11 +60,11 @@ class Player extends Component {
     const { duration } = this.state
     const { value } = e.target
     const media = this.myRef.current
-    media.currentTime = value * duration / 100
+    media.currentTime = (value * duration) / 100
     this.setState({
       seekPosition: media.currentTime
     })
-  };
+  }
 
   playMusic = () => {
     if (this.myRef && this.myRef.current) {
@@ -117,7 +121,8 @@ class Player extends Component {
     this.setState({ trackDuration, duration }, () => {
       this.setState({ playbackRate: 1.0 })
       if (preferences.autoPlayStatus) {
-        const media = this.myRef && this.myRef.current ? this.myRef.current : null
+        const media =
+          this.myRef && this.myRef.current ? this.myRef.current : null
         media.play()
       }
       this.updateTime()
@@ -129,10 +134,14 @@ class Player extends Component {
     const searchTerm = e ? e.target.value : queryTerm
     if (searchBoxVisible) {
       if (searchTerm.length > 0) {
-        const startTimes = audioTranscript.flatMap(({ segments }) => {
-          const text = segments.map(segment => segment.words).join('')
-          return text.includes(searchTerm) ? this.getSelectedSegments(searchTerm) : null
-        }).filter(time => time)
+        const startTimes = audioTranscript
+          .flatMap(({ segments }) => {
+            const text = segments.map((segment) => segment.words).join('')
+            return text.includes(searchTerm)
+              ? this.getSelectedSegments(searchTerm)
+              : null
+          })
+          .filter((time) => time)
         this.setState({ startTimes })
       } else {
         this.setState({ startTimes: [] })
@@ -162,31 +171,48 @@ class Player extends Component {
       singleWordObjects.forEach((singleWordObj, j) => {
         let patternFound = true
         if (singleWordObj.word.includes(searchTermInit[0])) {
-          for (let i = 1; i < searchTermInit.length && (j + i) < singleWordObj.length; i += 1) {
+          for (
+            let i = 1;
+            i < searchTermInit.length && j + i < singleWordObj.length;
+            i += 1
+          ) {
             if (singleWordObj[j + i].word !== searchTermInit[i]) {
               patternFound = false
             }
           }
-          if (patternFound === true) primarySegments.push(singleWordObj.startTime)
+          if (patternFound === true)
+            primarySegments.push(singleWordObj.startTime)
         }
       })
 
       const finale = []
 
-      const singleWordObjectsWithoutEmptyChar = singleWordObjects.filter((singleWordObject) => {
-        return singleWordObject.word !== ''
-      })
+      const singleWordObjectsWithoutEmptyChar = singleWordObjects.filter(
+        (singleWordObject) => {
+          return singleWordObject.word !== ''
+        }
+      )
 
       // Start pruning from here
       for (let i = 0; i < singleWordObjectsWithoutEmptyChar.length; i += 1) {
-        if (primarySegments.includes(singleWordObjectsWithoutEmptyChar[i].startTime)) {
+        if (
+          primarySegments.includes(
+            singleWordObjectsWithoutEmptyChar[i].startTime
+          )
+        ) {
           // Start matching
           if (searchTermInit[0] === singleWordObjectsWithoutEmptyChar[i].word) {
             let isMatched = true
-            for (let j = 0;
-              j < searchTermInit.length && (i + j) < singleWordObjectsWithoutEmptyChar.length;
-              j += 1) {
-              if (searchTermInit[j] !== singleWordObjectsWithoutEmptyChar[i + j].word) {
+            for (
+              let j = 0;
+              j < searchTermInit.length &&
+              i + j < singleWordObjectsWithoutEmptyChar.length;
+              j += 1
+            ) {
+              if (
+                searchTermInit[j] !==
+                singleWordObjectsWithoutEmptyChar[i + j].word
+              ) {
                 isMatched = false
               }
             }
@@ -213,13 +239,16 @@ class Player extends Component {
     if (minutes < 10) minutes = `0${minutes}`
     if (seconds < 10) seconds = `0${seconds}`
     const formattedCurrentTime = `${minutes}:${seconds}`
-    this.setState({
-      currentTime: formattedCurrentTime,
-      isPlaying,
-      seekPosition: currentTime
-    }, () => {
-      updateSeek(seekPosition)
-    })
+    this.setState(
+      {
+        currentTime: formattedCurrentTime,
+        isPlaying,
+        seekPosition: currentTime
+      },
+      () => {
+        updateSeek(seekPosition)
+      }
+    )
   }
 
   updateMedia = (setting, title, text, min, max, current, change) => {
@@ -228,12 +257,14 @@ class Player extends Component {
     media[setting] = value
     this.setState({
       [setting]: value,
-      toasts: [{
-        id: `toast-${setting}`,
-        title: title(value),
-        color: 'success',
-        text: text(value)
-      }]
+      toasts: [
+        {
+          id: `toast-${setting}`,
+          title: title(value),
+          color: 'success',
+          text: text(value)
+        }
+      ]
     })
   }
 
@@ -241,17 +272,26 @@ class Player extends Component {
     const { isPlaying, volume, playbackRate } = this.state
     if (e.altKey && VOLUME_KEYS.includes(e.code)) {
       e.preventDefault()
-      const change = e.code === VOLUME_KEYS[0] ? .2 : -.2
-      const title = v => `Volume ${v ? '📢' : '🔕'}`
-      const text = v => v ? `${v * 100}%` : 'Muted'
+      const change = e.code === VOLUME_KEYS[0] ? 0.2 : -0.2
+      const title = (v) => `Volume ${v ? '📢' : '🔕'}`
+      const text = (v) => (v ? `${v * 100}%` : 'Muted')
       this.updateMedia('volume', title, text, 0, 1, volume, change)
     } else if (e.altKey && PLAYBACK_RATE_KEYS.includes(e.code)) {
       e.preventDefault()
-      const change = e.code === PLAYBACK_RATE_KEYS[0] ? .2 : -.2
-      const title = v => 'Uppspelningshastighet'
-      const text = v => `${v * 100}%`
-      this.updateMedia('playbackRate', title, text, .2, 2, playbackRate, change)
-    } else if (e.altKey && e.keyCode === 80) { // keycode for p
+      const change = e.code === PLAYBACK_RATE_KEYS[0] ? 0.2 : -0.2
+      const title = (v) => 'Uppspelningshastighet'
+      const text = (v) => `${v * 100}%`
+      this.updateMedia(
+        'playbackRate',
+        title,
+        text,
+        0.2,
+        2,
+        playbackRate,
+        change
+      )
+    } else if (e.altKey && e.keyCode === 80) {
+      // keycode for p
       e.preventDefault()
       if (isPlaying) {
         this.pauseMusic()
@@ -267,7 +307,14 @@ class Player extends Component {
 
   render() {
     const {
-      isPlaying, trackDuration, duration, currentTime, startTimes, seekPosition, toasts, playbackRate
+      isPlaying,
+      trackDuration,
+      duration,
+      currentTime,
+      startTimes,
+      seekPosition,
+      toasts,
+      playbackRate
     } = this.state
     const {
       audioTranscript,
@@ -287,24 +334,33 @@ class Player extends Component {
     return (
       <Fragment>
         <span style={{ display: searchBoxVisible ? 'flex' : 'none' }}>
-          <input
-            type="text"
-            className="searchBox"
-            placeholder="Leta ord ..."
-            onChange={this.searchKeyword}
-          />
+          <EuiI18n token="findWords" default="Find words">
+            {(translation) => (
+              <input
+                type="text"
+                className="searchBox"
+                placeholder={`${translation} ...`}
+                onChange={this.searchKeyword}
+              />
+            )}
+          </EuiI18n>
         </span>
 
         <audio
           ref={this.myRef}
           src={trackUrl}
-          style={{ display: (preferences.showVideo && isContentAudio) === false ? 'block' : 'none' }}
+          style={{
+            display:
+              (preferences.showVideo && isContentAudio) === false
+                ? 'block'
+                : 'none'
+          }}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
-        Your browser does not support the
+          Your browser does not support the
           <code>audio</code>
-        element.
+          element.
         </audio>
 
         <video
@@ -312,70 +368,113 @@ class Player extends Component {
           height="500"
           ref={this.myRef}
           src={trackUrl}
-          style={{ display: preferences.showVideo && !isContentAudio ? 'block' : 'none' }}
+          style={{
+            display: preferences.showVideo && !isContentAudio ? 'block' : 'none'
+          }}
           className="videoPlayer"
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
-        Your browser does not support the
-          <code>audio</code>
-        element.
+          Your browser does not support the
+          <code>video</code>
+          element.
         </video>
 
         <div className="sticky-controls">
-          <div className={preferences.stopButtonVisibilityStatus === false ? "controls" : "controlsWithStopButtonEnabled" }>
-            <button
-              title="Tryck alt+p för att spela"
-              style={{ display: isPlaying === false ? 'block' : 'none' }}
-              className="play"
-              id="play"
-              data-icon="P"
-              aria-label="play pause toggle"
-              onClick={this.playMusic}
-              type="button"
-            />
+          <div
+            className={
+              preferences.stopButtonVisibilityStatus === false
+                ? 'controls'
+                : 'controlsWithStopButtonEnabled'
+            }
+          >
+            <EuiI18n
+              tokens={[
+                'press',
+                'toPlay',
+                'toPause',
+                'toQuit',
+                'toJumpAWordForward',
+                'toJumpAWordBackward'
+              ]}
+              defaults={[
+                'Press',
+                'to play',
+                'to pause',
+                'to quit',
+                'to jump a word forward',
+                'to jump a word backwards'
+              ]}
+            >
+              {([
+                press,
+                toPlay,
+                toPause,
+                toQuit,
+                toJumpAWordForward,
+                toJumpAWordBackward
+              ]) => (
+                <>
+                  <button
+                    title={`${press} 'alt+p' ${toPlay}`}
+                    style={{ display: isPlaying === false ? 'block' : 'none' }}
+                    className="play"
+                    id="play"
+                    data-icon="P"
+                    aria-label="play pause toggle"
+                    onClick={this.playMusic}
+                    type="button"
+                  />
 
-            <button
-              title="Tryck alt+p för att pausa"
-              style={{ display: isPlaying === true ? 'block' : 'none' }}
-              className="play"
-              id="pause"
-              data-icon="u"
-              aria-label="play pause toggle"
-              onClick={this.pauseMusic}
-              type="button"
-            />
+                  <button
+                    title={`${press} 'alt+p' ${toPause}`}
+                    style={{ display: isPlaying === true ? 'block' : 'none' }}
+                    className="play"
+                    id="pause"
+                    data-icon="u"
+                    aria-label="play pause toggle"
+                    onClick={this.pauseMusic}
+                    type="button"
+                  />
 
-            <button
-              title="Tryck för att sluta"
-              style={{ display: preferences.stopButtonVisibilityStatus === true ? 'block' : 'none' }}
-              className="play"
-              id="stop"
-              data-icon="S"
-              aria-label="play pause toggle"
-              onClick={this.stopMusic}
-              type="button"
-            />
+                  <button
+                    title={`${press} ${toQuit}`}
+                    style={{
+                      display:
+                        preferences.stopButtonVisibilityStatus === true
+                          ? 'block'
+                          : 'none'
+                    }}
+                    className="play"
+                    id="stop"
+                    data-icon="S"
+                    aria-label="play pause toggle"
+                    onClick={this.stopMusic}
+                    type="button"
+                  />
 
-            <button
-              title="Tryck alt + → för att hoppa ett ord framåt"
-              className="play"
-              id="backward"
-              data-icon="B"
-              aria-label="stop"
-              onClick={this.backwardMusic}
-              type="button"
-            />
+                  <button
+                    title={`${press} 'alt + ←' ${toJumpAWordBackward}`}
+                    className="play"
+                    id="backward"
+                    data-icon="B"
+                    aria-label="stop"
+                    onClick={this.backwardMusic}
+                    type="button"
+                  />
 
-            <button
-              title="Tryck alt + ← för att hoppa ett ord bakåt"
-              className="play"
-              id="forward"
-              data-icon="F"
-              aria-label="stop"
-              onClick={this.forwardMusic}
-              type="button"
-            />
+                  <button
+                    title={`${press} 'alt + →' ${toJumpAWordForward}`}
+                    className="play"
+                    id="forward"
+                    data-icon="F"
+                    aria-label="stop"
+                    onClick={this.forwardMusic}
+                    type="button"
+                  />
+                </>
+              )}
+            </EuiI18n>
             <input
               type="range"
               min="0"
@@ -387,20 +486,35 @@ class Player extends Component {
             />
             <span
               aria-label="tidpunkt"
-              className={preferences.stopButtonVisibilityStatus === false ? "tidPunkt" : "tidPunktWithStopButtonEnabled"}
+              className={
+                preferences.stopButtonVisibilityStatus === false
+                  ? 'tidPunkt'
+                  : 'tidPunktWithStopButtonEnabled'
+              }
             >
-              {this.myRef && this.myRef.current && currentTime ? currentTime : '--:-- '}
+              {this.myRef && this.myRef.current && currentTime
+                ? currentTime
+                : '--:-- '}
               &nbsp;/&nbsp;
-              {this.myRef && this.myRef.current && trackDuration ? trackDuration : ' --:--'}
+              {this.myRef && this.myRef.current && trackDuration
+                ? trackDuration
+                : ' --:--'}
             </span>
-            <EuiToolTip position="top" content="Tryck shift+↑ eller shift+↓ för att ändra hastigheten">
-              <span
-                aria-label="playbackSpeed"
-                className="playbackSpeed"
-              >
-                {(Math.round(playbackRate * 100) / 100).toFixed(2)}x
-            </span>
-            </EuiToolTip>
+            <EuiI18n
+              tokens={['press', 'or', 'toChangeTheSpeed']}
+              defaults={['Press', 'or', 'to change the speed']}
+            >
+              {([press, or, toChangeTheSpeed]) => (
+                <EuiToolTip
+                  position="top"
+                  content={`${press} 'shift+↑' ${or} 'shift+↓' ${toChangeTheSpeed}`}
+                >
+                  <span aria-label="playbackSpeed" className="playbackSpeed">
+                    {(Math.round(playbackRate * 100) / 100).toFixed(2)}x
+                  </span>
+                </EuiToolTip>
+              )}
+            </EuiI18n>
           </div>
           <VirtualControl
             transcript={audioTranscript}
@@ -415,11 +529,30 @@ class Player extends Component {
           toastLifeTimeMs={2000}
         />
         <EuiSpacer size="l" />
-        <EuiText textAlign="left" className="tips">
-          <span>Tryck alt+p för att </span>
-          <span style={{ display: isPlaying === true ? 'inline-block' : 'none' }}>pausa</span>
-          <span style={{ display: isPlaying === false ? 'inline-block' : 'none' }}>spela</span>
-        </EuiText>
+        <EuiI18n
+          tokens={['press', 'toPlay', 'toPause']}
+          defaults={['Press', 'to play', 'to pause']}
+        >
+          {([press, toPlay, toPause]) => (
+            <EuiText textAlign="left" className="tips">
+              <span>{press} 'alt+p' </span>
+              <span
+                style={{
+                  display: isPlaying === true ? 'inline-block' : 'none'
+                }}
+              >
+                {toPause}
+              </span>
+              <span
+                style={{
+                  display: isPlaying === false ? 'inline-block' : 'none'
+                }}
+              >
+                {toPlay}
+              </span>
+            </EuiText>
+          )}
+        </EuiI18n>
       </Fragment>
     )
   }
@@ -428,13 +561,33 @@ class Player extends Component {
 const VirtualControl = ({ transcript, startTimes, duration, preferences }) => {
   if (!transcript) return null
   return (
-      <div className={preferences.stopButtonVisibilityStatus === false ? "virtualControl" : "virtualControlWithStopButtonEnabled"}>
-      {transcript.map(({ segments }) => segments.map((segment, i) => {
-        if (startTimes.includes(segment.startTime)) {
-          return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / duration} background="yellow" />)
-        }
-        return (<Seek key={i} width={((segment.endTime - segment.startTime)) * 700 / duration} background="black" />)
-      }))}
+    <div
+      className={
+        preferences.stopButtonVisibilityStatus === false
+          ? 'virtualControl'
+          : 'virtualControlWithStopButtonEnabled'
+      }
+    >
+      {transcript.map(({ segments }) =>
+        segments.map((segment, i) => {
+          if (startTimes.includes(segment.startTime)) {
+            return (
+              <Seek
+                key={i}
+                width={((segment.endTime - segment.startTime) * 700) / duration}
+                background="yellow"
+              />
+            )
+          }
+          return (
+            <Seek
+              key={i}
+              width={((segment.endTime - segment.startTime) * 700) / duration}
+              background="black"
+            />
+          )
+        })
+      )}
     </div>
   )
 }

@@ -3,10 +3,14 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import DropDown from './DropDown'
 import {
-  EuiSpacer, EuiText, EuiForm, EuiFormRow, EuiSuperSelect
+  EuiSpacer,
+  EuiText,
+  EuiForm,
+  EuiFormRow,
+  EuiSuperSelect,
+  EuiI18n
 } from '@elastic/eui'
 import '../App.css'
-
 
 const Templates = ({
   listOfTemplates,
@@ -16,8 +20,8 @@ const Templates = ({
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate)
   const [templateId, setTemplateId] = useState(defaultTemplate)
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     updateSectionHeader(sectionNames, templateId)
     updateTemplateId(templateId)
   }, [selectedTemplate])
@@ -26,31 +30,37 @@ const Templates = ({
     setTemplateId(e)
     setSelectedTemplate(e)
   }
-  
+
   const templateOptions = listOfTemplates.map((template) => {
     return {
       value: template.id,
       inputDisplay: template.name,
-      dropdownDisplay: (
-        <DropDown
-          title={template.name}
-        />
-      )
-    }}
-  )
+      dropdownDisplay: <DropDown title={template.name} />
+    }
+  })
 
-  const template = listOfTemplates
-    .find(template => template.id === selectedTemplate)
+  const template = listOfTemplates.find(
+    (template) => template.id === selectedTemplate
+  )
   const sections = template ? template.sections : []
-  const sectionNames = sections ? sections.map(section => section.name) : []
-  return (  
+  const sectionNames = sections ? sections.map((section) => section.name) : []
+  return (
     <Fragment>
       <EuiText size="xs">
-        <h2>Journalmallar</h2>
+        <h2>
+          <EuiI18n token="journalTemplates" default="Journal Templates" />
+        </h2>
       </EuiText>
       <EuiSpacer size="m" />
       <EuiForm>
-        <EuiFormRow label="Välj journalmall">
+        <EuiFormRow
+          label={
+            <EuiI18n
+              token="selectJournalTemplate"
+              default="Select Journal Template"
+            />
+          }
+        >
           <EuiSuperSelect
             className="templateSelect"
             options={templateOptions}

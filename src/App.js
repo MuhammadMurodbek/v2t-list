@@ -8,7 +8,8 @@ import {
   EuiPageSideBar,
   EuiButtonEmpty,
   EuiSideNav,
-  EuiButtonIcon
+  EuiButtonIcon,
+  EuiI18n
 } from '@elastic/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
 import PreferencesProvider from './components/PreferencesProvider'
@@ -26,10 +27,11 @@ import Visualization from './pages/Visualization'
 import Preference from './models/Preference'
 import './App.css'
 import api from './api'
+import { LanguageProvider } from './context'
+import { withProvider } from './hoc'
 
-export default class App extends Component {
+class App extends Component {
   state = {
-
     transcripts: [],
     preferences: new Preference(),
     selectedItemName: 'lungor',
@@ -47,54 +49,51 @@ export default class App extends Component {
   setPreferences = (state) => {
     const { preferences } = this.state
     this.setState({
-      preferences: preferences.clone()
-        .add(state)
+      preferences: preferences.clone().add(state)
     })
   }
 
-
   getQueryStringValue(key) {
     return decodeURIComponent(
-      window
-        .location
-        .href
-        .replace(
-          new RegExp(
-            `^(?:.*[&\\?]${
-              encodeURIComponent(key)
-                .replace(/[.+*]/g, '\\$&')
-            }(?:\\=([^&]*))?)?.*$`, 'i'
-          ), '$1'
-        )
+      window.location.href.replace(
+        new RegExp(
+          `^(?:.*[&\\?]${encodeURIComponent(key).replace(
+            /[.+*]/g,
+            '\\$&'
+          )}(?:\\=([^&]*))?)?.*$`,
+          'i'
+        ),
+        '$1'
+      )
     )
-  }  
+  }
 
   fetchTranscripts = () => {
     const tokenFromStorage = localStorage.getItem('token')
     const tokenFromQuery = this.getQueryStringValue('token')
-    let token 
-    
+    let token
+
     if (tokenFromStorage) {
       token = tokenFromStorage
     }
 
     if (tokenFromQuery) {
       token = tokenFromQuery
-      this.setState({isTokenFromUrl: true})
+      this.setState({ isTokenFromUrl: true })
     }
-    
+
     if (token) {
       this.setState({ isLoggedIn: true, token })
       api.setToken(token)
 
-      api.loadTickets(undefined, 0, 200)
-        .then((tickets) => {
-          // Check which one are audio and 
-          // which are video before loading all active jobs
-          this.setState({ transcripts: tickets })
-        })
+      api.loadTickets(undefined, 0, 200).then((tickets) => {
+        // Check which one are audio and
+        // which are video before loading all active jobs
+        this.setState({ transcripts: tickets })
+      })
 
-      api.loadTags()
+      api
+        .loadTags()
         .then((activeTags) => {
           // Count number of active tags
           const { selectedItemName } = this.state
@@ -106,12 +105,11 @@ export default class App extends Component {
               isSelected: selectedItemName === tag.value,
               onClick: () => {
                 this.selectItem(tag.value)
-                api.loadTickets(tag.value, 0, 200)
-                  .then((tickets) => {
-                    // transcripts after job selection
-                    // Check which one are audio and which are video
-                    this.setState({ transcripts: tickets, job: tag.value })      
-                  })
+                api.loadTickets(tag.value, 0, 200).then((tickets) => {
+                  // transcripts after job selection
+                  // Check which one are audio and which are video
+                  this.setState({ transcripts: tickets, job: tag.value })
+                })
               },
               href: '/#/'
             }
@@ -127,67 +125,75 @@ export default class App extends Component {
                   id: 'V2T Jobs',
                   items: sideBar,
                   isSelected: true,
-                  name: 'V2T Jobb'
-                }, {
+                  name: <EuiI18n token="v2TJob" default="V2T Job" />
+                },
+                {
                   href: '/#/upload',
                   id: 3,
                   isSelected: selectedItemName === 'Upload',
-                  name: 'Ladda Upp',
+                  name: <EuiI18n token="upload" default="Upload" />,
                   onClick: () => this.selectItem('Upload')
-                }, {
+                },
+                {
                   id: 4,
                   isSelected: selectedItemName === 'Analytics',
-                  name: 'Analytics',
+                  name: <EuiI18n token="analytics" default="Analytics" />,
                   onClick: () => {
-                    if(window.location.hostname.split('.')[0].includes('dev')) {
+                    if (
+                      window.location.hostname.split('.')[0].includes('dev')
+                    ) {
                       window
                         .open('https://v2t-dev-kibana.inoviagroup.se', '_blank')
                         .focus()
                     } else if (
-                      window
-                        .location
-                        .hostname
-                        .split('.')[0]
-                        .includes('stage')
+                      window.location.hostname.split('.')[0].includes('stage')
                     ) {
                       window
                         .open(
-                          'https://v2t-stage-kibana.inoviagroup.se', '_blank'
+                          'https://v2t-stage-kibana.inoviagroup.se',
+                          '_blank'
                         )
                         .focus()
                     }
                   }
-                }, {
+                },
+                {
                   href: '/#/training',
                   id: 5,
                   isSelected: selectedItemName === 'Training',
-                  name: 'Träning',
+                  name: <EuiI18n token="training" default="Training" />,
                   onClick: () => this.selectItem('Training')
-                }, {
+                },
+                {
                   href: '/#/visualization',
                   id: 6,
                   isSelected: selectedItemName === 'Visualization',
-                  name: 'Visualization',
+                  name: (
+                    <EuiI18n token="visualization" default="Visualization" />
+                  ),
                   onClick: () => this.selectItem('Visualization')
-                }, {
+                },
+                {
                   id: 7,
                   isSelected: selectedItemName === 'Co-worker',
-                  name: 'Co-worker',
+                  name: <EuiI18n token="coWorker" default="Co-Worker" />,
                   onClick: () => {
                     if (
                       window.location.hostname.split('.')[0].includes('dev')
                     ) {
                       window
                         .open(
-                          'https://v2t-dev-webdoc.inoviagroup.se/#/', '_blank'
+                          'https://v2t-dev-webdoc.inoviagroup.se/#/',
+                          '_blank'
                         )
                         .focus()
                     } else if (
                       window.location.hostname.split('.')[0].includes('stage')
-                    ) { 
+                    ) {
                       window
                         .open(
-                          'https://v2t-stage-webdoc.inoviagroup.se/#/', '_blank'
+                          'https://v2t-stage-webdoc.inoviagroup.se/#/',
+                          '_blank'
                         )
                         .focus()
                     }
@@ -228,7 +234,7 @@ export default class App extends Component {
   }
 
   openHelpWindow = () => {
-    window.open("https://inoviagroup.se/anvandarhandledning-v2t/", "_blank")
+    window.open('https://inoviagroup.se/anvandarhandledning-v2t/', '_blank')
   }
 
   collapse = () => {
@@ -256,11 +262,12 @@ export default class App extends Component {
           <EuiPage>
             <EuiPageSideBar
               style={{
-                display: 
-                  isLoggedIn 
-                  && !isTokenFromUrl 
-                    && isCollapsed === false ? 'inline-block' : 'none'
-              }}>
+                display:
+                  isLoggedIn && !isTokenFromUrl && isCollapsed === false
+                    ? 'inline-block'
+                    : 'none'
+              }}
+            >
               <EuiImage
                 className="logo"
                 size="m"
@@ -277,44 +284,54 @@ export default class App extends Component {
               />
               <EuiButtonEmpty
                 size="l"
+                contentProps={{
+                  style: {
+                    justifyContent: 'flex-start'
+                  }
+                }}
                 style={{
                   color: 'white',
                   position: 'fixed',
-                  left: 0,
+                  left: 12,
                   fontWeight: 600,
                   bottom: 40,
                   width: 100,
-                  background: 'transparent'
+                  background: 'transparent',
                 }}
                 onClick={() => this.collapse()}
               >
-                Collapse
+                <EuiI18n token="collapse" default="Collapse" />
               </EuiButtonEmpty>
               <EuiButtonEmpty
                 size="l"
+                contentProps={{
+                  style: {
+                    justifyContent: 'flex-start'
+                  }
+                }}
                 style={{
                   color: 'white',
                   position: 'fixed',
-                  left: -12,
+                  left: 12,
                   fontWeight: 600,
                   bottom: 10,
                   width: 100,
-                  background: 'transparent'
+                  background: 'transparent',
                 }}
                 onClick={() => this.openHelpWindow()}
               >
-                Hjälp
+                <EuiI18n token="help" default="Help" />
               </EuiButtonEmpty>
             </EuiPageSideBar>
             <EuiPageSideBar
               style={{
                 display:
-                  isLoggedIn
-                    && !isTokenFromUrl
-                    && isCollapsed === true ? 'inline-block' : 'none',
-                    minWidth: '20px'
-              }}>
-      
+                  isLoggedIn && !isTokenFromUrl && isCollapsed === true
+                    ? 'inline-block'
+                    : 'none',
+                minWidth: '20px'
+              }}
+            >
               <EuiButtonIcon
                 style={{
                   color: 'white',
@@ -326,7 +343,7 @@ export default class App extends Component {
                   width: 100,
                   background: 'transparent'
                 }}
-                iconType="arrowLeft"
+                iconType="arrowRight"
                 aria-label="Expand"
                 disabled={false}
                 onClick={() => this.collapse()}
@@ -345,54 +362,86 @@ export default class App extends Component {
                 }}
                 onClick={() => this.collapse()}
               > */}
-                --
+              --
               {/* </EuiButtonEmpty> */}
             </EuiPageSideBar>
-
-
 
             <Switch>
               <Route
                 exact
                 path="/"
-                render={props => isLoggedIn ? <StartPage {...{
-                  ...props, transcripts, job
-                }} /> : <LoginPage/>}/>
+                render={(props) =>
+                  isLoggedIn ? (
+                    <StartPage
+                      {...{
+                        ...props,
+                        transcripts,
+                        job
+                      }}
+                    />
+                  ) : (
+                    <LoginPage />
+                  )
+                }
+              />
               <Route
                 path="/edit/:id"
                 render={(props) => {
-                  const transcript = transcripts
-                    .find(
-                      currentTranscript => 
-                        currentTranscript.external_id === props.match.params.id)
+                  const transcript = transcripts.find(
+                    (currentTranscript) =>
+                      currentTranscript.external_id === props.match.params.id
+                  )
                   if (transcript)
-                    return <EditPage {...{...props,transcript, token}} />
-                  else
-                    return <Invalid />
+                    return <EditPage {...{ ...props, transcript, token }} />
+                  else return <Invalid />
                 }}
               />
               <Route
                 path="/upload/"
-                render={ () => isLoggedIn ? <UploadPage/> : <LoginPage/>}/>
-              <Route path="/training/"
-                render={() => isLoggedIn ? <TrainingPage/> : <LoginPage/>}/>
-              <Route path="/guided-live/"
-                render={() => isLoggedIn ? <GuidedLivePage/> : <LoginPage/>}/>
-              <Route path="/livediktering/"
-                render={() => isLoggedIn ? <LiveDikteringPage/> : <LoginPage/>}
+                render={() => (isLoggedIn ? <UploadPage /> : <LoginPage />)}
               />
-              <Route path="/live-diktering-engelska/"
-                render={() => isLoggedIn ? <LiveDikteringEnglishPage/> : <LoginPage/>}
+              <Route
+                path="/training/"
+                render={() => (isLoggedIn ? <TrainingPage /> : <LoginPage />)}
               />
-              <Route path="/visualization/"
-                render={() => isLoggedIn ? <Visualization /> : <LoginPage/>}/>
-              <Route path="/login"
-                render={props => isLoggedIn ? <StartPage {...{
-                  ...props,
-                  transcripts
-                }} /> : <LoginPage/>}/>
-              <Route 
-                render={() => isLoggedIn ? <Invalid /> : <LoginPage />} />
+              <Route
+                path="/guided-live/"
+                render={() => (isLoggedIn ? <GuidedLivePage /> : <LoginPage />)}
+              />
+              <Route
+                path="/livediktering/"
+                render={() =>
+                  isLoggedIn ? <LiveDikteringPage /> : <LoginPage />
+                }
+              />
+              <Route
+                path="/live-diktering-engelska/"
+                render={() =>
+                  isLoggedIn ? <LiveDikteringEnglishPage /> : <LoginPage />
+                }
+              />
+              <Route
+                path="/visualization/"
+                render={() => (isLoggedIn ? <Visualization /> : <LoginPage />)}
+              />
+              <Route
+                path="/login"
+                render={(props) =>
+                  isLoggedIn ? (
+                    <StartPage
+                      {...{
+                        ...props,
+                        transcripts
+                      }}
+                    />
+                  ) : (
+                    <LoginPage />
+                  )
+                }
+              />
+              <Route
+                render={() => (isLoggedIn ? <Invalid /> : <LoginPage />)}
+              />
             </Switch>
           </EuiPage>
         </PreferencesProvider>
@@ -400,3 +449,5 @@ export default class App extends Component {
     )
   }
 }
+
+export default withProvider(App, LanguageProvider)

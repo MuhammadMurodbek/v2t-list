@@ -7,18 +7,22 @@ import {
   EuiListGroupItem,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiText
+  EuiText,
+  EuiI18n
 } from '@elastic/eui'
 import SectionHeadersList from './SectionHeadersList'
 
 const GuidedTemplates = ({ listOfTemplates, updatedTemplateIndex }) => {
-  const [activeTemplateIndex, setActiveTemplateIndex] = useState(0)    
+  const [activeTemplateIndex, setActiveTemplateIndex] = useState(0)
 
   return (
     <Fragment>
       <EuiText>
         <h2>
-          Säg/Välj Journalmalls namn, säg Nästa" eller "Tillbaka" efter namnet.
+          <EuiI18n
+            token="sayOrSelectJournalTemplate"
+            default="Say / Select Journal template name, say Next 'or' Back 'after the name."
+          />
         </h2>
       </EuiText>
       <EuiSpacer size="m" />
@@ -26,7 +30,9 @@ const GuidedTemplates = ({ listOfTemplates, updatedTemplateIndex }) => {
         <EuiFlexItem>
           <EuiSpacer size="m" />
           <EuiText>
-            <h2>Journalmallar</h2>
+            <h2>
+              <EuiI18n token="journalTemplates" default="Journal Templates" />
+            </h2>
             <EuiSpacer size="m" />
           </EuiText>
           <EuiListGroup
@@ -40,29 +46,31 @@ const GuidedTemplates = ({ listOfTemplates, updatedTemplateIndex }) => {
                   id={template.id}
                   key={template.id}
                   label={template.name}
-                  onClick={
-                    () => {
-                      setActiveTemplateIndex(i)
-                      updatedTemplateIndex(i)
-                    }
-                  }
+                  onClick={() => {
+                    setActiveTemplateIndex(i)
+                    updatedTemplateIndex(i)
+                  }}
                   isActive={activeTemplateIndex === i}
-                />)
-            })}      
+                />
+              )
+            })}
           </EuiListGroup>
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiSpacer size="m" />
           <EuiText>
-            <h2>Sökord</h2>
+            <h2>
+              <EuiI18n token="keyword" default="Keyword" />
+            </h2>
             <EuiSpacer size="m" />
           </EuiText>
           <SectionHeadersList
             headers={
-              listOfTemplates[activeTemplateIndex] ? 
-                listOfTemplates[activeTemplateIndex].sections : []
+              listOfTemplates[activeTemplateIndex]
+                ? listOfTemplates[activeTemplateIndex].sections
+                : []
             }
-          />    
+          />
         </EuiFlexItem>
       </EuiFlexGroup>
     </Fragment>

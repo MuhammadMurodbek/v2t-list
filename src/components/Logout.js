@@ -1,12 +1,12 @@
-import React, {Fragment} from 'react'
-import { EuiSpacer, EuiFormRow, EuiButtonEmpty } from '@elastic/eui'
+import React, { Fragment } from 'react'
+import { EuiSpacer, EuiFormRow, EuiButtonEmpty, EuiI18n } from '@elastic/eui'
 
-const Logout = ({ setPreferences }) => {  
+const Logout = ({ setPreferences }) => {
   const logout = () => {
     setPreferences({ token: '' })
     window.location.replace('/')
   }
-  
+
   return (
     <Fragment>
       <EuiSpacer size="l" />
@@ -17,12 +17,13 @@ const Logout = ({ setPreferences }) => {
           color="danger"
           onClick={logout}
           iconType="kqlFunction"
-          iconSide="right">
-          Logga ut
+          iconSide="right"
+        >
+          <EuiI18n token="logout" default="Logout" />
         </EuiButtonEmpty>
       </EuiFormRow>
     </Fragment>
   )
 }
-      
+
 export default Logout

@@ -17,6 +17,7 @@ import {
 import swal from 'sweetalert'
 import api from '../api'
 import '../styles/tags.css'
+import { EuiI18n } from '@elastic/eui'
 
 export default class Tags extends Component {
   state = {
@@ -56,7 +57,7 @@ export default class Tags extends Component {
 
   deleteRow = (item) => {
     const { tableOfCodes } = this.state
-    const remainingCodes = tableOfCodes.filter(el => el.id !== item.id)
+    const remainingCodes = tableOfCodes.filter((el) => el.id !== item.id)
     this.setState({ tableOfCodes: remainingCodes }, () => {
       this.props.updateTags(this.state.tableOfCodes)
     })
@@ -67,7 +68,7 @@ export default class Tags extends Component {
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(': ')
-      if (tableOfCodes.some(e => e.id === data[0])) {
+      if (tableOfCodes.some((e) => e.id === data[0])) {
         // eslint-disable-next-line no-alert
         swal({
           title: 'ICD koden får endast förekomma 1 gång',
@@ -77,10 +78,13 @@ export default class Tags extends Component {
         })
         this.emptySelectedOption()
       } else {
-        const updatedCodes = [ ...tableOfCodes, {
-          id: data[0],
-          description: data[1]
-        }]
+        const updatedCodes = [
+          ...tableOfCodes,
+          {
+            id: data[0],
+            description: data[1]
+          }
+        ]
         this.setState({ tableOfCodes: updatedCodes }, () => {
           this.emptySelectedOption()
           this.props.updateTags(this.state.tableOfCodes)
@@ -119,50 +123,64 @@ export default class Tags extends Component {
   }
 
   onDragEnd = ({ source, destination }) => {
-    const {tableOfCodes} = this.state
+    const { tableOfCodes } = this.state
     if (source && destination) {
-      this.setState({ 
-        tableOfCodes: this.swap(tableOfCodes, source.index, destination.index)
-      }, () => {
-        this.props.updateTags(this.state.tableOfCodes)
-      })
+      this.setState(
+        {
+          tableOfCodes: this.swap(tableOfCodes, source.index, destination.index)
+        },
+        () => {
+          this.props.updateTags(this.state.tableOfCodes)
+        }
+      )
     }
-  };
+  }
 
   render() {
-    const label = (<h6>Kod</h6>)
-    const {
-      options, isLoading, selectedOption, tableOfCodes
-    } = this.state
+    const { options, isLoading, selectedOption, tableOfCodes } = this.state
 
     return (
       <Fragment>
-        <EuiText>
-          {label}
-        </EuiText>
-        <EuiSpacer size="m" />
-        <div className="searchKoder" style={{ display: 'flex' }}>
-          <span style={{
-            width: 344,
-            marginRight: 20,
-            marginBottom: 25
-          }}>
-            <EuiComboBox
-              placeholder="Sök ICD-10 kod"
-              async
-              options={options}
-              selectedOptions={selectedOption}
-              singleSelection
-              isLoading={isLoading}
-              onChange={this.onChange}
-              onSearchChange={this.onSearchChange}
-            />
-          </span>
-          <span style={{ marginTop: '4px' }}>
-            <AddButton onClick={this.addCode} />
-          </span>
-        </div>
-        <EuiFlexItem grow={false} style={{ width: 400, display: tableOfCodes.length > 0 ? 'block' : 'none' }}>
+        <EuiI18n tokens={['code', 'lookFor']} defaults={['Code', 'Look for']}>
+          {([code, lookFor]) => (
+            <>
+              <EuiText>
+                <h6>{code}</h6>
+              </EuiText>
+              <EuiSpacer size="m" />
+              <div className="searchKoder" style={{ display: 'flex' }}>
+                <span
+                  style={{
+                    width: 344,
+                    marginRight: 20,
+                    marginBottom: 25
+                  }}
+                >
+                  <EuiComboBox
+                    placeholder={`${lookFor} ICD-10 ${code}`}
+                    async
+                    options={options}
+                    selectedOptions={selectedOption}
+                    singleSelection
+                    isLoading={isLoading}
+                    onChange={this.onChange}
+                    onSearchChange={this.onSearchChange}
+                  />
+                </span>
+                <span style={{ marginTop: '4px' }}>
+                  <AddButton onClick={this.addCode} />
+                </span>
+              </div>
+            </>
+          )}
+        </EuiI18n>
+        <EuiFlexItem
+          grow={false}
+          style={{
+            width: 400,
+            display: tableOfCodes.length > 0 ? 'block' : 'none'
+          }}
+        >
           {/* <EuiBasicTable
             className="transcript"
             items={tableOfCodes}
@@ -174,35 +192,42 @@ export default class Tags extends Component {
             <EuiDroppable
               droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
               spacing="m"
-              withPanel>
+              withPanel
+            >
               {tableOfCodes.map(({ description, id }, idx) => (
                 <EuiDraggable
                   spacing="m"
                   key={id}
                   index={idx}
                   draggableId={id}
-                  customDragHandle={true}>
-                  {provided => (
+                  customDragHandle={true}
+                >
+                  {(provided) => (
                     <EuiPanel className="custom" paddingSize="m">
-                      <EuiFlexGroup style={{
-                        width: 380, lineHeight: 1.5}}>
+                      <EuiFlexGroup
+                        style={{
+                          width: 380,
+                          lineHeight: 1.5
+                        }}
+                      >
                         <EuiFlexItem>
                           <div {...provided.dragHandleProps}>
-                            <EuiIcon type="grab" color="blue"/>
+                            <EuiIcon type="grab" color="blue" />
                           </div>
                         </EuiFlexItem>
-                        <EuiFlexItem style={{ minWidth: 260, fontSize: '1rem' }}><strong>{id}</strong>  {description}</EuiFlexItem>
+                        <EuiFlexItem
+                          style={{ minWidth: 260, fontSize: '1rem' }}
+                        >
+                          <strong>{id}</strong> {description}
+                        </EuiFlexItem>
                         <EuiFlexItem>
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"
-                            onClick={
-                              () => this.deleteRow({ description, id })
-                            }
+                            onClick={() => this.deleteRow({ description, id })}
                             iconType="trash"
                             aria-label="Next"
-                          />  
-                              
+                          />
                         </EuiFlexItem>
                       </EuiFlexGroup>
                     </EuiPanel>
@@ -210,14 +235,14 @@ export default class Tags extends Component {
                 </EuiDraggable>
               ))}
             </EuiDroppable>
-          </EuiDragDropContext> 
+          </EuiDragDropContext>
         </EuiFlexItem>
       </Fragment>
     )
   }
 }
 
-const AddButton = props => (
+const AddButton = (props) => (
   <Fragment>
     <EuiButtonIcon
       iconSize="xl"

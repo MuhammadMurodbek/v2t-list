@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
+import React from 'react'
 import moment from 'moment'
 import api from '../api'
+import { EuiI18n } from '@elastic/eui'
 
 export const WORD_OPTIONS = [
   {
@@ -21,51 +23,65 @@ export const COLUMN_OPTIONS = [
   {
     label: 'Skapad',
     field: 'created_time',
-    name: 'Skapad',
+    name: <EuiI18n token="created" default="Created" />,
     width: '170px',
     // sortable: true,
-    render: created => moment(created)
-      .format('YYYY-MM-DD HH:mm:ss')
+    render: (created) => moment(created).format('YYYY-MM-DD HH:mm:ss')
   },
   {
     label: 'Typ',
-    name: 'Typ',
+    name: <EuiI18n token="type" default="Type" />,
     width: '70px',
-    render:
-      transcript => 
-        `${(transcript || {}).media_content_type ? transcript.media_content_type : 'ljud'}`
+    render: (transcript) =>
+      `${
+        (transcript || {}).media_content_type
+          ? transcript.media_content_type
+          : 'ljud'
+      }`
   },
   {
     label: 'Doktor',
-    name: 'Doktor',
+    name: <EuiI18n token="doctor" default="Doctor" />,
     width: '140px',
-    render: 
-      transcript => 
-        `${((transcript || {}).fields || {})
-          .doctor_full_name ? transcript.fields.doctor_full_name : ''}`
+    render: (transcript) =>
+      `${
+        ((transcript || {}).fields || {}).doctor_full_name
+          ? transcript.fields.doctor_full_name
+          : ''
+      }`
   },
   {
     label: 'Patient',
-    name: 'Patient',
+    name: <EuiI18n token="patient" default="Patient" />,
     width: '140px',
-    render: transcript => 
-      `${((transcript || {}).fields || {})
-        .patient_full_name ? transcript.fields.patient_full_name : ''}`
+    render: (transcript) =>
+      `${
+        ((transcript || {}).fields || {}).patient_full_name
+          ? transcript.fields.patient_full_name
+          : ''
+      }`
   },
   {
     label: 'PatientId',
-    name: 'PatientId',
+    name: <EuiI18n token="patientId" default="Patient ID" />,
     width: '150px',
-    render: transcript => 
-      `${((transcript || {}).fields || {}).patient_id ? transcript.fields.patient_id : ''}`
+    render: (transcript) =>
+      `${
+        ((transcript || {}).fields || {}).patient_id
+          ? transcript.fields.patient_id
+          : ''
+      }`
   },
   {
     label: 'Avdelning',
-    name: 'Avdelning',
+    name: <EuiI18n token="section" default="Section" />,
     width: '200px',
-    render: transcript => 
-      `${((transcript || {}).fields || {})
-        .department_name ? transcript.fields.department_name : ''}`
+    render: (transcript) =>
+      `${
+        ((transcript || {}).fields || {}).department_name
+          ? transcript.fields.department_name
+          : ''
+      }`
   }
 ]
 
@@ -92,7 +108,6 @@ export default class Preference {
     return this._autoPlayStatus
   }
 
-
   set autoPlayStatus(v) {
     if (this._autoPlayStatus === true) {
       this._autoPlayStatus = false
@@ -117,16 +132,23 @@ export default class Preference {
     return this._stopButtonVisibilityStatus
   }
 
-
   set stopButtonVisibilityStatus(v) {
     if (this._stopButtonVisibilityStatus === true) {
       this._stopButtonVisibilityStatus = false
-      localStorage.setItem('stopButtonVisibilityStatus', this._stopButtonVisibilityStatus)
+      localStorage.setItem(
+        'stopButtonVisibilityStatus',
+        this._stopButtonVisibilityStatus
+      )
     } else if (this._stopButtonVisibilityStatus === false) {
       this._stopButtonVisibilityStatus = true
-      localStorage.setItem('stopButtonVisibilityStatus', this._stopButtonVisibilityStatus)
+      localStorage.setItem(
+        'stopButtonVisibilityStatus',
+        this._stopButtonVisibilityStatus
+      )
     } else {
-      const stopButtonVisibilityStatusFromStorage = localStorage.getItem('stopButtonVisibilityStatus')
+      const stopButtonVisibilityStatusFromStorage = localStorage.getItem(
+        'stopButtonVisibilityStatus'
+      )
       if (stopButtonVisibilityStatusFromStorage === 'true') {
         this._stopButtonVisibilityStatus = true
       } else if (stopButtonVisibilityStatusFromStorage === 'false') {
@@ -134,7 +156,10 @@ export default class Preference {
       } else {
         this._stopButtonVisibilityStatus = false
       }
-      localStorage.setItem('stopButtonVisibilityStatus', this._stopButtonVisibilityStatus)
+      localStorage.setItem(
+        'stopButtonVisibilityStatus',
+        this._stopButtonVisibilityStatus
+      )
     }
   }
 
@@ -168,18 +193,18 @@ export default class Preference {
 
   set currentFontSize(v) {
     let currentFontSize = localStorage.getItem('currentFontSize')
-    if (currentFontSize==='null') {
-      currentFontSize='18px'
+    if (currentFontSize === 'null') {
+      currentFontSize = '18px'
     }
 
-    if (this._fontSizeIteration === undefined ) {
+    if (this._fontSizeIteration === undefined) {
       this._fontSizeIteration = 0
     }
 
     if (this._fontSizeIteration === 0) {
-        this._currentFontSize = currentFontSize
+      this._currentFontSize = currentFontSize
     } else {
-        this._currentFontSize = v
+      this._currentFontSize = v
     }
 
     localStorage.setItem('currentFontSize', v)
@@ -216,9 +241,14 @@ export default class Preference {
 
   set columnsForCombo(v) {
     this._columnsForCombo = v
-    const visibleLabels = v.map(u=>u.label)
-    const updatedTemplate = COLUMN_OPTIONS.filter(obj => obj.label === 'Öppna' || obj.label === 'Ta bort' || visibleLabels.includes(obj.label))
-    this._columnsForTranscriptList  = updatedTemplate
+    const visibleLabels = v.map((u) => u.label)
+    const updatedTemplate = COLUMN_OPTIONS.filter(
+      (obj) =>
+        obj.label === 'Öppna' ||
+        obj.label === 'Ta bort' ||
+        visibleLabels.includes(obj.label)
+    )
+    this._columnsForTranscriptList = updatedTemplate
   }
 
   get columnsForTranscriptList() {
@@ -235,12 +265,20 @@ export default class Preference {
     autoPlayStatus: true,
     stopButtonVisibilityStatus: false,
     columns: COLUMN_OPTIONS,
-    columnsForCombo: COLUMN_OPTIONS.map(({ render, ...items }) => items).filter(column => column.label !== 'Id' && column.label !== 'Öppna' && column.label !== 'Ta bort'),
-    columnsForTranscriptList: COLUMN_OPTIONS.filter(column => column.label !== 'Id'),
-    fontSizeList: [{
-      value: '15px',
-      inputDisplay: 'Liten'
-    },
+    columnsForCombo: COLUMN_OPTIONS.map(({ render, ...items }) => items).filter(
+      (column) =>
+        column.label !== 'Id' &&
+        column.label !== 'Öppna' &&
+        column.label !== 'Ta bort'
+    ),
+    columnsForTranscriptList: COLUMN_OPTIONS.filter(
+      (column) => column.label !== 'Id'
+    ),
+    fontSizeList: [
+      {
+        value: '15px',
+        inputDisplay: 'Liten'
+      },
       {
         value: '18px',
         inputDisplay: 'Mellan'
@@ -248,7 +286,8 @@ export default class Preference {
       {
         value: '20px',
         inputDisplay: 'Stor'
-      }],
+      }
+    ],
     currentFontSize: '18px',
     fontSizeIteration: 0,
     keywordInit: true
@@ -261,10 +300,9 @@ export default class Preference {
   }
 
   add(state) {
-    Object.entries(state)
-      .forEach(([key, value]) => {
-        this[key] = value
-      })
+    Object.entries(state).forEach(([key, value]) => {
+      this[key] = value
+    })
     return this
   }
 

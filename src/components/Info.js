@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import {
-  EuiFlexGroup, EuiFlexItem, EuiText, EuiForm, EuiBasicTable, EuiSpacer
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiText,
+  EuiForm,
+  EuiBasicTable,
+  EuiSpacer
 } from '@elastic/eui'
 import '../styles/editor.css'
 import '../styles/tags.css'
+import { EuiI18n } from '@elastic/eui'
 
 const Info = ({ fields }) => {
   const [patientId, setPatientId] = useState(fields.patient_id)
@@ -12,39 +18,50 @@ const Info = ({ fields }) => {
   const [propsNotLoaded, setPropsNotLoaded] = useState(true)
 
   useEffect(() => {
-    if (propsNotLoaded && (fields.patient_id !== '' || fields.patient_full_name !== '')) {
+    if (
+      propsNotLoaded &&
+      (fields.patient_id !== '' || fields.patient_full_name !== '')
+    ) {
       setPatientId(fields.patient_id)
       setPatientNamn(fields.patient_full_name)
       setPropsNotLoaded(false)
     }
   })
 
-  const metaData = [{
-    patientNamn,
-    patientId
-  }]
-
+  const metaData = [
+    {
+      patientNamn,
+      patientId
+    }
+  ]
 
   const COLUMNS = [
     {
       field: 'patientNamn',
-      name: 'Patientnamn',
+      name: <EuiI18n token="patientsName" default="Patient's name" />,
       sortable: true,
       width: '190px'
     },
     {
       field: 'patientId',
-      name: 'Personnummer',
+      name: (
+        <EuiI18n
+          token="patientsPersonalNumber"
+          default="Patient's personal number"
+        />
+      ),
       width: '110px'
-    }]
+    }
+  ]
 
-  
   return (
     <EuiForm style={{ display: patientId === '' ? 'none' : 'block' }}>
       <div className="euiText euiText--small">
         <div>
           <EuiText size="xs">
-            <h2>Information</h2>
+            <h2>
+              <EuiI18n token="information" default="Information" />
+            </h2>
           </EuiText>
         </div>
       </div>

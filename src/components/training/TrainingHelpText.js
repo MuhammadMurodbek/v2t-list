@@ -2,113 +2,232 @@
 import React, { Fragment } from 'react'
 import { EuiSpacer, EuiText } from '@elastic/eui'
 import '../../App.css'
+import { EuiI18n } from '@elastic/eui'
 
 const TrainingHelpText = () => (
   <Fragment>
     <EuiText style={{ letterSpacing: '.009em' }}>
       <EuiSpacer size="s" />
-      <h1 style={{ letterSpacing: '.03em' }}>Hur rättar jag texten?</h1>
+      <h1 style={{ letterSpacing: '.03em' }}>
+        <EuiI18n
+          token="howDoICorrectTheText"
+          default="How do I correct the text?"
+        />
+      </h1>
       <EuiSpacer size="l" />
-      Ändra så att texten stämmer ordagrant med ljudklippet, även om grammatiken blir fel.
+      <EuiI18n
+        token="changeTheTextToMatchTheAudio"
+        default="Change the text to match the audio clip verbatim even if the grammar is incorrect."
+      />
       <EuiSpacer size="m" />
-      Om orden är ”avhuggna”, (första eller sista stavelsen saknas eller är inte komplett) använd
+      <EuiI18n
+        token="ifTheWordsAreCutOff"
+        default="If the words are ”cut off”, (the first or last syllable is missing or not complete) is used"
+      />
       <br />
       <EuiSpacer size="s" />
-      Reject för att markera att ljudklippet inte är lämpligt som träningsdata.
+      <EuiI18n
+        token="rejectToIndicateThatTheAudioClipIsNotSuitable"
+        default="Reject to indicate that the audio clip is not suitable as training data."
+      />
       <EuiSpacer size="m" />
-      Talat språk innehåller också omstartade meningar (man sa fel, hoppade över ett ord, osv),
+      <EuiI18n
+        token="scopedLanguagesAlsoContainsRestartedSentences"
+        default="Spoken language also contains restarted sentences (you said wrong, skipped a word, etc.),"
+      />
       <br />
       <EuiSpacer size="s" />
-      upprepningar och liknande som typiskt saknas i texten.
+      <EuiI18n
+        token="repetitionsAndTheLikeThat"
+        default="repetitions and the like that are typically missing in the text."
+      />
       <EuiSpacer size="m" />
-      Det är okej att också införa “eh” och typ stamningar men inget krav.
+      <EuiI18n
+        token="itIsOkToAlsoIntroduce"
+        default="It is okay to also introduce “eh“ and type stuttering but no requirement."
+      />
       <EuiSpacer size="m" />
-      Är du osäker, använd skip!
+      <EuiI18n
+        token="ifYouAreUnsureUseAShip"
+        default="If you are unsure, use a ship!"
+      />
       <EuiSpacer size="m" />
-      <h2 style={{ letterSpacing: '.009em' }}> Hantering av siffror </h2>
+      <h2 style={{ letterSpacing: '.009em' }}>
+        <EuiI18n token="handlingOfFigures" default="Handling of figures" />
+      </h2>
       <ul>
         <li>
-          Siffror behöver ofta korrigeras.
+          <EuiI18n
+            token="numbersOftenNeedToBeCorrect"
+            default="Numbers often need to be corrected."
+          />
         </li>
         <EuiSpacer size="m" />
         <li>
-          Skriv allting med bokstäver (helst små (gemener)).
+          <EuiI18n
+            token="writeEverythingInLetters"
+            default="Write everything in letters (preferably lowercase (lower case))."
+          />
         </li>
         <EuiSpacer size="m" />
         <li>
-          Om talaren säger “113” skall bytas ut mot de ord som använts i
-          ljudklippet; “etthundratretton”,
+          <EuiI18n
+            token="ifTheSpeakerSaysNumber"
+            default="If the speaker says “113”, the words used in the audio clip should be replaced; “One hundred and thirteen“"
+          />
           <br />
           <EuiSpacer size="s" />
-          “hundratretton”, “elva tre”, “ett tretton” eller “ett ett tre”
+          <EuiI18n
+            token="numbersExampleContinue"
+            default="”One hundred thirteen”, ”eleven three”, ”one thirteen” or ”one one three”"
+          />
         </li>
       </ul>
       <EuiSpacer size="m" />
-      <h2 style={{ letterSpacing: '.009em' }}> Specialtecken </h2>
+      <h2 style={{ letterSpacing: '.009em' }}>
+        {' '}
+        <EuiI18n token="specialCharacters" default="Special characters" />{' '}
+      </h2>
       <ul>
         <li>
-          Om talaren säger ”punkt”, skriv ”.” (Editorn korrigerar)
+          <EuiI18n
+            token="ifTheSpeakerSaysPoint"
+            default="If the speaker says ”point”, write ”.” (The editor corrects)"
+          />
         </li>
         <EuiSpacer size="m" />
         <li>
-          Om talaren säger ”procent”, skriv ”%” (Editorn korrigerar)
+          <EuiI18n
+            token="ifTheSpeakerSaysPercent"
+            default="If the speaker says ”percent”, type ”%” (Editor corrects)"
+          />
         </li>
         <EuiSpacer size="m" />
         <li>
-          Om talaren säger ”komma”, skriv ”,” (Editorn korrigerar)
+          <EuiI18n
+            token="ifTheSpeakerSaysComa"
+            default="If the speaker says ”come”, write ”,” (Editor corrects)"
+          />
         </li>
         <EuiSpacer size="m" />
         <li>
-        “Ny rad” och “punkt” kan både saknas i text eller ha lagts till trots
+          <EuiI18n
+            token="newLineAndDot"
+            default="“New line“ and “dot“ can both be missing in text or added despite"
+          />
           <br />
           <EuiSpacer size="s" />
-          att de saknas i ljudklippet. Korrigera!
+          <EuiI18n
+            token="missingFromAudioClip"
+            default="that they are missing from the audio clip. Correct!"
+          />
         </li>
         <EuiSpacer size="m" />
         <li>
-          Skriv förkortningar som de sägs i ljudklippet, “u.a.”
-          kan alltså bli både “u a” och “utan anmärkning”,
+          <EuiI18n
+            token="writeAbbreviationsAsTheySay"
+            default="Write abbreviations as they say in the audio clip, “u.a.“ can thus be both “u a“ and “without comment“,"
+          />
           <br />
           <EuiSpacer size="s" />
-          “AT” kan bli “a t” eller “allmäntillstånd”
+          <EuiI18n
+            token="atCanBeGeneralState"
+            default="“AT“ can become “a t“ or “general state“"
+          />
         </li>
       </ul>
-      <h2 style={{ letterSpacing: '.009em' }}> Använd ej förkortningar om talet innehåller icke oförkortad fom </h2>
+      <h2 style={{ letterSpacing: '.009em' }}>
+        {' '}
+        <EuiI18n
+          token="doNotUseAbbreviations"
+          default="Do not use abbreviations if the speech contains unabridged forms"
+        />{' '}
+      </h2>
       <ul>
-        <li>ssk - skriv sjuksköterska (eller sjuksköterskan) men säger läkaren s s k, skriv s s k
+        <li>
+          <EuiI18n
+            token="sSKWriteNurse"
+            default="ssk - write nurse (or nurse) but say doctor s s k, write s s k"
+          />
         </li>
         <EuiSpacer size="m" />
-        <li>dsk - skriv distriktsköterskan</li>
+        <li>
+          <EuiI18n token="dskWrite" default="dsk - write the district nurse" />
+        </li>
         <EuiSpacer size="m" />
-        <li>dr - skriv doktor</li>
+        <li>
+          <EuiI18n token="drDoctor" default="dr - write doctor" />
+        </li>
         <EuiSpacer size="m" />
-        <li>mg - skriv milligram</li>
+        <li>
+          <EuiI18n token="mgMilligrams" default="mg - write milligrams" />
+        </li>
         <EuiSpacer size="m" />
-        <li>temp - skriv temp om det var det som sas, men sa man temperatur, skriv hela ordet!</li>
+        <li>
+          <EuiI18n
+            token="tempWrite"
+            default="temp - write temp if that's what was said, but if you say temperature, write the whole word!"
+          />
+        </li>
         <EuiSpacer size="m" />
       </ul>
-      
-      <h2 style={{ letterSpacing: '.009em' }}>Skriv isolerade bokstäver om förkortningar bokstaveras</h2>
+      <h2 style={{ letterSpacing: '.009em' }}>
+        <EuiI18n
+          token="writeInsulatedLetters"
+          default="Write insulated letters if abbreviations are lettered"
+        />
+      </h2>
       <ul>
-        <li>MR - skriv m r</li>
+        <li>
+          <EuiI18n token="mrWrite" default="MR - write m r" />
+        </li>
         <EuiSpacer size="m" />
-        <li>at - skriv a t</li>
+        <li>
+          <EuiI18n token="atWrite" default="to - write a t" />
+        </li>
         <EuiSpacer size="m" />
       </ul>
-      
-      <h2 style={{ letterSpacing: '.009em' }}>Använd bara alfabetiska tecken</h2>
+      <h2 style={{ letterSpacing: '.009em' }}>
+        <EuiI18n
+          token="useOnlyAlphabeticCharacters"
+          default="Use only alphabetic characters"
+        />
+      </h2>
       <ul>
-        <li>/ - skriv det som sägs i ljudklippet: snedstreck, slash, och säger läkaren “bedömning åtgärd”, skriv
-inte "bedömning/åtgärd”.</li>
+        <li>
+          <EuiI18n
+            token="slashWrite"
+            default="/ - Write what is said in the audio clip: slash, slash, and tell the doctor “assessment action“, do not write “assessment / action“."
+          />
+        </li>
         <EuiSpacer size="m" />
-        <li>x - skriv bara x om det sägs, sa man gånger så skriv ‘gånger’ och inte ‘x’ eller ‘ggr’</li>
+        <li>
+          <EuiI18n
+            token="xTimesWrite"
+            default="x - just write x if it is said, times you write 'times' and not 'x' or 'times'"
+          />
+        </li>
         <EuiSpacer size="m" />
-        <li>Patient namn eller fullständigt personnummer:</li>
+        <li>
+          <EuiI18n
+            token="patientNameOrFullSocialSecurityNumber"
+            default="Patient name or full social security number:"
+          />
+        </li>
         <EuiSpacer size="m" />
-        <li>Rejecta ljudklippet ned reject-knappen. Inga personuppgifter i träningsdatat! Använd också reject på ljudklipp som inleds eller avslutas med avhuggna ord</li>
+        <li>
+          <EuiI18n
+            token="rejectAudioButton"
+            default="Reject the audio clip down the reject button. No personal data in training data! Also use reject on audio clips that start or end with cut words"
+          />
+        </li>
         <EuiSpacer size="m" />
-        <li>Namn på läkare, sköterskor, sjukhus…: Skriv namnen!
-Lägg inte in extra skiljetecken. Skriv bara punkt om läkaren säger punkt, skriv bara kolon om läkaren säger kolon osv.</li>
+        <li>
+          <EuiI18n
+            token="namesOfDoctorsNursesHospitals"
+            default="Names of doctors, nurses, hospitals ...: Write the names! Do not enter extra punctuation. Only write point if doctor says point, only write colon if doctor says colon etc."
+          />
+        </li>
         <EuiSpacer size="m" />
       </ul>
     </EuiText>

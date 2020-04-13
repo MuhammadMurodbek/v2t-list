@@ -5,7 +5,8 @@ import {
   EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiImage
+  EuiImage,
+  EuiI18n
 } from '@elastic/eui'
 import swal from 'sweetalert'
 import { usePreferences } from '../components/PreferencesProvider'
@@ -13,11 +14,7 @@ import { usePreferences } from '../components/PreferencesProvider'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'
 import api from '../api'
 
-
-
-
 const LoginPage = () => {
-  
   const [username, setUsername] = useState('test')
   const [password, setPassword] = useState('test')
   const [preferences, setPreferences] = usePreferences()
@@ -39,7 +36,8 @@ const LoginPage = () => {
         button: 'Avbryt'
       })
     } else {
-      api.login(username, password)
+      api
+        .login(username, password)
         .then((token) => {
           setUsername('')
           setPassword('')
@@ -68,18 +66,10 @@ const LoginPage = () => {
   }
 
   return (
-      <form
-        className="login"
-        onSubmit={login}
-      >
-        <EuiImage
-          className="logo"
-          size="m"
-          alt="logo"
-          url={logo}
-        />
-      
-      <EuiFlexGroup >
+    <form className="login" onSubmit={login}>
+      <EuiImage className="logo" size="m" alt="logo" url={logo} />
+
+      <EuiFlexGroup>
         <EuiFlexItem>
           <EuiFieldText
             placeholder="username"
@@ -99,16 +89,12 @@ const LoginPage = () => {
       </EuiFlexGroup>
       <EuiFlexGroup>
         <EuiFlexItem grow={false}>
-          <EuiButtonEmpty
-            size="l"
-            style={{color:"white"}}
-            type="submit"
-          >
-            Logga In
+          <EuiButtonEmpty size="l" style={{ color: 'white' }} type="submit">
+            <EuiI18n token="login" default="Login" />
           </EuiButtonEmpty>
         </EuiFlexItem>
       </EuiFlexGroup>
-      </form>
+    </form>
   )
 }
 
