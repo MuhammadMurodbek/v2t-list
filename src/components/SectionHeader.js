@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
@@ -30,16 +31,21 @@ const SectionHeader = ({
       label={<EuiI18n token="keyword" default="Keyword" />}
       style={{ display: keywords.length > 0 ? 'flex' : 'none' }}
     >
-      <EuiComboBox
-        // placeholder={
-        //   <EuiI18n token="selectAKeyword" default="Select A Keyword" />
-        // }
-        options={keywordsOptions}
-        selectedOptions={selectedKeyword ? [{ label: selectedKeyword }] : []}
-        singleSelection={{ asPlainText: true }}
-        onChange={onKeywordChange}
-        isClearable={false}
-      />
+      < EuiI18n
+        token="selectAKeyword"
+        default="Select A Keyword"
+      >
+        {(translation) => (
+          <EuiComboBox
+            placeholder={translation}
+            options={keywordsOptions}
+            selectedOptions={selectedKeyword ? [{ label: selectedKeyword }] : []}
+            singleSelection={{ asPlainText: true }}
+            onChange={onKeywordChange}
+            isClearable={false}
+          />
+        )}
+      </EuiI18n>
     </EuiFormRow>
   )
 }
