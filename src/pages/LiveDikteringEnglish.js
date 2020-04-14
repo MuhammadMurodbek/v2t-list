@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
-import { EuiText, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton, EuiButtonEmpty } from '@elastic/eui'
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton, EuiButtonEmpty } from '@elastic/eui'
 import api from '../api'
 import LiveEditor from '../components/LiveEditor'
 import Mic from '../components/Mic'
