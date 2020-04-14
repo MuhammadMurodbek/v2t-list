@@ -23,7 +23,7 @@ const GuidedLiveEditor = ({
   listOfTemplates,
   templatesForMenu
 }) => {
-  const [editorVisible, setEditorVisible] = useState(false)
+  const [editorVisible, setEditorVisible] = useState(true)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [tags, setTags] = useState([])
   const [chapters, setChapters] = useState([{

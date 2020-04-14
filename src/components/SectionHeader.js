@@ -31,9 +31,9 @@ const SectionHeader = ({
       style={{ display: keywords.length > 0 ? 'flex' : 'none' }}
     >
       <EuiComboBox
-        placeholder={
-          <EuiI18n token="selectAKeyword" default="Select A Keyword" />
-        }
+        // placeholder={
+        //   <EuiI18n token="selectAKeyword" default="Select A Keyword" />
+        // }
         options={keywordsOptions}
         selectedOptions={selectedKeyword ? [{ label: selectedKeyword }] : []}
         singleSelection={{ asPlainText: true }}

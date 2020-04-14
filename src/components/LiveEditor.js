@@ -163,6 +163,8 @@ export default class Editor extends Component {
       range.setStart(element, startOffset)
       range.setEnd(element, endOffset)
       selection.addRange(range)
+      console.log('this.cursor2')
+      console.log(this.cursor)
       this.cursor = null
     }
 
@@ -173,6 +175,20 @@ export default class Editor extends Component {
       const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
       const segment = chapters[chapterId] && chapters[chapterId].segments[segmentId]
       const timestamp = segment ? segment.startTime || 0 : 0
+      console.log('hola')
+      console.log('chapterId')
+      console.log(chapterId)
+      console.log('segmentId')
+      console.log(segmentId)
+      console.log('segment')
+      console.log(segment)
+      console.log('time stamp')
+      console.log(timestamp)
+      console.log('this.cursor')
+      console.log(this.cursor)
+      
+
+      console.log('hola end')
       onCursorTimeChange(timestamp)
     }
 
