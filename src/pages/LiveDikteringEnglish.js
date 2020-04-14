@@ -304,13 +304,14 @@ export default class LiveDikteringEnglish extends Component {
     return (
       <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup >
-          <EuiFlexItem>
-            <PersonalInformation />
+          <EuiFlexItem style={{ display: 'block', marginTop: '-50px' }}>
+            <PersonalInformation info={{
+              doktor: '',
+              patient: '',
+              personnummer: '',
+              template: ''
+            }} />
             <EuiSpacer size="l" />
-            <EuiText grow={false}>
-              <h3>Editor</h3>
-            </EuiText>
-            <EuiSpacer size="m" />
             <LiveEditor
               transcript={chapters}
               originalChapters={chapters}
@@ -323,65 +324,80 @@ export default class LiveDikteringEnglish extends Component {
               sectionHeaders={Object.keys(sections)}
               initialCursor={0}
             />
+
+            <EuiFlexGroup justifyContent="flexEnd">
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => { }}>
+                  Avbryt
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  style={{
+                    color: '#000000',
+                    border: 'solid 1px black',
+                    borderRadius: '25px'
+                  }}
+                  onClick={() => { }}>
+                  Spara ändringar
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  style={{
+                    background: 'rgb(112, 221, 127)',
+                    borderRadius: '25px',
+                    color: 'black'
+                  }}
+                  onClick={() => { }}>
+                  “Skicka för granskning”
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  style={{
+                    background: 'rgb(9, 99, 255)',
+                    color: 'white',
+                    borderRadius: '25px'
+                  }}
+                  onClick={() => { }}>
+                  Skicka till Webdoc
+                </EuiButton>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </EuiFlexItem>
-          <EuiFlexItem grow={false} style={{ minWidth: 230, marginLeft: 30 }}>
-            <Mic
-              microphoneBeingPressed={microphoneBeingPressed}
-              toggleRecord={this.toggleRecord}
-              seconds={seconds}
-            />
-            <EuiSpacer size="l" />
-            <Tags
-              tags={tags}
-              updateTags={this.onUpdateTags}
-            />
-            <EuiSpacer size="l" />
-            <LiveTemplateEngine
-              listOfTemplates={listOfTemplates}
-              defaultTemplate={'English'}
-              usedSections={usedSections}
-              updatedSections={this.updatedSections}
-            />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiFlexGroup justifyContent="flexStart">
-          <EuiFlexItem grow={false}>
-            <EuiButtonEmpty style={{color: '#000000'}} onClick={() => { }}>
-              Avbryt
-            </EuiButtonEmpty>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton
-              style={{
-                color: 'black',
-                border: 'solid 1px black',
-                borderRadius: '25px'
-              }}
-              onClick={() => { }}>
-              Spara ändringar
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton
-              style={{
-                background: 'rgb(112, 221, 127)',
-                borderRadius: '25px',
-                color: 'black'
-              }}
-              onClick={()=>{}}>
-              “Skicka för granskning”
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton
-              style={{
-                background: 'rgb(9, 99, 255)',
-                color: 'white',
-                borderRadius: '25px'
-              }}
-              onClick={() => { }}>
-              Skicka till Webdoc
-            </EuiButton>
+          <EuiFlexItem
+            style={{
+              maxWidth: '400px',
+              display: 'block',
+              marginTop: '-50px'
+            }}
+          >
+            <div style={{
+              marginLeft: '-50vw',
+              marginTop: '25px'
+            }}>
+              <Mic
+                microphoneBeingPressed={microphoneBeingPressed}
+                toggleRecord={this.toggleRecord}
+                seconds={seconds}
+              />
+            </div>
+            <div style={{
+              marginTop: '-80px'
+            }}>
+              <Tags
+                tags={tags}
+                updateTags={this.onUpdateTags}
+              />
+              <EuiSpacer size="l" />
+              <LiveTemplateEngine
+                listOfTemplates={listOfTemplates}
+                usedSections={usedSections}
+                defaultTemplate={'english2'}
+                updatedSections={this.updatedSections}
+              />
+            </div>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
