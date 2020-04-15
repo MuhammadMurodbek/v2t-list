@@ -175,7 +175,7 @@ export default class Editor extends Component {
       const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
       const segment = chapters[chapterId] && chapters[chapterId].segments[segmentId]
       const timestamp = segment ? segment.startTime || 0 : 0
-      console.log('hola')
+      
       console.log('chapterId')
       console.log(chapterId)
       console.log('segmentId')

@@ -64,11 +64,11 @@ const PersonalInfoLive = ({ info }) => {
       <EuiFlexGroup style={{ width: 250 }}>
         <EuiFlexItem>  
           <EuiText>
-            <h6>Doctor</h6>
+            <h6>Doktor</h6>
           </EuiText>
           <EuiSpacer size="m" />
           <EuiFieldText
-            placeholder="Doctors Namn"
+            placeholder="Doktors Namn"
             value={doktor}
             onChange={onChangeDoktor}
             aria-label="Use aria labels when no actual label is in use"
