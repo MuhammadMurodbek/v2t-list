@@ -12,7 +12,8 @@ import {
   EuiButton
 } from '@elastic/eui'
 import api from '../api'
-import LiveEditor from '../components/LiveEditor'
+// import LiveEditor from '../components/LiveEditor'
+import Editor from '../components/Editor'
 import Mic from '../components/Mic'
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import interpolateArray from '../models/interpolateArray'
@@ -35,13 +36,18 @@ export default class LiveDiktering extends Component {
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
     listOfTemplates: [],
-    // chapters: [{ 
-    //   keyword: 'KONTAKTORSAK', 
-    //   segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
-    // }],
-    chapters: [{ keyword: 'KONTAKTORSAK', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }],
+    chapters: [{ 
+      keyword: 'KONTAKTORSAK', 
+      segments: [
+        { words: '. ', startTime: 0.0, endTime: 0.0 },
+        { words: '. ', startTime: 0.0, endTime: 0.0 },
+        { words: '. ', startTime: 0.0, endTime: 0.0 }
+      ]
+    }],
     originalText: '',
     currentText: '',
+    currentTime: 0,
+    queryTerm: '',
     sections: {
       'KONTAKTORSAK': [],
       'AT': [],
@@ -55,7 +61,10 @@ export default class LiveDiktering extends Component {
     duration: 0.0,
     previousDuration: 0.0,
     previousCurrentTime: new Date(),
-    initialRecordTime: null
+    initialRecordTime: null,
+    headerUpdatedChapters: null,
+    initialCursor: 0,
+    sectionHeaders: []
   }
 
   componentDidMount = () => {
@@ -71,7 +80,16 @@ export default class LiveDiktering extends Component {
   }
 
   onSelectText = () => {
-    // update later
+    const selctedText = window.getSelection().toString()
+    this.setState({ queryTerm: selctedText })
+  }
+
+  onTimeUpdate = (currentTime) => {
+    this.setState({ currentTime })
+  }
+
+  getCurrentTime = () => {
+    this.playerRef.current.updateTime()
   }
 
   onUpdateTags = (tags) => {
@@ -93,39 +111,40 @@ export default class LiveDiktering extends Component {
   }
 
   validateSections = (updatedSectionNames) => {
-    const { sections, chapters } = this.state
-    // console.log('sections beta')
-    // console.log(sections)
-    // console.log('updated sections')
-    // console.log(updatedSectionNames)
-    // console.log('chapters')
-    // console.log(chapters)
-    if (JSON.stringify(sections) !== JSON.stringify(updatedSectionNames)) {
-      // cheeck if the current sections are incompatible  
-      // shuffle chapters according to the new template
-      const firstKeyword = Object.keys(updatedSectionNames)[0]
-      let updatedText = ''
-      chapters.forEach((chapter) => {
-        updatedText = `${updatedText} ${chapter.keyword}`
-        chapter.segments.forEach((segment) => {
-          updatedText = `${updatedText} ${segment.words}`
-        })
-      })
-      updatedText = updatedText.replace(firstKeyword, '')
-      // updatedText = updatedText.replace(/\s\s+/g, ' ') 
-      updatedText = updatedText.replace(/ny rad/g, '')
-      // updatedText = updatedText.replace(/\n/g, '')
-      this.setState({
-        chapters: processChaptersLive(updatedText, updatedSectionNames, firstKeyword)
-      })
-    } // else do nothing 
+    // const { sections, chapters } = this.state
+    // // console.log('sections beta')
+    // // console.log(sections)
+    // // console.log('updated sections')
+    // // console.log(updatedSectionNames)
+    // // console.log('chapters')
+    // // console.log(chapters)
+    // if (JSON.stringify(sections) !== JSON.stringify(updatedSectionNames)) {
+    //   // cheeck if the current sections are incompatible  
+    //   // shuffle chapters according to the new template
+    //   const firstKeyword = Object.keys(updatedSectionNames)[0]
+    //   let updatedText = ''
+    //   chapters.forEach((chapter) => {
+    //     updatedText = `${updatedText} ${chapter.keyword}`
+    //     chapter.segments.forEach((segment) => {
+    //       updatedText = `${updatedText} ${segment.words}`
+    //     })
+    //   })
+    //   updatedText = updatedText.replace(firstKeyword, '')
+    //   // updatedText = updatedText.replace(/\s\s+/g, ' ') 
+    //   updatedText = updatedText.replace(/ny rad/g, '')
+    //   // updatedText = updatedText.replace(/\n/g, '')
+    //   this.setState({
+    //     chapters: processChaptersLive(updatedText, updatedSectionNames, firstKeyword),
+    //     headerUpdatedChapters: processChaptersLive(updatedText, updatedSectionNames, firstKeyword)
+    //   })
+    // } // else do nothing 
   }
 
   // @ts-ignore
   updatedSections = (sections) => {
     console.log('before validating')
     console.log(sections)
-    this.validateSections(sections)
+    // this.validateSections(sections)
     this.setState({ sections })
   }
 
@@ -192,15 +211,17 @@ export default class LiveDiktering extends Component {
         // console.log(finalText)
         const { sections } = prevState.state
         // prevState.setState({ chapters: [{ keyword: 'Keyboard', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }] })
-        prevState.setState({ chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0]) })
+        prevState.setState({ chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0]),
+          headerUpdatedChapters: processChaptersLive(finalText, sections, Object.keys(sections)[0])
+         })
         // prevState.setState({ chapters: processChapters(finalText, sections) })
       })
     })
   }
 
   // @ts-ignore
-  onCursorTimeChange = () => {
-
+  onCursorTimeChange = (cursorTime) => {
+    this.setState({ cursorTime })
   }
 
   // @ts-ignore
@@ -317,8 +338,11 @@ export default class LiveDiktering extends Component {
       microphoneBeingPressed,
       listOfTemplates,
       sections,
+      currentTime,
       tags,
-      seconds
+      seconds,
+      headerUpdatedChapters,
+      initialCursor
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
@@ -332,7 +356,7 @@ export default class LiveDiktering extends Component {
               template: ''
             }} />
             <EuiSpacer size="l" />
-            <LiveEditor
+            {/* <LiveEditor
               transcript={chapters}
               originalChapters={chapters}
               chapters={chapters}
@@ -343,6 +367,19 @@ export default class LiveDiktering extends Component {
               isDiffVisible={false}
               sectionHeaders={Object.keys(sections)}
               initialCursor={0}
+            /> */}
+            <Editor
+              transcript={chapters}
+              originalChapters={chapters}
+              headerUpdatedChapters={headerUpdatedChapters}
+              chapters={chapters}
+              currentTime={currentTime}
+              onCursorTimeChange={this.onCursorTimeChange}
+              onSelect={this.onSelectText}
+              updateTranscript={this.onUpdateTranscript}
+              isDiffVisible
+              sectionHeaders={Object.keys(sections)}
+              initialCursor={initialCursor}
             />
 
             <EuiFlexGroup justifyContent="flexEnd">

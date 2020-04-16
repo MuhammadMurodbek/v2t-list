@@ -1,107 +1,107 @@
 // @ts-nocheck
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
-const getKeyByValue = (object, value) =>
-  Object
-    .keys(object)
-    .filter((k) =>
-      object[k]
-        .map(p => p.toUpperCase())
-        .includes(value.toUpperCase())
-    )[0] || false
+// const getKeyByValue = (object, value) =>
+//   Object
+//     .keys(object)
+//     .filter((k) =>
+//       object[k]
+//         .map(p => p.toUpperCase())
+//         .includes(value.toUpperCase())
+//     )[0] || false
 
-const getTheFullKeyWords = (partialKeyword, listOfKeywords) => {
-  const probableKeywords = []
-  listOfKeywords.forEach(keyword => {
-    if (keyword.includes(partialKeyword.toUpperCase())) {
-      probableKeywords.push(keyword)
-    }
-  })
-  return probableKeywords
-}
+// const getTheFullKeyWords = (partialKeyword, listOfKeywords) => {
+//   const probableKeywords = []
+//   listOfKeywords.forEach(keyword => {
+//     if (keyword.includes(partialKeyword.toUpperCase())) {
+//       probableKeywords.push(keyword)
+//     }
+//   })
+//   return probableKeywords
+// }
 
-const isItAValidKeyword = (listOfProbableKeywords, finalText, i) => {
-  const splittedFinalText = finalText.split(' ').map(word => word.toUpperCase())
-  let matchedKeyword = null
-  listOfProbableKeywords.forEach((probableKeyword) => {
-    const splittedByWord = probableKeyword.split(' ')
-    let numberOfMatches = 0
-    for (let j = 0; j <= splittedByWord.length - 1; j++) {
-      if (splittedByWord[j] === splittedFinalText[i + j]) {
-        numberOfMatches += 1
-      }
-      if (numberOfMatches === splittedByWord.length) {
-        matchedKeyword = probableKeyword
-      }
-    }
-  })
-  if (matchedKeyword) return { status: true, section: matchedKeyword }
-  else return { status: false }
-}
+// const isItAValidKeyword = (listOfProbableKeywords, finalText, i) => {
+//   const splittedFinalText = finalText.split(' ').map(word => word.toUpperCase())
+//   let matchedKeyword = null
+//   listOfProbableKeywords.forEach((probableKeyword) => {
+//     const splittedByWord = probableKeyword.split(' ')
+//     let numberOfMatches = 0
+//     for (let j = 0; j <= splittedByWord.length - 1; j++) {
+//       if (splittedByWord[j] === splittedFinalText[i + j]) {
+//         numberOfMatches += 1
+//       }
+//       if (numberOfMatches === splittedByWord.length) {
+//         matchedKeyword = probableKeyword
+//       }
+//     }
+//   })
+//   if (matchedKeyword) return { status: true, section: matchedKeyword }
+//   else return { status: false }
+// }
 
-const capitalize = (str) => str
-  .trim().charAt(0).toUpperCase() + str.trim().slice(1)
+// const capitalize = (str) => str
+//   .trim().charAt(0).toUpperCase() + str.trim().slice(1)
 
-const capitalizeSections = (tempChapters) => {
-  return tempChapters.map(({ keyword, segments }) => {
-    return {
-      keyword,
-      segments: [
-        {
-          words: capitalize(segments.map(segment => segment.words).join()),
-          startTime: 0,
-          endTime: 0
-        }
-      ]
-    }
-  })
-}
+// const capitalizeSections = (tempChapters) => {
+//   return tempChapters.map(({ keyword, segments }) => {
+//     return {
+//       keyword,
+//       segments: [
+//         {
+//           words: capitalize(segments.map(segment => segment.words).join()),
+//           startTime: 0,
+//           endTime: 0
+//         }
+//       ]
+//     }
+//   })
+// }
 
-const getCorrectKeyword = (keyword, updatedSections) => {
-  const allTheKeywords = Object.keys(updatedSections)
-  // Remaining task
-  // use the values of the object to confirm as keyword
-  // Remaining task
-  // use the values of the object to confirm as keyword
-  // Remaining task
-  // use the values of the object to confirm as keyword
-  // Remaining task
-  // use the values of the object to confirm as keyword
-  const keywords = allTheKeywords.map(section =>
-    section.toUpperCase() === keyword.toUpperCase() ? section : ''
-  )
-  const correctCasedKeyword = keywords.filter(k => k.length > 0)[0]
-  return correctCasedKeyword
-}
+// const getCorrectKeyword = (keyword, updatedSections) => {
+//   const allTheKeywords = Object.keys(updatedSections)
+//   // Remaining task
+//   // use the values of the object to confirm as keyword
+//   // Remaining task
+//   // use the values of the object to confirm as keyword
+//   // Remaining task
+//   // use the values of the object to confirm as keyword
+//   // Remaining task
+//   // use the values of the object to confirm as keyword
+//   const keywords = allTheKeywords.map(section =>
+//     section.toUpperCase() === keyword.toUpperCase() ? section : ''
+//   )
+//   const correctCasedKeyword = keywords.filter(k => k.length > 0)[0]
+//   return correctCasedKeyword
+// }
 
-const fixedCaseSections = (tempChapters, updatedSectionNames) => {
-  return tempChapters.map(({ keyword, segments }) => {
-    return {
-      keyword: getCorrectKeyword(keyword, updatedSectionNames),
-      segments
-    }
-  })
-}
+// const fixedCaseSections = (tempChapters, updatedSectionNames) => {
+//   return tempChapters.map(({ keyword, segments }) => {
+//     return {
+//       keyword: getCorrectKeyword(keyword, updatedSectionNames),
+//       segments
+//     }
+//   })
+// }
 
-const putPunkt = (str) =>
-  // match whether the last character of the string is a punctuation
-  !str.match(/[\p{P}\p{N}]$/u)
-    && str.length > 0 ? `${str}.` : str
+// const putPunkt = (str) =>
+//   // match whether the last character of the string is a punctuation
+//   !str.match(/[\p{P}\p{N}]$/u)
+//     && str.length > 0 ? `${str}.` : str
 
-const setThePunkt = (tempChapters) => {
-  return tempChapters.map(({ keyword, segments }) => {
-    return {
-      keyword,
-      segments: [
-        {
-          words: putPunkt(segments.map(segment => segment.words).join()),
-          startTime: 0,
-          endTime: 0
-        }
-      ]
-    }
-  })
-}
+// const setThePunkt = (tempChapters) => {
+//   return tempChapters.map(({ keyword, segments }) => {
+//     return {
+//       keyword,
+//       segments: [
+//         {
+//           words: putPunkt(segments.map(segment => segment.words).join()),
+//           startTime: 0,
+//           endTime: 0
+//         }
+//       ]
+//     }
+//   })
+// }
 
 const extractedText = (finalText) => {
 //   if (finalText.trim() !== '1 1 1') {
@@ -117,9 +117,9 @@ const extractedText = (finalText) => {
   } else {
     return [
       { words: 'KONTAKTORSAK', startTime: 0.0, endTime: 0.0 },
-      { words: '1 ', startTime: 0.0, endTime: 0.0 },
-      { words: '1 ', startTime: 0.0, endTime: 0.0 },
-      { words: '1 ', startTime: 0.0, endTime: 0.0 }
+      { words: '.', startTime: 0.0, endTime: 0.0 },
+      { words: '.', startTime: 0.0, endTime: 0.0 },
+      { words: '.', startTime: 0.0, endTime: 0.0 }
     ]
   }
 }
@@ -140,9 +140,11 @@ const restructureChapter = (data) => {
 const processChaptersLive = (finalText, updatedSections, firstKeyword) => {
   console.log('finalTextqq')
   console.log(finalText)
+  // const extractedFinalText = finalText
   const extractedFinalText = extractedText(finalText)
   console.log('extractedFinalText')
   console.log(extractedFinalText)
+  console.log(extractedFinalText[0])
   console.log('updatedSections')
   console.log(updatedSections)  
   console.log('first keyword')  
@@ -204,8 +206,8 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword) => {
   console.log(finalChapters)
 
 
-// return finalChapters
-    return [{ keyword: 'KONTAKTORSAK', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }]
+return finalChapters
+    // return [{ keyword: 'KONTAKTORSAK', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }]
 
 
 
