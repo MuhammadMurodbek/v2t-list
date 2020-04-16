@@ -144,7 +144,7 @@ export default class LiveDiktering extends Component {
   updatedSections = (sections) => {
     console.log('before validating')
     console.log(sections)
-    // this.validateSections(sections)
+    this.validateSections(sections)
     this.setState({ sections })
   }
 

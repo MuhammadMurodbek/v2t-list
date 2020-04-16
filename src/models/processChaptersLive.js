@@ -57,31 +57,31 @@
 //   })
 // }
 
-// const getCorrectKeyword = (keyword, updatedSections) => {
-//   const allTheKeywords = Object.keys(updatedSections)
-//   // Remaining task
-//   // use the values of the object to confirm as keyword
-//   // Remaining task
-//   // use the values of the object to confirm as keyword
-//   // Remaining task
-//   // use the values of the object to confirm as keyword
-//   // Remaining task
-//   // use the values of the object to confirm as keyword
-//   const keywords = allTheKeywords.map(section =>
-//     section.toUpperCase() === keyword.toUpperCase() ? section : ''
-//   )
-//   const correctCasedKeyword = keywords.filter(k => k.length > 0)[0]
-//   return correctCasedKeyword
-// }
+const getCorrectKeyword = (keyword, updatedSections) => {
+  const allTheKeywords = Object.keys(updatedSections)
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  // Remaining task
+  // use the values of the object to confirm as keyword
+  const keywords = allTheKeywords.map(section =>
+    section.toUpperCase() === keyword.toUpperCase() ? section : ''
+  )
+  const correctCasedKeyword = keywords.filter(k => k.length > 0)[0]
+  return correctCasedKeyword
+}
 
-// const fixedCaseSections = (tempChapters, updatedSectionNames) => {
-//   return tempChapters.map(({ keyword, segments }) => {
-//     return {
-//       keyword: getCorrectKeyword(keyword, updatedSectionNames),
-//       segments
-//     }
-//   })
-// }
+const fixedCaseSections = (tempChapters, updatedSectionNames) => {
+  return tempChapters.map(({ keyword, segments }) => {
+    return {
+      keyword: getCorrectKeyword(keyword, updatedSectionNames),
+      segments
+    }
+  })
+}
 
 // const putPunkt = (str) =>
 //   // match whether the last character of the string is a punctuation
@@ -205,20 +205,15 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword) => {
   console.log('finalChapters')
   console.log(finalChapters)
 
-
-return finalChapters
-    // return [{ keyword: 'KONTAKTORSAK', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }]
-
-
-
-
-
-
-
-
-
-
-
+//     // Fix the case of a section header as per backend data
+  const fixedCase = fixedCaseSections(finalChapters, updatedSections)
+//     // Capitalize the transcript
+    // const capitalized = capitalizeSections(fixedCase)
+    // return capitalized
+  // return capitalized ? setThePunkt(capitalized) : fixedCase
+//     // return tempChapters
+  return fixedCase
+ 
 //   // return extractedFinalText
 //   let usedKeywords = ['Examination']
 //   const words = finalText.split(' ')
