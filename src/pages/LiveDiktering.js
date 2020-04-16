@@ -1,3 +1,5 @@
+// new
+
 /* eslint-disable no-console */
 // @ts-ignore
 import React, { Component } from 'react'
@@ -7,7 +9,7 @@ import {
   EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiButton 
+  EuiButton
 } from '@elastic/eui'
 import api from '../api'
 import LiveEditor from '../components/LiveEditor'
@@ -18,32 +20,35 @@ import PersonalInformation from '../components/PersonalInformation'
 import Tags from '../components/Tags'
 import io from 'socket.io-client'
 import Page from '../components/Page'
-import processChapters from '../models/processChapters'
+// import processChapters from '../models/processChapters'
+import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket']})
+  // socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket']})
+  socketio = io.connect('wss://ilxgpu9002.inoviaai.se/audio', { transports: ['websocket'] })
   state = {
     recording: false,
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
     listOfTemplates: [],
-    chapters: [{ 
-      keyword: 'KONTAKTORSAK', 
-      segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
-    }],
+    // chapters: [{ 
+    //   keyword: 'KONTAKTORSAK', 
+    //   segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
+    // }],
+    chapters: [{ keyword: 'KONTAKTORSAK', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }],
     originalText: '',
     currentText: '',
     sections: {
-      'KONTAKTORSAK': [], 
-      'AT': [], 
-      'LUNGOR': [] , 
-      'BUK': [] , 
-      'DIAGNOS': [] 
-    }, 
+      'KONTAKTORSAK': [],
+      'AT': [],
+      'LUNGOR': [],
+      'BUK': [],
+      'DIAGNOS': []
+    },
     isMicrophoneStarted: false,
     tags: [],
     seconds: 0,
@@ -55,7 +60,7 @@ export default class LiveDiktering extends Component {
 
   componentDidMount = () => {
     this.templates()
-    document.title = 'Inovia AI :: Live Diktering 🎤'   
+    document.title = 'Inovia AI :: Live Diktering 🎤'
   }
 
   templates = async () => {
@@ -86,7 +91,7 @@ export default class LiveDiktering extends Component {
     splitter.connect(merger, 0, 1)
     return merger
   }
-  
+
   validateSections = (updatedSectionNames) => {
     const { sections, chapters } = this.state
     // console.log('sections beta')
@@ -95,9 +100,10 @@ export default class LiveDiktering extends Component {
     // console.log(updatedSectionNames)
     // console.log('chapters')
     // console.log(chapters)
-    if(JSON.stringify(sections)!==JSON.stringify(updatedSectionNames)) {
+    if (JSON.stringify(sections) !== JSON.stringify(updatedSectionNames)) {
       // cheeck if the current sections are incompatible  
       // shuffle chapters according to the new template
+      const firstKeyword = Object.keys(updatedSectionNames)[0]
       let updatedText = ''
       chapters.forEach((chapter) => {
         updatedText = `${updatedText} ${chapter.keyword}`
@@ -105,12 +111,12 @@ export default class LiveDiktering extends Component {
           updatedText = `${updatedText} ${segment.words}`
         })
       })
-      updatedText = updatedText.replace('KONTAKTORSAK', '')
-      updatedText = updatedText.replace(/\s\s+/g, ' ')
+      updatedText = updatedText.replace(firstKeyword, '')
+      // updatedText = updatedText.replace(/\s\s+/g, ' ') 
       updatedText = updatedText.replace(/ny rad/g, '')
-      updatedText = updatedText.replace(/\n/g, '')
+      // updatedText = updatedText.replace(/\n/g, '')
       this.setState({
-        chapters: processChapters(updatedText, updatedSectionNames, Object.keys(updatedSectionNames)[0])
+        chapters: processChaptersLive(updatedText, updatedSectionNames, firstKeyword)
       })
     } // else do nothing 
   }
@@ -127,7 +133,7 @@ export default class LiveDiktering extends Component {
   gotStream = (stream) => {
     const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
-    
+
     // Create an AudioNode from the stream.
     const realAudioInput = this.audioContext.createMediaStreamSource(stream)
     let audioInput = realAudioInput
@@ -155,14 +161,14 @@ export default class LiveDiktering extends Component {
             duration: Math.ceil((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
           })
         }
-      } 
+      }
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer)
-        for (var i = 0, offset = 0; i < input.length; i++ , offset += 2) {
+        for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
@@ -180,12 +186,13 @@ export default class LiveDiktering extends Component {
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
       const { originalText } = prevState.state
-      prevState.setState({ currentText: text }, ()=>{
+      prevState.setState({ currentText: text }, () => {
         // console.log('prevState.state.whole')
         const finalText = `${originalText} ${prevState.state.currentText}`
         // console.log(finalText)
         const { sections } = prevState.state
-        prevState.setState({ chapters: processChapters(finalText, sections, Object.keys(sections)[0]) })
+        // prevState.setState({ chapters: [{ keyword: 'Keyboard', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }] })
+        prevState.setState({ chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0]) })
         // prevState.setState({ chapters: processChapters(finalText, sections) })
       })
     })
@@ -193,7 +200,7 @@ export default class LiveDiktering extends Component {
 
   // @ts-ignore
   onCursorTimeChange = () => {
-    
+
   }
 
   // @ts-ignore
@@ -211,7 +218,7 @@ export default class LiveDiktering extends Component {
       navigator.mediaDevices.getUserMedia = function (constraints) {
 
         // First get ahold of the legacy getUserMedia, if present
-        const getUserMedia 
+        const getUserMedia
           // @ts-ignore
           = navigator.webkitGetUserMedia || navigator.mozGetUserMedia
 
@@ -257,11 +264,11 @@ export default class LiveDiktering extends Component {
         this.socketio.emit('end-recording')
         this.socketio.close()
         this.setState({ originalText: `${originalText} ${currentText}` })
-      })   
+      })
     } else {
       // console.log('start recording')
       // console.log(this.socketio.connected)
-      this.setState({ recording: true }, ()=> {
+      this.setState({ recording: true }, () => {
         if (!initialRecordTime) {
           const recordTime = new Date()
           this.setState({
@@ -279,7 +286,7 @@ export default class LiveDiktering extends Component {
           bps: 16,
           fps: parseInt(this.audioContext.sampleRate)
         })
-      })   
+      })
     }
   }
 
@@ -296,12 +303,12 @@ export default class LiveDiktering extends Component {
     // the keyword as a regular text
     // as it was actually said by the speaker
     */
-    if (!this.socketio.connected) {
-      this.socketio
-        .connect('wss://ilxgpu9000.inoviaai.se/audio', 
-          { transports: ['websocket'] }
-        )
-    }
+    // if (!this.socketio.connected) {
+    //   this.socketio
+    //     .connect('wss://ilxgpu9000.inoviaai.se/audio', 
+    //       { transports: ['websocket'] }
+    //     )
+    // }
   }
 
   render() {
@@ -317,7 +324,7 @@ export default class LiveDiktering extends Component {
     return (
       <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup >
-          <EuiFlexItem style={{ display: 'block' , marginTop: '-50px' }}>
+          <EuiFlexItem style={{ display: 'block', marginTop: '-50px' }}>
             <PersonalInformation info={{
               doktor: '',
               patient: '',
@@ -362,7 +369,7 @@ export default class LiveDiktering extends Component {
                     borderRadius: '25px',
                     color: 'black'
                   }}
-                  onClick={()=>{}}>
+                  onClick={() => { }}>
                   “Skicka för granskning”
                 </EuiButton>
               </EuiFlexItem>
@@ -386,9 +393,10 @@ export default class LiveDiktering extends Component {
               marginTop: '-50px'
             }}
           >
-            <div style={{ 
+            <div style={{
               marginLeft: '-50vw',
-              marginTop: '25px'}}>
+              marginTop: '25px'
+            }}>
               <Mic
                 microphoneBeingPressed={microphoneBeingPressed}
                 toggleRecord={this.toggleRecord}
@@ -411,7 +419,7 @@ export default class LiveDiktering extends Component {
               />
             </div>
           </EuiFlexItem>
-        </EuiFlexGroup>   
+        </EuiFlexGroup>
       </Page>
     )
   }

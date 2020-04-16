@@ -102,6 +102,9 @@ const setThePunkt = (tempChapters) => {
 }
 
 const processChapters = (finalText, updatedSections, firstKeyword) => {
+  console.log('finalText')
+  console.log(finalText)
+  console.log(' ftext end')
   let usedKeywords = ['Examination']
   const words = finalText.split(' ')
   const tempChapters = [{
@@ -264,10 +267,16 @@ const processChapters = (finalText, updatedSections, firstKeyword) => {
     }
   }
 
+  console.log('tempChapters')
+  console.log(tempChapters)
+  console.log('tempChapters end')
   // Fix the case of a section header as per backend data
   const fixedCase = fixedCaseSections(tempChapters, updatedSections)
   // Capitalize the transcript
   const capitalized = capitalizeSections(fixedCase)
+  console.log('capitalized')
+  console.log(capitalized)
+  console.log('capitalized end')
   return capitalized ? setThePunkt(capitalized) : tempChapters
   // return tempChapters
 }
