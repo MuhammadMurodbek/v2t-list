@@ -90,17 +90,17 @@ export default class Editor extends Component {
   stashCursor = (offset = 0) => {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
-     // range.startContainer becomes the node after cursor when no nodes exist in front of cursor (deleted)
-    const isFirstNode = node.isSameNode(this.getFirstSegmentNode(node))
+    // firefox paste #text into a sibling before it is merged into one #text element
+    const siblingOffset = node.previousSibling ? node.previousSibling.data.length : 0
     const dataset = this.getClosestDataset(node)
-    const siblingOffset = this.isPastedInParent(node) ? node.parentNode.previousSibling.innerText.length : 0
     this.cursor = {
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
-      segment: isFirstNode ? 0 : Number(dataset.segment || 0),
+      segment: Number(dataset.segment || 0),
       offset: range.startOffset + siblingOffset + offset
     }
-    this.arrangeCursor()
+    if (isNaN(this.cursor.keyword) && this.cursor.offset < 0)
+      this.alignCursorToPreviousSegment()
   }
 
   popCursor = () => {
@@ -129,23 +129,10 @@ export default class Editor extends Component {
     onCursorTimeChange(timestamp)
   }
 
-  getFirstSegmentNode = (node) => {
-    const getDeepestChild = (node) => node.firstChild ? getDeepestChild(node.firstChild) : node
-    return node.nodeName === 'CODE' ? getDeepestChild(node) : this.getFirstSegmentNode(node.parentNode)
-  }
-
-  isPastedInParent = (node) => {
-    const parent = node.parentNode
-    return !Object.keys(node.dataset || {}).length && !Object.keys(parent.dataset || {}).length &&
-      parent.previousSibling && !!Object.keys(parent.previousSibling.dataset || {}).length
-  }
-
   getClosestDataset = (node) => {
     const currentHasDataset = Object.keys(node.dataset || {}).length
     if (currentHasDataset)
       return node.dataset
-    if (this.isPastedInParent(node))
-      return node.parentNode.previousSibling.dataset
     return this.getClosestDataset(node.parentNode)
   }
 
@@ -163,10 +150,9 @@ export default class Editor extends Component {
     return h2.firstChild || h2
   }
 
-  arrangeCursor = () => {
+  alignCursorToPreviousSegment = () => {
     const { chapters } = this.props
     const cursor = this.cursor
-    if (!isNaN(cursor.keyword) || cursor.offset >= 0) return
     cursor.segment--
     if (cursor.segment < 0) {
       cursor.chapter--
@@ -188,6 +174,18 @@ export default class Editor extends Component {
     const diff = this.getDiff(chapters)
     this.setState({ diff })
     updateTranscript(chapters)
+  }
+
+  /** Make sure only text is pasted and override browsers default replacment of new lines */
+  onPaste = (e, chapterId) => {
+    e.preventDefault()
+    const text = (e.originalEvent || e).clipboardData.getData('text/plain') || ''
+    document.execCommand('insertHTML', false, this.escapeHTML(text))
+  }
+
+  escapeHTML = (text) => {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+    return text.replace(/[&<>"']/g, m => map[m])
   }
 
   onKeyDown = (e, chapterId) => {
@@ -359,6 +357,7 @@ export default class Editor extends Component {
           inputRef={this.inputRef}
           currentTime={currentTime}
           onChange={this.onChange}
+          onPaste={this.onPaste}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
           onCursorChange={this.onCursorChange}
@@ -431,14 +430,15 @@ const EditableChapter = ({ chapterId, keyword, sectionHeaders, setKeyword, ...ch
   )
 }
 
-const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect, onCursorChange }) => {
+const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, onKeyDown, onSelect, onCursorChange }) => {
   const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
     <pre>
       <code
         style={{minHeight: '20px'}}
-        key={segments.toString()}
+        key={JSON.stringify(segments)}
         onInput={e => onChange(e, chapterId)}
+        onPaste={e => onPaste(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}
         onKeyUp={onCursorChange}
         onClick={onCursorChange}
