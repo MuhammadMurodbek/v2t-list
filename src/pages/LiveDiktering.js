@@ -67,7 +67,8 @@ export default class LiveDiktering extends Component {
     initialRecordTime: null,
     headerUpdatedChapters: null,
     initialCursor: 0,
-    sectionHeaders: []
+    sectionHeaders: [],
+    recordedAudioClips: []
   }
 
   componentDidMount = () => {
@@ -155,35 +156,25 @@ export default class LiveDiktering extends Component {
   gotStream = (stream) => {
     const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
-
     // Create an AudioNode from the stream.
     const realAudioInput = this.audioContext.createMediaStreamSource(stream)
-    let audioInput = realAudioInput
 
+    let audioInput = realAudioInput
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
 
-    const analyserNode = this.audioContext.createAnalyser()
-    analyserNode.fftSize = 2048
-    inputPoint.connect(analyserNode)
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
-      const {
-        initialRecordTime, previousCurrentTime, microphoneBeingPressed, seconds
-      } = prevState.state
-      if (microphoneBeingPressed) {
-        const currentTime = new Date()
-        if (currentTime.getSeconds() !== previousCurrentTime.getSeconds()) {
-          prevState.setState({
-            seconds: seconds + 1,
-            previousCurrentTime: currentTime,
-            duration: Math.ceil((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
-          })
-        }
+      const {seconds} = prevState.state
+      if (seconds !== Math.ceil(prevState.audioContext.currentTime)) {
+        prevState.setState({
+          seconds: Math.ceil(prevState.audioContext.currentTime)
+        })
       }
+
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
@@ -216,7 +207,7 @@ export default class LiveDiktering extends Component {
         // prevState.setState({ chapters: [{ keyword: 'Keyboard', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }] })
         prevState.setState({ chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0]),
           headerUpdatedChapters: processChaptersLive(finalText, sections, Object.keys(sections)[0])
-         })
+        })
         // prevState.setState({ chapters: processChapters(finalText, sections) })
       })
     })
@@ -227,27 +218,20 @@ export default class LiveDiktering extends Component {
     this.setState({ cursorTime })
   }
 
-  // @ts-ignore
-  initAudio = () => {
+  initAudio = async () => {
     if (navigator.mediaDevices === undefined) {
-      // @ts-ignore
       navigator.mediaDevices = {}
     }
 
-    // Some browsers partially implement mediaDevices.
-    // We can't just assign an object
-    // with getUserMedia as it would overwrite existing properties.
-    // Here, we will just add the getUserMedia property if it's missing.
+    // Some browsers partially implement mediaDevices. We can't just assign an object with 
+    // getUserMedia as it would overwrite existing properties. Here, we will just add the 
+    // getUserMedia property if it's missing.
     if (navigator.mediaDevices.getUserMedia === undefined) {
       navigator.mediaDevices.getUserMedia = function (constraints) {
-
         // First get ahold of the legacy getUserMedia, if present
         const getUserMedia
-          // @ts-ignore
           = navigator.webkitGetUserMedia || navigator.mozGetUserMedia
-
-        // Some browsers just don't implement it 
-        // - return a rejected promise with an error
+        // Some browsers just don't implement it - return a rejected promise with an error
         // to keep a consistent interface
         if (!getUserMedia) {
           return Promise
@@ -256,16 +240,16 @@ export default class LiveDiktering extends Component {
             )
         }
 
-        // Otherwise, wrap the call to the old 
-        // navigator.getUserMedia with a Promise
+        // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
         return new Promise(function (resolve, reject) {
           getUserMedia.call(navigator, constraints, resolve, reject)
         })
       }
     }
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
+    await navigator.mediaDevices.getUserMedia({ audio: true })
       .then((stream) => {
+        recorder.init(stream, this.addClipHandler)
         this.gotStream(stream)
       })
       .catch(function (err) {
@@ -273,79 +257,54 @@ export default class LiveDiktering extends Component {
       })
   }
 
+  addClipHandler = (clip) => {
+    this.setState({
+      recordedAudioClips: [...this.state.recordedAudioClips, clip]
+    })
+  }
 
-  // @ts-ignore
   toggleRecord = () => {
-    // @ts-ignore
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { microphoneBeingPressed, originalText, currentText, initialRecordTime } = this.state
-    if (microphoneBeingPressed === true) {
-      // console.log('stop recording')
+    const { recording } = this.state
+    if (recording === true) {
       this.setState({ recording: false }, () => {
-        this.setState({ microphoneBeingPressed: false })
-        this.setState({ recordingAction: 'Starta' })
         // Close the socket
-        this.socketio.emit('end-recording')
-        this.socketio.close()
-        this.setState({ originalText: `${originalText} ${currentText}` })
+        recorder.stop()
+        this.audioContext.suspend()
       })
     } else {
-      // console.log('start recording')
-      // console.log(this.socketio.connected)
-      this.setState({ recording: true }, () => {
-        if (!initialRecordTime) {
-          const recordTime = new Date()
-          this.setState({
-            initialRecordTime: recordTime
+      this.setState({ recording: true }, async () => {
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume()
+        } else {
+          await this.initAudio()
+          this.socketio.emit('start-recording', {
+            numChannels: 1,
+            bps: 16,
+            fps: parseInt(this.audioContext.sampleRate)
           })
         }
-        // console.log('then')
-        // console.log(this.socketio.connected)
-        this.setState({ microphoneBeingPressed: true })
-        this.setState({ recordingAction: 'Avsluta' })
-        this.initAudio()
-        // console.log('button is clicked')
-        this.socketio.emit('start-recording', {
-          numChannels: 1,
-          bps: 16,
-          fps: parseInt(this.audioContext.sampleRate)
-        })
+        recorder.start()
       })
     }
   }
 
-  // @ts-ignore
-  sendAsHorrribleTranscription = () => {
+  sendAsHorrribleTranscription = () => {}
 
-  }
-
-  // @ts-ignore
-  save = () => {
-    /* Check the template compatibility, 
-    // if the section headers don't belong to the template, 
-    // notify the user and clear up the keywords and move 
-    // the keyword as a regular text
-    // as it was actually said by the speaker
-    */
-    // if (!this.socketio.connected) {
-    //   this.socketio
-    //     .connect('wss://ilxgpu9000.inoviaai.se/audio', 
-    //       { transports: ['websocket'] }
-    //     )
-    // }
-  }
+  save = () => {}
 
   render() {
     const {
       chapters,
-      microphoneBeingPressed,
       listOfTemplates,
       sections,
       currentTime,
       tags,
       seconds,
       headerUpdatedChapters,
-      initialCursor
+      initialCursor,
+      recordedAudioClips,
+      recording
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
@@ -359,18 +318,6 @@ export default class LiveDiktering extends Component {
               template: ''
             }} />
             <EuiSpacer size="l" />
-            {/* <LiveEditor
-              transcript={chapters}
-              originalChapters={chapters}
-              chapters={chapters}
-              currentTime={0.00}
-              onSelect={this.onSelectText}
-              updateTranscript={this.onUpdateTranscript}
-              onCursorTimeChange={this.onCursorTimeChange}
-              isDiffVisible={false}
-              sectionHeaders={Object.keys(sections)}
-              initialCursor={0}
-            /> */}
             <Editor
               transcript={chapters}
               originalChapters={chapters}
@@ -438,7 +385,7 @@ export default class LiveDiktering extends Component {
               marginTop: '25px'
             }}>
               <Mic
-                microphoneBeingPressed={microphoneBeingPressed}
+                microphoneBeingPressed={recording}
                 toggleRecord={this.toggleRecord}
                 seconds={seconds}
               />
@@ -458,6 +405,11 @@ export default class LiveDiktering extends Component {
                 updatedSections={this.updatedSections}
               />
             </div>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup>
+          <EuiFlexItem>
+            <RecordList audioClips={recordedAudioClips} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
