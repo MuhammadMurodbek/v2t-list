@@ -56,12 +56,6 @@ export default class Editor extends Component {
 
   componentDidUpdate(prevProps) {
     const { initialCursor, originalChapters } = this.props
-    console.log('... ... ...')
-    console.log('prevprops.originalChapters')
-    console.log(prevProps.originalChapters)
-    console.log('originalchapters')
-    console.log(originalChapters)
-    
     if (initialCursor && prevProps.initialCursor !== initialCursor)
       this.setCursor(initialCursor, true)
     else
@@ -72,10 +66,6 @@ export default class Editor extends Component {
     // }
 
     if (this.areChaptersEqual(prevProps.originalChapters, originalChapters) === false) {
-      // console.log('transcription start')
-      // console.log(prevProps.originalChapters)
-      // console.log(originalChapters)
-      // console.log('transcription end')
       this.initChapters()
     }
   }

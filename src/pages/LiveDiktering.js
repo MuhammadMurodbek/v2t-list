@@ -24,6 +24,9 @@ import Page from '../components/Page'
 // import processChapters from '../models/processChapters'
 import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
+import * as recorder from '../utils/recorder'
+import RecordList from '../components/RecordList'
+
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
