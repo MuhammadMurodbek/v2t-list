@@ -115,7 +115,9 @@ const GuidedLiveEditor = ({
   }
 
   const onUpdateTags = (tags) => {
-    setTags(tags)
+    if(tags) {
+      setTags(tags)
+    }
   }
 
   const updateVerticalSteps = (content, index) => {
