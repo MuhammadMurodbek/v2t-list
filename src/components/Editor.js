@@ -39,15 +39,17 @@ export default class Editor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { initialCursor, originalChapters } = this.props
+    const { initialCursor, templateId, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
       this.setCursor(initialCursor, true)
     else
       this.updateCursor()
 
-    if (prevProps.originalChapters !== originalChapters) {
+    if (prevProps.originalChapters !== originalChapters)
       this.initChapters()
-    }
+
+    if (prevProps.templateId !== templateId)
+      this.refreshDiff()
   }
 
   initChapters = () => {
@@ -164,16 +166,15 @@ export default class Editor extends Component {
     this.cursor = cursor
   }
 
-  onChange = (e, chapterId) => {
+  onChange = async (e, chapterId) => {
     const { updateTranscript } = this.props
     const illegalCharacters = e.target.innerText.match(ILLEGAL_CHARS_REGEX) || []
     this.stashCursor(- illegalCharacters.length)
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, e.target.innerText)
     chapters[chapterId] = this.parseChapter(e.target, chapterId)
-    const diff = this.getDiff(chapters)
-    this.setState({ diff })
-    updateTranscript(chapters)
+    await updateTranscript(chapters)
+    this.refreshDiff()
   }
 
   /** Make sure only text is pasted and override browsers default replacment of new lines */
@@ -313,16 +314,17 @@ export default class Editor extends Component {
     child.textContent = child.textContent.replace(ILLEGAL_CHARS_REGEX, '')
   }
 
+  refreshDiff = () => {
+    const { chapters } = this.props
+    const diff = this.getDiff(chapters)
+    this.setState({ diff })
+  }
+
   getDiff = (chapters) => {
-    const { diffInstance, headerUpdatedChapters, originalChapters } = this.props
+    const { diffInstance, originalChapters } = this.props
     if (!this.inputRef || !this.inputRef.current) return null
     const content = chapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    let originalText
-    if( headerUpdatedChapters.length > 0 ) {
-      originalText = headerUpdatedChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    } else {
-      originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    }
+    const originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
     const diff = diffInstance.main(originalText, content)
     diffInstance.cleanupSemantic(diff)
     return diff.map((d, i) => this.parseDiff(i, d, diff)).filter(d => d)
@@ -346,7 +348,6 @@ export default class Editor extends Component {
 
   render() {
     const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
-    console.log("Section headers", chapters)
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null

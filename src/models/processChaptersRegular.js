@@ -20,13 +20,7 @@ const capitalizedTranscript = (transcript) => transcript.map(
   })
 
 const processChaptersRegular = (chapters, sectionHeaders) => {
-  console.log('sectionHeaders')
-  console.log(sectionHeaders)
-  console.log('sectionHeaders end')
-  // console.log('templates')
-  // console.log(templates)
-  // console.log('templates end')
-  // get the flat string 
+  // get the flat string
   const sectionHeadersInLowerCase = sectionHeaders.map(sectionHeader=>sectionHeader.toLowerCase())
   const wordsOfTheChapter = []
   if(chapters)
@@ -37,7 +31,7 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
           words: segment.words, startTime: segment.startTime, endTime: segment.endTime
         })
       })
-    }) 
+    })
 
   const usedSectionHeaders = []
   const newlyOrientedWords = []
@@ -51,7 +45,7 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
       usedSectionHeaders.push(segment.words.trim().toLowerCase())
     } else {
       newlyOrientedWords.push({
-        keyword: latestKeyword,     
+        keyword: latestKeyword,
         words: segment.words.trim(),
         startTime: segment.startTime,
         endTime: segment.endTime
@@ -61,7 +55,7 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
 
 // console.log('newlyOrientedWords')
 // console.log(newlyOrientedWords)
-  
+
   const finalChapters = []
   let tempObject = {segments:[]}
   newlyOrientedWords.forEach((word, i)=> {
@@ -74,8 +68,8 @@ const processChaptersRegular = (chapters, sectionHeaders) => {
       }
       else {
         finalChapters.push(tempObject)
-        tempObject = { segments: []}  
-        tempObject.keyword = word.keyword  
+        tempObject = { segments: [] }
+        tempObject.keyword = word.keyword
         tempObject.segments.push({
           words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
         })
