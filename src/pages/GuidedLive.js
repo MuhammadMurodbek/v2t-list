@@ -10,7 +10,7 @@ import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 
 import * as recorder from '../utils/recorder'
-import RecordList from '../components/RecordList'
+// import RecordList from '../components/RecordList'
 
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -53,8 +53,8 @@ export default class GuidedLive extends Component {
     })
     const finalTemplates = { id: 0, title: 'Journalmallar', items: tempTemplates }
     this.setState({ templatesForMenu: finalTemplates })
-    this.setState({ 
-      listOfTemplates: templateList.data.templates, templatesForMenu: finalTemplates 
+    this.setState({
+      listOfTemplates: templateList.data.templates, templatesForMenu: finalTemplates
     })
   }
 
@@ -83,7 +83,7 @@ export default class GuidedLive extends Component {
     const prevState = this
 
     scriptNode.onaudioprocess = (audioEvent) => {
-      if(prevState.state.seconds !== Math.ceil(this.audioContext.currentTime)) {
+      if (prevState.state.seconds !== Math.ceil(this.audioContext.currentTime)) {
         prevState.setState({
           seconds: Math.ceil(this.audioContext.currentTime)
         })
@@ -94,7 +94,7 @@ export default class GuidedLive extends Component {
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer)
-        for (var i = 0, offset = 0; i < input.length; i++ , offset += 2) {
+        for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
           output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
@@ -115,7 +115,7 @@ export default class GuidedLive extends Component {
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
 
-    
+
 
     this.socketio.on('add-transcript-pnr', function (text) {
       const { originalText } = prevState.state
@@ -134,7 +134,7 @@ export default class GuidedLive extends Component {
         })
       } else {
         prevState.setState({ currentText: text }, () => {
-          prevState.setState({ finalText: text , counter: prevState.state.counter + 1 })
+          prevState.setState({ finalText: text, counter: prevState.state.counter + 1 })
         })
       }
     })
@@ -195,8 +195,8 @@ export default class GuidedLive extends Component {
         this.audioContext.suspend()
       })
     } else {
-      this.setState({ recording: true }, async() => {
-        if(this.audioContext.state === 'suspended') {
+      this.setState({ recording: true }, async () => {
+        if (this.audioContext.state === 'suspended') {
           this.audioContext.resume()
         } else {
           await this.initAudio()
@@ -215,7 +215,7 @@ export default class GuidedLive extends Component {
     const {
       recording, finalText, currentText,
       listOfTemplates, templatesForMenu, seconds,
-      recordedAudioClips
+      // recordedAudioClips
     } = this.state
 
     return (
@@ -240,11 +240,11 @@ export default class GuidedLive extends Component {
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiFlexGroup>
+        {/* <EuiFlexGroup>
           <EuiFlexItem>
             <RecordList audioClips={recordedAudioClips}/>
           </EuiFlexItem>
-        </EuiFlexGroup>
+        </EuiFlexGroup> */}
       </Page>
     )
   }

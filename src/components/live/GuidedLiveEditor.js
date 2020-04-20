@@ -99,18 +99,21 @@ const GuidedLiveEditor = ({
 
   const checkForCodes = async () => {
     const listOfKeywords = chapters.map(chapter => chapter.keyword.trim().toLowerCase())
-    if(!listOfKeywords.includes('diagnos')) {
+    if (!listOfKeywords.includes('diagnos')) {
       return
     } else {
       let textData = ''
       chapters.map(chapter => {
         if (chapter.keyword.trim().toLowerCase() === 'diagnos') {
           return chapter.segments[0].words
-        } else return '' 
-      }).forEach(text => {if (text) textData = textData + text })
+        } else return ''
+      }).forEach(text => { if (text) textData = textData + text })
       const result = await api.keywordsSearch(textData)
-      if (result.data) 
-        setTags([{ id: result.data[0].value, description: result.data[0].description}])
+      if (result)
+        if (result.data)
+          if (result.data[0])
+            if (result.data[0].value)
+              setTags([{ id: result.data[0].value, description: result.data[0].description }])
     }
   }
 
@@ -132,7 +135,7 @@ const GuidedLiveEditor = ({
           console.log('templatesForMenu')
           console.log(templatesForMenu)
           console.log('templatesForMenu end')
-          if(index===2){
+          if (index === 2) {
             tempObject = {
               status: 'primary',
               children: <Fragment><Dots /><EuiSpacer size='m' /><TemplateMenu templatesForMenu={templatesForMenu} /></Fragment >
@@ -169,16 +172,16 @@ const GuidedLiveEditor = ({
 
     const finalSteps = newStepsHierarchy.map((s, j) => {
       if (j === index) {
-        if(index===0) {
+        if (index === 0) {
           setDoktor(content)
         }
-        if(index===1) {
+        if (index === 1) {
           setPatient(content)
         }
-        if(index===2) {
+        if (index === 2) {
           setPersonnummer(content)
         }
-        if(index===3) {
+        if (index === 3) {
           setTemplate(content)
         }
         const tempObject = {
@@ -214,7 +217,7 @@ const GuidedLiveEditor = ({
   return (
     <Fragment>
       <EuiFlexGroup >
-        <EuiFlexItem style={{ maxWidth: 290, display: editorVisible ? 'none' : 'false' , marginTop: -150}}>
+        <EuiFlexItem style={{ maxWidth: 290, display: editorVisible ? 'none' : 'false', marginTop: -150 }}>
           <EuiSteps steps={verticalSteps} />
         </EuiFlexItem>
         <EuiFlexItem style={{ display: editorVisible ? 'block' : 'none', marginTop: '-200px' }}>
@@ -222,9 +225,9 @@ const GuidedLiveEditor = ({
             doktor,
             patient,
             personnummer,
-            template 
-          }}/>
-          
+            template
+          }} />
+
           <EuiSpacer size="m" />
           <LiveEditor
             transcript={chapters}
@@ -284,7 +287,7 @@ const GuidedLiveEditor = ({
           style={{
             maxWidth: '400px',
             display: editorVisible ? 'block' : 'none',
-            marginTop: '-200px' 
+            marginTop: '-200px'
           }}
         >
           <Tags
