@@ -14,7 +14,6 @@ import '../App.css'
 const Templates = ({
   listOfTemplates,
   defaultTemplateId,
-  updateSectionHeader,
   updateTemplateId
 }) => {
   const templateOptions = listOfTemplates
@@ -25,8 +24,6 @@ const Templates = ({
   const onTemplateChange = (templates) => {
     if (!templates.length) return
     const template = templates[0]
-    const sectionNames = (template.sections || []).map((section) => section.name)
-    updateSectionHeader(sectionNames, template.value)
     updateTemplateId(template.value)
   }
 
