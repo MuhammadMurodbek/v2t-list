@@ -1,9 +1,6 @@
-// new
-
 /* eslint-disable no-console */
 // @ts-ignore
 import React, { Component } from 'react'
-// @ts-ignore
 import {
   EuiButtonEmpty,
   EuiSpacer,
@@ -12,7 +9,6 @@ import {
   EuiButton
 } from '@elastic/eui'
 import api from '../api'
-// import LiveEditor from '../components/LiveEditor'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
@@ -21,18 +17,15 @@ import PersonalInformation from '../components/PersonalInformation'
 import Tags from '../components/Tags'
 import io from 'socket.io-client'
 import Page from '../components/Page'
-// import processChapters from '../models/processChapters'
 import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
 import * as recorder from '../utils/recorder'
 import RecordList from '../components/RecordList'
 
-
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  // socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket']})
   socketio = io.connect('wss://ilxgpu9002.inoviaai.se/audio', { transports: ['websocket'] })
   state = {
     recording: false,
@@ -144,11 +137,10 @@ export default class LiveDiktering extends Component {
     // } // else do nothing 
   }
 
-  // @ts-ignore
   updatedSections = (sections) => {
     console.log('before validating')
     console.log(sections)
-    this.validateSections(sections)
+    // this.validateSections(sections)
     this.setState({ sections })
   }
 
