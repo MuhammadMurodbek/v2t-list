@@ -290,7 +290,7 @@ export default class Editor extends Component {
   parseSegment = (child, chapterId) => {
     this.removeInvalidChars(child)
     const { chapters } = this.props
-    const segmentId = child.dataset ? child.dataset.segment : null
+    const segmentId = child.dataset ? Number(child.dataset.segment || 0) : 0
     const segments = chapters[chapterId].segments
     const words = child.textContent
     if (segmentId)
