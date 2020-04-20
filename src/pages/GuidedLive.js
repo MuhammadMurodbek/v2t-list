@@ -240,11 +240,11 @@ export default class GuidedLive extends Component {
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiFlexGroup>
+        {/* <EuiFlexGroup>
           <EuiFlexItem>
             <RecordList audioClips={recordedAudioClips}/>
           </EuiFlexItem>
-        </EuiFlexGroup>
+        </EuiFlexGroup> */}
       </Page>
     )
   }
