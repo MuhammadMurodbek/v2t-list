@@ -109,15 +109,16 @@ const GuidedLiveEditor = ({
         } else return '' 
       }).forEach(text => {if (text) textData = textData + text })
       const result = await api.keywordsSearch(textData)
-      if (result.data) 
-        setTags([{ id: result.data[0].value, description: result.data[0].description}])
+      if (result) 
+        if(result.data)
+          if (result.data[0])
+            if (result.data[0].value)
+              setTags([{ id: result.data[0].value, description: result.data[0].description}])
     }
   }
 
   const onUpdateTags = (tags) => {
-    if(tags) {
-      setTags(tags)
-    }
+    setTags(tags)
   }
 
   const updateVerticalSteps = (content, index) => {
