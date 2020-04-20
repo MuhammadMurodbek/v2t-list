@@ -552,7 +552,7 @@ export default class EditPage extends Component {
               <EuiSpacer size="xxl" />
               <Templates
                 listOfTemplates={templates.templates}
-                defaultTemplate={templateId}
+                defaultTemplateId={templateId}
                 updateSectionHeader={this.updateSectionHeader}
                 updateTemplateId={this.updateTemplateId}
               />
