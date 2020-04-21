@@ -191,17 +191,21 @@ export default class LiveDiktering extends Component {
     // @ts-ignore
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
+      console.log('text')
+      console.log(text)
+      console.log('text end')
       const { originalText } = prevState.state
       prevState.setState({ currentText: text }, () => {
         // console.log('prevState.state.whole')
-        const finalText = `${originalText} ${prevState.state.currentText}`
+        const finalText = `${prevState.state.currentText}`
+        
+        // const finalText = `${originalText} ${prevState.state.currentText}`
         // console.log(finalText)
         const { sections } = prevState.state
-        // prevState.setState({ chapters: [{ keyword: 'Keyboard', segments: [{ words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }, { words: '1 ', startTime: 0.0, endTime: 0.0 }] }] })
         prevState.setState({ chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0]),
           headerUpdatedChapters: processChaptersLive(finalText, sections, Object.keys(sections)[0])
         })
-        // prevState.setState({ chapters: processChapters(finalText, sections) })
+        
       })
     })
   }
@@ -259,13 +263,21 @@ export default class LiveDiktering extends Component {
   }
 
   toggleRecord = () => {
+    const { cursorTime } = this.state
+    const { originalText, currentText } = this.state
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { recording } = this.state
     if (recording === true) {
-      this.setState({ recording: false }, () => {
+      
+      this.setState({ recording: false,
+        originalText: `${originalText} ${currentText}`
+      }, () => {
         // Close the socket
-        recorder.stop(this.addClipHandler)
+        // recorder.stop(this.addClipHandler, cursorTime)
+        recorder.stop(this.addClipHandler, cursorTime)
         this.audioContext.suspend()
+        this.socketio.emit('end-recording')
+        
       })
     } else {
       this.setState({ recording: true }, async () => {

@@ -128,14 +128,26 @@ class App extends Component {
                   name: <EuiI18n token="v2TJob" default="V2T Job" />
                 },
                 {
-                  href: '/#/upload',
+                  href: '/#/livediktering',
                   id: 3,
+                  isSelected: selectedItemName === 'Live',
+                  name: 'Live Diktering',
+                  onClick: () => {
+                    this.selectItem('Live')
+                    this.setState({
+                      isCollapsed: true
+                    })
+                  }
+                },
+                {
+                  href: '/#/upload',
+                  id: 4,
                   isSelected: selectedItemName === 'Upload',
                   name: <EuiI18n token="upload" default="Upload" />,
                   onClick: () => this.selectItem('Upload')
                 },
                 {
-                  id: 4,
+                  id: 5,
                   isSelected: selectedItemName === 'Analytics',
                   name: <EuiI18n token="analytics" default="Analytics" />,
                   onClick: () => {
@@ -159,14 +171,14 @@ class App extends Component {
                 },
                 {
                   href: '/#/training',
-                  id: 5,
+                  id: 6,
                   isSelected: selectedItemName === 'Training',
                   name: <EuiI18n token="training" default="Training" />,
                   onClick: () => this.selectItem('Training')
                 },
                 {
                   href: '/#/visualization',
-                  id: 6,
+                  id: 7,
                   isSelected: selectedItemName === 'Visualization',
                   name: (
                     <EuiI18n token="visualization" default="Visualization" />
@@ -174,7 +186,7 @@ class App extends Component {
                   onClick: () => this.selectItem('Visualization')
                 },
                 {
-                  id: 7,
+                  id: 8,
                   isSelected: selectedItemName === 'Co-worker',
                   name: <EuiI18n token="coWorker" default="Co-Worker" />,
                   onClick: () => {

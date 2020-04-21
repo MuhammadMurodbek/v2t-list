@@ -1,89 +1,98 @@
 import interpolateArray from "../models/interpolateArray";
 
-let config = {
-    bufferLen: 1024,
-    numChannels: 1,
-    mimeType: 'audio/wav'
+const config = {
+  bufferLen: 1024,
+  numChannels: 1,
+  mimeType: 'audio/wav'
 }
 
-let recording = false;
+let recording = false
 
 let recLength = 0,
-    recBuffers = [],
-    sampleRate = undefined,
-    numChannels = undefined,
-    clipName = null
+  recBuffers = [],
+  sampleRate = undefined,
+  numChannels = undefined,
+  clipName = null,
+  previousAudioLength = 0,
+  previousBuffers = []
 
 export async function init(stream) {
-    let audioContext = new AudioContext()
-    let source = await audioContext.createMediaStreamSource(stream)
-    const context = source.context
-    sampleRate = context.sampleRate
-    numChannels = config.numChannels
+  const audioContext = new AudioContext()
+  const source = await audioContext.createMediaStreamSource(stream)
+  const context = source.context
+  sampleRate = context.sampleRate
+  numChannels = config.numChannels
 
-    initBuffers()
+  initBuffers()
 
-    const node = audioContext.createScriptProcessor(1024,1,1)
+  const node = audioContext.createScriptProcessor(1024,1,1)
 
-    source.connect(node)
-    node.connect(context.destination)
-    node.onaudioprocess = function (e) {
-        if (!recording) return
-        let buffer = []
-        for (let channel = 0; channel < config.numChannels; channel++) {
-            let input = e.inputBuffer.getChannelData(channel)
-            input = interpolateArray(input, 44100, 44100)
-            buffer.push(input)
-        }
-        record(buffer)
-    };
+  source.connect(node)
+  node.connect(context.destination)
+  node.onaudioprocess = function (e) {
+    if (!recording) return
+    const buffer = []
+    for (let channel = 0; channel < config.numChannels; channel++) {
+      let input = e.inputBuffer.getChannelData(channel)
+      input = interpolateArray(input, 44100, 44100)
+      buffer.push(input)
+    }
+    record(buffer)
+  };
 }
 
 export function record(inputBuffer) {
-    for (let channel = 0; channel < numChannels; channel++) {
-        recBuffers[channel].push(inputBuffer[channel])
-    }
-    recLength += inputBuffer[0].length
+  for (let channel = 0; channel < numChannels; channel++) {
+    recBuffers[channel].push(inputBuffer[channel])
+  }
+  recLength += inputBuffer[0].length
+    console.log('recLength')
+    // console.log(recLength/parseFloat(16000))
+    console.log(recLength)
+    console.log(recBuffers[0])
+    console.log('recLength end')
 }
 
 export function start() {
-    recording = true
+  recording = true
 }
 
-export function stop(addClip) {
-    recording = false
+export function stop(addClip, timeStamp) {
+  recording = false
 
-    if(!clipName) {
-        const currentTime = new Date()
-        const year = currentTime.getFullYear()
-        const month = currentTime.getMonth() + 1
-        const day = currentTime.getDate()
-        const hour = currentTime.getHours()
-        const min = currentTime.getMinutes()
-        const sec = currentTime.getSeconds()
-        clipName = `Clip ${year}/${month}/${day} ${hour}:${min}:${sec}`
-    }
-    const blob = exportWAV('audio/wav; codecs=opus')
-    const audioURL = window.URL.createObjectURL(blob)
-    addClip({
-      src: audioURL,
-      name: clipName
-    })
+  if(!clipName) {
+    const currentTime = new Date()
+    const year = currentTime.getFullYear()
+    const month = currentTime.getMonth() + 1
+    const day = currentTime.getDate()
+    const hour = currentTime.getHours()
+    const min = currentTime.getMinutes()
+    const sec = currentTime.getSeconds()
+    clipName = `Clip ${year}/${month}/${day} ${hour}:${min}:${sec}`
+  }
+  
+  const blob = exportWAV('audio/wav; codecs=opus', timeStamp)
+  const audioURL = window.URL.createObjectURL(blob)
+  addClip({
+    src: audioURL,
+    name: clipName
+  })
+  
 }
 
-function exportWAV(type) {
-    let buffers = [];
-    for (let channel = 0; channel < numChannels; channel++) {
-        buffers.push(mergeBuffers(recBuffers[channel], recLength))
-    }
-    let interleaved = undefined
-    if (numChannels === 2) {
-        interleaved = interleave(buffers[0], buffers[1])
-    } else {
-        interleaved = buffers[0]
-    }
-    const dataView = encodeWAV(interleaved)
-    return new Blob([dataView], { type: type })
+function exportWAV(type, timeStamp) {
+  const buffers = []
+  for (let channel = 0; channel < numChannels; channel++) {
+    buffers.push(mergeBuffers(recBuffers[channel], recLength, timeStamp))
+  }
+  let interleaved = undefined
+  if (numChannels === 2) {
+    interleaved = interleave(buffers[0], buffers[1])
+  } else {
+    interleaved = buffers[0]
+  }
+  const dataView = encodeWAV(interleaved)
+  return new Blob([dataView], { type: type })
 }
 
 /*function getBuffer() {
@@ -95,87 +104,157 @@ function exportWAV(type) {
 }*/
 
 export function clear() {
-    recLength = 0
-    recBuffers = []
-    initBuffers()
+  recLength = 0
+  recBuffers = []
+  initBuffers()
 }
 
 function initBuffers() {
-    for (let channel = 0; channel < numChannels; channel++) {
-        recBuffers[channel] = []
-    }
+  for (let channel = 0; channel < numChannels; channel++) {
+    recBuffers[channel] = []
+  }
 }
 
-function mergeBuffers(recBuffers, recLength) {
-    let result = new Float32Array(recLength)
-    let offset = 0
-    for (let i = 0; i < recBuffers.length; i++) {
+function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffers.length/46.6)) {
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  
+  console.log('time stamp')
+  console.log(timeStamp)
+  console.log('time stamp end')
+  console.log('Total audio length')
+  console.log(recLength)
+  console.log(recBuffers.length)
+    console.log('Total audio length end')
+  console.log('rec buffers  Length')
+  console.log(recBuffers.length)
+  console.log('rec buffers  Length')
+  console.log('Previous audio length')
+  console.log(previousAudioLength)
+  console.log(previousBuffers.length)
+  console.log('Previous audio length end')
+  console.log('Current audio length')
+  console.log(recLength-previousAudioLength)
+  console.log('Current audio length end')
+  console.log('totaltime')
+  const totalDuration = recBuffers.length / 46.6
+  console.log(totalDuration)
+  console.log('previous clip duration')
+  const previousDuration = previousBuffers.length / 46.6
+  const currentDuration = recBuffers.length - previousBuffers.length 
+  const currentDurationInSeconds = (recBuffers.length/46.6) - (previousBuffers.length/46.6)
+  if (previousDuration>0)
+    console.log(previousDuration)
+  else 
+    console.log(0)
+
+
+  const result = new Float32Array(recLength)
+  let offset = 0
+  
+  for (let i = 0, j = 0,k=0; i < recBuffers.length; i++) {
+    if (previousDuration!==0) {
+      if (Math.ceil(i / 46.6) < timeStamp) {
         result.set(recBuffers[i], offset)
         offset += recBuffers[i].length
+        j=i
+      }  else {
+
+        // Now is the magic, append the latest audio after timestamp
+          if (recBuffers[previousBuffers.length + k]){
+          
+          result.set(recBuffers[previousBuffers.length+k], offset)
+          offset += recBuffers[previousBuffers.length + k].length
+          k+=1
+        } else {
+              console.log('i')
+              console.log(i)
+              console.log('previousBuffers.length')
+              console.log(previousBuffers.length)
+              console.log('i end')
+              result.set(recBuffers[j], offset)
+              offset += recBuffers[j].length
+              j += 1
+        }
+      }
     }
-    return result
+    else {
+      result.set(recBuffers[i], offset)
+      offset += recBuffers[i].length
+    }
+    
+  }
+    previousAudioLength = recLength
+    previousBuffers = recBuffers.slice() // Copy array by value
+
+
+  return result
 }
 
 function interleave(inputL, inputR) {
-    let length = inputL.length + inputR.length
-    let result = new Float32Array(length)
+  const length = inputL.length + inputR.length
+  const result = new Float32Array(length)
 
-    let index = 0,
-        inputIndex = 0
+  let index = 0,
+    inputIndex = 0
 
-    while (index < length) {
-        result[index++] = inputL[inputIndex]
-        result[index++] = inputR[inputIndex]
-        inputIndex++
-    }
-    return result
+  while (index < length) {
+    result[index++] = inputL[inputIndex]
+    result[index++] = inputR[inputIndex]
+    inputIndex++
+  }
+  return result
 }
 
 function floatTo16BitPCM(output, offset, input) {
-    for (let i = 0; i < input.length; i++, offset += 2) {
-        let s = Math.max(-1, Math.min(1, input[i]))
-        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
-    }
+  for (let i = 0; i < input.length; i++, offset += 2) {
+    const s = Math.max(-1, Math.min(1, input[i]))
+    output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
+  }
 }
 
 function writeString(view, offset, string) {
-    for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i))
-    }
+  for (let i = 0; i < string.length; i++) {
+    view.setUint8(offset + i, string.charCodeAt(i))
+  }
 }
 
 function encodeWAV(samples) {
-    let buffer = new ArrayBuffer(44 + samples.length * 2)
-    let view = new DataView(buffer)
+  const buffer = new ArrayBuffer(44 + samples.length * 2)
+  const view = new DataView(buffer)
 
-    /* RIFF identifier */
-    writeString(view, 0, 'RIFF')
-    /* RIFF chunk length */
-    view.setUint32(4, 36 + samples.length * 2, true)
-    /* RIFF type */
-    writeString(view, 8, 'WAVE')
-    /* format chunk identifier */
-    writeString(view, 12, 'fmt ')
-    /* format chunk length */
-    view.setUint32(16, 16, true)
-    /* sample format (raw) */
-    view.setUint16(20, 1, true)
-    /* channel count */
-    view.setUint16(22, numChannels, true)
-    /* sample rate */
-    view.setUint32(24, sampleRate, true)
-    /* byte rate (sample rate * block align) */
-    view.setUint32(28, sampleRate * 4, true)
-    /* block align (channel count * bytes per sample) */
-    view.setUint16(32, numChannels * 2, true)
-    /* bits per sample */
-    view.setUint16(34, 16, true)
-    /* data chunk identifier */
-    writeString(view, 36, 'data')
-    /* data chunk length */
-    view.setUint32(40, samples.length * 2, true)
+  /* RIFF identifier */
+  writeString(view, 0, 'RIFF')
+  /* RIFF chunk length */
+  view.setUint32(4, 36 + samples.length * 2, true)
+  /* RIFF type */
+  writeString(view, 8, 'WAVE')
+  /* format chunk identifier */
+  writeString(view, 12, 'fmt ')
+  /* format chunk length */
+  view.setUint32(16, 16, true)
+  /* sample format (raw) */
+  view.setUint16(20, 1, true)
+  /* channel count */
+  view.setUint16(22, numChannels, true)
+  /* sample rate */
+  view.setUint32(24, sampleRate, true)
+  /* byte rate (sample rate * block align) */
+  view.setUint32(28, sampleRate * 4, true)
+  /* block align (channel count * bytes per sample) */
+  view.setUint16(32, numChannels * 2, true)
+  /* bits per sample */
+  view.setUint16(34, 16, true)
+  /* data chunk identifier */
+  writeString(view, 36, 'data')
+  /* data chunk length */
+  view.setUint32(40, samples.length * 2, true)
 
-    floatTo16BitPCM(view, 44, samples)
+  floatTo16BitPCM(view, 44, samples)
 
-    return view
+  return view
 }

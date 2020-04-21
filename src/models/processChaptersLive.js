@@ -103,6 +103,9 @@ const fixedCaseSections = (tempChapters, updatedSectionNames) => {
 //   })
 // }
 
+// [{ "word": "H", "start": 0.56, "end": 1.1600000000000001 }, { "word": "4", "start": 1.94, "end": 2.22 }, { "word": "5", "start": 2.37, "end": 2.56 }][{ "word": "Hon", "start": 0.56, "end": 1.3 }, { "word": "4", "start": 1.94, "end": 2.22 }, { "word": "5", "start": 2.38, "end": 2.56 }]
+
+
 const extractedText = (finalText) => {
 //   if (finalText.trim() !== '1 1 1') {
   if (finalText.trim() !== '1 1 1') {
@@ -143,6 +146,7 @@ const restructureChapter = (data) => {
 const processChaptersLive = (finalText, updatedSections, firstKeyword) => {
   console.log('finalTextqq')
   console.log(finalText)
+  // console.log(finalText[0])
   // const extractedFinalText = finalText
   const extractedFinalText = extractedText(finalText)
   console.log('extractedFinalText')
@@ -170,7 +174,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword) => {
     } else {
       newlyOrientedWords.push({
         keyword: latestKeyword,
-        words: segment.words.trim(),
+        words: segment.words,
         startTime: segment.startTime,
         endTime: segment.endTime
       })
