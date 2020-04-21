@@ -4,31 +4,24 @@ import '../styles/record-list.css'
 
 import { EuiTitle, EuiButton } from '@elastic/eui'
 
-const  RecordList = ({audioClips}) => {
-  return (
-    <section>
-      { audioClips.length > 0 ?
-        <EuiTitle>
-          <h5>Recorded clips</h5>
-        </EuiTitle> : null
-      }
-      { audioClips.map((clip, i) => {
-        return (
-          <div className="container" key={i}>
-            <h6 className="title">{clip.name}</h6>
-            <audio controls src={clip.src} className="audio-box"/>
-            <EuiButton className="download-button">
-              <a href={clip.src} download={clip.name}>Download</a>
-            </EuiButton>
-          </div>
-        )
-      })}
-    </section>
-  )
+const  RecordList = ({audioClip}) => {
+    console.log(audioClip)
+      return ( audioClip && <section>
+              <EuiTitle>
+                  <h5>Recorded clip</h5>
+              </EuiTitle>
+              <div className="container">
+                  <h6 className="title">{audioClip.name}</h6>
+                  <audio controls src={audioClip.src} className="audio-box"/>
+                  <EuiButton className="download-button">
+                      <a href={audioClip.src} download={audioClip.name}>Download</a>
+                  </EuiButton>
+              </div>
+          </section>)
 }
 
 RecordList.propTypes = {
-  audioClips: PropTypes.array.isRequired
+  audioClip: PropTypes.object.isRequired
 }
 
 export default RecordList
