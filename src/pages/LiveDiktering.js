@@ -61,7 +61,7 @@ export default class LiveDiktering extends Component {
     headerUpdatedChapters: null,
     initialCursor: 0,
     sectionHeaders: [],
-    recordedAudioClips: []
+    recordedAudioClip: null
   }
 
   componentDidMount = () => {
@@ -241,7 +241,7 @@ export default class LiveDiktering extends Component {
 
     await navigator.mediaDevices.getUserMedia({ audio: true })
       .then((stream) => {
-        recorder.init(stream, this.addClipHandler)
+        recorder.init(stream)
         this.gotStream(stream)
       })
       .catch(function (err) {
@@ -249,9 +249,10 @@ export default class LiveDiktering extends Component {
       })
   }
 
+
   addClipHandler = (clip) => {
     this.setState({
-      recordedAudioClips: [...this.state.recordedAudioClips, clip]
+      recordedAudioClip: clip
     })
   }
 
@@ -261,7 +262,7 @@ export default class LiveDiktering extends Component {
     if (recording === true) {
       this.setState({ recording: false }, () => {
         // Close the socket
-        recorder.stop()
+        recorder.stop(this.addClipHandler)
         this.audioContext.suspend()
       })
     } else {
@@ -295,7 +296,7 @@ export default class LiveDiktering extends Component {
       seconds,
       headerUpdatedChapters,
       initialCursor,
-      recordedAudioClips,
+      recordedAudioClip,
       recording
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
@@ -401,7 +402,7 @@ export default class LiveDiktering extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup>
           <EuiFlexItem>
-            <RecordList audioClips={recordedAudioClips} />
+            <RecordList audioClip={recordedAudioClip} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>
