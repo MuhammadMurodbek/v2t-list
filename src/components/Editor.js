@@ -38,14 +38,29 @@ export default class Editor extends Component {
     this.initChapters()
   }
 
+  areChaptersEqual = (o1, o2, ignorePropsArr = []) => {
+    // Deep Clone objects
+    const _obj1 = JSON.parse(JSON.stringify(o1)),
+      _obj2 = JSON.parse(JSON.stringify(o2))
+    // Remove props to ignore
+    ignorePropsArr.forEach(p => {
+      console.log(`_obj1.${p} = _obj2.${p} = "IGNORED"`)
+    })
+    // compare as strings
+    const s1 = JSON.stringify(_obj1),
+      s2 = JSON.stringify(_obj2)
+    // return [s1==s2,s1,s2];
+    return s1 === s2
+  }
+
   componentDidUpdate(prevProps) {
     const { initialCursor, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
       this.setCursor(initialCursor, true)
     else
       this.updateCursor()
-
-    if (prevProps.originalChapters !== originalChapters) {
+    
+    if (this.areChaptersEqual(prevProps.originalChapters, originalChapters) === false) {
       this.initChapters()
     }
   }
