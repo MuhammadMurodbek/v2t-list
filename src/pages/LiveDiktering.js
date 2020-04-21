@@ -82,6 +82,7 @@ export default class LiveDiktering extends Component {
   }
 
   onTimeUpdate = (currentTime) => {
+    
     this.setState({ currentTime })
   }
 
@@ -207,6 +208,7 @@ export default class LiveDiktering extends Component {
 
   // @ts-ignore
   onCursorTimeChange = (cursorTime) => {
+    console.log(cursorTime)
     this.setState({ cursorTime })
   }
 

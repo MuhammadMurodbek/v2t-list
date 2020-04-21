@@ -125,14 +125,17 @@ const extractedText = (finalText) => {
 }
 
 const restructureChapter = (data) => {
-  if(data)
-    return data.map(chapter => {
-      return {
-        words: chapter.word,
-        startTime: chapter.start,
-        endTime: chapter.end
-      }
-    })
+  if(data) {
+    if(data.length>0) 
+      return data.map(chapter => {
+        return {
+          words: chapter.word,
+          startTime: chapter.start,
+          endTime: chapter.end
+        }
+      })
+    else return []
+  }
   else return []
 
 }
