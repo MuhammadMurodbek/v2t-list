@@ -12,6 +12,7 @@ import {
   EuiI18n
 } from '@elastic/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
+import collapsedLogo from './img/medspeech+Inovia_logo_rgb_collapsed.png'
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
@@ -287,6 +288,7 @@ class App extends Component {
                 url={logo}
                 onClick={this.loadHomescreen}
               />
+              
               <EuiSideNav
                 mobileTitle=""
                 // toggleOpenOnMobile={false}
@@ -344,6 +346,14 @@ class App extends Component {
                 minWidth: '20px'
               }}
             >
+              <EuiImage
+                className="logo"
+                style={{ width: '50px', marginLeft: '-20px' }}
+                alt="logo-collapsed"
+                url={collapsedLogo}
+                onClick={this.loadHomescreen}
+              />
+              
               <EuiButtonIcon
                 style={{
                   color: 'white',

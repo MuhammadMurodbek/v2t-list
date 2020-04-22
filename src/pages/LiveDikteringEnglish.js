@@ -311,6 +311,16 @@ export default class LiveDikteringEnglish extends Component {
               personnummer: '',
               template: ''
             }} />
+            <div style={{
+              marginLeft: '35vw',
+              marginTop: '-100px'
+            }}>
+              <Mic
+                microphoneBeingPressed={microphoneBeingPressed}
+                toggleRecord={this.toggleRecord}
+                seconds={seconds}
+              />
+            </div>
             <EuiSpacer size="l" />
             <LiveEditor
               transcript={chapters}
@@ -370,19 +380,10 @@ export default class LiveDikteringEnglish extends Component {
             style={{
               maxWidth: '400px',
               display: 'block',
-              marginTop: '-50px'
+              marginTop: '125px'
             }}
           >
-            <div style={{
-              marginLeft: '-50vw',
-              marginTop: '25px'
-            }}>
-              <Mic
-                microphoneBeingPressed={microphoneBeingPressed}
-                toggleRecord={this.toggleRecord}
-                seconds={seconds}
-              />
-            </div>
+            
             <div style={{
               marginTop: '-80px'
             }}>
