@@ -301,9 +301,11 @@ export default class Editor extends Component {
   reduceSegment = (store, segment) => {
     const lastSegment = store[store.length -1]
     if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
-      lastSegment.words += segment.words
-      lastSegment.endTime = segment.endTime
-      store[store.length -1] = lastSegment
+      store[store.length -1] = {
+        ...lastSegment,
+        endTime: segment.endTime,
+        words: `${lastSegment.words}${segment.words}`
+      }
     } else if (segment.words.length) {
       store.push(segment)
     }
