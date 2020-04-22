@@ -6,7 +6,6 @@ import React, { useState, useEffect } from 'react'
 import { EuiFormRow, EuiComboBox, EuiI18n } from '@elastic/eui'
 
 const SectionHeader = ({
-  isVisible,
   keywords,
   selectedHeader,
   updateKey,
