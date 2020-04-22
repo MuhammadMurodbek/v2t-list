@@ -16,7 +16,6 @@ import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
-// import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
 import LiveDikteringEnglishPage from './pages/LiveDikteringEnglish'
@@ -133,29 +132,6 @@ class App extends Component {
                   isSelected: selectedItemName === 'Upload',
                   name: <EuiI18n token="upload" default="Upload" />,
                   onClick: () => this.selectItem('Upload')
-                },
-                {
-                  id: 4,
-                  isSelected: selectedItemName === 'Analytics',
-                  name: <EuiI18n token="analytics" default="Analytics" />,
-                  onClick: () => {
-                    if (
-                      window.location.hostname.split('.')[0].includes('dev')
-                    ) {
-                      window
-                        .open('https://v2t-dev-kibana.inoviagroup.se', '_blank')
-                        .focus()
-                    } else if (
-                      window.location.hostname.split('.')[0].includes('stage')
-                    ) {
-                      window
-                        .open(
-                          'https://v2t-stage-kibana.inoviagroup.se',
-                          '_blank'
-                        )
-                        .focus()
-                    }
-                  }
                 },
                 {
                   href: '/#/training',
