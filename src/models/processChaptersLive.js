@@ -149,26 +149,22 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, recordedC
         tempObject.segments.push({
           words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
         })
-        if (i === newlyOrientedWords.length - 1) 
-          finalChapters.push(tempObject)
       } else {
+        finalChapters.push(tempObject)
         tempObject = { segments: [] }
         tempObject.keyword = word.keyword
         tempObject.segments.push({
           words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
         })
-        if (i === newlyOrientedWords.length - 1)
-          finalChapters.push(tempObject)
       }
     } else {
       tempObject.keyword = word.keyword
       tempObject.segments.push({
         words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
       }) 
-      if (i === newlyOrientedWords.length - 1)
-        finalChapters.push(tempObject)
-
     }
+    if (i === newlyOrientedWords.length - 1)
+      finalChapters.push(tempObject)
   })
 
 
