@@ -46,11 +46,11 @@ export function record(inputBuffer) {
     recBuffers[channel].push(inputBuffer[channel])
   }
   recLength += inputBuffer[0].length
-    console.log('recLength')
-    // console.log(recLength/parseFloat(16000))
-    console.log(recLength)
-    console.log(recBuffers[0])
-    console.log('recLength end')
+    // console.log('recLength')
+    // // console.log(recLength/parseFloat(16000))
+    // console.log(recLength)
+    // console.log(recBuffers[0])
+    // console.log('recLength end')
 }
 
 export function start() {
@@ -116,41 +116,41 @@ function initBuffers() {
 }
 
 function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffers.length/46.6)) {
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
   
-  console.log('time stamp')
-  console.log(timeStamp)
-  console.log('time stamp end')
-  console.log('Total audio length')
-  console.log(recLength)
-  console.log(recBuffers.length)
-    console.log('Total audio length end')
-  console.log('rec buffers  Length')
-  console.log(recBuffers.length)
-  console.log('rec buffers  Length')
-  console.log('Previous audio length')
-  console.log(previousAudioLength)
-  console.log(previousBuffers.length)
-  console.log('Previous audio length end')
-  console.log('Current audio length')
-  console.log(recLength-previousAudioLength)
-  console.log('Current audio length end')
-  console.log('totaltime')
+  // console.log('time stamp')
+  // console.log(timeStamp)
+  // console.log('time stamp end')
+  // console.log('Total audio length')
+  // console.log(recLength)
+  // console.log(recBuffers.length)
+  //   console.log('Total audio length end')
+  // console.log('rec buffers  Length')
+  // console.log(recBuffers.length)
+  // console.log('rec buffers  Length')
+  // console.log('Previous audio length')
+  // console.log(previousAudioLength)
+  // console.log(previousBuffers.length)
+  // console.log('Previous audio length end')
+  // console.log('Current audio length')
+  // console.log(recLength-previousAudioLength)
+  // console.log('Current audio length end')
+  // console.log('totaltime')
   const totalDuration = recBuffers.length / 46.6
-  console.log(totalDuration)
-  console.log('previous clip duration')
+  // console.log(totalDuration)
+  // console.log('previous clip duration')
   const previousDuration = previousBuffers.length / 46.6
   const currentDuration = recBuffers.length - previousBuffers.length 
   const currentDurationInSeconds = (recBuffers.length/46.6) - (previousBuffers.length/46.6)
-  if (previousDuration>0)
-    console.log(previousDuration)
-  else 
-    console.log(0)
+  // if (previousDuration>0)
+  //   console.log(previousDuration)
+  // else 
+  //   console.log(0)
 
 
   const result = new Float32Array(recLength)
@@ -171,11 +171,11 @@ function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffe
           offset += recBuffers[previousBuffers.length + k].length
           k+=1
         } else {
-              console.log('i')
-              console.log(i)
-              console.log('previousBuffers.length')
-              console.log(previousBuffers.length)
-              console.log('i end')
+              // console.log('i')
+              // console.log(i)
+              // console.log('previousBuffers.length')
+              // console.log(previousBuffers.length)
+              // console.log('i end')
               result.set(recBuffers[j], offset)
               offset += recBuffers[j].length
               j += 1

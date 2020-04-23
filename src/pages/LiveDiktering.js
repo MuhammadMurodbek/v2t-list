@@ -32,8 +32,9 @@ export default class LiveDiktering extends Component {
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
     listOfTemplates: [],
-    chapters: [{ 
-      keyword: 'KONTAKTORSAK', 
+    recordedChapters: [],
+    chapters: [{
+      keyword: 'KONTAKTORSAK',
       segments: [
         { words: '. ', startTime: 0.0, endTime: 0.0 },
         { words: '. ', startTime: 0.0, endTime: 0.0 },
@@ -61,7 +62,8 @@ export default class LiveDiktering extends Component {
     headerUpdatedChapters: null,
     initialCursor: 0,
     sectionHeaders: [],
-    recordedAudioClip: null
+    recordedAudioClip: null,
+    cursorTime: 0
   }
 
   componentDidMount = () => {
@@ -71,8 +73,6 @@ export default class LiveDiktering extends Component {
 
   templates = async () => {
     const templateList = await api.getSectionTemplates()
-    console.log('templates')
-    console.log(templateList)
     this.setState({ listOfTemplates: templateList.data.templates })
   }
 
@@ -82,7 +82,7 @@ export default class LiveDiktering extends Component {
   }
 
   onTimeUpdate = (currentTime) => {
-    
+
     this.setState({ currentTime })
   }
 
@@ -139,8 +139,8 @@ export default class LiveDiktering extends Component {
   }
 
   updatedSections = (sections) => {
-    console.log('before validating')
-    console.log(sections)
+    // console.log('before validating')
+    // console.log(sections)
     // this.validateSections(sections)
     this.setState({ sections })
   }
@@ -161,7 +161,7 @@ export default class LiveDiktering extends Component {
       .call(this.audioContext, 1024, 1, 1)
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
-      const {seconds} = prevState.state
+      const { seconds } = prevState.state
       if (seconds !== Math.ceil(prevState.audioContext.currentTime)) {
         prevState.setState({
           seconds: Math.ceil(prevState.audioContext.currentTime)
@@ -198,21 +198,24 @@ export default class LiveDiktering extends Component {
       prevState.setState({ currentText: text }, () => {
         // console.log('prevState.state.whole')
         const finalText = `${prevState.state.currentText}`
-        
+
         // const finalText = `${originalText} ${prevState.state.currentText}`
         // console.log(finalText)
-        const { sections } = prevState.state
-        prevState.setState({ chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0]),
+        const { sections, recordedChapters, cursorTime } = prevState.state
+        prevState.setState({
+          chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0], recordedChapters, cursorTime),
           headerUpdatedChapters: processChaptersLive(finalText, sections, Object.keys(sections)[0])
         })
-        
+
       })
     })
   }
 
   // @ts-ignore
   onCursorTimeChange = (cursorTime) => {
+    console.log('cursorTime')
     console.log(cursorTime)
+    console.log('cursorTime end')
     this.setState({ cursorTime })
   }
 
@@ -263,13 +266,14 @@ export default class LiveDiktering extends Component {
   }
 
   toggleRecord = () => {
-    const { cursorTime } = this.state
+    const { cursorTime, chapters } = this.state
     const { originalText, currentText } = this.state
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { recording } = this.state
     if (recording === true) {
-      
-      this.setState({ recording: false,
+
+      this.setState({
+        recording: false,
         originalText: `${originalText} ${currentText}`
       }, () => {
         // Close the socket
@@ -277,11 +281,22 @@ export default class LiveDiktering extends Component {
         recorder.stop(this.addClipHandler, cursorTime)
         this.audioContext.suspend()
         this.socketio.emit('end-recording')
-        
+        this.setState({recordedChapters: chapters },
+          ()=>{
+            console.log('this.state.chapters')
+            console.log(this.state.chapters)
+            console.log('this.state.chapters')
+          })
+
       })
     } else {
       this.setState({ recording: true }, async () => {
         if (this.audioContext.state === 'suspended') {
+          this.socketio.emit('start-recording', {
+            numChannels: 1,
+            bps: 16,
+            fps: parseInt(this.audioContext.sampleRate)
+          })
           this.audioContext.resume()
         } else {
           await this.initAudio()
@@ -296,9 +311,9 @@ export default class LiveDiktering extends Component {
     }
   }
 
-  sendAsHorrribleTranscription = () => {}
+  sendAsHorrribleTranscription = () => { }
 
-  save = () => {}
+  save = () => { }
 
   render() {
     const {

@@ -141,11 +141,25 @@ export default class Editor extends Component {
 
   onCursorChange = () => {
     const { chapters, onCursorTimeChange } = this.props
+    
     const selection = window.getSelection()
     const chapterId = Number(selection.anchorNode.parentNode.dataset.chapter || 0)
     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
     const segment = chapters[chapterId] && chapters[chapterId].segments[segmentId]
     const timestamp = segment ? segment.startTime || 0 : 0
+
+    console.log('on cursor change')
+    console.log('timestamp')
+    console.log(timestamp)
+    console.log('chapterId')
+    console.log(chapterId)
+    console.log('segmentId')
+    console.log(segmentId)
+    console.log('segment')
+    console.log(segment)
+    console.log('timestamp')
+    console.log(timestamp)
+    console.log('on cursor change end')
     onCursorTimeChange(timestamp)
   }
 
@@ -368,7 +382,7 @@ export default class Editor extends Component {
 
   render() {
     const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
-    console.log("Section headers", chapters)
+    console.log("re-render", chapters)
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
