@@ -21,6 +21,7 @@ const capitalizedTranscript = (transcript) => transcript.map(
 
 const processChaptersRegular = (chapters, sectionHeaders) => {
   // get the flat string
+  if (!sectionHeaders) return chapters
   const sectionHeadersInLowerCase = sectionHeaders.map(sectionHeader=>sectionHeader.toLowerCase())
   const wordsOfTheChapter = []
   if(chapters)

@@ -434,9 +434,10 @@ export default class EditPage extends Component {
   }
 
   getAvailableSectionHeaders = (template) => {
-    return template.sections.reduce((store, {name, synonyms}) => {
-      return [...store, name, ...(synonyms || [])]
-    }, [])
+    if (template.sections)
+      return template.sections.reduce((store, {name, synonyms}) => {
+        return [...store, name, ...(synonyms || [])]
+      }, [])
   }
 
   onUpdateTranscript = (chapters) => {
