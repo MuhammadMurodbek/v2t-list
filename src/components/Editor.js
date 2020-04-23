@@ -59,7 +59,7 @@ export default class Editor extends Component {
       this.setCursor(initialCursor, true)
     else
       this.updateCursor()
-
+    
     if (this.areChaptersEqual(prevProps.originalChapters, originalChapters) === false) {
       this.initChapters()
     }

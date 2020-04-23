@@ -38,12 +38,16 @@ export default class GuidedLive extends Component {
     writeAudioMessage: 'write-audio-pnr',
     templatesForMenu: [],
     seconds: 0,
-    recordedAudioClips: []
+    recordedAudioClip: null
   }
 
   componentDidMount = () => {
     this.templates()
     document.title = 'Inovia AI :: Live Diktering 🎤'
+  }
+
+  componentWillUnmount() {
+    recorder.clear()
   }
 
   templates = async () => {
@@ -171,7 +175,7 @@ export default class GuidedLive extends Component {
 
     await navigator.mediaDevices.getUserMedia({ audio: true })
       .then((stream) => {
-        recorder.init(stream, this.addClipHandler)
+        recorder.init(stream)
         this.gotStream(stream)
       })
       .catch(function (err) {
@@ -181,7 +185,7 @@ export default class GuidedLive extends Component {
 
   addClipHandler = (clip) => {
     this.setState({
-      recordedAudioClips: [...this.state.recordedAudioClips, clip]
+      recordedAudioClip: clip
     })
   }
 
@@ -191,7 +195,7 @@ export default class GuidedLive extends Component {
     if (recording === true) {
       this.setState({ recording: false }, () => {
         // Close the socket
-        recorder.stop()
+        recorder.stop(this.addClipHandler)
         this.audioContext.suspend()
       })
     } else {
@@ -215,7 +219,7 @@ export default class GuidedLive extends Component {
     const {
       recording, finalText, currentText,
       listOfTemplates, templatesForMenu, seconds,
-      recordedAudioClips
+      recordedAudioClip
     } = this.state
 
     return (
@@ -242,7 +246,7 @@ export default class GuidedLive extends Component {
         </EuiFlexGroup>
         <EuiFlexGroup>
           <EuiFlexItem>
-            <RecordList audioClips={recordedAudioClips}/>
+            <RecordList audioClip={recordedAudioClip}/>
           </EuiFlexItem>
         </EuiFlexGroup>
       </Page>

@@ -28,10 +28,6 @@ describe('Check page loading', () => {
     cy.visit(`${Cypress.env('host')}#/upload`)
     cy.wait(1000)
   })
-  it('Loading analytics page', () => {
-    cy.visit(`${Cypress.env('host')}#/analytics`)
-    cy.wait(1000)
-  })
   it('Loading training page', () => {
     cy.visit(`${Cypress.env('host')}#/training`)
     cy.wait(1000)
