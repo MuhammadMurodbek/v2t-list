@@ -85,7 +85,7 @@ class App extends Component {
       this.setState({ isLoggedIn: true, token })
       api.setToken(token)
 
-      api.loadTickets(undefined, 0, 200).then((tickets) => {
+      api.loadTickets(undefined, 0, 1000).then((tickets) => {
         // Check which one are audio and
         // which are video before loading all active jobs
         this.setState({ transcripts: tickets })
