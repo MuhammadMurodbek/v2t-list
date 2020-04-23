@@ -37,7 +37,6 @@ export default class EditPage extends Component {
   state = {
     sidenoteContent: '',
     originalChapters: null,
-    headerUpdatedChapters: null,
     currentTime: 0,
     queryTerm: '',
     tags: [],
@@ -150,8 +149,6 @@ export default class EditPage extends Component {
 
     if (templates) {
       const { data } = templates
-      console.log('templates')
-      console.log(templates)
       this.setState(
         {
           templates: data,
@@ -427,50 +424,24 @@ export default class EditPage extends Component {
     this.setState({ tags })
   }
 
-  updateSectionHeader = (sectionHeaders, templateId) => {
-    const {
-      chapters,
-      templates
-    } = this.state
-    this.setState({ sectionHeaders }, () => {
-      // //Add synonyms with the section headers
-      // // without synonyms
-      let sectionHeadersWithSynonyms = []
-      sectionHeaders.forEach((sectionHeader) => {
-        sectionHeadersWithSynonyms.push(sectionHeader)
-      })
-      const selectedTemplate = templates.templates
-        .filter((template) => template.id === templateId)
-        .map((template) => template.sections)
-      let finalTemplate = []
-      if (selectedTemplate[0]) {
-        const synonyms = selectedTemplate[0]
-          .map((section) => (section.synonyms ? section.synonyms : []))
-          .flat()
-        const derivedKeywords = selectedTemplate[0].map(
-          (section) => section.name
-        )
-        finalTemplate = derivedKeywords.concat(synonyms)
-      }
-
-      // const processedCh = processChaptersRegular(chapters, sectionHeaders)
-      const processedCh = processChaptersRegular(chapters, finalTemplate)
-      this.setState({
-        chapters: processedCh,
-        headerUpdatedChapters: processedCh
-      })
-    })
+  updateTemplateId = (templateId) => {
+    const { chapters, templates } = this.state
+    const template = templates.templates.find(template => template.id === templateId)
+    const availableSectionHeaders = this.getAvailableSectionHeaders(template)
+    const sectionHeaders = (template.sections || []).map(({name}) => name)
+    const updatedChapters = processChaptersRegular(chapters, availableSectionHeaders)
+    this.setState({ templateId, sectionHeaders, chapters: updatedChapters })
   }
 
-  updateTemplateId = (templateId) => {
-    this.setState({ templateId }, () => {
-      console.log('selected template------id')
-      console.log(templateId)
-    })
+  getAvailableSectionHeaders = (template) => {
+    if (template.sections)
+      return template.sections.reduce((store, {name, synonyms}) => {
+        return [...store, name, ...(synonyms || [])]
+      }, [])
   }
 
   onUpdateTranscript = (chapters) => {
-    this.setState({ chapters })
+    return new Promise(resolve => this.setState({ chapters }, resolve))
   }
 
   onPause = () => {
@@ -491,7 +462,6 @@ export default class EditPage extends Component {
       currentTime,
       cursorTime,
       originalChapters,
-      headerUpdatedChapters,
       chapters,
       queryTerm,
       tags,
@@ -534,13 +504,13 @@ export default class EditPage extends Component {
               <Editor
                 transcript={transcript}
                 originalChapters={originalChapters}
-                headerUpdatedChapters={headerUpdatedChapters}
                 chapters={chapters}
                 currentTime={currentTime}
                 onCursorTimeChange={this.onCursorTimeChange}
                 onSelect={this.onSelectText}
                 updateTranscript={this.onUpdateTranscript}
                 isDiffVisible
+                templateId={templateId}
                 sectionHeaders={sectionHeaders}
                 initialCursor={initialCursor}
               />
@@ -552,8 +522,7 @@ export default class EditPage extends Component {
               <EuiSpacer size="xxl" />
               <Templates
                 listOfTemplates={templates.templates}
-                defaultTemplate={templateId}
-                updateSectionHeader={this.updateSectionHeader}
+                defaultTemplateId={templateId}
                 updateTemplateId={this.updateTemplateId}
               />
 
