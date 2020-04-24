@@ -236,7 +236,7 @@ export default class EditPage extends Component {
       }
     } else {
       swal({
-        title: 'Det är inte möjligt att skicka till Webdoc.',
+        title: 'Det är inte möjligt att skicka till co-worker.',
         text: 'Personnummer saknas',
         icon: 'error',
         button: 'Ok'
@@ -254,7 +254,7 @@ export default class EditPage extends Component {
     } else {
       swal({
         title:
-          'Det är inte möjligt att skicka till Webdoc, vänligen prova igen senare.',
+          'Det är inte möjligt att Skicka till co-worker, vänligen prova igen senare.',
         text: '',
         icon: 'error',
         button: 'Ok'
@@ -560,7 +560,7 @@ export default class EditPage extends Component {
                 }}
                 onClick={this.finalize}
               >
-                <EuiI18n token="sendToWebdoc" default="Send to Webdoc" />
+                <EuiI18n token="sendToWebdoc" default="Send to Co-worker" />
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>

@@ -361,7 +361,7 @@ export default class LiveDikteringEnglish extends Component {
                     borderRadius: '25px'
                   }}
                   onClick={() => { }}>
-                  Skicka till Webdoc
+                  Skicka till Co-worker
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
