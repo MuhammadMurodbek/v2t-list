@@ -88,13 +88,11 @@ const restructureChapter = (data) => {
 
 }
 
-const processChaptersLive = (finalText, updatedSections, firstKeyword, recordedChapters, cursorTime=2) => {
+const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
   console.log('finalTextqq')
   console.log(finalText)
   // console.log(finalText[0])
   // const extractedFinalText = finalText
-  console.log('%c Recorded chapters ', 'background: #222; color: red')
-  console.log(recordedChapters)
   const extractedFinalText = extractedText(finalText)
   console.log('%c ExtractedFinalText! ', 'background: #222; color: #bada55')
 
@@ -142,6 +140,9 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, recordedC
   console.log('newlyOrientedWords')
   console.log(newlyOrientedWords)
   const finalChapters = []
+  console.log('finalChapters before')
+  console.log(finalChapters)
+  
   let tempObject = { segments: [] }
   newlyOrientedWords.forEach((word, i) => {
     if (tempObject.keyword) {
@@ -167,7 +168,14 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, recordedC
       finalChapters.push(tempObject)
   })
 
-
+  if (finalChapters.length===0) {
+    finalChapters.push({
+      keyword: 'KONTAKTORSAK',
+      segments: [
+        {words: '', startTime: 0.0, endTime: 0.0}
+      ]
+    })
+  }
   console.log('finalChapters')
   console.log(finalChapters)
 
@@ -178,6 +186,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, recordedC
     // return capitalized
   // return capitalized ? setThePunkt(capitalized) : fixedCase
 //     // return tempChapters
+
   return fixedCase
 }
 

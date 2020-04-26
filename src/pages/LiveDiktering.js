@@ -28,6 +28,7 @@ export default class LiveDiktering extends Component {
   // eslint-disable-next-line max-len
   socketio = io.connect('wss://ilxgpu9002.inoviaai.se/audio', { transports: ['websocket'] })
   state = {
+    alreadyRecorded: false,
     recording: false,
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
@@ -62,7 +63,7 @@ export default class LiveDiktering extends Component {
     headerUpdatedChapters: null,
     initialCursor: 0,
     sectionHeaders: [],
-    recordedAudioClip: null,
+    recordedAudioClip: {},
     cursorTime: 0
   }
 
@@ -145,7 +146,46 @@ export default class LiveDiktering extends Component {
     this.setState({ sections })
   }
 
-  // @ts-ignore
+  joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2) => {
+    if(previousChapters.length===0) return latestChapters
+    console.log('prev chapter start ........................................................')
+    console.log(previousChapters)
+    const finalKeyword = previousChapters[previousChapters.length - 1].keyword
+    let intermediateChapters = previousChapters.slice() // copy by value
+    let temporaryChapter = {}
+
+    latestChapters.forEach((chapter, i) => {
+      if (i === 0) {
+        if (latestChapters[i].keyword === 'KONTAKTORSAK' || latestChapters[i].keyword === finalKeyword) {
+          latestChapters[i].segments.forEach(seg => {
+            intermediateChapters[intermediateChapters.length - 1].segments.push(seg)
+          })
+        } else {
+          temporaryChapter.keyword = latestChapters[i].keyword
+          temporaryChapter.segments = latestChapters[i].segments
+          intermediateChapters.push(temporaryChapter)
+          temporaryChapter = {}
+        }
+      } else {
+        temporaryChapter.keyword = latestChapters[i].keyword
+        temporaryChapter.segments = latestChapters[i].segments
+      }
+      if (i !== 0) {
+        intermediateChapters.push(temporaryChapter)
+        temporaryChapter = {}
+      }
+    })
+    console.log(previousChapters)
+    console.log('latest chapters')
+    console.log(latestChapters)
+    console.log('intermediate chapters')
+    console.log(intermediateChapters)
+    console.log('prev chapter end ........................................................')
+    return intermediateChapters
+
+  }
+
+
   gotStream = (stream) => {
     const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
@@ -201,12 +241,13 @@ export default class LiveDiktering extends Component {
 
         // const finalText = `${originalText} ${prevState.state.currentText}`
         // console.log(finalText)
-        const { sections, recordedChapters, cursorTime } = prevState.state
-        prevState.setState({
-          chapters: processChaptersLive(finalText, sections, Object.keys(sections)[0], recordedChapters, cursorTime),
-          headerUpdatedChapters: processChaptersLive(finalText, sections, Object.keys(sections)[0])
+        const { sections, recordedChapters, cursorTime, alreadyRecorded } = prevState.state
+        let restructuredChapter = processChaptersLive(finalText, sections, Object.keys(sections)[0], cursorTime)
+        prevState.setState({chapters: restructuredChapter}, ()=> {
+          console.log("🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱")
+          console.log(recordedChapters)
+          console.log("🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱🇮🇱")
         })
-
       })
     })
   }
@@ -271,23 +312,24 @@ export default class LiveDiktering extends Component {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { recording } = this.state
     if (recording === true) {
-
-      this.setState({
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+      this.audioContext.suspend()
+      this.socketio.emit('end-recording')
+      recorder.stop(this.addClipHandler, cursorTime)
+      this.setState({ 
+        // recordedChapters: this.state.chapters, 
+        recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters), 
+        alreadyRecorded: true,
         recording: false,
         originalText: `${originalText} ${currentText}`
-      }, () => {
-        // Close the socket
-        // recorder.stop(this.addClipHandler, cursorTime)
-        recorder.stop(this.addClipHandler, cursorTime)
-        this.audioContext.suspend()
-        this.socketio.emit('end-recording')
-        this.setState({recordedChapters: chapters },
-          ()=>{
-            console.log('this.state.chapters')
-            console.log(this.state.chapters)
-            console.log('this.state.chapters')
-          })
-
       })
     } else {
       this.setState({ recording: true }, async () => {
@@ -343,7 +385,7 @@ export default class LiveDiktering extends Component {
             <Editor
               transcript={chapters}
               originalChapters={chapters}
-              headerUpdatedChapters={headerUpdatedChapters}
+              headerUpdatedChapters={chapters}
               chapters={chapters}
               currentTime={currentTime}
               onCursorTimeChange={this.onCursorTimeChange}
