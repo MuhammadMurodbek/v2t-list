@@ -1,8 +1,12 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect, Fragment } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem,
-  EuiFieldText, EuiText, EuiSpacer
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiFieldText,
+  EuiText,
+  EuiSpacer,
+  EuiI18n
 } from '@elastic/eui'
 import validatePersonnummer from '../../models/live/validatePersonnummer'
 
@@ -10,26 +14,30 @@ const PersonalInfoLive = ({ info }) => {
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
   const [personnummer, setPersonnummer] = useState('')
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     if (info) {
       if (info.doktor) {
-        if (doktor === '' && (doktor.toLowerCase().trim() !== info.doktor.toLowerCase().trim())) {
+        if (
+          doktor === '' &&
+          doktor.toLowerCase().trim() !== info.doktor.toLowerCase().trim()
+        ) {
           setDoktor(info.doktor)
         }
       }
       if (info.patient) {
         if (
-          patient === '' 
-          && ( patient.toLowerCase().trim() !== info.patient.toLowerCase().trim())
+          patient === '' &&
+          patient.toLowerCase().trim() !== info.patient.toLowerCase().trim()
         ) {
           setPatient(info.patient)
         }
       }
       if (info.personnummer) {
         if (
-          personnummer === ''
-          && (personnummer.toLowerCase().trim() !== info.personnummer.toLowerCase().trim())
+          personnummer === '' &&
+          personnummer.toLowerCase().trim() !==
+            info.personnummer.toLowerCase().trim()
         ) {
           setPersonnummer(organizePersonummer(info.personnummer))
         }
@@ -41,41 +49,47 @@ const PersonalInfoLive = ({ info }) => {
     let updatedNummer = nummer.trim()
     updatedNummer = updatedNummer.replace(/\s/g, '')
     if (updatedNummer.length === 10) {
-      return `${updatedNummer.substr(0,6)}-${updatedNummer.substr(-4)}`
+      return `${updatedNummer.substr(0, 6)}-${updatedNummer.substr(-4)}`
     } else if (updatedNummer.length === 12) {
       return `${updatedNummer.substr(0, 8)}-${updatedNummer.substr(-4)}`
     } else {
       return updatedNummer
     }
-  } 
+  }
 
-  const onChangeDoktor=(e)=>{
+  const onChangeDoktor = (e) => {
     setDoktor(e.target.value)
   }
-  const onChangePatient=(e)=>{
+  const onChangePatient = (e) => {
     setPatient(e.target.value)
   }
-  const onChangePersonnummer=(e)=>{
+  const onChangePersonnummer = (e) => {
     setPersonnummer(e.target.value)
   }
-  
+
   return (
     <Fragment>
       <EuiFlexGroup style={{ width: 250 }}>
         <EuiFlexItem>
           <EuiSpacer size="m" />
           <EuiText>
-            <h6>Doctor</h6>
+            <h6>
+              <EuiI18n token="doctor" default="Doctor" />
+            </h6>
           </EuiText>
-          <EuiFieldText
-            placeholder="Doctors Namn"
-            value={doktor}
-            onChange={onChangeDoktor}
-            aria-label="Use aria labels when no actual label is in use"
-          />
+          <EuiI18n token="doctorsName" default="Doctor's Name">
+            {(translation) => (
+              <EuiFieldText
+                placeholder={translation}
+                value={doktor}
+                onChange={onChangeDoktor}
+                aria-label="Use aria labels when no actual label is in use"
+              />
+            )}
+          </EuiI18n>
         </EuiFlexItem>
       </EuiFlexGroup>
-      <EuiFlexGroup style={{width: 500}}>
+      <EuiFlexGroup style={{ width: 500 }}>
         <EuiFlexItem>
           <EuiSpacer size="m" />
           <EuiText>
@@ -91,19 +105,28 @@ const PersonalInfoLive = ({ info }) => {
         <EuiFlexItem>
           <EuiSpacer size="m" />
           <EuiText>
-            <h6>Personnummer</h6> 
+            <h6>
+              <EuiI18n token="patient" default="Patient" />
+            </h6>
           </EuiText>
-          <EuiFieldText
-            style={{ 
-              border: 
-                validatePersonnummer(personnummer).status === false ? 
-                  '1px red solid': 'none'
-            }}
-            placeholder="Patients Personummer"
-            value={personnummer}
-            onChange={onChangePersonnummer}
-            aria-label="Use aria labels when no actual label is in use"
-          />
+          <EuiI18n
+            token="patientsPersonalNumber"
+            default="Patient's personal number"
+          >
+            {(translation) => (
+              <EuiFieldText
+                style={{
+                  border:
+                    validatePersonnummer(personnummer).status === false
+                      ? '1px red solid'
+                      : 'none'
+                }}
+                placeholder={translation}
+                value={personnummer}
+                onChange={onChangePersonnummer}
+              />
+            )}
+          </EuiI18n>
         </EuiFlexItem>
       </EuiFlexGroup>
     </Fragment>

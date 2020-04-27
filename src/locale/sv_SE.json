@@ -34,9 +34,10 @@
   "chooseTheModelForTheTranscription": "Välja modell för transkriberingen",
   "selectTheJobForTheTranscription": "Välj jobb för transkriptet",
   "selectJournalTemplateForTheTranscription": "Välj journalmall för transkriptet",
-  "patientsName": "Patient",
-  "patientsPersonalNumber": "Personnummer",
-  "doctorsName": "Läkare",
+  "patientsName": "Patientens namn",
+  "patientsPersonalNumber": "Patientens personnummer",
+  "personalNumber": "Personnummer",
+  "doctorsName": "Läkares namn",
   "successfullyUploadedFiles": "Uppladdade filer",
   "howDoICorrectTheText": "Hur rättar jag texten?",
   "changeTheTextToMatchTheAudio": "Ändra så att texten stämmer ordagrant med ljudklippet, även om grammatiken blir fel.",
@@ -89,7 +90,8 @@
   "selectAKeyword": "Välj en sökord",
   "cancel": "Avbryt",
   "saveChanges": "Spara ändringar",
-  "sendToWebdoc": "Skicka till Co-worker",
+  "sendToWebdoc": "Skicka till Webdoc",
+  "submitForReview": "Skicka för granskning",
   "journalTemplates": "Journalmallar",
   "selectJournalTemplate": "Välj journalmall",
   "sayOrSelectJournalTemplate": "Säg/Välj Journalmalls namn, säg Nästa\" eller \"Tillbaka\" efter namnet.",
@@ -107,5 +109,6 @@
   "lookFor": "Sök",
   "code": "Kod",
   "thePageCouldNotBeFound": "Sidan kunde inte hittas",
-  "back": "Tillbaka"
+  "back": "Tillbaka",
+  "startDictation": "Starta Diktering"
 }

@@ -2,9 +2,13 @@
 /* eslint-disable no-console */
 import React, { useState, useEffect, Fragment } from 'react'
 import {
-  EuiFlexGroup, EuiFlexItem,
-  EuiSteps, EuiButtonEmpty,
-  EuiSpacer, EuiButton
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiSteps,
+  EuiButtonEmpty,
+  EuiSpacer,
+  EuiButton,
+  EuiI18n
 } from '@elastic/eui'
 import Dots from './Dots'
 import Tags from '../Tags'
@@ -26,48 +30,55 @@ const GuidedLiveEditor = ({
   const [editorVisible, setEditorVisible] = useState(false)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [tags, setTags] = useState([])
-  const [chapters, setChapters] = useState([{
-    keyword: 'KONTAKTORSAK',
-    segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
-  }])
+  const [chapters, setChapters] = useState([
+    {
+      keyword: 'KONTAKTORSAK',
+      segments: [{ words: '...', startTime: 0.0, endTime: 0.0 }]
+    }
+  ])
   const [sections, setSections] = useState({
-    'KONTAKTORSAK': [],
-    'AT': [],
-    'LUNGOR': [],
-    'BUK': [],
-    'DIAGNOS': []
+    KONTAKTORSAK: [],
+    AT: [],
+    LUNGOR: [],
+    BUK: [],
+    DIAGNOS: []
   })
   const [verticalSteps, setVerticalSteps] = useState([
     {
       title: 'Doktors Namn',
-      children: <p></p >,
+      children: <p></p>,
       disabled: false,
-      onClick: () => { }
-    }, {
+      onClick: () => {}
+    },
+    {
       title: 'Patients Namn',
       children: <p></p>,
       disabled: true,
       status: 'disabled',
-      onClick: () => { }
-    }, {
+      onClick: () => {}
+    },
+    {
       title: 'Patients Personnummer',
       children: <p></p>,
       disabled: true,
       status: 'disabled',
-      onClick: () => { }
-    }, {
+      onClick: () => {}
+    },
+    {
       title: 'Journalmall',
       children: <p></p>,
       disabled: true,
       status: 'disabled',
-      onClick: () => { }
-    }, {
+      onClick: () => {}
+    },
+    {
       title: 'Diktering',
       children: <p></p>,
       disabled: true,
       status: 'disabled',
-      onClick: () => { }
-    }])
+      onClick: () => {}
+    }
+  ])
 
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
@@ -81,7 +92,9 @@ const GuidedLiveEditor = ({
     console.log('current')
     console.log(currentContent)
     if (prevContent !== '' && currentContent !== '') {
-      if (prevContent.toLowerCase().trim() === currentContent.toLowerCase().trim()) {
+      if (
+        prevContent.toLowerCase().trim() === currentContent.toLowerCase().trim()
+      ) {
         if (currentStepIndex < 4) {
           updateVerticalSteps(currentContent, currentStepIndex)
           setCurrentStepIndex(currentStepIndex + 1)
@@ -90,7 +103,9 @@ const GuidedLiveEditor = ({
           setEditorVisible(true)
         }
         if (currentStepIndex > 3) {
-          setChapters(processChapters(currentContent, sections, Object.keys(sections)[0]))
+          setChapters(
+            processChapters(currentContent, sections, Object.keys(sections)[0])
+          )
           checkForCodes(chapters)
         }
       }
@@ -98,22 +113,33 @@ const GuidedLiveEditor = ({
   }, [currentContent, prevContent])
 
   const checkForCodes = async () => {
-    const listOfKeywords = chapters.map(chapter => chapter.keyword.trim().toLowerCase())
-    if(!listOfKeywords.includes('diagnos')) {
+    const listOfKeywords = chapters.map((chapter) =>
+      chapter.keyword.trim().toLowerCase()
+    )
+    if (!listOfKeywords.includes('diagnos')) {
       return
     } else {
       let textData = ''
-      chapters.map(chapter => {
-        if (chapter.keyword.trim().toLowerCase() === 'diagnos') {
-          return chapter.segments[0].words
-        } else return '' 
-      }).forEach(text => {if (text) textData = textData + text })
+      chapters
+        .map((chapter) => {
+          if (chapter.keyword.trim().toLowerCase() === 'diagnos') {
+            return chapter.segments[0].words
+          } else return ''
+        })
+        .forEach((text) => {
+          if (text) textData = textData + text
+        })
       const result = await api.keywordsSearch(textData)
-      if (result) 
-        if(result.data)
+      if (result)
+        if (result.data)
           if (result.data[0])
             if (result.data[0].value)
-              setTags([{ id: result.data[0].value, description: result.data[0].description}])
+              setTags([
+                {
+                  id: result.data[0].value,
+                  description: result.data[0].description
+                }
+              ])
     }
   }
 
@@ -135,10 +161,16 @@ const GuidedLiveEditor = ({
           console.log('templatesForMenu')
           console.log(templatesForMenu)
           console.log('templatesForMenu end')
-          if(index===2){
+          if (index === 2) {
             tempObject = {
               status: 'primary',
-              children: <Fragment><Dots /><EuiSpacer size='m' /><TemplateMenu templatesForMenu={templatesForMenu} /></Fragment >
+              children: (
+                <Fragment>
+                  <Dots />
+                  <EuiSpacer size="m" />
+                  <TemplateMenu templatesForMenu={templatesForMenu} />
+                </Fragment>
+              )
             }
           } else {
             tempObject = {
@@ -154,9 +186,7 @@ const GuidedLiveEditor = ({
           }
           return { ...step, ...tempObject }
         }
-
-      }
-      else if (i > index) {
+      } else if (i > index) {
         tempObject = {
           disabled: true
         }
@@ -169,19 +199,18 @@ const GuidedLiveEditor = ({
       }
     })
 
-
     const finalSteps = newStepsHierarchy.map((s, j) => {
       if (j === index) {
-        if(index===0) {
+        if (index === 0) {
           setDoktor(content)
         }
-        if(index===1) {
+        if (index === 1) {
           setPatient(content)
         }
-        if(index===2) {
+        if (index === 2) {
           setPersonnummer(content)
         }
-        if(index===3) {
+        if (index === 3) {
           setTemplate(content)
         }
         const tempObject = {
@@ -195,19 +224,13 @@ const GuidedLiveEditor = ({
     setVerticalSteps(finalSteps)
   }
 
-  const sendAsHorrribleTranscription = () => {
-
-  }
+  const sendAsHorrribleTranscription = () => {}
 
   const onSelectText = () => {
     // update later
   }
-  const onUpdateTranscript = () => {
-
-  }
-  const onCursorTimeChange = () => {
-
-  }
+  const onUpdateTranscript = () => {}
+  const onCursorTimeChange = () => {}
 
   const updatedSections = (sections) => {
     // this.validateSections(sections)
@@ -216,24 +239,37 @@ const GuidedLiveEditor = ({
 
   return (
     <Fragment>
-      <EuiFlexGroup >
-        <EuiFlexItem style={{ maxWidth: 290, display: editorVisible ? 'none' : 'false' , marginTop: -150}}>
+      <EuiFlexGroup>
+        <EuiFlexItem
+          style={{
+            maxWidth: 290,
+            display: editorVisible ? 'none' : 'false',
+            marginTop: -150
+          }}
+        >
           <EuiSteps steps={verticalSteps} />
         </EuiFlexItem>
-        <EuiFlexItem style={{ display: editorVisible ? 'block' : 'none', marginTop: '-200px' }}>
-          <PersonalInfoLive info={{
-            doktor,
-            patient,
-            personnummer,
-            template 
-          }}/>
-          
+        <EuiFlexItem
+          style={{
+            display: editorVisible ? 'block' : 'none',
+            marginTop: '-200px'
+          }}
+        >
+          <PersonalInfoLive
+            info={{
+              doktor,
+              patient,
+              personnummer,
+              template
+            }}
+          />
+
           <EuiSpacer size="m" />
           <LiveEditor
             transcript={chapters}
             originalChapters={chapters}
             chapters={chapters}
-            currentTime={0.00}
+            currentTime={0.0}
             onSelect={onSelectText}
             updateTranscript={onUpdateTranscript}
             onCursorTimeChange={onCursorTimeChange}
@@ -244,8 +280,8 @@ const GuidedLiveEditor = ({
 
           <EuiFlexGroup justifyContent="flexEnd">
             <EuiFlexItem grow={false}>
-              <EuiButtonEmpty color="#000000" onClick={() => { }}>
-                Avbryt
+              <EuiButtonEmpty color="#000000" onClick={() => {}}>
+                <EuiI18n token="cancel" default="Cancel" />
               </EuiButtonEmpty>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -255,8 +291,9 @@ const GuidedLiveEditor = ({
                   border: 'solid 1px black',
                   borderRadius: '25px'
                 }}
-                onClick={() => { }}>
-                Spara ändringar
+                onClick={() => {}}
+              >
+                <EuiI18n token="saveChanges" default="Save changes" />
               </EuiButton>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
@@ -266,7 +303,8 @@ const GuidedLiveEditor = ({
                   borderRadius: '25px',
                   color: 'black'
                 }}
-                onClick={sendAsHorrribleTranscription}>
+                onClick={sendAsHorrribleTranscription}
+              >
                 “Skicka för granskning”
               </EuiButton>
             </EuiFlexItem>
@@ -277,8 +315,9 @@ const GuidedLiveEditor = ({
                   color: 'white',
                   borderRadius: '25px'
                 }}
-                onClick={() => { }}>
-                Skicka till Co-worker
+                onClick={() => {}}
+              >
+                <EuiI18n token="sendToWebdoc" default="Send to Webdoc" />
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
@@ -287,16 +326,13 @@ const GuidedLiveEditor = ({
           style={{
             maxWidth: '400px',
             display: editorVisible ? 'block' : 'none',
-            marginTop: '-200px' 
+            marginTop: '-200px'
           }}
         >
-          <Tags
-            tags={tags}
-            updateTags={onUpdateTags}
-          />
+          <Tags tags={tags} updateTags={onUpdateTags} />
           <GuidedLiveTemplate
             listOfTemplates={listOfTemplates}
-            usedSections={chapters.map(chapter => chapter.keyword)}
+            usedSections={chapters.map((chapter) => chapter.keyword)}
             updatedSections={updatedSections}
             templateFromVoice={template}
           />
@@ -304,7 +340,6 @@ const GuidedLiveEditor = ({
       </EuiFlexGroup>
     </Fragment>
   )
-
 }
 
 export default GuidedLiveEditor
