@@ -22,7 +22,6 @@ import LiveDikteringEnglishPage from './pages/LiveDikteringEnglish'
 import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
-import Visualization from './pages/Visualization'
 import Preference from './models/Preference'
 import './App.css'
 import api from './api'
@@ -139,15 +138,6 @@ class App extends Component {
                   isSelected: selectedItemName === 'Training',
                   name: <EuiI18n token="training" default="Training" />,
                   onClick: () => this.selectItem('Training')
-                },
-                {
-                  href: '/#/visualization',
-                  id: 6,
-                  isSelected: selectedItemName === 'Visualization',
-                  name: (
-                    <EuiI18n token="visualization" default="Visualization" />
-                  ),
-                  onClick: () => this.selectItem('Visualization')
                 },
                 {
                   id: 7,
@@ -395,10 +385,6 @@ class App extends Component {
                 render={() =>
                   isLoggedIn ? <LiveDikteringEnglishPage /> : <LoginPage />
                 }
-              />
-              <Route
-                path="/visualization/"
-                render={() => (isLoggedIn ? <Visualization /> : <LoginPage />)}
               />
               <Route
                 path="/login"
