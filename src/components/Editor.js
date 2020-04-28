@@ -147,6 +147,18 @@ export default class Editor extends Component {
     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
     const segment = chapters[chapterId] && chapters[chapterId].segments[segmentId]
     const timestamp = segment ? segment.startTime || 0 : 0
+    const timestampStart = segment ? segment.startTime || 0 : 0
+    const timestampEnd = segment ? segment.endTime || 0 : 0
+    console.log('start')
+    console.log('chapterId')
+    console.log(chapterId)
+    console.log('segmentId')
+    console.log(segmentId)
+    console.log('segment')
+    console.log(segment)
+    console.log('timestamp')
+    console.log(timestamp)
+    console.log('end')
     onCursorTimeChange(timestamp)
   }
 

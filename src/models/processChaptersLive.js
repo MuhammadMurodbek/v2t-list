@@ -137,11 +137,11 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
     }
   })
 
-  console.log('newlyOrientedWords')
-  console.log(newlyOrientedWords)
+  // console.log('newlyOrientedWords')
+  // console.log(newlyOrientedWords)
   const finalChapters = []
-  console.log('finalChapters before')
-  console.log(finalChapters)
+  // console.log('finalChapters before')
+  // console.log(finalChapters)
   
   let tempObject = { segments: [] }
   newlyOrientedWords.forEach((word, i) => {
@@ -176,8 +176,8 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       ]
     })
   }
-  console.log('finalChapters')
-  console.log(finalChapters)
+  // console.log('finalChapters')
+  // console.log(finalChapters)
 
 //     // Fix the case of a section header as per backend data
   const fixedCase = fixedCaseSections(finalChapters, updatedSections)
