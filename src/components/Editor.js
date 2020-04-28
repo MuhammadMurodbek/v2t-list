@@ -38,7 +38,6 @@ export default class Editor extends Component {
     this.initChapters()
   }
 
-
   areChaptersEqual = (o1, o2, ignorePropsArr = []) => {
     // Deep Clone objects
     const _obj1 = JSON.parse(JSON.stringify(o1)),
@@ -55,19 +54,21 @@ export default class Editor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { initialCursor, originalChapters } = this.props
+    const { initialCursor, templateId, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
       this.setCursor(initialCursor, true)
     else
       this.updateCursor()
 
-    // if (prevProps.originalChapters !== originalChapters) {
-    //   this.initChapters()
-    // }
-
     if (this.areChaptersEqual(prevProps.originalChapters, originalChapters) === false) {
       this.initChapters()
     }
+
+    // if (prevProps.originalChapters !== originalChapters)
+    //   this.initChapters()
+
+    if (prevProps.templateId !== templateId)
+      this.refreshDiff()
   }
 
   initChapters = () => {
@@ -83,8 +84,8 @@ export default class Editor extends Component {
 
   setCursor = (timestamp, select) => {
     const { chapters } = this.props
-    const cursor = chapters.reduce((store, {segments}, chapter) => {
-      const segment = segments.findIndex(({startTime, endTime}) => {
+    const cursor = chapters.reduce((store, { segments }, chapter) => {
+      const segment = segments.findIndex(({ startTime, endTime }) => {
         //find segment within timestamp or find closest to startTime
         return (startTime <= timestamp && endTime >= timestamp)
           || (startTime > timestamp && startTime < store.startTime)
@@ -110,17 +111,17 @@ export default class Editor extends Component {
   stashCursor = (offset = 0) => {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
-     // range.startContainer becomes the node after cursor when no nodes exist in front of cursor (deleted)
-    const isFirstNode = node.isSameNode(this.getFirstSegmentNode(node))
+    // firefox paste #text into a sibling before it is merged into one #text element
+    const siblingOffset = node.previousSibling ? node.previousSibling.data.length : 0
     const dataset = this.getClosestDataset(node)
-    const siblingOffset = this.isPastedInParent(node) ? node.parentNode.previousSibling.innerText.length : 0
     this.cursor = {
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
-      segment: isFirstNode ? 0 : Number(dataset.segment || 0),
+      segment: Number(dataset.segment || 0),
       offset: range.startOffset + siblingOffset + offset
     }
-    this.arrangeCursor()
+    if (isNaN(this.cursor.keyword) && this.cursor.offset < 0)
+      this.alignCursorToPreviousSegment()
   }
 
   popCursor = () => {
@@ -141,45 +142,18 @@ export default class Editor extends Component {
 
   onCursorChange = () => {
     const { chapters, onCursorTimeChange } = this.props
-    
     const selection = window.getSelection()
     const chapterId = Number(selection.anchorNode.parentNode.dataset.chapter || 0)
     const segmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
     const segment = chapters[chapterId] && chapters[chapterId].segments[segmentId]
     const timestamp = segment ? segment.startTime || 0 : 0
-
-    console.log('on cursor change')
-    console.log('timestamp')
-    console.log(timestamp)
-    console.log('chapterId')
-    console.log(chapterId)
-    console.log('segmentId')
-    console.log(segmentId)
-    console.log('segment')
-    console.log(segment)
-    console.log('timestamp')
-    console.log(timestamp)
-    console.log('on cursor change end')
     onCursorTimeChange(timestamp)
-  }
-
-  getFirstSegmentNode = (node) => {
-    const getDeepestChild = (node) => node.firstChild ? getDeepestChild(node.firstChild) : node
-    return node.nodeName === 'CODE' ? getDeepestChild(node) : this.getFirstSegmentNode(node.parentNode)
-  }
-
-  isPastedInParent = (node) => {
-    const parent = node.parentNode
-    return !Object.keys(node.dataset || {}).length && !Object.keys(parent.dataset || {}).length &&
-      parent.previousSibling && !!Object.keys(parent.previousSibling.dataset || {}).length
   }
 
   getClosestDataset = (node) => {
     const currentHasDataset = Object.keys(node.dataset || {}).length
     if (currentHasDataset)
       return node.dataset
-    if (this.isPastedInParent(node))
-      return node.parentNode.previousSibling.dataset
     return this.getClosestDataset(node.parentNode)
   }
 
@@ -197,10 +171,9 @@ export default class Editor extends Component {
     return h2.firstChild || h2
   }
 
-  arrangeCursor = () => {
+  alignCursorToPreviousSegment = () => {
     const { chapters } = this.props
     const cursor = this.cursor
-    if (!isNaN(cursor.keyword) || cursor.offset >= 0) return
     cursor.segment--
     if (cursor.segment < 0) {
       cursor.chapter--
@@ -212,16 +185,27 @@ export default class Editor extends Component {
     this.cursor = cursor
   }
 
-  onChange = (e, chapterId) => {
+  onChange = async (e, chapterId) => {
     const { updateTranscript } = this.props
     const illegalCharacters = e.target.innerText.match(ILLEGAL_CHARS_REGEX) || []
     this.stashCursor(- illegalCharacters.length)
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, e.target.innerText)
     chapters[chapterId] = this.parseChapter(e.target, chapterId)
-    const diff = this.getDiff(chapters)
-    this.setState({ diff })
-    updateTranscript(chapters)
+    await updateTranscript(chapters)
+    this.refreshDiff()
+  }
+
+  /** Make sure only text is pasted and override browsers default replacment of new lines */
+  onPaste = (e, chapterId) => {
+    e.preventDefault()
+    const text = (e.originalEvent || e).clipboardData.getData('text/plain') || ''
+    document.execCommand('insertHTML', false, this.escapeHTML(text))
+  }
+
+  escapeHTML = (text) => {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+    return text.replace(/[&<>"']/g, m => map[m])
   }
 
   onKeyDown = (e, chapterId) => {
@@ -270,7 +254,7 @@ export default class Editor extends Component {
     //     .filter(segment => segment.words.length)
     // }
     const nextChapter = {
-      keyword: sectionHeaders[sectionHeaders.length-1],
+      keyword: sectionHeaders[sectionHeaders.length - 1],
       segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
         .filter(segment => segment.words.length)
     }
@@ -291,9 +275,9 @@ export default class Editor extends Component {
     if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
       this.splitChapter(e, chapterId, segmentId)
     } else if (isBeginningSelected && e.keyCode === KEYCODE_BACKSPACE) {
-      this.mergeChapter(e, chapterId, chapterId -1, -1)
+      this.mergeChapter(e, chapterId, chapterId - 1, -1)
     } else if (isEndingSelected && e.keyCode === KEYCODE_DELETE) {
-      this.mergeChapter(e, chapterId +1, chapterId)
+      this.mergeChapter(e, chapterId + 1, chapterId)
     }
   }
 
@@ -325,7 +309,7 @@ export default class Editor extends Component {
   parseSegment = (child, chapterId) => {
     this.removeInvalidChars(child)
     const { chapters } = this.props
-    const segmentId = child.dataset ? child.dataset.segment : null
+    const segmentId = child.dataset ? Number(child.dataset.segment || 0) : 0
     const segments = chapters[chapterId].segments
     const words = child.textContent
     if (segmentId)
@@ -334,11 +318,13 @@ export default class Editor extends Component {
   }
 
   reduceSegment = (store, segment) => {
-    const lastSegment = store[store.length -1]
+    const lastSegment = store[store.length - 1]
     if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
-      lastSegment.words += segment.words
-      lastSegment.endTime = segment.endTime
-      store[store.length -1] = lastSegment
+      store[store.length - 1] = {
+        ...lastSegment,
+        endTime: segment.endTime,
+        words: `${lastSegment.words}${segment.words}`
+      }
     } else if (segment.words.length) {
       store.push(segment)
     }
@@ -349,16 +335,17 @@ export default class Editor extends Component {
     child.textContent = child.textContent.replace(ILLEGAL_CHARS_REGEX, '')
   }
 
+  refreshDiff = () => {
+    const { chapters } = this.props
+    const diff = this.getDiff(chapters)
+    this.setState({ diff })
+  }
+
   getDiff = (chapters) => {
-    const { diffInstance, headerUpdatedChapters, originalChapters } = this.props
+    const { diffInstance, originalChapters } = this.props
     if (!this.inputRef || !this.inputRef.current) return null
     const content = chapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    let originalText
-    if( headerUpdatedChapters.length > 0 ) {
-      originalText = headerUpdatedChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    } else {
-      originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    }
+    const originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
     const diff = diffInstance.main(originalText, content)
     diffInstance.cleanupSemantic(diff)
     return diff.map((d, i) => this.parseDiff(i, d, diff)).filter(d => d)
@@ -382,7 +369,6 @@ export default class Editor extends Component {
 
   render() {
     const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
-    console.log("re-render", chapters)
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
@@ -393,6 +379,7 @@ export default class Editor extends Component {
           inputRef={this.inputRef}
           currentTime={currentTime}
           onChange={this.onChange}
+          onPaste={this.onPaste}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
           onCursorChange={this.onCursorChange}
@@ -413,7 +400,7 @@ export default class Editor extends Component {
 
 const EditableChapters = ({ chapters, inputRef, ...editableChapterProps }) => {
   if (!inputRef) return null
-    const editors = chapters.map((chapter, i) => (
+  const editors = chapters.map((chapter, i) => (
     <EditableChapter
       key={i}
       chapterId={i}
@@ -465,14 +452,15 @@ const EditableChapter = ({ chapterId, keyword, sectionHeaders, setKeyword, ...ch
   )
 }
 
-const Chunks = ({ segments, currentTime, context, chapterId, onChange, onKeyDown, onSelect, onCursorChange }) => {
+const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, onKeyDown, onSelect, onCursorChange }) => {
   const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
     <pre>
       <code
-        style={{minHeight: '20px'}}
-        key={segments.toString()}
+        style={{ minHeight: '20px' }}
+        key={JSON.stringify(segments)}
         onInput={e => onChange(e, chapterId)}
+        onPaste={e => onPaste(e, chapterId)}
         onKeyDown={e => onKeyDown(e, chapterId)}
         onKeyUp={onCursorChange}
         onClick={onCursorChange}

@@ -420,13 +420,13 @@ export default class LiveDiktering extends Component {
             <Editor
               transcript={chapters}
               originalChapters={chapters}
-              headerUpdatedChapters={chapters}
               chapters={chapters}
               currentTime={currentTime}
               onCursorTimeChange={this.onCursorTimeChange}
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
               isDiffVisible
+              templateId={'ext1'}
               sectionHeaders={Object.keys(sections)}
               initialCursor={initialCursor}
             />
