@@ -151,7 +151,7 @@ export default class LiveDiktering extends Component {
     console.log('prev chapter start ........................................................')
     console.log(previousChapters)
     const finalKeyword = previousChapters[previousChapters.length - 1].keyword
-    let intermediateChapters = previousChapters.slice() // copy by value
+    let intermediateChapters = JSON.parse(JSON.stringify(previousChapters)) // copy by value
     let temporaryChapter = {}
 
     latestChapters.forEach((chapter, i) => {
@@ -234,14 +234,14 @@ export default class LiveDiktering extends Component {
       console.log('text')
       console.log(text)
       console.log('text end')
-      const { originalText } = prevState.state
+      // const { originalText } = prevState.state
       prevState.setState({ currentText: text }, () => {
         // console.log('prevState.state.whole')
         const finalText = `${prevState.state.currentText}`
 
         // const finalText = `${originalText} ${prevState.state.currentText}`
         // console.log(finalText)
-        const { sections, recordedChapters, cursorTime, alreadyRecorded } = prevState.state
+        const { sections, recordedChapters, cursorTime } = prevState.state
         let restructuredChapter = processChaptersLive(finalText, sections, Object.keys(sections)[0], cursorTime)
         console.log('restructured chapter')
         console.log(restructuredChapter)
@@ -251,14 +251,7 @@ export default class LiveDiktering extends Component {
         const finalChapters = prevState.joinRecordedChapters(recordedChapters, restructuredChapter)
         console.log(finalChapters)
         // prevState.setState({chapters: restructuredChapter}, ()=> {
-        if(recordedChapters.length>0){
-          prevState.setState({ chapters: recordedChapters }, ()=> {
-          console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-          console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-          console.log(recordedChapters)
-          console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-          console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-        })} else {
+        
         prevState.setState({ chapters: finalChapters }, ()=> {
           console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
           console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
@@ -266,7 +259,7 @@ export default class LiveDiktering extends Component {
           console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
           console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
         })
-        }
+        
       })
     })
   }
@@ -326,8 +319,7 @@ export default class LiveDiktering extends Component {
   }
 
   toggleRecord = () => {
-    const { cursorTime, chapters } = this.state
-    const { originalText, currentText } = this.state
+    const { cursorTime , originalText, currentText } = this.state
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { recording } = this.state
     if (recording === true) {
@@ -344,6 +336,7 @@ export default class LiveDiktering extends Component {
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
       recorder.stop(this.addClipHandler, cursorTime)
+      // this.saveRecordedTranscript()
       this.setState({ 
         // recordedChapters: this.state.chapters, 
         // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters), 
@@ -387,9 +380,8 @@ export default class LiveDiktering extends Component {
     console.log('previously recorded chapters')
     console.log(recordedChapters)
     console.log('updated recorded chapters')
-    const copiedChapter = [...chapters]
+    const copiedChapter = [...JSON.parse(JSON.stringify(chapters))]
     this.setState({ recordedChapters: copiedChapter })
-    
   }
 
   render() {
@@ -400,7 +392,6 @@ export default class LiveDiktering extends Component {
       currentTime,
       tags,
       seconds,
-      headerUpdatedChapters,
       initialCursor,
       recordedAudioClip,
       recording

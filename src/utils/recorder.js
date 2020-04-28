@@ -13,7 +13,7 @@ let recLength = 0,
   sampleRate = undefined,
   numChannels = undefined,
   clipName = null,
-  previousAudioLength = 0,
+  // previousAudioLength = 0,
   previousBuffers = []
 
 export async function init(stream) {
@@ -141,12 +141,12 @@ function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffe
   // console.log(recLength-previousAudioLength)
   // console.log('Current audio length end')
   // console.log('totaltime')
-  const totalDuration = recBuffers.length / 46.6
+  // const totalDuration = recBuffers.length / 46.6
   // console.log(totalDuration)
   // console.log('previous clip duration')
   const previousDuration = previousBuffers.length / 46.6
-  const currentDuration = recBuffers.length - previousBuffers.length 
-  const currentDurationInSeconds = (recBuffers.length/46.6) - (previousBuffers.length/46.6)
+  // const currentDuration = recBuffers.length - previousBuffers.length 
+  // const currentDurationInSeconds = (recBuffers.length/46.6) - (previousBuffers.length/46.6)
   // if (previousDuration>0)
   //   console.log(previousDuration)
   // else 
@@ -188,7 +188,7 @@ function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffe
     }
     
   }
-    previousAudioLength = recLength
+    // previousAudioLength = recLength
     previousBuffers = recBuffers.slice() // Copy array by value
 
 
