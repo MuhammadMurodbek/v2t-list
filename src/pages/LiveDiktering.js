@@ -64,7 +64,9 @@ export default class LiveDiktering extends Component {
     initialCursor: 0,
     sectionHeaders: [],
     recordedAudioClip: {},
-    cursorTime: 0
+    cursorTime: 0,
+    chapterId: -9,
+    segmentId: 0
   }
 
   componentDidMount = () => {
@@ -146,10 +148,78 @@ export default class LiveDiktering extends Component {
     this.setState({ sections })
   }
 
-  joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2) => {
-    if(previousChapters.length===0) return latestChapters
-    // console.log('prev chapter start ........................................................')
-    // console.log(previousChapters)
+  joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, chapterId = -9, segmentId) => {
+    if (previousChapters.length === 0) return latestChapters
+    let finalKeyword
+    if (chapterId !== -9)
+      finalKeyword = previousChapters[chapterId].keyword
+    else
+      finalKeyword = previousChapters[previousChapters.length - 1].keyword
+
+    let intermediateChapters = []
+
+    // In case the text is appended at the end of the previous text
+    if (chapterId === -9) {
+      return this.appendChapters(previousChapters, latestChapters)
+    } else {
+
+      // There should be three parts , first part, middle part and final part
+      let firstPortion = []
+      let tempFirstPortion = { keyword: '', segments: [] }
+      const firstPart = JSON.parse(JSON.stringify(previousChapters))
+      firstPart.forEach((ch, i) => {
+        if (i < chapterId) {
+          tempFirstPortion.keyword = ch.keyword
+          tempFirstPortion.segments = ch.segments
+        } else if (i === chapterId) {
+          tempFirstPortion.keyword = ch.keyword
+          ch.segments.forEach((seg, k) => {
+            if (k <= segmentId)
+              tempFirstPortion.segments.push(seg)
+          })
+        }
+        if (tempFirstPortion.segments.length > 0)
+          firstPortion.push(tempFirstPortion)
+        tempFirstPortion = { keyword: '', segments: [] }
+      })
+
+
+      // Determine the remaining portion
+      let remainingPortion = []
+      let tempRemainingPortion = { keyword: '', segments: [] }
+      firstPart.forEach((ch, i) => {
+        if (i === chapterId) {
+          tempRemainingPortion.keyword = ch.keyword
+          ch.segments.forEach((seg, k) => {
+            if (k > segmentId)
+              tempRemainingPortion.segments.push(seg)
+          })
+        } else if (i > chapterId) {
+          tempRemainingPortion.keyword = ch.keyword
+          tempRemainingPortion.segments = ch.segments
+        }
+        if (tempRemainingPortion.segments.length > 0) {
+          remainingPortion.push(tempRemainingPortion)
+          console.log("🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩")
+          console.log(chapterId)
+          console.log(tempRemainingPortion)
+          console.log("🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩")
+        }
+        tempRemainingPortion = { keyword: '', segments: [] }
+      })
+
+      const appendFirstWithRest = this.appendChapters(firstPortion, latestChapters)
+      return this.appendChapters(appendFirstWithRest, remainingPortion)
+
+      // Combine first, middle and remaining portion
+    }
+    return intermediateChapters
+  }
+
+
+
+  appendChapters = (previousChapters, latestChapters) => {
+    if (previousChapters.length === 0) return latestChapters
     const finalKeyword = previousChapters[previousChapters.length - 1].keyword
     let intermediateChapters = JSON.parse(JSON.stringify(previousChapters)) // copy by value
     let temporaryChapter = {}
@@ -175,16 +245,8 @@ export default class LiveDiktering extends Component {
         temporaryChapter = {}
       }
     })
-    // console.log(previousChapters)
-    // console.log('latest chapters')
-    // console.log(latestChapters)
-    // console.log('intermediate chapters')
-    // console.log(intermediateChapters)
-    // console.log('prev chapter end ........................................................')
     return intermediateChapters
-
   }
-
 
   gotStream = (stream) => {
     const { recording } = this.state
@@ -248,7 +310,7 @@ export default class LiveDiktering extends Component {
         // console.log('recorded chapter')
         // console.log(recordedChapters)
         // console.log('joined chapters')
-        const finalChapters = prevState.joinRecordedChapters(recordedChapters, restructuredChapter)
+        const finalChapters = prevState.joinRecordedChapters(recordedChapters, restructuredChapter, 2, prevState.state.chapterId, prevState.state.segmentId)
         // console.log(finalChapters)
         // prevState.setState({chapters: restructuredChapter}, ()=> {
         
@@ -265,11 +327,11 @@ export default class LiveDiktering extends Component {
   }
 
   // @ts-ignore
-  onCursorTimeChange = (cursorTime) => {
+  onCursorTimeChange = (cursorTime, chapterId, segmentId) => {
     console.log('cursorTime')
     console.log(cursorTime)
     console.log('cursorTime end')
-    this.setState({ cursorTime })
+    this.setState({ cursorTime, chapterId, segmentId })
   }
 
   initAudio = async () => {
