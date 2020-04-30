@@ -22,8 +22,9 @@ export async function init(stream) {
     numChannels = config.numChannels
 
     initBuffers()
-
-    const node = audioContext.createScriptProcessor(1024,1,1)
+    const { createScriptProcessor, createJavaScriptNode } = audioContext
+    const node = (createScriptProcessor || createJavaScriptNode)
+      .call(audioContext, 1024, 1, 1)
 
     source.connect(node)
     node.connect(context.destination)

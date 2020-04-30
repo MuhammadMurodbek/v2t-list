@@ -5,7 +5,6 @@ import '../styles/record-list.css'
 import { EuiTitle, EuiButton } from '@elastic/eui'
 
 const  RecordList = ({audioClip}) => {
-    console.log(audioClip)
       return ( audioClip && <section>
               <EuiTitle>
                   <h5>Recorded clip</h5>

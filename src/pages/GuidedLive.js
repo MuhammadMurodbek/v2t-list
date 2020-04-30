@@ -191,7 +191,7 @@ export default class GuidedLive extends Component {
 
   toggleRecord = () => {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { recording } = this.state
+    const { recording, seconds } = this.state
     if (recording === true) {
       this.setState({ recording: false }, () => {
         // Close the socket
@@ -200,7 +200,7 @@ export default class GuidedLive extends Component {
       })
     } else {
       this.setState({ recording: true }, async() => {
-        if(this.audioContext.state === 'suspended') {
+        if(this.audioContext.state === 'suspended' && seconds !== 0) {
           this.audioContext.resume()
         } else {
           await this.initAudio()
