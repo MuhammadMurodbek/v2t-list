@@ -109,5 +109,6 @@
   "code": "Kod",
   "thePageCouldNotBeFound": "Sidan kunde inte hittas",
   "back": "Tillbaka",
-  "startDictation": "Starta Diktering"
+  "startDictation": "Starta Diktering",
+  "chooseTheJournalSystemForTheTranscription": "Mottagande journalsystem"
 }

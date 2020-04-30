@@ -48,7 +48,8 @@ export default class UploadPage extends Component {
         inputDisplay: 'Akuten',
         dropdownDisplay: <DropDown title="Akuten" />
       }
-    ]
+    ],
+    selectedJournalSystem: 'WEBDOC'
   }
 
   state = {
@@ -66,6 +67,19 @@ export default class UploadPage extends Component {
       value: 'jasper',
       inputDisplay: 'Jasper 10x3',
       dropdownDisplay: <DropDown title="Jasper 10x3" />
+    }
+  ]
+ 
+  journalSystems = [
+    {
+      value: 'WEBDOC',
+      inputDisplay: 'Webdoc',
+      dropdownDisplay: <DropDown title="Webdoc" />
+    },
+    {
+      value: 'J4',
+      inputDisplay: 'J4',
+      dropdownDisplay: <DropDown title="J4" />
     }
   ]
 
@@ -95,6 +109,10 @@ export default class UploadPage extends Component {
     })
   }
 
+  onJournalSystemChange = (selectedJournalSystem) => {
+    this.setState({ selectedJournalSystem })
+  }
+  
   onJobChange = (selectedJob) => {
     this.setState({ selectedJob })
   }
@@ -128,7 +146,8 @@ export default class UploadPage extends Component {
       patientnummer,
       doktorsnamn,
       avdelning,
-      selectedTemplate
+      selectedTemplate,
+      selectedJournalSystem
     } = this.state
 
     const requests = Array.from(files).map((file) =>
@@ -140,7 +159,8 @@ export default class UploadPage extends Component {
         patientnummer,
         doktorsnamn,
         avdelning,
-        selectedTemplate
+        selectedTemplate,
+        selectedJournalSystem
       )
     )
     await Promise.all(requests).catch(this.onUploadFailed)
@@ -208,7 +228,8 @@ export default class UploadPage extends Component {
       selectedJob,
       jobs,
       templates,
-      selectedTemplate
+      selectedTemplate,
+      selectedJournalSystem
     } = this.state
 
     return (
@@ -237,6 +258,23 @@ export default class UploadPage extends Component {
               options={this.options}
               valueOfSelected={metaData}
               onChange={this.onMetadataChange}
+              itemLayoutAlign="top"
+              hasDividers
+            />
+          </EuiFormRow>
+          <EuiSpacer size="l" />
+          <EuiFormRow
+            label={
+              <EuiI18n
+                token="chooseTheJournalSystemForTheTranscription"
+                default="Target EMR"
+              />
+            }
+          >
+            <EuiSuperSelect
+              options={this.journalSystems}
+              valueOfSelected={selectedJournalSystem}
+              onChange={this.onJournalSystemChange}
               itemLayoutAlign="top"
               hasDividers
             />

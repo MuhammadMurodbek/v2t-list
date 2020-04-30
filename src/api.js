@@ -61,7 +61,7 @@ const keywordsSearch = (searchTerm) => {
     })
 }
 
-const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate) => {
+const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate, selectedJournalSystem) => {
   const body = new FormData()
   body.append('media', file)
   if (metadata) {
@@ -88,10 +88,7 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
       },
       export: [
         {
-          system_id: 'WEBDOC'
-        },
-        {
-          system_id: 'FILE_SHARE'
+          system_id: selectedJournalSystem
         }
       ]
     })], {
@@ -100,9 +97,10 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
 
     body.set('metadata', metadataPart)
   }
+
   return axios.post('/api/transcriptions/v1', body)
     .catch((error) => {
-      logout()
+      console.log(error)
     })
 }
 
