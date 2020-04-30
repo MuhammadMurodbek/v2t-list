@@ -71,7 +71,7 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
         tags: [selectedJob],
         language: 'sv',
         fields: {
-          department_id: 'KS_Heart',
+          department_id: 'Inovia',
           department_name: avdelning,
           examination_time: '2019-11-06T03:29:33.344Z',
           doctor_id: doktorsnamn,
