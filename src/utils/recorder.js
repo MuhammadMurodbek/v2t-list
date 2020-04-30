@@ -83,7 +83,11 @@ export function stop(addClip, timeStamp) {
 function exportWAV(type, timeStamp) {
   const buffers = []
   for (let channel = 0; channel < numChannels; channel++) {
-    buffers.push(mergeBuffers(recBuffers[channel], recLength, timeStamp))
+    if (timeStamp!==0)
+      buffers.push(mergeBuffers(recBuffers[channel], recLength, timeStamp))
+    else
+      buffers.push(mergeBuffers(recBuffers[channel], recLength))
+
   }
   let interleaved = undefined
   if (numChannels === 2) {
@@ -116,15 +120,16 @@ function initBuffers() {
 }
 
 function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffers.length/46.6)) {
-  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  //   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
   
-  // console.log('time stamp')
-  // console.log(timeStamp)
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  
+  console.log('time stamp')
+  console.log(timeStamp)
   // console.log('time stamp end')
   // console.log('Total audio length')
   // console.log(recLength)
