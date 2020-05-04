@@ -37,7 +37,9 @@ class App extends Component {
     isTokenFromUrl: false,
     token: null,
     isCollapsed: false,
-    job: null
+    job: null,
+    contentLength: 0,
+    pageIndex: 0
   }
 
   componentDidMount() {
@@ -48,6 +50,12 @@ class App extends Component {
     const { preferences } = this.state
     this.setState({
       preferences: preferences.clone().add(state)
+    })
+  }
+
+  setPageIndex = (pageIndex) => {
+    this.setState({
+      pageIndex
     })
   }
 
@@ -66,7 +74,7 @@ class App extends Component {
     )
   }
 
-  fetchTranscripts = () => {
+  fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20) => {
     const tokenFromStorage = localStorage.getItem('token')
     const tokenFromQuery = this.getQueryStringValue('token')
     let token
@@ -84,10 +92,10 @@ class App extends Component {
       this.setState({ isLoggedIn: true, token })
       api.setToken(token)
 
-      api.loadTickets(undefined, 0, 1000).then((tickets) => {
+      api.loadTickets(tag, pageIndex, pageSize).then((transcripts) => {
         // Check which one are audio and
         // which are video before loading all active jobs
-        this.setState({ transcripts: tickets })
+        this.setState({ transcripts })
       })
 
       api
@@ -96,6 +104,10 @@ class App extends Component {
           // Count number of active tags
           const { selectedItemName } = this.state
           const sideBar = []
+          const totalContentLength = activeTags.reduce((accumilator, currentTag) => {
+            return accumilator + currentTag.count
+          }, 0)
+          this.setState({ contentLength: totalContentLength})
           activeTags.forEach((tag) => {
             const temp = {
               id: tag.value,
@@ -103,10 +115,18 @@ class App extends Component {
               isSelected: selectedItemName === tag.value,
               onClick: () => {
                 this.selectItem(tag.value)
-                api.loadTickets(tag.value, 0, 200).then((tickets) => {
+                this.setState({
+                  transcripts: []
+                })
+                api.loadTickets(tag.value, 0, 20).then((transcripts) => {
                   // transcripts after job selection
                   // Check which one are audio and which are video
-                  this.setState({ transcripts: tickets, job: tag.value })
+                  this.setState({
+                    transcripts,
+                    job: tag.value,
+                    contentLength: tag.count,
+                    pageIndex: 0
+                  })
                 })
               },
               href: '/#/'
@@ -219,8 +239,11 @@ class App extends Component {
       isTokenFromUrl,
       token,
       isCollapsed,
-      job
+      job,
+      contentLength,
+      pageIndex
     } = this.state
+    const { fetchTranscripts, setPageIndex } = this
 
     return (
       <HashRouter>
@@ -342,7 +365,11 @@ class App extends Component {
                       {...{
                         ...props,
                         transcripts,
-                        job
+                        job,
+                        fetchTranscripts,
+                        contentLength,
+                        pageIndex,
+                        setPageIndex
                       }}
                     />
                   ) : (

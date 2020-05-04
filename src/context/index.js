@@ -1,2 +1,3 @@
 import { LanguageProvider, LanguageContext } from './LanguageContext'
-export { LanguageProvider, LanguageContext }
+import { MainProvider, MainContext } from './MainContext'
+export { LanguageProvider, LanguageContext, MainProvider, MainContext }

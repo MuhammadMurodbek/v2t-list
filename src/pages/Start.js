@@ -4,18 +4,23 @@ import Page from '../components/Page'
 import TranscriptionList from '../components/TranscriptionList'
 import { EuiI18n } from '@elastic/eui'
 
-const StartPage = ({ transcripts, job }) => (
-  <Page
-    preferences
-    title={<EuiI18n token="activityList" default="Activity list" />}
-  >
-    <TranscriptionList transcripts={transcripts} job={job} />
-  </Page>
+const StartPage = (props) => (
+  <EuiI18n token="activityList" default="Activity list">
+    {(activityListText) => (
+      <Page preferences title={activityListText}>
+        <TranscriptionList {...props} />
+      </Page>
+    )}
+  </EuiI18n>
 )
 
 StartPage.propTypes = {
   transcripts: PropTypes.array,
-  job: PropTypes.any
+  job: PropTypes.any,
+  fetchTranscripts: PropTypes.func,
+  setPageIndex: PropTypes.func,
+  contentLength: PropTypes.number,
+  pageIndex: PropTypes.number
 }
 
 StartPage.defaultProps = {
