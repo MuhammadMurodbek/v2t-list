@@ -101,7 +101,7 @@ export default class Tags extends Component {
     this.setState({
       selectedOption,
       options: []
-    })
+    }, this.addCode)
   }
 
   onSearchChange = async (searchValue) => {
@@ -151,7 +151,7 @@ export default class Tags extends Component {
               <div className="searchKoder" style={{ display: 'flex' }}>
                 <span
                   style={{
-                    width: 344,
+                    width: 400,
                     marginRight: 20,
                     marginBottom: 25
                   }}
@@ -166,9 +166,6 @@ export default class Tags extends Component {
                     onChange={this.onChange}
                     onSearchChange={this.onSearchChange}
                   />
-                </span>
-                <span style={{ marginTop: '4px' }}>
-                  <AddButton onClick={this.addCode} />
                 </span>
               </div>
             </>
@@ -241,15 +238,3 @@ export default class Tags extends Component {
     )
   }
 }
-
-const AddButton = (props) => (
-  <Fragment>
-    <EuiButtonIcon
-      iconSize="xl"
-      color="subdued"
-      onClick={props.onClick}
-      iconType="listAdd"
-      aria-label="Next"
-    />
-  </Fragment>
-)
