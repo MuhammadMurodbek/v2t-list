@@ -38,7 +38,7 @@ class App extends Component {
     token: null,
     isCollapsed: false,
     job: null,
-    contentLength: 0,
+    contentLength: -1,
     pageIndex: 0
   }
 
@@ -75,138 +75,143 @@ class App extends Component {
   }
 
   fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20) => {
-    const tokenFromStorage = localStorage.getItem('token')
-    const tokenFromQuery = this.getQueryStringValue('token')
-    let token
+    return new Promise((resolve, reject) => {
+      const tokenFromStorage = localStorage.getItem('token')
+      const tokenFromQuery = this.getQueryStringValue('token')
+      let token
 
-    if (tokenFromStorage) {
-      token = tokenFromStorage
-    }
+      if (tokenFromStorage) {
+        token = tokenFromStorage
+      }
 
-    if (tokenFromQuery) {
-      token = tokenFromQuery
-      this.setState({ isTokenFromUrl: true })
-    }
+      if (tokenFromQuery) {
+        token = tokenFromQuery
+        this.setState({ isTokenFromUrl: true })
+      }
 
-    if (token) {
-      this.setState({ isLoggedIn: true, token })
-      api.setToken(token)
+      if (token) {
+        this.setState({ isLoggedIn: true, token })
+        api.setToken(token)
 
-      api.loadTickets(tag, pageIndex, pageSize).then((transcripts) => {
-        // Check which one are audio and
-        // which are video before loading all active jobs
-        this.setState({ transcripts })
-      })
+        api.loadTickets(tag, pageIndex, pageSize).then((transcripts) => {
+          // Check which one are audio and
+          // which are video before loading all active jobs
+          this.setState({ transcripts })
+        })
 
-      api
-        .loadTags()
-        .then((activeTags) => {
-          // Count number of active tags
-          const { selectedItemName } = this.state
-          const sideBar = []
-          const totalContentLength = activeTags.reduce((accumilator, currentTag) => {
-            return accumilator + currentTag.count
-          }, 0)
-          this.setState({ contentLength: totalContentLength})
-          activeTags.forEach((tag) => {
-            const temp = {
-              id: tag.value,
-              name: `${tag.value} (${tag.count})`,
-              isSelected: selectedItemName === tag.value,
-              onClick: () => {
-                this.selectItem(tag.value)
-                this.setState({
-                  transcripts: []
-                })
-                api.loadTickets(tag.value, 0, 20).then((transcripts) => {
-                  // transcripts after job selection
-                  // Check which one are audio and which are video
+        api
+          .loadTags()
+          .then((activeTags) => {
+            // Count number of active tags
+            const { selectedItemName } = this.state
+            const sideBar = []
+            const totalContentLength = activeTags.reduce((accumilator, currentTag) => {
+              return accumilator + currentTag.count
+            }, 0)
+            if (this.state.contentLength == -1) 
+              this.setState({ contentLength: totalContentLength})
+            activeTags.forEach((tag) => {
+              const temp = {
+                id: tag.value,
+                name: `${tag.value} (${tag.count})`,
+                isSelected: selectedItemName === tag.value,
+                onClick: () => {
+                  this.selectItem(tag.value)
                   this.setState({
-                    transcripts,
-                    job: tag.value,
-                    contentLength: tag.count,
-                    pageIndex: 0
+                    transcripts: []
                   })
-                })
-              },
-              href: '/#/'
-            }
-            sideBar.push(temp)
-          })
+                  api.loadTickets(tag.value, 0, 20).then((transcripts) => {
+                    // transcripts after job selection
+                    // Check which one are audio and which are video
+                    this.setState({
+                      transcripts,
+                      job: tag.value,
+                      contentLength: tag.count,
+                      pageIndex: 0
+                    })
+                  })
+                },
+                href: '/#/'
+              }
+              sideBar.push(temp)
+            })
 
-          const parentSideBar = [
-            {
-              id: '',
-              isSelected: false,
-              items: [
-                {
-                  id: 'V2T Jobs',
-                  items: sideBar,
-                  isSelected: true,
-                  name: <EuiI18n token="v2TJob" default="V2T Job" />
-                },
-                {
-                  href: '/#/upload',
-                  id: 3,
-                  isSelected: selectedItemName === 'Upload',
-                  name: <EuiI18n token="upload" default="Upload" />,
-                  onClick: () => this.selectItem('Upload')
-                },
-                {
-                  href: '/#/training',
-                  id: 5,
-                  isSelected: selectedItemName === 'Training',
-                  name: <EuiI18n token="training" default="Training" />,
-                  onClick: () => this.selectItem('Training')
-                },
-                {
-                  id: 7,
-                  isSelected: selectedItemName === 'Co-worker',
-                  name: <EuiI18n token="coWorker" default="Co-Worker" />,
-                  onClick: () => {
-                    if (
-                      window.location.hostname.split('.')[0].includes('dev')
-                    ) {
-                      window
-                        .open(
-                          'https://v2t-dev-webdoc.inoviagroup.se/#/',
-                          '_blank'
-                        )
-                        .focus()
-                    } else if (
-                      window.location.hostname.split('.')[0].includes('stage')
-                    ) {
-                      window
-                        .open(
-                          'https://v2t-stage-webdoc.inoviagroup.se/#/',
-                          '_blank'
-                        )
-                        .focus()
+            const parentSideBar = [
+              {
+                id: '',
+                isSelected: false,
+                items: [
+                  {
+                    id: 'V2T Jobs',
+                    items: sideBar,
+                    isSelected: true,
+                    name: <EuiI18n token="v2TJob" default="V2T Job" />
+                  },
+                  {
+                    href: '/#/upload',
+                    id: 3,
+                    isSelected: selectedItemName === 'Upload',
+                    name: <EuiI18n token="upload" default="Upload" />,
+                    onClick: () => this.selectItem('Upload')
+                  },
+                  {
+                    href: '/#/training',
+                    id: 5,
+                    isSelected: selectedItemName === 'Training',
+                    name: <EuiI18n token="training" default="Training" />,
+                    onClick: () => this.selectItem('Training')
+                  },
+                  {
+                    id: 7,
+                    isSelected: selectedItemName === 'Co-worker',
+                    name: <EuiI18n token="coWorker" default="Co-Worker" />,
+                    onClick: () => {
+                      if (
+                        window.location.hostname.split('.')[0].includes('dev')
+                      ) {
+                        window
+                          .open(
+                            'https://v2t-dev-webdoc.inoviagroup.se/#/',
+                            '_blank'
+                          )
+                          .focus()
+                      } else if (
+                        window.location.hostname.split('.')[0].includes('stage')
+                      ) {
+                        window
+                          .open(
+                            'https://v2t-stage-webdoc.inoviagroup.se/#/',
+                            '_blank'
+                          )
+                          .focus()
+                      }
                     }
                   }
-                }
-                // , {
-                //   href: '/#/guided-live',
-                //   id: 8,
-                //   isSelected: selectedItemName === 'Live',
-                //   name: 'Live Flow',
-                //   onClick: () => {
-                //     this.selectItem('Live')
-                //     this.setState({
-                //       isCollapsed: true
-                //     })
-                //   }
-                // }
-              ],
-              name: ''
-            }
-          ]
-          this.setState({ sidenav: parentSideBar })
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    }
+                  // , {
+                  //   href: '/#/guided-live',
+                  //   id: 8,
+                  //   isSelected: selectedItemName === 'Live',
+                  //   name: 'Live Flow',
+                  //   onClick: () => {
+                  //     this.selectItem('Live')
+                  //     this.setState({
+                  //       isCollapsed: true
+                  //     })
+                  //   }
+                  // }
+                ],
+                name: ''
+              }
+            ]
+            this.setState({ sidenav: parentSideBar })
+            resolve()
+          })
+          .catch((error) => {
+            reject(error)
+            console.log(error)
+          })
+      }
+    })
   }
 
   loadHomescreen = () => {

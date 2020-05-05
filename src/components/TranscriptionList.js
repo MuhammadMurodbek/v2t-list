@@ -32,12 +32,12 @@ export default class TranscriptionList extends Component {
 
   onTableChange = async ({ page = {} }) => {
     const { index: pageIndex, size: pageSize } = page
-    const { fetchTranscripts, setPageIndex } = this.props 
+    const { fetchTranscripts, setPageIndex, job } = this.props 
     this.setState({
       loading: true
     })
 
-    await fetchTranscripts(undefined, pageIndex, pageSize)
+    await fetchTranscripts(job, pageIndex, pageSize)
 
     this.setState({
       pageSize, loading: false

@@ -45,7 +45,7 @@ const loadTickets = (tag, pageIndex, pageSize) => {
   if (tag) {
     tagParams = `&tags=${tag}`
   }
-  return axios.get(`/api/tickets/v1?pageStart=${pageIndex}&pageSize=${pageSize}${tagParams}`)
+  return axios.get(`/api/tickets/v1?pageStart=${pageIndex*pageSize}&pageSize=${pageSize}${tagParams}`)
     .then(response => response.data)
     .catch((error) => {
       logout()
