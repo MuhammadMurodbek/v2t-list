@@ -108,7 +108,7 @@ class App extends Component {
             const totalContentLength = activeTags.reduce((accumilator, currentTag) => {
               return accumilator + currentTag.count
             }, 0)
-            if (this.state.contentLength == -1) 
+            if (this.state.contentLength === -1) 
               this.setState({ contentLength: totalContentLength})
             activeTags.forEach((tag) => {
               const temp = {
