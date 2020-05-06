@@ -385,13 +385,11 @@ class App extends Component {
               <Route
                 path="/edit/:id"
                 render={(props) => {
-                  const transcript = transcripts.find(
-                    (currentTranscript) =>
-                      currentTranscript.external_id === props.match.params.id
+                  const { id } = props.match.params
+                  const preloadedTranscript = transcripts.find(
+                    currentTranscript => currentTranscript.id === id
                   )
-                  if (transcript)
-                    return <EditPage {...{ ...props, transcript, token }} />
-                  else return <Invalid />
+                  return <EditPage {...{ ...props, id, preloadedTranscript, token }} />
                 }}
               />
               <Route

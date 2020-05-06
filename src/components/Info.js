@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import {
   EuiFlexGroup,
@@ -13,49 +13,17 @@ import '../styles/tags.css'
 import { EuiI18n } from '@elastic/eui'
 
 const Info = ({ fields }) => {
-  const [patientId, setPatientId] = useState(fields.patient_id)
-  const [patientNamn, setPatientNamn] = useState(fields.patient_full_name)
-  const [propsNotLoaded, setPropsNotLoaded] = useState(true)
+  if (!fields.patient_full_name && !fields.patient_id) return null
 
-  useEffect(() => {
-    if (
-      propsNotLoaded &&
-      (fields.patient_id !== '' || fields.patient_full_name !== '')
-    ) {
-      setPatientId(fields.patient_id)
-      setPatientNamn(fields.patient_full_name)
-      setPropsNotLoaded(false)
-    }
-  })
-
-  const metaData = [
+  const items = [
     {
-      patientNamn,
-      patientId
-    }
-  ]
-
-  const COLUMNS = [
-    {
-      field: 'patientNamn',
-      name: <EuiI18n token="patientsName" default="Patient's name" />,
-      sortable: true,
-      width: '190px'
-    },
-    {
-      field: 'patientId',
-      name: (
-        <EuiI18n
-          token="patientsPersonalNumber"
-          default="Patient's personal number"
-        />
-      ),
-      width: '110px'
+      patientNamn: fields.patient_full_name || '',
+      patientId: fields.patient_id || ''
     }
   ]
 
   return (
-    <EuiForm style={{ display: patientId === '' ? 'none' : 'block' }}>
+    <EuiForm style={{ display: fields.patient_id === '' ? 'none' : 'block' }}>
       <div className="euiText euiText--small">
         <div>
           <EuiText size="xs">
@@ -70,7 +38,7 @@ const Info = ({ fields }) => {
         <EuiFlexItem grow={false} style={{ width: 380 }}>
           <EuiBasicTable
             className="transcript"
-            items={metaData}
+            items={items}
             columns={COLUMNS}
             hasActions
           />
@@ -90,5 +58,24 @@ Info.defaultProps = {
     patient_full_name: ''
   }
 }
+
+const COLUMNS = [
+  {
+    field: 'patientNamn',
+    name: <EuiI18n token="patientsName" default="Patient's name" />,
+    sortable: true,
+    width: '190px'
+  },
+  {
+    field: 'patientId',
+    name: (
+      <EuiI18n
+        token="patientsPersonalNumber"
+        default="Patient's personal number"
+      />
+    ),
+    width: '110px'
+  }
+]
 
 export default Info

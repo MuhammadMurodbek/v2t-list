@@ -14,6 +14,7 @@ import {
   EuiI18n
 } from '@elastic/eui'
 import swal from 'sweetalert'
+import Invalid from './Invalid'
 import api from '../api'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
@@ -27,11 +28,14 @@ import Sidenote from '../components/Sidenote'
 import processChaptersRegular from '../models/processChaptersRegular'
 // import processChapters from '../models/processChapters'
 
+const EMPTY_TRANSCRIPTIONS = [{keyword: '', segments: []}]
+
 export default class EditPage extends Component {
   static contextType = PreferenceContext
 
   static defaultProps = {
-    transcript: null
+    id: -1,
+    preloadedTranscript: null
   }
 
   state = {
@@ -41,158 +45,82 @@ export default class EditPage extends Component {
     queryTerm: '',
     tags: [],
     chapters: [],
-    fields: {
-      patient_id: '',
-      patient_full_name: ''
-    },
+    fields: {},
     isMediaAudio: true,
     originalTags: [],
-    templates: {
-      templates: []
-    },
+    templates: [],
     templateId: '',
-    originalTemplate: '',
-    // defaultTemplate: '',
+    originalTemplateId: '',
     sectionHeaders: [],
     initialCursor: 0
   }
 
   componentDidMount() {
     document.title = 'Inovia AI :: V2t Editor 🎤'
-    const { transcript } = this.props
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
     this.tagsRef = React.createRef()
-    if (transcript) {
-      this.loadSegments()
-    }
+    this.initiate()
   }
 
   componentDidUpdate(prevProps) {
-    const { transcript } = this.props
-    const prevId = prevProps.transcript && prevProps.transcript.external_id
-    if (transcript && transcript.external_id !== prevId) {
-      this.loadSegments()
+    const { id } = this.props
+    if (id !== prevProps.id) {
+      this.initiate()
     }
   }
 
-  loadSegments = async () => {
-    const { transcript } = this.props
-    localStorage.setItem('transcriptId', transcript.id)
-    // const [preferences] = this.context
-    // const { words } = preferences
-    const response = await api.loadTranscription(transcript.external_id)
-    let capitalizedTranscript
-    // Capitalize the first char of each segment
-    if (response.data) {
-      if (response.data.transcriptions) {
-        capitalizedTranscript = response.data.transcriptions.map((chapter) => {
-          return {
-            ...chapter,
-            segments: chapter.segments
-              ? chapter.segments.map((segment, i) => {
-                if (i === 0) {
-                  return {
-                    ...segment,
-                    words:
-                      segment.words.charAt(0).toUpperCase() +
-                      segment.words.slice(1)
-                  }
-                } else {
-                  return { ...segment }
-                }
-              })
-              : []
-          }
-        })
-      }
-    }
+  initiate = async () => {
+    const { id, defaultTranscript } = this.props
+    if (defaultTranscript)
+      await this.onNewTranscript(defaultTranscript)
+    const [ { data: templates }, { data: transcript } ] = await Promise.all([
+      api.getSectionTemplates().catch(this.onError),
+      api.loadTranscription(id).catch(this.onError)
+    ])
+    this.onNewTranscript(transcript, templates.templates)
+  }
 
-    const templates = await api.getSectionTemplates()
-    const originalChapters = this.parseTranscriptions(capitalizedTranscript)
-    const { tags, fields, media_content_type, template_id } = response.data
-    if (tags) {
-      const processedTags = tags.map((tag) => {
-        return {
-          id: tag.id.toUpperCase(),
-          description: tag.description
-        }
-      })
-      this.setState({
-        originalChapters,
-        tags: processedTags,
-        originalTags: processedTags
-      })
-    } else {
-      this.setState({
-        originalChapters,
-        tags: []
-      })
-    }
-
-    if (fields) {
-      this.setState({ fields })
-    } else {
-      this.setState({
-        fields: {
-          patient_id: '',
-          patient_full_name: ''
-        }
-      })
-    }
-
-    if (media_content_type) {
-      if (media_content_type.match(/^video/) !== null) {
-        this.setState({ isMediaAudio: false })
-      }
-    }
-
-    if (templates) {
-      const { data } = templates
-      this.setState(
-        {
-          templates: data,
-          defaultTemplate: template_id,
-          templateId: template_id,
-          originalTemplate: template_id
-        },
-        () => {
-          const { templates } = this.state
-          const { defaultTemplate } = this.state
-          const template = templates.templates.find(
-            (template) => template.id === defaultTemplate
-          )
-          const sections = template ? template.sections : []
-          const sectionHeaders = sections.map((section) => section.name)
-          this.setState({ sectionHeaders })
-        }
-      )
-    }
+  onNewTranscript = (transcript, templates) => {
+    localStorage.setItem('transcriptId', this.props.id)
+    const { tags, fields, media_content_type, template_id, transcriptions } = transcript
+    const originalTags = (tags || []).map(tag => ({ ...tag, id: tag.id.toUpperCase() }))
+    const template = templates.find(template => template.id === template_id) || {}
+    this.setState({
+      originalTemplateId: template_id,
+      originalChapters: this.parseTranscriptions(transcriptions),
+      originalTags,
+      tags: originalTags,
+      fields: fields || {},
+      isMediaAudio: (media_content_type || '').match(/^video/) === null,
+      templates,
+      templateId: template_id,
+      sectionHeaders: (template.sections || []).map(({name}) => name)
+    })
   }
 
   parseTranscriptions = (transcriptions) => {
-    if (transcriptions) {
-      return transcriptions.map((transcript) => {
-        const keyword = transcript.keyword.length
-          ? transcript.keyword
-          : 'Kontaktorsak'
-        const segments = transcript.segments.map((chunk, i) => {
-          const isLast = i >= transcript.segments.length - 1
-          const noSpaceSuffix = isLast || /^\s*$/.test(chunk.words)
-          const words = noSpaceSuffix ? chunk.words : `${chunk.words} `
-          return {
-            ...chunk,
-            words: words.replace(/ +$/, ' ')
-          }
-        })
+    if (!transcriptions) return EMPTY_TRANSCRIPTIONS
+    return transcriptions.map((transcript) => {
+      const keyword = transcript.keyword.length
+        ? transcript.keyword : 'Kontaktorsak'
+      const segments = transcript.segments.map((chunk, i) => {
+        const sentenceCase = i > 0 ? chunk.words
+          : `${chunk.words.charAt(0).toUpperCase()}${chunk.words.slice(1)}`
+        const isLast = i >= transcript.segments.length - 1
+        const noSpaceSuffix = isLast || /^\s*$/.test(sentenceCase)
+        const words = noSpaceSuffix ? sentenceCase : `${sentenceCase} `
         return {
-          ...transcript,
-          keyword,
-          segments
+          ...chunk,
+          words: words.replace(/ +$/, ' ')
         }
       })
-    }
-    return []
+      return {
+        ...transcript,
+        keyword,
+        segments
+      }
+    })
   }
 
   onTimeUpdate = (currentTime) => {
@@ -222,13 +150,13 @@ export default class EditPage extends Component {
       originalTags,
       fields,
       templateId,
-      originalTemplate
+      originalTemplateId
     } = this.state
     if (fields.patient_id) {
       if (
         JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
         JSON.stringify(tags) === JSON.stringify(originalTags) &&
-        originalTemplate === templateId
+        originalTemplateId === templateId
       ) {
         this.sendToCoworker()
       } else {
@@ -245,9 +173,9 @@ export default class EditPage extends Component {
   }
 
   sendToCoworker = async () => {
-    const { transcript } = this.props
+    const { id } = this.props
     const sendingToCoworker = await api
-      .approveTranscription(transcript.external_id)
+      .approveTranscription(id)
       .catch(this.trowAsyncError)
     if (sendingToCoworker) {
       window.location = '/'
@@ -262,18 +190,13 @@ export default class EditPage extends Component {
     }
   }
 
-  throwAsyncError = (e) => {
-    alert(e)
-    throw new Error(e)
-  }
-
   areSectionHeadersBelongToTheTemplate = () => {
     // get the list of templates
     const { templates, templateId, chapters } = this.state
     // const templateNames = templates.templates.map(template=>template.id)
     // get the current template
     // get the list of valid headers
-    const sectionHeadersForSelectedTemplate = templates.templates
+    const sectionHeadersForSelectedTemplate = templates
       .filter((template) => template.id === templateId)
       .map((template) => template.sections)[0]
       .map((section) => section.name)
@@ -327,19 +250,19 @@ export default class EditPage extends Component {
   }
 
   save = async (shouldBeSentToCoworker = false) => {
-    const { transcript } = this.props
+    const { id } = this.props
     const {
       originalChapters,
       chapters,
       tags,
       originalTags,
       templateId,
-      originalTemplate
+      originalTemplateId
     } = this.state
     if (
       JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
       JSON.stringify(tags) === JSON.stringify(originalTags) &&
-      originalTemplate === templateId
+      originalTemplateId === templateId
     ) {
       swal({
         title: 'Det finns inget att uppdatera!',
@@ -390,7 +313,7 @@ export default class EditPage extends Component {
 
     try {
       await api.updateTranscription(
-        transcript.external_id,
+        id,
         tags,
         chapters,
         templateId
@@ -426,7 +349,7 @@ export default class EditPage extends Component {
 
   updateTemplateId = (templateId) => {
     const { chapters, templates } = this.state
-    const template = templates.templates.find(template => template.id === templateId)
+    const template = templates.find(template => template.id === templateId)
     const availableSectionHeaders = this.getAvailableSectionHeaders(template)
     const sectionHeaders = (template.sections || []).map(({name}) => name)
     const updatedChapters = processChaptersRegular(chapters, availableSectionHeaders)
@@ -456,8 +379,12 @@ export default class EditPage extends Component {
 
   updateSidenote = () => {}
 
+  onError = (error) => {
+    this.setState({error})
+  }
+
   render() {
-    const { transcript, token } = this.props
+    const { id, token } = this.props
     const {
       currentTime,
       cursorTime,
@@ -472,15 +399,16 @@ export default class EditPage extends Component {
       // defaultTemplate,
       sectionHeaders,
       initialCursor,
-      sidenoteContent
+      sidenoteContent,
+      error
     } = this.state
-    if (!transcript) return null
+    if (error) return <Invalid />
     return (
       <Page preferences title={<EuiI18n token="editor" default="Editor" />}>
         <div>
           <Player
             audioTranscript={originalChapters}
-            trackId={transcript.external_id}
+            trackId={id}
             cursorTime={cursorTime}
             getCurrentTime={this.getCurrentTime}
             updateSeek={this.onTimeUpdate}
@@ -502,7 +430,6 @@ export default class EditPage extends Component {
           <EuiFlexGroup wrap gutterSize="xl">
             <EuiFlexItem>
               <Editor
-                transcript={transcript}
                 originalChapters={originalChapters}
                 chapters={chapters}
                 currentTime={currentTime}
@@ -521,7 +448,7 @@ export default class EditPage extends Component {
               <Tags tags={tags} updateTags={this.onUpdateTags} />
               <EuiSpacer size="xxl" />
               <Templates
-                listOfTemplates={templates.templates}
+                listOfTemplates={templates}
                 defaultTemplateId={templateId}
                 updateTemplateId={this.updateTemplateId}
               />

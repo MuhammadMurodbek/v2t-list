@@ -21,7 +21,6 @@ export default class Editor extends Component {
 
   static defaultProps = {
     diffInstance: new Diff(),
-    transcript: null,
     originalChapters: null,
     chapters: null,
     currentTime: 0,
@@ -59,11 +58,11 @@ export default class Editor extends Component {
       this.setCursor(initialCursor, true)
     else
       this.updateCursor()
-    
+
     if (this.areChaptersEqual(prevProps.originalChapters, originalChapters) === false) {
       this.initChapters()
     }
-    
+
     // if (prevProps.originalChapters !== originalChapters)
     //   this.initChapters()
 
@@ -79,6 +78,7 @@ export default class Editor extends Component {
         return { ...chapter, segments }
       })
       updateTranscript(chapters)
+        .then(this.refreshDiff)
     }
   }
 
