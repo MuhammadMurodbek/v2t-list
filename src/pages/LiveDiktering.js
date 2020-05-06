@@ -6,8 +6,7 @@ import {
   EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiButton,
-  EuiI18n
+  EuiButton
 } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
@@ -27,9 +26,7 @@ export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', {
-    transports: ['websocket']
-  })
+  socketio = io.connect('wss://ilxgpu9002.inoviaai.se/audio', { transports: ['websocket'] })
   state = {
     alreadyRecorded: false,
     recording: false,
@@ -262,12 +259,8 @@ export default class LiveDiktering extends Component {
     audioInput.connect(inputPoint)
 
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
-    const scriptNode = (createScriptProcessor || createJavaScriptNode).call(
-      this.audioContext,
-      1024,
-      1,
-      1
-    )
+    const scriptNode = (createScriptProcessor || createJavaScriptNode)
+      .call(this.audioContext, 1024, 1, 1)
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
       const { seconds } = prevState.state
@@ -285,7 +278,7 @@ export default class LiveDiktering extends Component {
         var output = new DataView(buffer)
         for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
-          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
+          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
         }
         prevState.socketio.emit('write-audio', buffer)
       }
@@ -320,15 +313,15 @@ export default class LiveDiktering extends Component {
         const finalChapters = prevState.joinRecordedChapters(recordedChapters, restructuredChapter, 2, prevState.state.chapterId, prevState.state.segmentId)
         // console.log(finalChapters)
         // prevState.setState({chapters: restructuredChapter}, ()=> {
-        
-        prevState.setState({ chapters: finalChapters }, ()=> {
+
+        prevState.setState({ chapters: finalChapters }, () => {
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
           console.log(recordedChapters)
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
         })
-        
+
       })
     })
   }
@@ -357,9 +350,10 @@ export default class LiveDiktering extends Component {
         // Some browsers just don't implement it - return a rejected promise with an error
         // to keep a consistent interface
         if (!getUserMedia) {
-          return Promise.reject(
-            new Error('getUserMedia is not implemented in this browser')
-          )
+          return Promise
+            .reject(
+              new Error('getUserMedia is not implemented in this browser')
+            )
         }
 
         // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
@@ -387,7 +381,7 @@ export default class LiveDiktering extends Component {
   }
 
   toggleRecord = () => {
-    const { cursorTime , originalText, currentText } = this.state
+    const { cursorTime, originalText, currentText } = this.state
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { recording } = this.state
     if (recording === true) {
@@ -408,7 +402,7 @@ export default class LiveDiktering extends Component {
       console.log('cursorTime end beforerecording ')
       recorder.stop(this.addClipHandler, cursorTime)
       // this.saveRecordedTranscript()
-      this.setState({ 
+      this.setState({
         // recordedChapters: this.state.chapters, 
         // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters), 
         alreadyRecorded: true,
@@ -443,7 +437,7 @@ export default class LiveDiktering extends Component {
 
   saveRecordedTranscript = () => {
     // console.log('Start saving procedure')
-    
+
     const { recordedChapters, chapters } = this.state
     // const updatedRecordedChapters = this.joinRecordedChapters(recordedChapters, chapters)
     // console.log('updated recorded chapters')
@@ -467,7 +461,7 @@ export default class LiveDiktering extends Component {
       recordedAudioClip,
       recording
     } = this.state
-    const usedSections = chapters.map((chapter) => chapter.keyword)
+    const usedSections = chapters.map(chapter => chapter.keyword)
     return (
       <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup >
@@ -495,8 +489,8 @@ export default class LiveDiktering extends Component {
 
             <EuiFlexGroup justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
-                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => {}}>
-                  <EuiI18n token="cancel" default="Cancel" />
+                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => { }}>
+                  Avbryt
                 </EuiButtonEmpty>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -506,9 +500,8 @@ export default class LiveDiktering extends Component {
                     border: 'solid 1px black',
                     borderRadius: '25px'
                   }}
-                  onClick={() => {}}
-                >
-                  <EuiI18n token="saveChanges" default="Save changes" />
+                  onClick={() => { }}>
+                  Spara ändringar
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -518,12 +511,8 @@ export default class LiveDiktering extends Component {
                     borderRadius: '25px',
                     color: 'black'
                   }}
-                  onClick={() => {}}
-                >
-                  <EuiI18n
-                    token="submitForReview"
-                    default="Submit for review"
-                  />
+                  onClick={() => { }}>
+                  “Skicka för granskning”
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -533,9 +522,8 @@ export default class LiveDiktering extends Component {
                     color: 'white',
                     borderRadius: '25px'
                   }}
-                  onClick={() => {}}
-                >
-                  <EuiI18n token="sendToWebdoc" default="Send to Webdoc" />
+                  onClick={() => { }}>
+                  Skicka till Webdoc
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -557,15 +545,16 @@ export default class LiveDiktering extends Component {
                 seconds={seconds}
               />
               <EuiButtonEmpty
-              onClick={this.saveRecordedTranscript}
+                onClick={this.saveRecordedTranscript}
               > Append already recorded transcript</EuiButtonEmpty>
             </div>
-            <div
-              style={{
-                marginTop: '-80px'
-              }}
-            >
-              <Tags tags={tags} updateTags={this.onUpdateTags} />
+            <div style={{
+              marginTop: '-80px'
+            }}>
+              <Tags
+                tags={tags}
+                updateTags={this.onUpdateTags}
+              />
               <EuiSpacer size="l" />
               <LiveTemplateEngine
                 listOfTemplates={listOfTemplates}
