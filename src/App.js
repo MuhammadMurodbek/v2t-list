@@ -17,14 +17,12 @@ import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
-// import AnalyticsPage from './pages/Analytics'
 import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
 import LiveDikteringEnglishPage from './pages/LiveDikteringEnglish'
 import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
-import Visualization from './pages/Visualization'
 import Preference from './models/Preference'
 import './App.css'
 import api from './api'
@@ -40,7 +38,9 @@ class App extends Component {
     isTokenFromUrl: false,
     token: null,
     isCollapsed: false,
-    job: null
+    job: null,
+    contentLength: -1,
+    pageIndex: 0
   }
 
   componentDidMount() {
@@ -51,6 +51,12 @@ class App extends Component {
     const { preferences } = this.state
     this.setState({
       preferences: preferences.clone().add(state)
+    })
+  }
+
+  setPageIndex = (pageIndex) => {
+    this.setState({
+      pageIndex
     })
   }
 
@@ -69,171 +75,144 @@ class App extends Component {
     )
   }
 
-  fetchTranscripts = () => {
-    const tokenFromStorage = localStorage.getItem('token')
-    const tokenFromQuery = this.getQueryStringValue('token')
-    let token
+  fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20) => {
+    return new Promise((resolve, reject) => {
+      const tokenFromStorage = localStorage.getItem('token')
+      const tokenFromQuery = this.getQueryStringValue('token')
+      let token
 
-    if (tokenFromStorage) {
-      token = tokenFromStorage
-    }
+      if (tokenFromStorage) {
+        token = tokenFromStorage
+      }
 
-    if (tokenFromQuery) {
-      token = tokenFromQuery
-      this.setState({ isTokenFromUrl: true })
-    }
+      if (tokenFromQuery) {
+        token = tokenFromQuery
+        this.setState({ isTokenFromUrl: true })
+      }
 
-    if (token) {
-      this.setState({ isLoggedIn: true, token })
-      api.setToken(token)
+      if (token) {
+        this.setState({ isLoggedIn: true, token })
+        api.setToken(token)
 
-      api.loadTickets(undefined, 0, 200).then((tickets) => {
-        // Check which one are audio and
-        // which are video before loading all active jobs
-        this.setState({ transcripts: tickets })
-      })
+        api.loadTickets(tag, pageIndex, pageSize).then((transcripts) => {
+          // Check which one are audio and
+          // which are video before loading all active jobs
+          this.setState({ transcripts })
+        })
 
-      api
-        .loadTags()
-        .then((activeTags) => {
-          // Count number of active tags
-          const { selectedItemName } = this.state
-          const sideBar = []
-          activeTags.forEach((tag) => {
-            const temp = {
-              id: tag.value,
-              name: `${tag.value} (${tag.count})`,
-              isSelected: selectedItemName === tag.value,
-              onClick: () => {
-                this.selectItem(tag.value)
-                api.loadTickets(tag.value, 0, 200).then((tickets) => {
-                  // transcripts after job selection
-                  // Check which one are audio and which are video
-                  this.setState({ transcripts: tickets, job: tag.value })
-                })
-              },
-              href: '/#/'
-            }
-            sideBar.push(temp)
-          })
-
-          const parentSideBar = [
-            {
-              id: '',
-              isSelected: false,
-              items: [
-                {
-                  id: 'V2T Jobs',
-                  items: sideBar,
-                  isSelected: true,
-                  name: <EuiI18n token="v2TJob" default="V2T Job" />
-                },
-                {
-                  href: '/#/livediktering',
-                  id: 3,
-                  isSelected: selectedItemName === 'Live',
-                  name: 'Live Diktering',
-                  onClick: () => {
-                    this.selectItem('Live')
+        api
+          .loadTags()
+          .then((activeTags) => {
+            // Count number of active tags
+            const { selectedItemName } = this.state
+            const sideBar = []
+            const totalContentLength = activeTags.reduce((accumilator, currentTag) => {
+              return accumilator + currentTag.count
+            }, 0)
+            if (this.state.contentLength === -1) 
+              this.setState({ contentLength: totalContentLength})
+            activeTags.forEach((tag) => {
+              const temp = {
+                id: tag.value,
+                name: `${tag.value} (${tag.count})`,
+                isSelected: selectedItemName === tag.value,
+                onClick: () => {
+                  this.selectItem(tag.value)
+                  this.setState({
+                    transcripts: []
+                  })
+                  api.loadTickets(tag.value, 0, 20).then((transcripts) => {
+                    // transcripts after job selection
+                    // Check which one are audio and which are video
                     this.setState({
-                      isCollapsed: true
+                      transcripts,
+                      job: tag.value,
+                      contentLength: tag.count,
+                      pageIndex: 0
                     })
-                  }
+                  })
                 },
-                {
-                  href: '/#/upload',
-                  id: 4,
-                  isSelected: selectedItemName === 'Upload',
-                  name: <EuiI18n token="upload" default="Upload" />,
-                  onClick: () => this.selectItem('Upload')
-                },
-                {
-                  id: 5,
-                  isSelected: selectedItemName === 'Analytics',
-                  name: <EuiI18n token="analytics" default="Analytics" />,
-                  onClick: () => {
-                    if (
-                      window.location.hostname.split('.')[0].includes('dev')
-                    ) {
-                      window
-                        .open('https://v2t-dev-kibana.inoviagroup.se', '_blank')
-                        .focus()
-                    } else if (
-                      window.location.hostname.split('.')[0].includes('stage')
-                    ) {
-                      window
-                        .open(
-                          'https://v2t-stage-kibana.inoviagroup.se',
-                          '_blank'
-                        )
-                        .focus()
+                href: '/#/'
+              }
+              sideBar.push(temp)
+            })
+
+            const parentSideBar = [
+              {
+                id: '',
+                isSelected: false,
+                items: [
+                  {
+                    id: 'V2T Jobs',
+                    items: sideBar,
+                    isSelected: true,
+                    name: <EuiI18n token="v2TJob" default="V2T Job" />
+                  },
+                  {
+                    href: '/#/upload',
+                    id: 3,
+                    isSelected: selectedItemName === 'Upload',
+                    name: <EuiI18n token="upload" default="Upload" />,
+                    onClick: () => this.selectItem('Upload')
+                  },
+                  {
+                    href: '/#/training',
+                    id: 5,
+                    isSelected: selectedItemName === 'Training',
+                    name: <EuiI18n token="training" default="Training" />,
+                    onClick: () => this.selectItem('Training')
+                  },
+                  {
+                    id: 7,
+                    isSelected: selectedItemName === 'Co-worker',
+                    name: <EuiI18n token="coWorker" default="Co-Worker" />,
+                    onClick: () => {
+                      if (
+                        window.location.hostname.split('.')[0].includes('dev')
+                      ) {
+                        window
+                          .open(
+                            'https://v2t-dev-webdoc.inoviagroup.se/#/',
+                            '_blank'
+                          )
+                          .focus()
+                      } else if (
+                        window.location.hostname.split('.')[0].includes('stage')
+                      ) {
+                        window
+                          .open(
+                            'https://v2t-stage-webdoc.inoviagroup.se/#/',
+                            '_blank'
+                          )
+                          .focus()
+                      }
                     }
                   }
-                },
-                {
-                  href: '/#/training',
-                  id: 6,
-                  isSelected: selectedItemName === 'Training',
-                  name: <EuiI18n token="training" default="Training" />,
-                  onClick: () => this.selectItem('Training')
-                },
-                {
-                  href: '/#/visualization',
-                  id: 7,
-                  isSelected: selectedItemName === 'Visualization',
-                  name: (
-                    <EuiI18n token="visualization" default="Visualization" />
-                  ),
-                  onClick: () => this.selectItem('Visualization')
-                },
-                {
-                  id: 8,
-                  isSelected: selectedItemName === 'Co-worker',
-                  name: <EuiI18n token="coWorker" default="Co-Worker" />,
-                  onClick: () => {
-                    if (
-                      window.location.hostname.split('.')[0].includes('dev')
-                    ) {
-                      window
-                        .open(
-                          'https://v2t-dev-webdoc.inoviagroup.se/#/',
-                          '_blank'
-                        )
-                        .focus()
-                    } else if (
-                      window.location.hostname.split('.')[0].includes('stage')
-                    ) {
-                      window
-                        .open(
-                          'https://v2t-stage-webdoc.inoviagroup.se/#/',
-                          '_blank'
-                        )
-                        .focus()
-                    }
-                  }
-                }
-                // , {
-                //   href: '/#/guided-live',
-                //   id: 8,
-                //   isSelected: selectedItemName === 'Live',
-                //   name: 'Live Flow',
-                //   onClick: () => {
-                //     this.selectItem('Live')
-                //     this.setState({
-                //       isCollapsed: true
-                //     })
-                //   }
-                // }
-              ],
-              name: ''
-            }
-          ]
-          this.setState({ sidenav: parentSideBar })
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    }
+                  // , {
+                  //   href: '/#/guided-live',
+                  //   id: 8,
+                  //   isSelected: selectedItemName === 'Live',
+                  //   name: 'Live Flow',
+                  //   onClick: () => {
+                  //     this.selectItem('Live')
+                  //     this.setState({
+                  //       isCollapsed: true
+                  //     })
+                  //   }
+                  // }
+                ],
+                name: ''
+              }
+            ]
+            this.setState({ sidenav: parentSideBar })
+            resolve()
+          })
+          .catch((error) => {
+            reject(error)
+            console.log(error)
+          })
+      }
+    })
   }
 
   loadHomescreen = () => {
@@ -266,8 +245,11 @@ class App extends Component {
       isTokenFromUrl,
       token,
       isCollapsed,
-      job
+      job,
+      contentLength,
+      pageIndex
     } = this.state
+    const { fetchTranscripts, setPageIndex } = this
 
     return (
       <HashRouter>
@@ -398,7 +380,11 @@ class App extends Component {
                       {...{
                         ...props,
                         transcripts,
-                        job
+                        job,
+                        fetchTranscripts,
+                        contentLength,
+                        pageIndex,
+                        setPageIndex
                       }}
                     />
                   ) : (
@@ -441,10 +427,6 @@ class App extends Component {
                 render={() =>
                   isLoggedIn ? <LiveDikteringEnglishPage /> : <LoginPage />
                 }
-              />
-              <Route
-                path="/visualization/"
-                render={() => (isLoggedIn ? <Visualization /> : <LoginPage />)}
               />
               <Route
                 path="/login"

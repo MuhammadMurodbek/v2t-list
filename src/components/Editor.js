@@ -59,11 +59,11 @@ export default class Editor extends Component {
       this.setCursor(initialCursor, true)
     else
       this.updateCursor()
-
+    
     if (this.areChaptersEqual(prevProps.originalChapters, originalChapters) === false) {
       this.initChapters()
     }
-
+    
     // if (prevProps.originalChapters !== originalChapters)
     //   this.initChapters()
 
@@ -332,7 +332,7 @@ export default class Editor extends Component {
   reduceSegment = (store, segment) => {
     const lastSegment = store[store.length - 1]
     if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
-      store[store.length - 1] = {
+      store[store.length -1] = {
         ...lastSegment,
         endTime: segment.endTime,
         words: `${lastSegment.words}${segment.words}`
@@ -469,7 +469,7 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, 
   return (
     <pre>
       <code
-        style={{ minHeight: '20px' }}
+        style={{minHeight: '20px'}}
         key={JSON.stringify(segments)}
         onInput={e => onChange(e, chapterId)}
         onPaste={e => onPaste(e, chapterId)}

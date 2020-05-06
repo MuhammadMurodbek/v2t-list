@@ -6,7 +6,8 @@ import {
   EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiButton
+  EuiButton,
+  EuiI18n
 } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
@@ -26,7 +27,9 @@ export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  socketio = io.connect('wss://ilxgpu9002.inoviaai.se/audio', { transports: ['websocket'] })
+  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', {
+    transports: ['websocket']
+  })
   state = {
     alreadyRecorded: false,
     recording: false,
@@ -259,8 +262,12 @@ export default class LiveDiktering extends Component {
     audioInput.connect(inputPoint)
 
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
-    const scriptNode = (createScriptProcessor || createJavaScriptNode)
-      .call(this.audioContext, 1024, 1, 1)
+    const scriptNode = (createScriptProcessor || createJavaScriptNode).call(
+      this.audioContext,
+      1024,
+      1,
+      1
+    )
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
       const { seconds } = prevState.state
@@ -278,7 +285,7 @@ export default class LiveDiktering extends Component {
         var output = new DataView(buffer)
         for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
-          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
+          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
         }
         prevState.socketio.emit('write-audio', buffer)
       }
@@ -350,10 +357,9 @@ export default class LiveDiktering extends Component {
         // Some browsers just don't implement it - return a rejected promise with an error
         // to keep a consistent interface
         if (!getUserMedia) {
-          return Promise
-            .reject(
-              new Error('getUserMedia is not implemented in this browser')
-            )
+          return Promise.reject(
+            new Error('getUserMedia is not implemented in this browser')
+          )
         }
 
         // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
@@ -461,7 +467,7 @@ export default class LiveDiktering extends Component {
       recordedAudioClip,
       recording
     } = this.state
-    const usedSections = chapters.map(chapter => chapter.keyword)
+    const usedSections = chapters.map((chapter) => chapter.keyword)
     return (
       <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup >
@@ -489,8 +495,8 @@ export default class LiveDiktering extends Component {
 
             <EuiFlexGroup justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
-                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => { }}>
-                  Avbryt
+                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => {}}>
+                  <EuiI18n token="cancel" default="Cancel" />
                 </EuiButtonEmpty>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -500,8 +506,9 @@ export default class LiveDiktering extends Component {
                     border: 'solid 1px black',
                     borderRadius: '25px'
                   }}
-                  onClick={() => { }}>
-                  Spara ändringar
+                  onClick={() => {}}
+                >
+                  <EuiI18n token="saveChanges" default="Save changes" />
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -511,8 +518,12 @@ export default class LiveDiktering extends Component {
                     borderRadius: '25px',
                     color: 'black'
                   }}
-                  onClick={() => { }}>
-                  “Skicka för granskning”
+                  onClick={() => {}}
+                >
+                  <EuiI18n
+                    token="submitForReview"
+                    default="Submit for review"
+                  />
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -522,8 +533,9 @@ export default class LiveDiktering extends Component {
                     color: 'white',
                     borderRadius: '25px'
                   }}
-                  onClick={() => { }}>
-                  Skicka till Webdoc
+                  onClick={() => {}}
+                >
+                  <EuiI18n token="sendToWebdoc" default="Send to Webdoc" />
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -548,13 +560,12 @@ export default class LiveDiktering extends Component {
               onClick={this.saveRecordedTranscript}
               > Append already recorded transcript</EuiButtonEmpty>
             </div>
-            <div style={{
-              marginTop: '-80px'
-            }}>
-              <Tags
-                tags={tags}
-                updateTags={this.onUpdateTags}
-              />
+            <div
+              style={{
+                marginTop: '-80px'
+              }}
+            >
+              <Tags tags={tags} updateTags={this.onUpdateTags} />
               <EuiSpacer size="l" />
               <LiveTemplateEngine
                 listOfTemplates={listOfTemplates}

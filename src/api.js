@@ -45,7 +45,7 @@ const loadTickets = (tag, pageIndex, pageSize) => {
   if (tag) {
     tagParams = `&tags=${tag}`
   }
-  return axios.get(`/api/tickets/v1?pageStart=${pageIndex}&pageSize=${pageSize}${tagParams}`)
+  return axios.get(`/api/tickets/v1?pageStart=${pageIndex*pageSize}&pageSize=${pageSize}${tagParams}`)
     .then(response => response.data)
     .catch((error) => {
       logout()
@@ -61,7 +61,7 @@ const keywordsSearch = (searchTerm) => {
     })
 }
 
-const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate) => {
+const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate, selectedJournalSystem) => {
   const body = new FormData()
   body.append('media', file)
   if (metadata) {
@@ -71,7 +71,7 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
         tags: [selectedJob],
         language: 'sv',
         fields: {
-          department_id: 'KS_Heart',
+          department_id: 'Inovia',
           department_name: avdelning,
           examination_time: '2019-11-06T03:29:33.344Z',
           doctor_id: doktorsnamn,
@@ -88,10 +88,7 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
       },
       export: [
         {
-          system_id: 'WEBDOC'
-        },
-        {
-          system_id: 'FILE_SHARE'
+          system_id: selectedJournalSystem
         }
       ]
     })], {
@@ -100,9 +97,10 @@ const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, d
 
     body.set('metadata', metadataPart)
   }
+
   return axios.post('/api/transcriptions/v1', body)
     .catch((error) => {
-      logout()
+      console.log(error)
     })
 }
 

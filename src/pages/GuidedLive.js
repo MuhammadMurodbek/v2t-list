@@ -10,7 +10,7 @@ import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 
 import * as recorder from '../utils/recorder'
-import RecordList from '../components/RecordList'
+// import RecordList from '../components/RecordList'
 
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -191,7 +191,7 @@ export default class GuidedLive extends Component {
 
   toggleRecord = () => {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { recording } = this.state
+    const { recording, seconds } = this.state
     if (recording === true) {
       this.setState({ recording: false }, () => {
         // Close the socket
@@ -199,8 +199,8 @@ export default class GuidedLive extends Component {
         this.audioContext.suspend()
       })
     } else {
-      this.setState({ recording: true }, async () => {
-        if (this.audioContext.state === 'suspended') {
+      this.setState({ recording: true }, async() => {
+        if(this.audioContext.state === 'suspended' && seconds !== 0) {
           this.audioContext.resume()
         } else {
           await this.initAudio()
@@ -218,8 +218,8 @@ export default class GuidedLive extends Component {
   render() {
     const {
       recording, finalText, currentText,
-      listOfTemplates, templatesForMenu, seconds,
-      recordedAudioClip
+      listOfTemplates, templatesForMenu, seconds // ,
+      // recordedAudioClip
     } = this.state
 
     return (
@@ -244,11 +244,11 @@ export default class GuidedLive extends Component {
             />
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiFlexGroup>
+        {/* <EuiFlexGroup>
           <EuiFlexItem>
             <RecordList audioClip={recordedAudioClip}/>
           </EuiFlexItem>
-        </EuiFlexGroup>
+        </EuiFlexGroup> */}
       </Page>
     )
   }

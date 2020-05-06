@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { EuiInMemoryTable, EuiButtonIcon, EuiButtonEmpty } from '@elastic/eui'
+import { EuiBasicTable, EuiButtonIcon, EuiButtonEmpty } from '@elastic/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import api from '../api'
 import swal from 'sweetalert'
@@ -12,9 +12,10 @@ export default class TranscriptionList extends Component {
   static contextType = PreferenceContext
 
   state = {
-    items: [],
     edited: false,
-    previousJob: null
+    pageIndex: 0,
+    pageSize: 20,
+    loading: false
   }
 
   componentDidMount = async () => {
@@ -29,19 +30,42 @@ export default class TranscriptionList extends Component {
     })
   }
 
+  onTableChange = async ({ page = {} }) => {
+    const { index: pageIndex, size: pageSize } = page
+    const { fetchTranscripts, setPageIndex, job } = this.props 
+    this.setState({
+      loading: true
+    })
+
+    await fetchTranscripts(job, pageIndex, pageSize)
+
+    this.setState({
+      pageSize, loading: false
+    })
+    setPageIndex(pageIndex)
+  }
+
+  shouldComponentUpdate({transcripts: nextTranscripts, job: nextJob}) {
+    const { transcripts, job } = this.props
+    const { edited } = this.state
+    if (
+      (transcripts.length !== nextTranscripts.length && edited === false) ||
+      job !== nextJob
+    ) {
+      return true
+    }
+    return false
+  }
+
   render() {
     localStorage.setItem('transcriptId', '')
-    const { transcripts, job } = this.props
-    const { items, edited, previousJob } = this.state
-    if (
-      (transcripts.length !== items.length && edited === false) ||
-      job !== previousJob
-    ) {
-      this.setState({ items: transcripts, previousJob: job })
-    }
+    const { pageSize, loading } = this.state
+    const { transcripts, contentLength, pageIndex } = this.props
     const [preferences] = this.context
     const pagination = {
-      initialPageSize: 20,
+      pageIndex,
+      pageSize,
+      totalItemCount: contentLength,
       pageSizeOptions: [20, 50, 100]
     }
 
@@ -69,6 +93,7 @@ export default class TranscriptionList extends Component {
           <EuiButtonIcon
             color="danger"
             iconType="trash"
+            aria-label="Delete"
             onClick={() => {
               swal({
                 title: 'Vill du verkligen ta bort diktatet?',
@@ -93,11 +118,21 @@ export default class TranscriptionList extends Component {
 
     return (
       <Fragment>
-        <EuiInMemoryTable
+        <EuiBasicTable
           pagination={pagination}
           columns={columns}
-          items={items}
+          noItemsMessage={
+            <h4 style={{
+              textAlign: 'center',
+              padding: '2em'
+            }}>
+              Loading ...
+            </h4>
+          }
+          items={loading ? [] : transcripts}
+          loading={!transcripts.length || loading}
           compressed={true}
+          onChange={this.onTableChange}
         />
       </Fragment>
     )
@@ -105,9 +140,15 @@ export default class TranscriptionList extends Component {
 }
 
 TranscriptionList.propTypes = {
-  transcripts: PropTypes.array
+  transcripts: PropTypes.array,
+  job: PropTypes.any,
+  fetchTranscripts: PropTypes.func,
+  setPageIndex: PropTypes.func,
+  contentLength: PropTypes.number,
+  pageIndex: PropTypes.number.isRequired
 }
 
 TranscriptionList.defaultProps = {
-  transcripts: []
+  transcripts: [],
+  job: []
 }

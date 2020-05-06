@@ -1,49 +1,32 @@
 /* eslint-disable react/prop-types */
 // Used react synthetic event
-import React, { Fragment, useState, useEffect } from 'react'
-import DropDown from './DropDown'
+import React, { Fragment } from 'react'
 import {
   EuiSpacer,
   EuiText,
   EuiForm,
   EuiFormRow,
-  EuiSuperSelect,
+  EuiComboBox,
   EuiI18n
 } from '@elastic/eui'
 import '../App.css'
 
 const Templates = ({
   listOfTemplates,
-  defaultTemplate,
-  updateSectionHeader,
+  defaultTemplateId,
   updateTemplateId
 }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate)
-  const [templateId, setTemplateId] = useState(defaultTemplate)
+  const templateOptions = listOfTemplates
+    .map((template) => ({ ...template, value: template.id, label: template.name }))
+  const template = templateOptions
+    .find(t => t.value === defaultTemplateId) || { label: '' }
 
-  useEffect(() => {
-    updateSectionHeader(sectionNames, templateId)
-    updateTemplateId(templateId)
-  }, [selectedTemplate])
-
-  const onTemplateChange = (e) => {
-    setTemplateId(e)
-    setSelectedTemplate(e)
+  const onTemplateChange = (templates) => {
+    if (!templates.length) return
+    const template = templates[0]
+    updateTemplateId(template.value)
   }
 
-  const templateOptions = listOfTemplates.map((template) => {
-    return {
-      value: template.id,
-      inputDisplay: template.name,
-      dropdownDisplay: <DropDown title={template.name} />
-    }
-  })
-
-  const template = listOfTemplates.find(
-    (template) => template.id === selectedTemplate
-  )
-  const sections = template ? template.sections : []
-  const sectionNames = sections ? sections.map((section) => section.name) : []
   return (
     <Fragment>
       <EuiText size="xs">
@@ -61,12 +44,12 @@ const Templates = ({
             />
           }
         >
-          <EuiSuperSelect
-            className="templateSelect"
+          <EuiComboBox
             options={templateOptions}
-            valueOfSelected={defaultTemplate}
+            selectedOptions={[template]}
+            singleSelection={{ asPlainText: true }}
             onChange={onTemplateChange}
-            itemLayoutAlign="top"
+            isClearable={false}
           />
         </EuiFormRow>
       </EuiForm>

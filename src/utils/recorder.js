@@ -17,28 +17,29 @@ let recLength = 0,
   previousBuffers = []
 
 export async function init(stream) {
-  const audioContext = new AudioContext()
-  const source = await audioContext.createMediaStreamSource(stream)
+  let audioContext = new AudioContext()
+  let source = await audioContext.createMediaStreamSource(stream)
   const context = source.context
   sampleRate = context.sampleRate
   numChannels = config.numChannels
 
   initBuffers()
-
-  const node = audioContext.createScriptProcessor(1024,1,1)
+  const { createScriptProcessor, createJavaScriptNode } = audioContext
+  const node = (createScriptProcessor || createJavaScriptNode)
+    .call(audioContext, 1024, 1, 1)
 
   source.connect(node)
   node.connect(context.destination)
   node.onaudioprocess = function (e) {
     if (!recording) return
-    const buffer = []
+    let buffer = []
     for (let channel = 0; channel < config.numChannels; channel++) {
       let input = e.inputBuffer.getChannelData(channel)
       input = interpolateArray(input, 44100, 44100)
       buffer.push(input)
     }
     record(buffer)
-  };
+  }
 }
 
 export function record(inputBuffer) {
@@ -46,11 +47,11 @@ export function record(inputBuffer) {
     recBuffers[channel].push(inputBuffer[channel])
   }
   recLength += inputBuffer[0].length
-    // console.log('recLength')
-    // // console.log(recLength/parseFloat(16000))
-    // console.log(recLength)
-    // console.log(recBuffers[0])
-    // console.log('recLength end')
+  // console.log('recLength')
+  // // console.log(recLength/parseFloat(16000))
+  // console.log(recLength)
+  // console.log(recBuffers[0])
+  // console.log('recLength end')
 }
 
 export function start() {
@@ -121,12 +122,12 @@ function initBuffers() {
 
 function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffers.length/46.6)) {
   
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-    console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
+  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
   
   console.log('time stamp')
   console.log(timeStamp)
