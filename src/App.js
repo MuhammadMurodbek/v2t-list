@@ -156,6 +156,13 @@ class App extends Component {
                     onClick: () => this.selectItem('Upload')
                   },
                   {
+                    href: '/#/livedisktering',
+                    id: 4,
+                    isSelected: selectedItemName === 'Live',
+                    name: <EuiI18n token="live" default="Live Dictation" />,
+                    onClick: () => this.selectItem('Live')
+                  },
+                  {
                     href: '/#/training',
                     id: 5,
                     isSelected: selectedItemName === 'Training',
@@ -163,7 +170,7 @@ class App extends Component {
                     onClick: () => this.selectItem('Training')
                   },
                   {
-                    id: 7,
+                    id: 6,
                     isSelected: selectedItemName === 'Co-worker',
                     name: <EuiI18n token="coWorker" default="Co-Worker" />,
                     onClick: () => {
