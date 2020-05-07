@@ -1,3 +1,4 @@
+/* eslint-disable no-new-func */
 // @ts-nocheck
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
@@ -47,6 +48,7 @@ const fixedCaseSections = (tempChapters, updatedSectionNames) => {
 //     }
 //   })
 // }
+
 
 // [{ "word": "H", "start": 0.56, "end": 1.1600000000000001 }, { "word": "4", "start": 1.94, "end": 2.22 }, { "word": "5", "start": 2.37, "end": 2.56 }][{ "word": "Hon", "start": 0.56, "end": 1.3 }, { "word": "4", "start": 1.94, "end": 2.22 }, { "word": "5", "start": 2.38, "end": 2.56 }]
 
