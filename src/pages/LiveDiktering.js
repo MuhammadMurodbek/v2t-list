@@ -150,14 +150,6 @@ export default class LiveDiktering extends Component {
 
   joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, chapterId = -9, segmentId) => {
     if (previousChapters.length === 0) return latestChapters
-    let finalKeyword
-    if (chapterId !== -9)
-      finalKeyword = previousChapters[chapterId].keyword
-    else
-      finalKeyword = previousChapters[previousChapters.length - 1].keyword
-
-    let intermediateChapters = []
-
     // In case the text is appended at the end of the previous text
     if (chapterId === -9) {
       return this.appendChapters(previousChapters, latestChapters)
@@ -213,7 +205,6 @@ export default class LiveDiktering extends Component {
 
       // Combine first, middle and remaining portion
     }
-    return intermediateChapters
   }
 
 
@@ -326,10 +317,13 @@ export default class LiveDiktering extends Component {
     })
   }
 
-  // @ts-ignore
-  onCursorTimeChange = (cursorTime, chapterId, segmentId) => {
+  onCursorTimeChange = (cursorTime, chapterId, segmentId, timestampStart, timestampEnd) => {
     console.log('cursorTime')
     console.log(cursorTime)
+    console.log('start time')
+    console.log(timestampStart)
+    console.log('end time')
+    console.log(timestampEnd)
     console.log('cursorTime end')
     this.setState({ cursorTime, chapterId, segmentId })
   }
@@ -436,15 +430,7 @@ export default class LiveDiktering extends Component {
   save = () => { }
 
   saveRecordedTranscript = () => {
-    // console.log('Start saving procedure')
-
-    const { recordedChapters, chapters } = this.state
-    // const updatedRecordedChapters = this.joinRecordedChapters(recordedChapters, chapters)
-    // console.log('updated recorded chapters')
-    // console.log(updatedRecordedChapters)
-    // console.log('previously recorded chapters')
-    // console.log(recordedChapters)
-    // console.log('updated recorded chapters')
+    const { chapters } = this.state
     const copiedChapter = [...JSON.parse(JSON.stringify(chapters))]
     this.setState({ recordedChapters: copiedChapter })
   }

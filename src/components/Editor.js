@@ -159,7 +159,7 @@ export default class Editor extends Component {
     console.log('timestamp')
     console.log(timestamp)
     console.log('end')
-    onCursorTimeChange(timestamp, chapterId, segmentId)
+    onCursorTimeChange(timestamp, chapterId, segmentId, timestampStart, timestampEnd)
   }
 
   getClosestDataset = (node) => {
