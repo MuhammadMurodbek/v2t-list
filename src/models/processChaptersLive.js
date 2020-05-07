@@ -1,4 +1,3 @@
-/* eslint-disable no-new-func */
 // @ts-nocheck
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
@@ -56,10 +55,10 @@ const fixedCaseSections = (tempChapters, updatedSectionNames) => {
 const extractedText = (finalText) => {
 //   if (finalText.trim() !== '1 1 1') {
   if (finalText.trim() !== '1 1 1') {
-    const output = 'const tempText = ' + finalText
-    var fn = new Function(output + ';return tempText;')
-    var result = fn()
-    var outcome = restructureChapter(result)
+    // const output = 'const tempText = ' + finalText
+    // var fn = new Function(output + ';return tempText;')
+    // var result = fn()
+    var outcome = restructureChapter(JSON.parse(finalText))
     // console.log('outcome')
     // console.log(outcome)
     // console.log('outcome end')

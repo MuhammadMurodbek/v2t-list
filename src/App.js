@@ -156,7 +156,7 @@ class App extends Component {
                     onClick: () => this.selectItem('Upload')
                   },
                   {
-                    href: '/#/livedisktering',
+                    href: '/#/livediktering',
                     id: 4,
                     isSelected: selectedItemName === 'Live',
                     name: <EuiI18n token="live" default="Live Dictation" />,
