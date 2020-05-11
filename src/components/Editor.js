@@ -60,9 +60,8 @@ export default class Editor extends Component {
     else
       this.updateCursor()
     
-    if (
-      JSON.parse(JSON.stringify(JSON.stringify(prevProps.originalChapters))) 
-        !== JSON.parse(JSON.stringify(JSON.stringify(originalChapters)))
+    if (JSON.stringify(prevProps.originalChapters)
+        !== JSON.stringify(originalChapters)
     ) {
       this.initChapters()
     }
