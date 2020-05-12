@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-underscore-dangle */
 import React, { Component, Fragment } from 'react'
 import {
@@ -24,7 +25,9 @@ export default class Tags extends Component {
     tableOfCodes: [],
     isLoading: false,
     selectedOption: [],
-    options: []
+    options: [],
+    icd10Codes: [],
+    kvaCodes: []
   }
 
   componentDidUpdate(prevProps) {
@@ -36,7 +39,23 @@ export default class Tags extends Component {
 
   loadTagsFromTranscript = () => {
     const { tags } = this.props
-    this.setState({ tableOfCodes: tags })
+    const icd10Codes = tags.filter(tag => tag.namespace === 'icd-10')
+    const kvaCodes = tags.filter(tag => tag.namespace === 'kva')
+    console.log('icd10Codes')
+    console.log(icd10Codes)
+    console.log('icd10Codes end')
+    console.log('kva code')
+    console.log(kvaCodes)
+    console.log('kva code end')
+    this.setState({
+      tableOfCodes: tags,
+      icd10Codes,
+      kvaCodes
+    }, () => {
+      console.log('tableOfContents')
+      console.log(this.state.tableOfCodes)
+      console.log('tableOfCOntents')
+    })
   }
 
   loadIcdCodes = async (searchTerm) => {
@@ -137,7 +156,7 @@ export default class Tags extends Component {
   }
 
   render() {
-    const { options, isLoading, selectedOption, tableOfCodes } = this.state
+    const { options, isLoading, selectedOption, tableOfCodes, icd10Codes, kvaCodes } = this.state
 
     return (
       <Fragment>
@@ -175,7 +194,7 @@ export default class Tags extends Component {
           grow={false}
           style={{
             width: 400,
-            display: tableOfCodes.length > 0 ? 'block' : 'none'
+            display: icd10Codes.length > 0 ? 'block' : 'none'
           }}
         >
           {/* <EuiBasicTable
@@ -184,14 +203,85 @@ export default class Tags extends Component {
             columns={COLUMNS}
             hasActions
           /> */}
-          <EuiSpacer size="l" />
+          <EuiSpacer size="m" />
+          <EuiText>
+            <h6>ICD-10 Kod</h6>
+          </EuiText>
+          <EuiSpacer size="m" />
           <EuiDragDropContext onDragEnd={this.onDragEnd}>
             <EuiDroppable
               droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
               spacing="m"
               withPanel
             >
-              {tableOfCodes.map(({ description, id }, idx) => (
+              {icd10Codes.map(({ description, id }, idx) => (
+                <EuiDraggable
+                  spacing="m"
+                  key={id}
+                  index={idx}
+                  draggableId={id}
+                  customDragHandle={true}
+                >
+                  {(provided) => (
+                    <EuiPanel className="custom" paddingSize="m">
+                      <EuiFlexGroup
+                        style={{
+                          width: 380,
+                          lineHeight: 1.5
+                        }}
+                      >
+                        <EuiFlexItem>
+                          <div {...provided.dragHandleProps}>
+                            <EuiIcon type="grab" color="blue" />
+                          </div>
+                        </EuiFlexItem>
+                        <EuiFlexItem
+                          style={{ minWidth: 260, fontSize: '1rem' }}
+                        >
+                          <strong>{id}</strong> {description}
+                        </EuiFlexItem>
+                        <EuiFlexItem>
+                          <EuiButtonIcon
+                            iconSize="l"
+                            color="danger"
+                            onClick={() => this.deleteRow({ description, id })}
+                            iconType="trash"
+                            aria-label="Next"
+                          />
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiPanel>
+                  )}
+                </EuiDraggable>
+              ))}
+            </EuiDroppable>
+          </EuiDragDropContext>
+        </EuiFlexItem>
+        <EuiFlexItem
+          grow={false}
+          style={{
+            width: 400,
+            display: kvaCodes.length > 0 ? 'block' : 'none'
+          }}
+        >
+          {/* <EuiBasicTable
+            className="transcript"
+            items={tableOfCodes}
+            columns={COLUMNS}
+            hasActions
+          /> */}
+          <EuiSpacer size="xxl" />
+          <EuiText>
+            <h6>Åtgärds Kod</h6>
+          </EuiText>
+          <EuiSpacer size="m" />
+          <EuiDragDropContext onDragEnd={this.onDragEnd}>
+            <EuiDroppable
+              droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
+              spacing="m"
+              withPanel
+            >
+              {kvaCodes.map(({ description, id }, idx) => (
                 <EuiDraggable
                   spacing="m"
                   key={id}

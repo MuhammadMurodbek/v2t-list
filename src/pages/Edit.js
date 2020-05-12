@@ -406,42 +406,82 @@ export default class EditPage extends Component {
     return (
       <Page preferences title={<EuiI18n token="editor" default="Editor" />}>
         <div>
-          <Player
-            audioTranscript={originalChapters}
-            trackId={id}
-            cursorTime={cursorTime}
-            getCurrentTime={this.getCurrentTime}
-            updateSeek={this.onTimeUpdate}
-            queryTerm={queryTerm}
-            isPlaying={false}
-            isContentAudio={isMediaAudio}
-            ref={this.playerRef}
-            searchBoxVisible
-            isTraining={false}
-            onPause={this.onPause}
-            token={token}
-          />
-          <EuiSpacer size="l" />
-          <EuiSpacer size="l" />
-          <EuiHorizontalRule margin="xs" />
-          <EuiSpacer size="l" />
-          <EuiSpacer size="l" />
+          
 
           <EuiFlexGroup wrap gutterSize="xl">
             <EuiFlexItem>
-              <Editor
-                originalChapters={originalChapters}
-                chapters={chapters}
-                currentTime={currentTime}
-                onCursorTimeChange={this.onCursorTimeChange}
-                onSelect={this.onSelectText}
-                updateTranscript={this.onUpdateTranscript}
-                isDiffVisible
-                templateId={templateId}
-                sectionHeaders={sectionHeaders}
-                initialCursor={initialCursor}
-              />
-            </EuiFlexItem>
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <Player
+                    audioTranscript={originalChapters}
+                    trackId={id}
+                    cursorTime={cursorTime}
+                    getCurrentTime={this.getCurrentTime}
+                    updateSeek={this.onTimeUpdate}
+                    queryTerm={queryTerm}
+                    isPlaying={false}
+                    isContentAudio={isMediaAudio}
+                    ref={this.playerRef}
+                    searchBoxVisible
+                    isTraining={false}
+                    onPause={this.onPause}
+                    token={token}
+                  />
+                  <EuiSpacer size="l" />
+                  <EuiSpacer size="l" />
+
+                  <Editor
+                    originalChapters={originalChapters}
+                    chapters={chapters}
+                    currentTime={currentTime}
+                    onCursorTimeChange={this.onCursorTimeChange}
+                    onSelect={this.onSelectText}
+                    updateTranscript={this.onUpdateTranscript}
+                    isDiffVisible
+                    templateId={templateId}
+                    sectionHeaders={sectionHeaders}
+                    initialCursor={initialCursor}
+                  />
+                  <EuiFlexGroup>
+                    <EuiFlexItem grow={false}>
+                      <EuiButtonEmpty color="#000000" onClick={this.cancel}>
+                        <EuiI18n token="cancel" default="Cancel" />
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButton
+                        color="subdued"
+                        style={{
+                          border: 'solid 1px black',
+                          borderRadius: '25px'
+                        }}
+                        onClick={this.save}
+                      >
+                        <EuiI18n token="saveChanges" default="Save Changes" />
+                      </EuiButton>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButton
+                        style={{
+                          background: 'rgb(9, 99, 255)',
+                          color: 'white',
+                          borderRadius: '25px'
+                        }}
+                        onClick={this.finalize}
+                      >
+                        <EuiI18n token="sendToWebdoc" default="Send to Co-worker" />
+                      </EuiButton>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+               
+            
+            
+            
+
+
+
+
             <EuiFlexItem grow={false}>
               <Info fields={fields} />
               <EuiSpacer size="xxl" />
@@ -460,35 +500,6 @@ export default class EditPage extends Component {
               />
             </EuiFlexItem>
           </EuiFlexGroup>
-          <EuiFlexGroup>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty color="#000000" onClick={this.cancel}>
-                <EuiI18n token="cancel" default="Cancel" />
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButton
-                color="subdued"
-                style={{
-                  border: 'solid 1px black',
-                  borderRadius: '25px'
-                }}
-                onClick={this.save}
-              >
-                <EuiI18n token="saveChanges" default="Save Changes" />
-              </EuiButton>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButton
-                style={{
-                  background: 'rgb(9, 99, 255)',
-                  color: 'white',
-                  borderRadius: '25px'
-                }}
-                onClick={this.finalize}
-              >
-                <EuiI18n token="sendToWebdoc" default="Send to Co-worker" />
-              </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>
