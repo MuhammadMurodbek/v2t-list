@@ -9,7 +9,6 @@ import {
   EuiFlexItem,
   EuiSpacer,
   EuiButton,
-  EuiHorizontalRule,
   EuiButtonEmpty,
   EuiI18n
 } from '@elastic/eui'

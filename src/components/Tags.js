@@ -156,7 +156,7 @@ export default class Tags extends Component {
   }
 
   render() {
-    const { options, isLoading, selectedOption, tableOfCodes, icd10Codes, kvaCodes } = this.state
+    const { options, isLoading, selectedOption, icd10Codes, kvaCodes } = this.state
 
     return (
       <Fragment>
