@@ -52,8 +52,8 @@ const loadTickets = (tag, pageIndex, pageSize) => {
     })
 }
 
-const keywordsSearch = (searchTerm) => {
-  return axios.post('/api/keywords/v1/icd-10/search', {
+const keywordsSearch = (searchTerm, namespace='icd-10') => {
+  return axios.post(`/api/keywords/v1/${namespace}/search`, {
     text: searchTerm
   })
     .catch((error) => {
