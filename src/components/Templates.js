@@ -35,7 +35,7 @@ const Templates = ({
         </h2>
       </EuiText>
       <EuiSpacer size="m" />
-      <EuiForm>
+      <EuiForm style={{ maxWidth: 350}}>
         <EuiFormRow
           label={
             <EuiI18n

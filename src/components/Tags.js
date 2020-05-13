@@ -66,20 +66,10 @@ export default class Tags extends Component {
     const { tags } = this.props
     const icd10Codes = tags.filter(tag => tag.namespace === 'icd-10')
     const kvaCodes = tags.filter(tag => tag.namespace === 'kva')
-    console.log('icd10Codes')
-    console.log(icd10Codes)
-    console.log('icd10Codes end')
-    console.log('kva code')
-    console.log(kvaCodes)
-    console.log('kva code end')
     this.setState({
       tableOfCodes: tags,
       icd10Codes,
       kvaCodes
-    }, () => {
-      console.log('tableOfContents')
-      console.log(this.state.tableOfCodes)
-      console.log('tableOfCOntents')
     })
   }
 
@@ -100,45 +90,22 @@ export default class Tags extends Component {
   }
 
   deleteRow = (item) => {
-    const { tableOfCodes } = this.state
-    const remainingCodes = tableOfCodes.filter((el) => el.id !== item.id)
-    this.setState({ tableOfCodes: remainingCodes }, () => {
-      this.props.updateTags(this.state.tableOfCodes)
-    })
+    const { icd10Codes, kvaCodes } = this.state
+    if(item.namespace==='icd-10') {
+      const remainingCodes = icd10Codes.filter((el) => el.id !== item.id)
+      this.setState({ icd10Codes: remainingCodes }, () => {
+        this.props.updateTags([...remainingCodes, ...kvaCodes])
+      })
+    } else if (item.namespace === 'kva') {
+      const remainingCodes = kvaCodes.filter((el) => el.id !== item.id)
+      this.setState({ kvaCodes: remainingCodes }, () => {
+        this.props.updateTags([...icd10Codes, ...remainingCodes])
+      })
+    }
   }
 
-  // addCode = () => {
-  //   const { selectedOption, tableOfCodes } = this.state
-  //   if (selectedOption.length > 0) {
-  //     let data = selectedOption[0]
-  //     data = data.label.split(': ')
-  //     if (tableOfCodes.some((e) => e.id === data[0])) {
-  //       // eslint-disable-next-line no-alert
-  //       swal({
-  //         title: 'ICD koden får endast förekomma 1 gång',
-  //         text: '',
-  //         icon: 'info',
-  //         button: 'Avbryt'
-  //       })
-  //       this.emptySelectedOption()
-  //     } else {
-  //       const updatedCodes = [
-  //         ...tableOfCodes,
-  //         {
-  //           id: data[0],
-  //           description: data[1]
-  //         }
-  //       ]
-  //       this.setState({ tableOfCodes: updatedCodes }, () => {
-  //         this.emptySelectedOption()
-  //         this.props.updateTags(this.state.tableOfCodes)
-  //       })
-  //     }
-  //   }
-  // }
-
   addCode = () => {
-    const { selectedOption, tableOfCodes, icd10Codes, kvaCodes, selectedRadioId } = this.state
+    const { selectedOption, icd10Codes, kvaCodes, selectedRadioId } = this.state
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(': ')
@@ -158,12 +125,13 @@ export default class Tags extends Component {
             ...icd10Codes,
             {
               id: data[0],
+              namespace: 'icd-10',
               description: data[1]
             }
           ]
           this.setState({ icd10Codes: updatedCodes }, () => {
             this.emptySelectedOption()
-            this.props.updateTags(this.state.tableOfCodes)
+            this.props.updateTags([...updatedCodes, ...kvaCodes])
           })
         }
       } else if (selectedRadioId === '1') {
@@ -181,12 +149,13 @@ export default class Tags extends Component {
             ...kvaCodes,
             {
               id: data[0],
+              namespace: 'kva',
               description: data[1]
             }
           ]
           this.setState({ kvaCodes: updatedCodes }, () => {
             this.emptySelectedOption()
-            this.props.updateTags(this.state.tableOfCodes)
+            this.props.updateTags([...icd10Codes, ...updatedCodes])
           })
         }
       }
@@ -231,16 +200,27 @@ export default class Tags extends Component {
   }
 
   onDragEnd = ({ source, destination }) => {
-    const { tableOfCodes } = this.state
+    const { icd10Codes, kvaCodes } = this.state
     if (source && destination) {
-      this.setState(
-        {
-          tableOfCodes: this.swap(tableOfCodes, source.index, destination.index)
-        },
-        () => {
-          this.props.updateTags(this.state.tableOfCodes)
-        }
-      )
+      if (source.droppableId==='icd-10') {
+        this.setState(
+          {
+            icd10Codes: this.swap(icd10Codes, source.index, destination.index)
+          },
+          () => {
+            this.props.updateTags([...icd10Codes, ...kvaCodes])
+          }
+        )
+      } else if (source.droppableId === 'kva') {
+        this.setState(
+          {
+            kvaCodes: this.swap(kvaCodes, source.index, destination.index)
+          },
+          () => {
+            this.props.updateTags([...icd10Codes, ...kvaCodes])
+          }
+        )
+      } 
     }
   }
 
@@ -268,7 +248,7 @@ export default class Tags extends Component {
               <div className="searchKoder" style={{ display: 'flex' }}>
                 <span
                   style={{
-                    width: 390,
+                    width: 350,
                     marginRight: 20,
                     marginBottom: 25
                   }}
@@ -291,7 +271,7 @@ export default class Tags extends Component {
         <EuiFlexItem
           grow={false}
           style={{
-            width: 390,
+            width: 350,
             display: icd10Codes.length > 0 ? 'block' : 'none'
           }}
         >
@@ -308,11 +288,11 @@ export default class Tags extends Component {
           <EuiSpacer size="m" />
           <EuiDragDropContext onDragEnd={this.onDragEnd}>
             <EuiDroppable
-              droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
+              droppableId="icd-10"
               spacing="m"
               withPanel
             >
-              {icd10Codes.map(({ description, id }, idx) => (
+              {icd10Codes.map(({ description, id, namespace }, idx) => (
                 <EuiDraggable
                   spacing="m"
                   key={id}
@@ -324,7 +304,7 @@ export default class Tags extends Component {
                     <EuiPanel className="custom" paddingSize="m">
                       <EuiFlexGroup
                         style={{
-                          width: 390,
+                          width: 350,
                           lineHeight: 1.5
                         }}
                       >
@@ -342,7 +322,7 @@ export default class Tags extends Component {
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"
-                            onClick={() => this.deleteRow({ description, id })}
+                            onClick={() => this.deleteRow({ description, id, namespace })}
                             iconType="trash"
                             aria-label="Next"
                             className="selectorBottons"
@@ -359,7 +339,7 @@ export default class Tags extends Component {
         <EuiFlexItem
           grow={false}
           style={{
-            width: 390,
+            width: 350,
             display: kvaCodes.length > 0 ? 'block' : 'none'
           }}
         >
@@ -371,16 +351,16 @@ export default class Tags extends Component {
           /> */}
           <EuiSpacer size="xxl" />
           <EuiText>
-            <h6>Åtgärds Kod</h6>
+            <h6>Åtgärdskod</h6>
           </EuiText>
           <EuiSpacer size="m" />
           <EuiDragDropContext onDragEnd={this.onDragEnd}>
             <EuiDroppable
-              droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
+              droppableId="kva"
               spacing="m"
               withPanel
             >
-              {kvaCodes.map(({ description, id }, idx) => (
+              {kvaCodes.map(({ description, id, namespace}, idx) => (
                 <EuiDraggable
                   spacing="m"
                   key={id}
@@ -392,7 +372,7 @@ export default class Tags extends Component {
                     <EuiPanel className="custom" paddingSize="m">
                       <EuiFlexGroup
                         style={{
-                          width: 390,
+                          width: 350,
                           lineHeight: 1.5
                         }}
                       >
@@ -410,7 +390,7 @@ export default class Tags extends Component {
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"
-                            onClick={() => this.deleteRow({ description, id })}
+                            onClick={() => this.deleteRow({ description, id, namespace })}
                             iconType="trash"
                             aria-label="Next"
                             className="selectorBottons"
