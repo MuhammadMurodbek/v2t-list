@@ -55,9 +55,9 @@ export default class Tags extends Component {
     const { nameSpacesStringForView, selectedRadioId }  = this.state
     this.setState({selectedRadioId: optionId}, ()=>{
       if(selectedRadioId === '0') {
-        this.setState({ selectedNameSpace: nameSpacesStringForView[1]})
+        this.setState({ selectedNameSpace: nameSpacesStringForView[1], options: []})
       } else if (selectedRadioId === '1') {
-        this.setState({ selectedNameSpace: nameSpacesStringForView[0] })
+        this.setState({ selectedNameSpace: nameSpacesStringForView[0], options: [] })
       }
     })
   }
