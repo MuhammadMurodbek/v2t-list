@@ -314,7 +314,7 @@ export default class Tags extends Component {
                           </div>
                         </EuiFlexItem>
                         <EuiFlexItem
-                          style={{ minWidth: 260, fontSize: '1rem' }}
+                          style={{ minWidth: 260, fontSize: '1rem', marginLeft: '-8px' }}
                         >
                           <strong>{id}</strong> {description}
                         </EuiFlexItem>
@@ -382,7 +382,7 @@ export default class Tags extends Component {
                           </div>
                         </EuiFlexItem>
                         <EuiFlexItem
-                          style={{ minWidth: 260, fontSize: '1rem' }}
+                          style={{ minWidth: 260, fontSize: '1rem', marginLeft: '-8px' }}
                         >
                           <strong>{id}</strong> {description}
                         </EuiFlexItem>
