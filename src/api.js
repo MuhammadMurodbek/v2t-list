@@ -91,7 +91,7 @@ const uploadMedia = (
           },
           word_spotter: {
             section_template: selectedTemplate,
-            categories: ['icd-10']
+            categories: ['icd-10', 'kva']
           },
           export: [
             {
