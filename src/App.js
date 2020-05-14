@@ -48,6 +48,10 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const queryToken = getQueryStringValue('token')
+    if (queryToken) {
+      this.setState({ isTokenFromUrl: true })
+    }
     this.fetchTranscripts()
   }
 
@@ -64,25 +68,10 @@ class App extends Component {
     })
   }
 
-  getQueryStringValue(key) {
-    return decodeURIComponent(
-      window.location.href.replace(
-        new RegExp(
-          `^(?:.*[&\\?]${encodeURIComponent(key).replace(
-            /[.+*]/g,
-            '\\$&'
-          )}(?:\\=([^&]*))?)?.*$`,
-          'i'
-        ),
-        '$1'
-      )
-    )
-  }
-
   fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20) => {
     return new Promise((resolve) => {
       const tokenFromStorage = localStorage.getItem('token')
-      const tokenFromQuery = this.getQueryStringValue('token')
+      const tokenFromQuery = getQueryStringValue('token')
       let token
 
       if (tokenFromStorage) {
@@ -463,6 +452,25 @@ class App extends Component {
     )
   }
 }
+
+const getQueryStringValue = (key) => {
+  return decodeURIComponent(
+    window.location.href.replace(
+      new RegExp(
+        `^(?:.*[&\\?]${encodeURIComponent(key).replace(
+          /[.+*]/g,
+          '\\$&'
+        )}(?:\\=([^&]*))?)?.*$`,
+        'i'
+      ),
+      '$1'
+    )
+  )
+}
+
+const queryToken = getQueryStringValue('token')
+if (queryToken)
+  api.setToken(queryToken)
 
 axios.interceptors.response.use(
   (response) => {
