@@ -10,27 +10,32 @@ import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 
 import * as recorder from '../utils/recorder'
+import { addErrorToast } from '../components/GlobalToastList'
 // import RecordList from '../components/RecordList'
 
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { transports: ['websocket'] })
+  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', {
+    transports: ['websocket']
+  })
   state = {
     recording: false,
     listOfTemplates: [],
-    chapters: [{
-      keyword: 'KONTAKTORSAK',
-      segments: [{ words: '...', startTime: 0.00, endTime: 0.00 }]
-    }],
+    chapters: [
+      {
+        keyword: 'KONTAKTORSAK',
+        segments: [{ words: '...', startTime: 0.0, endTime: 0.0 }]
+      }
+    ],
     originalText: '',
     currentText: '',
     sections: {
-      'KONTAKTORSAK': [],
-      'AT': [],
-      'LUNGOR': [],
-      'BUK': [],
-      'DIAGNOS': []
+      KONTAKTORSAK: [],
+      AT: [],
+      LUNGOR: [],
+      BUK: [],
+      DIAGNOS: []
     },
     isMicrophoneStarted: false,
     finalText: '',
@@ -51,15 +56,24 @@ export default class GuidedLive extends Component {
   }
 
   templates = async () => {
-    const templateList = await api.getSectionTemplates()
-    const tempTemplates = templateList.data.templates.map((template) => {
-      return { name: template.name, id: template.id }
-    })
-    const finalTemplates = { id: 0, title: 'Journalmallar', items: tempTemplates }
-    this.setState({ templatesForMenu: finalTemplates })
-    this.setState({ 
-      listOfTemplates: templateList.data.templates, templatesForMenu: finalTemplates 
-    })
+    try {
+      const templateList = await api.getSectionTemplates()
+      const tempTemplates = templateList.data.templates.map((template) => {
+        return { name: template.name, id: template.id }
+      })
+      const finalTemplates = {
+        id: 0,
+        title: 'Journalmallar',
+        items: tempTemplates
+      }
+      this.setState({ templatesForMenu: finalTemplates })
+      this.setState({
+        listOfTemplates: templateList.data.templates,
+        templatesForMenu: finalTemplates
+      })
+    } catch {
+      addErrorToast()
+    }
   }
 
   convertToMono = (input) => {
@@ -82,12 +96,18 @@ export default class GuidedLive extends Component {
     audioInput.connect(inputPoint)
 
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
-    const scriptNode = (createScriptProcessor || createJavaScriptNode)
-      .call(this.audioContext, 1024, 1, 1)
+    const scriptNode = (createScriptProcessor || createJavaScriptNode).call(
+      this.audioContext,
+      1024,
+      1,
+      1
+    )
     const prevState = this
 
     scriptNode.onaudioprocess = (audioEvent) => {
-      if(prevState.state.seconds !== Math.ceil(this.audioContext.currentTime)) {
+      if (
+        prevState.state.seconds !== Math.ceil(this.audioContext.currentTime)
+      ) {
         prevState.setState({
           seconds: Math.ceil(this.audioContext.currentTime)
         })
@@ -98,9 +118,9 @@ export default class GuidedLive extends Component {
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer)
-        for (var i = 0, offset = 0; i < input.length; i++ , offset += 2) {
+        for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
-          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
+          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
         }
         // console.log(this.state.writeAudioMessage)
         if (this.state.counter === 4) {
@@ -119,8 +139,6 @@ export default class GuidedLive extends Component {
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
 
-    
-
     this.socketio.on('add-transcript-pnr', function (text) {
       const { originalText } = prevState.state
       prevState.setState({ currentText: text }, () => {
@@ -138,7 +156,10 @@ export default class GuidedLive extends Component {
         })
       } else {
         prevState.setState({ currentText: text }, () => {
-          prevState.setState({ finalText: text , counter: prevState.state.counter + 1 })
+          prevState.setState({
+            finalText: text,
+            counter: prevState.state.counter + 1
+          })
         })
       }
     })
@@ -149,21 +170,20 @@ export default class GuidedLive extends Component {
       navigator.mediaDevices = {}
     }
 
-    // Some browsers partially implement mediaDevices. We can't just assign an object with 
-    // getUserMedia as it would overwrite existing properties. Here, we will just add the 
+    // Some browsers partially implement mediaDevices. We can't just assign an object with
+    // getUserMedia as it would overwrite existing properties. Here, we will just add the
     // getUserMedia property if it's missing.
     if (navigator.mediaDevices.getUserMedia === undefined) {
       navigator.mediaDevices.getUserMedia = function (constraints) {
         // First get ahold of the legacy getUserMedia, if present
-        const getUserMedia
-          = navigator.webkitGetUserMedia || navigator.mozGetUserMedia
+        const getUserMedia =
+          navigator.webkitGetUserMedia || navigator.mozGetUserMedia
         // Some browsers just don't implement it - return a rejected promise with an error
         // to keep a consistent interface
         if (!getUserMedia) {
-          return Promise
-            .reject(
-              new Error('getUserMedia is not implemented in this browser')
-            )
+          return Promise.reject(
+            new Error('getUserMedia is not implemented in this browser')
+          )
         }
 
         // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
@@ -173,7 +193,8 @@ export default class GuidedLive extends Component {
       }
     }
 
-    await navigator.mediaDevices.getUserMedia({ audio: true })
+    await navigator.mediaDevices
+      .getUserMedia({ audio: true })
       .then((stream) => {
         recorder.init(stream)
         this.gotStream(stream)
@@ -199,8 +220,8 @@ export default class GuidedLive extends Component {
         this.audioContext.suspend()
       })
     } else {
-      this.setState({ recording: true }, async() => {
-        if(this.audioContext.state === 'suspended' && seconds !== 0) {
+      this.setState({ recording: true }, async () => {
+        if (this.audioContext.state === 'suspended' && seconds !== 0) {
           this.audioContext.resume()
         } else {
           await this.initAudio()
@@ -217,8 +238,12 @@ export default class GuidedLive extends Component {
 
   render() {
     const {
-      recording, finalText, currentText,
-      listOfTemplates, templatesForMenu, seconds // ,
+      recording,
+      finalText,
+      currentText,
+      listOfTemplates,
+      templatesForMenu,
+      seconds // ,
       // recordedAudioClip
     } = this.state
 
@@ -253,5 +278,3 @@ export default class GuidedLive extends Component {
     )
   }
 }
-
-

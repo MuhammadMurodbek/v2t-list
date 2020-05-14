@@ -3,22 +3,17 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useState, useEffect, Fragment } from 'react'
-import {
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiButtonIcon,
-  EuiTextArea,
-  EuiSpacer,
-  EuiFieldText
-} from '@elastic/eui'
 import swal from 'sweetalert'
-import api from '../../api'
-import GuidedTemplates from '../../components/live/GuidedTemplates'
 import steps from '../../models/live/steps'
 import validatePersonnummer from '../../models/live/validatePersonnummer'
 import '../../styles/guided.css'
 
-const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentContent }) => {
+const Step = ({
+  stepsHierarchy,
+  updatedStepsHierarchy,
+  prevContent,
+  currentContent
+}) => {
   const predefinedSteps = steps()
   const [currentItem, setCurrentItem] = useState('')
   const [currentStep, setCurrentStep] = useState(predefinedSteps[0])
@@ -26,13 +21,13 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
   const [personnummer, setPersonnummer] = useState('')
   const [patientsNamn, setPatientsNamn] = useState('')
   const [template, setTemplate] = useState('')
-  const [templates, setTemplates] = useState({templates: []})
+  const [templates, setTemplates] = useState({ templates: [] })
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [listOfTemplates, setListOfTemplates] = useState([])
   const [editorBeingUsed, setEditorBeingUsed] = useState(false)
   const [usedContents, setUsedContents] = useState([])
   // const [previousContent, setPreviousContent] = useState('')
-  
+
   useEffect(() => {
     // console.log('changing')
     // console.log(content)
@@ -44,38 +39,36 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
     console.log(usedContents)
     console.log('----------------------')
     if (
-      currentContent.trim().toLowerCase() ===  prevContent.trim().toLowerCase()
-      && currentContent.trim().toLowerCase() !== ''
-      && prevContent.trim().toLowerCase() !== ''
-      && usedContents.includes(currentContent)===false
+      currentContent.trim().toLowerCase() ===
+        prevContent.trim().toLowerCase() &&
+      currentContent.trim().toLowerCase() !== '' &&
+      prevContent.trim().toLowerCase() !== '' &&
+      usedContents.includes(currentContent) === false
     ) {
       console.log('....')
-      // consoxle.log(prevContent)      
+      // consoxle.log(prevContent)
       console.log('....')
-      
-      if (!usedContents.includes(prevContent)){
+
+      if (!usedContents.includes(prevContent)) {
         // setCurrentItem(prevContent)
         // goNext(true)
         updateStepBar(usedContents)
         setUsedContents([...usedContents, prevContent])
       }
-        
     }
   })
-
-
 
   const updateStepBar = (contents) => {
     const contentLenght = contents.length
     const newStepsHierarchy = stepsHierarchy.map((step, i) => {
       let tempObject
-      if (i === contentLenght-1) {
+      if (i === contentLenght - 1) {
         tempObject = {
           status: 'primary',
           disabled: false
         }
         return { ...step, ...tempObject }
-      } else if (i > contentLenght-1) {
+      } else if (i > contentLenght - 1) {
         tempObject = {
           disabled: true
         }
@@ -97,43 +90,36 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
     updatedStepsHierarchy(finalSteps)
   }
 
-
   /**
    * @param {{ target: { value: React.SetStateAction<string>; }; }} e
    */
-  const onChange = e => {
+  const onChange = (e) => {
     setEditorBeingUsed(true)
     setCurrentItem(e.target.value)
   }
 
   const goPrevious = () => {
-    predefinedSteps.forEach((step, i)=>{
-      if (
-        currentStep === step 
-        && currentStep !== predefinedSteps[0]
-      ) {
-        setCurrentStep(predefinedSteps[i-1])
+    predefinedSteps.forEach((step, i) => {
+      if (currentStep === step && currentStep !== predefinedSteps[0]) {
+        setCurrentStep(predefinedSteps[i - 1])
         changeHierarchyBack(i - 1)
         if (i === 1) {
           setPatientsNamn(currentItem)
           setCurrentItem(doktorsNamn)
-        }
-        else if (i === 2) {
+        } else if (i === 2) {
           setPersonnummer(currentItem)
           setCurrentItem(patientsNamn)
-        }
-        else if (i === 3) {
+        } else if (i === 3) {
           setTemplate(currentItem)
           setCurrentItem(personnummer)
-        }
-        else if (i === 4) {
+        } else if (i === 4) {
           // Should be dictation
           setCurrentItem(template)
         }
       }
     })
   }
-  
+
   const changeHierarchyBack = (index) => {
     const newStepsHierarchy = stepsHierarchy.map((step, i) => {
       let tempObject
@@ -144,7 +130,6 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
         }
         return { ...step, ...tempObject }
       } else if (i < index) {
-        
         return step
       } else {
         tempObject = {
@@ -155,21 +140,21 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
     })
     updatedStepsHierarchy(newStepsHierarchy)
   }
-  
-  const goNext = async (isPrefilled=false) => {
+
+  const goNext = async (isPrefilled = false) => {
     predefinedSteps.forEach((step, i) => {
       if (
-        currentStep === step 
-        && currentStep !== predefinedSteps[predefinedSteps.length - 1] 
-        && currentItem.length>0
-      ) {   
+        currentStep === step &&
+        currentStep !== predefinedSteps[predefinedSteps.length - 1] &&
+        currentItem.length > 0
+      ) {
         if (i === 0) {
           changeHierarchyNext(i + 1, currentItem)
           if (isPrefilled) setDoktorsNamn(currentItem)
-          if(patientsNamn.length===0) setCurrentItem('')
+          if (patientsNamn.length === 0) setCurrentItem('')
           else setCurrentItem(patientsNamn)
           setCurrentStep(predefinedSteps[i + 1])
-        } else if (i === 1 ) {
+        } else if (i === 1) {
           changeHierarchyNext(i + 1, currentItem)
           if (isPrefilled) setPatientsNamn(currentItem)
           if (personnummer.length === 0) setCurrentItem('')
@@ -177,7 +162,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
             setCurrentItem(personnummer)
           }
           setCurrentStep(predefinedSteps[i + 1])
-        } else if (i === 2 ) {
+        } else if (i === 2) {
           const personnummerValidation = validatePersonnummer(currentItem)
           if (personnummerValidation.status) {
             setPersonnummer(personnummerValidation.message)
@@ -188,7 +173,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
             }
             setCurrentStep(predefinedSteps[i + 1])
           } else {
-            changeHierarchyNext(i , '')
+            changeHierarchyNext(i, '')
             swal(personnummerValidation.message)
             swal({
               title: personnummerValidation.message,
@@ -199,8 +184,7 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
             setCurrentItem('')
             setCurrentStep('patients Personnummer')
           }
-          
-        } else if (i === 3 ) {
+        } else if (i === 3) {
           changeHierarchyNext(i + 1, currentItem)
         }
       }
@@ -234,14 +218,13 @@ const Step = ({ stepsHierarchy, updatedStepsHierarchy, prevContent, currentConte
       }
     })
 
-    const finalSteps = newStepsHierarchy.map((s, j) => { 
-      if(j===index-1) {
+    const finalSteps = newStepsHierarchy.map((s, j) => {
+      if (j === index - 1) {
         const tempObject = {
           children: `${itemName}`
         }
         return { ...s, ...tempObject }
-      } 
-      else return s
+      } else return s
     })
     updatedStepsHierarchy(finalSteps)
   }

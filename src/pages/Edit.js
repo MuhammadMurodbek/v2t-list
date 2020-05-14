@@ -25,9 +25,10 @@ import Info from '../components/Info'
 import isSuperset from '../models/isSuperset'
 import Sidenote from '../components/Sidenote'
 import processChaptersRegular from '../models/processChaptersRegular'
+import { addErrorToast } from '../components/GlobalToastList'
 // import processChapters from '../models/processChapters'
 
-const EMPTY_TRANSCRIPTIONS = [{keyword: '', segments: []}]
+const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [] }]
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -71,9 +72,8 @@ export default class EditPage extends Component {
 
   initiate = async () => {
     const { id, defaultTranscript } = this.props
-    if (defaultTranscript)
-      await this.onNewTranscript(defaultTranscript)
-    const [ { data: templates }, { data: transcript } ] = await Promise.all([
+    if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
+    const [{ data: templates }, { data: transcript }] = await Promise.all([
       api.getSectionTemplates().catch(this.onError),
       api.loadTranscription(id).catch(this.onError)
     ])
@@ -82,9 +82,19 @@ export default class EditPage extends Component {
 
   onNewTranscript = (transcript, templates) => {
     localStorage.setItem('transcriptId', this.props.id)
-    const { tags, fields, media_content_type, template_id, transcriptions } = transcript
-    const originalTags = (tags || []).map(tag => ({ ...tag, id: tag.id.toUpperCase() }))
-    const template = templates.find(template => template.id === template_id) || {}
+    const {
+      tags,
+      fields,
+      media_content_type,
+      template_id,
+      transcriptions
+    } = transcript
+    const originalTags = (tags || []).map((tag) => ({
+      ...tag,
+      id: tag.id.toUpperCase()
+    }))
+    const template =
+      templates.find((template) => template.id === template_id) || {}
     this.setState({
       originalTemplateId: template_id,
       originalChapters: this.parseTranscriptions(transcriptions),
@@ -94,7 +104,7 @@ export default class EditPage extends Component {
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
       templates,
       templateId: template_id,
-      sectionHeaders: (template.sections || []).map(({name}) => name)
+      sectionHeaders: (template.sections || []).map(({ name }) => name)
     })
   }
 
@@ -102,10 +112,13 @@ export default class EditPage extends Component {
     if (!transcriptions) return EMPTY_TRANSCRIPTIONS
     return transcriptions.map((transcript) => {
       const keyword = transcript.keyword.length
-        ? transcript.keyword : 'Kontaktorsak'
+        ? transcript.keyword
+        : 'Kontaktorsak'
       const segments = transcript.segments.map((chunk, i) => {
-        const sentenceCase = i > 0 ? chunk.words
-          : `${chunk.words.charAt(0).toUpperCase()}${chunk.words.slice(1)}`
+        const sentenceCase =
+          i > 0
+            ? chunk.words
+            : `${chunk.words.charAt(0).toUpperCase()}${chunk.words.slice(1)}`
         const isLast = i >= transcript.segments.length - 1
         const noSpaceSuffix = isLast || /^\s*$/.test(sentenceCase)
         const words = noSpaceSuffix ? sentenceCase : `${sentenceCase} `
@@ -173,19 +186,21 @@ export default class EditPage extends Component {
 
   sendToCoworker = async () => {
     const { id } = this.props
-    const sendingToCoworker = await api
-      .approveTranscription(id)
-      .catch(this.trowAsyncError)
-    if (sendingToCoworker) {
-      window.location = '/'
-    } else {
-      swal({
-        title:
-          'Det är inte möjligt att Skicka till co-worker, vänligen prova igen senare.',
-        text: '',
-        icon: 'error',
-        button: 'Ok'
-      })
+    try {
+      const sendingToCoworker = await api.approveTranscription(id)
+      if (sendingToCoworker) {
+        window.location = '/'
+      } else {
+        swal({
+          title:
+            'Det är inte möjligt att Skicka till co-worker, vänligen prova igen senare.',
+          text: '',
+          icon: 'error',
+          button: 'Ok'
+        })
+      }
+    } catch {
+      addErrorToast()
     }
   }
 
@@ -311,12 +326,7 @@ export default class EditPage extends Component {
     })
 
     try {
-      await api.updateTranscription(
-        id,
-        tags,
-        chapters,
-        templateId
-      )
+      await api.updateTranscription(id, tags, chapters, templateId)
       this.setState(
         {
           originalChapters: this.parseTranscriptions(chapters),
@@ -335,10 +345,8 @@ export default class EditPage extends Component {
           return true
         }
       )
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error)
-      return false
+    } catch {
+      addErrorToast()
     }
   }
 
@@ -348,22 +356,25 @@ export default class EditPage extends Component {
 
   updateTemplateId = (templateId) => {
     const { chapters, templates } = this.state
-    const template = templates.find(template => template.id === templateId)
+    const template = templates.find((template) => template.id === templateId)
     const availableSectionHeaders = this.getAvailableSectionHeaders(template)
-    const sectionHeaders = (template.sections || []).map(({name}) => name)
-    const updatedChapters = processChaptersRegular(chapters, availableSectionHeaders)
+    const sectionHeaders = (template.sections || []).map(({ name }) => name)
+    const updatedChapters = processChaptersRegular(
+      chapters,
+      availableSectionHeaders
+    )
     this.setState({ templateId, sectionHeaders, chapters: updatedChapters })
   }
 
   getAvailableSectionHeaders = (template) => {
     if (template.sections)
-      return template.sections.reduce((store, {name, synonyms}) => {
+      return template.sections.reduce((store, { name, synonyms }) => {
         return [...store, name, ...(synonyms || [])]
       }, [])
   }
 
   onUpdateTranscript = (chapters) => {
-    return new Promise(resolve => this.setState({ chapters }, resolve))
+    return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 
   onPause = () => {
@@ -379,7 +390,7 @@ export default class EditPage extends Component {
   updateSidenote = () => {}
 
   onError = (error) => {
-    this.setState({error})
+    this.setState({ error })
   }
 
   render() {

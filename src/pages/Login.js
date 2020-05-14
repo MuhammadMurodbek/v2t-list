@@ -8,16 +8,17 @@ import {
   EuiImage,
   EuiI18n
 } from '@elastic/eui'
-import swal from 'sweetalert'
 import { usePreferences } from '../components/PreferencesProvider'
 // import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'
 import api from '../api'
+import { addErrorToast } from '../components/GlobalToastList'
 
 const LoginPage = () => {
   const [username, setUsername] = useState('test')
   const [password, setPassword] = useState('test')
-  const [preferences, setPreferences] = usePreferences()
+  // eslint-disable-next-line no-unused-vars
+  const [prefernces, setPreferences] = usePreferences()
   const setToken = (authtoken) => {
     setPreferences({ token: authtoken })
   }
@@ -29,11 +30,10 @@ const LoginPage = () => {
   const login = (e) => {
     e.preventDefault()
     if (username === '' || password === '') {
-      swal({
-        title: 'Felaktigt användarnamn eller lösenord',
-        text: '',
-        icon: 'error',
-        button: 'Avbryt'
+      addErrorToast({
+        message: (
+          <EuiI18n token="authError" default="Invalid username or password" />
+        )
       })
     } else {
       api
@@ -45,14 +45,9 @@ const LoginPage = () => {
           window.location.replace('/')
         })
         .catch((error) => {
-          swal({
-            title: 'Nekad åtkomst, behörighet saknas',
-            text: '',
-            icon: 'error',
-            button: 'Avbryt'
-          })
-          console.log(error)
-          console.log(preferences)
+          if (error.response.status !== 401) {
+            addErrorToast()
+          }
         })
     }
   }

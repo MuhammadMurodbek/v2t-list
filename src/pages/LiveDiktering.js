@@ -21,6 +21,7 @@ import io from 'socket.io-client'
 import Page from '../components/Page'
 import processChapters from '../models/processChapters'
 import inoviaLogo from '../img/livediktering.png'
+import { addErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -64,10 +65,14 @@ export default class LiveDiktering extends Component {
   }
 
   templates = async () => {
-    const templateList = await api.getSectionTemplates()
-    console.log('templates')
-    console.log(templateList)
-    this.setState({ listOfTemplates: templateList.data.templates })
+    try {
+      const templateList = await api.getSectionTemplates()
+      console.log('templates')
+      console.log(templateList)
+      this.setState({ listOfTemplates: templateList.data.templates })
+    } catch {
+      addErrorToast()
+    }
   }
 
   onSelectText = () => {

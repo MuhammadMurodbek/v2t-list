@@ -110,5 +110,9 @@
   "thePageCouldNotBeFound": "Sidan kunde inte hittas",
   "back": "Tillbaka",
   "startDictation": "Starta Diktering",
-  "chooseTheJournalSystemForTheTranscription": "Mottagande journalsystem"
+  "chooseTheJournalSystemForTheTranscription": "Mottagande journalsystem",
+  "error": "Fel",
+  "authError": "Ogiltigt användarnamn eller lösenord",
+  "unexpectedError": "Oväntat fel inträffade",
+  "trainingNotExists": "Åtgärden kan inte utföras eftersom transkriptet inte längre kan hittas"
 }

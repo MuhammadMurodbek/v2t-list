@@ -20,159 +20,128 @@ const logout = () => {
 }
 
 const login = (username, password) => {
-  return axios.post('/api/login/v1', {
-    username,
-    password
-  }, {
-    headers
-  })
+  return axios
+    .post(
+      '/api/login/v1',
+      {
+        username,
+        password
+      },
+      {
+        headers
+      }
+    )
     .then((response) => {
       setToken(response.data.token)
       return response.data.token
     })
 }
 
-const loadTags = () => {
-  return axios.get('/api/tickets/v1/tags/active')
-    .then(response => response.data)
-    .catch((error) => {
-      logout()
-    })
-}
+const loadTags = () => axios.get('/api/tickets/v1/tags/active')
 
 const loadTickets = (tag, pageIndex, pageSize) => {
   let tagParams = ''
   if (tag) {
     tagParams = `&tags=${tag}`
   }
-  return axios.get(`/api/tickets/v1?pageStart=${pageIndex*pageSize}&pageSize=${pageSize}${tagParams}`)
-    .then(response => response.data)
-    .catch((error) => {
-      logout()
-    })
+  return axios.get(
+    `/api/tickets/v1?pageStart=${
+      pageIndex * pageSize
+    }&pageSize=${pageSize}${tagParams}`
+  )
 }
 
-const keywordsSearch = (searchTerm, namespace='icd-10') => {
-  return axios.post(`/api/keywords/v1/${namespace}/search`, {
+const keywordsSearch = (searchTerm, namespace = 'icd-10') =>
+  axios.post(`/api/keywords/v1/${namespace}/search`, {
     text: searchTerm
   })
-    .catch((error) => {
-      logout()
-    })
-}
 
-const uploadMedia = (file, metadata, selectedJob, patientsnamn, patientnummer, doktorsnamn, avdelning, selectedTemplate, selectedJournalSystem) => {
+const uploadMedia = (
+  file,
+  metadata,
+  selectedJob,
+  patientsnamn,
+  patientnummer,
+  doktorsnamn,
+  avdelning,
+  selectedTemplate,
+  selectedJournalSystem
+) => {
   const body = new FormData()
   body.append('media', file)
   if (metadata) {
-    const metadataPart = new Blob([JSON.stringify({
-      transcription: {
-        model: metadata,
-        tags: [selectedJob],
-        language: 'sv',
-        fields: {
-          department_id: 'Inovia',
-          department_name: avdelning,
-          examination_time: '2019-11-06T03:29:33.344Z',
-          doctor_id: doktorsnamn,
-          doctor_first_name: '',
-          doctor_last_name: '',
-          doctor_full_name: doktorsnamn,
-          patient_id: patientnummer,
-          patient_full_name: patientsnamn
-        }
-      },
-      word_spotter: {
-        section_template: selectedTemplate,
-        categories: ["icd-10", "kva"]
-      },
-      export: [
-        {
-          system_id: selectedJournalSystem
-        }
-      ]
-    })], {
-      type: 'application/json'
-    })
+    const metadataPart = new Blob(
+      [
+        JSON.stringify({
+          transcription: {
+            model: metadata,
+            tags: [selectedJob],
+            language: 'sv',
+            fields: {
+              department_id: 'Inovia',
+              department_name: avdelning,
+              examination_time: '2019-11-06T03:29:33.344Z',
+              doctor_id: doktorsnamn,
+              doctor_first_name: '',
+              doctor_last_name: '',
+              doctor_full_name: doktorsnamn,
+              patient_id: patientnummer,
+              patient_full_name: patientsnamn
+            }
+          },
+          word_spotter: {
+            section_template: selectedTemplate,
+            categories: ['icd-10']
+          },
+          export: [
+            {
+              system_id: selectedJournalSystem
+            }
+          ]
+        })
+      ],
+      {
+        type: 'application/json'
+      }
+    )
 
     body.set('metadata', metadataPart)
   }
 
   return axios.post('/api/transcriptions/v1', body)
-    .catch((error) => {
-      console.log(error)
-    })
 }
 
-const loadTranscription = (transcriptionId) => {
-  return axios.get(`/api/transcriptions/v1/${transcriptionId}`)
-    .catch((error) => {
-      logout()
-    })
-}
+const loadTranscription = (transcriptionId) =>
+  axios.get(`/api/transcriptions/v1/${transcriptionId}`)
 
-const approveTranscription = (transcriptionId) => {
-  return axios.post(`/api/transcriptions/v1/${transcriptionId}/approve`)
-    .catch((error) => {
-      logout()
-    })
-}
+const approveTranscription = (transcriptionId) =>
+  axios.post(`/api/transcriptions/v1/${transcriptionId}/approve`)
 
-const rejectTranscription = (transcriptionId) => {
-  return axios.post(`/api/transcriptions/v1/${transcriptionId}/reject`)
-    .catch((error) => {
-      logout()
-    })
-}
+const rejectTranscription = (transcriptionId) =>
+  axios.post(`/api/transcriptions/v1/${transcriptionId}/reject`)
 
-const updateTranscription = (transcriptionId, tags, chapters, template_id) => {
-  return axios.put(`/api/transcriptions/v1/${transcriptionId}`,
-    {
-      tags,
-      transcriptions: chapters,
-      template_id
-    })
-    .catch((error) => {
-      logout()
-    })
-}
+const updateTranscription = (transcriptionId, tags, chapters, template_id) =>
+  axios.put(`/api/transcriptions/v1/${transcriptionId}`, {
+    tags,
+    transcriptions: chapters,
+    template_id
+  })
 
-const trainingGetNext = () => {
-  return axios.get(`/api/training/v2/transcript`)
-    .catch(error => console.log(error))
-}
+const trainingGetNext = () => axios.get('/api/training/v2/transcript')
 
-const trainingUpdate = (transcriptionId, updatedText) => {
-  return axios.post(`/api/training/v2/transcript/${transcriptionId}/status`,
-    {
-      text: updatedText
-    })
-    .catch((error) => {
-      logout()
-    })
-}
+const trainingUpdate = (transcriptionId, updatedText) =>
+  axios.post(`/api/training/v2/transcript/${transcriptionId}/status`, {
+    text: updatedText
+  })
 
-const trainingReject = (transcriptionId) => {
-  return axios.post(`/api/training/v2/transcript/${transcriptionId}/status`,
-    {
-      reject: true
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-}
+const trainingReject = (transcriptionId) =>
+  axios.post(`/api/training/v2/transcript/${transcriptionId}/status`, {
+    reject: true
+  })
 
-const getSectionTemplates = () => {
-  return axios.get(`/api/sections/v1`)
-    .catch(error => error)
-}
+const getSectionTemplates = () => axios.get('/api/sections/v1')
 
-const getChartData = () => {
-  return axios.get(`/api/charts/v1/CHART_ID`)
-    .catch((error) => {
-      console.log(error)
-    })
-}
+const getChartData = () => axios.get('/api/charts/v1/CHART_ID')
 
 export default {
   approveTranscription,

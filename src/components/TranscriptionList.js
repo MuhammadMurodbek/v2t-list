@@ -7,6 +7,7 @@ import swal from 'sweetalert'
 
 import '@elastic/eui/dist/eui_theme_light.css'
 import { EuiI18n } from '@elastic/eui'
+import { addErrorToast } from './GlobalToastList'
 
 export default class TranscriptionList extends Component {
   static contextType = PreferenceContext
@@ -32,7 +33,7 @@ export default class TranscriptionList extends Component {
 
   onTableChange = async ({ page = {} }) => {
     const { index: pageIndex, size: pageSize } = page
-    const { fetchTranscripts, setPageIndex, job } = this.props 
+    const { fetchTranscripts, setPageIndex, job } = this.props
     this.setState({
       loading: true
     })
@@ -40,12 +41,13 @@ export default class TranscriptionList extends Component {
     await fetchTranscripts(job, pageIndex, pageSize)
 
     this.setState({
-      pageSize, loading: false
+      pageSize,
+      loading: false
     })
     setPageIndex(pageIndex)
   }
 
-  shouldComponentUpdate({transcripts: nextTranscripts, job: nextJob}) {
+  shouldComponentUpdate({ transcripts: nextTranscripts, job: nextJob }) {
     const { transcripts, job } = this.props
     const { edited } = this.state
     if (
@@ -102,7 +104,9 @@ export default class TranscriptionList extends Component {
                 buttons: ['Avbryt', 'OK'],
                 dangerMode: true
               }).then((willDelete) => {
-                api.rejectTranscription(id)
+                api.rejectTranscription(id).catch(() => {
+                  addErrorToast()
+                })
                 if (willDelete) {
                   swal('Diktatet tas bort!', {
                     icon: 'success'
@@ -122,10 +126,12 @@ export default class TranscriptionList extends Component {
           pagination={pagination}
           columns={columns}
           noItemsMessage={
-            <h4 style={{
-              textAlign: 'center',
-              padding: '2em'
-            }}>
+            <h4
+              style={{
+                textAlign: 'center',
+                padding: '2em'
+              }}
+            >
               Loading ...
             </h4>
           }

@@ -20,6 +20,7 @@ import Page from '../components/Page'
 import '../styles/simple-player.css'
 import TrainingHelp from '../components/training/TrainingHelp'
 import Preview from '../components/training/Preview'
+import { addErrorToast } from '../components/GlobalToastList'
 
 export default class UploadPage extends Component {
   state = {
@@ -68,19 +69,24 @@ export default class UploadPage extends Component {
   }
 
   loadCurrentTranscript = async () => {
-    const status = await api.trainingGetNext()
-    if (status.data.data) {
-      this.setState(
-        {
-          transcriptionId: status.data.data.id,
-          mediaId: status.data.data.id
-        },
-        () => {
-          this.loadSubtitle(status)
-        }
-      )
-    } else {
+    try {
+      const status = await api.trainingGetNext()
+      if (status.data.data) {
+        this.setState(
+          {
+            transcriptionId: status.data.data.id,
+            mediaId: status.data.data.id
+          },
+          () => {
+            this.loadSubtitle(status)
+          }
+        )
+      } else {
+        this.setState({ incompleteTranscriptExists: false })
+      }
+    } catch {
       this.setState({ incompleteTranscriptExists: false })
+      addErrorToast()
     }
   }
 
@@ -177,7 +183,11 @@ export default class UploadPage extends Component {
         },
         async () => {
           this.setState({ chapters: '' })
-          await api.trainingUpdate(transcriptionId, previewContents)
+          try {
+            await api.trainingUpdate(transcriptionId, previewContents)
+          } catch {
+            addErrorToast()
+          }
           this.loadCurrentTranscript()
         }
       )
@@ -247,7 +257,18 @@ export default class UploadPage extends Component {
       },
       async () => {
         this.setState({ chapters: [] })
-        await api.trainingReject(transcriptionId)
+        try {
+          await api.trainingReject(transcriptionId)
+        } catch {
+          addErrorToast({
+            message: (
+              <EuiI18n
+                token="trainingNotExists"
+                default="The action cannot be performed as transcript can no longer be found"
+              />
+            )
+          })
+        }
         this.loadCurrentTranscript()
       }
     )
