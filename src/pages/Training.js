@@ -260,14 +260,13 @@ export default class UploadPage extends Component {
         try {
           await api.trainingReject(transcriptionId)
         } catch {
-          addErrorToast({
-            message: (
-              <EuiI18n
-                token="trainingNotExists"
-                default="The action cannot be performed as transcript can no longer be found"
-              />
-            )
-          })
+          addErrorToast(
+            null,
+            <EuiI18n
+              token="trainingNotExists"
+              default="The action cannot be performed as transcript can no longer be found"
+            />
+          )
         }
         this.loadCurrentTranscript()
       }

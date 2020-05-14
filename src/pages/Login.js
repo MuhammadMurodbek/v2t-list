@@ -30,11 +30,10 @@ const LoginPage = () => {
   const login = (e) => {
     e.preventDefault()
     if (username === '' || password === '') {
-      addErrorToast({
-        message: (
-          <EuiI18n token="authError" default="Invalid username or password" />
-        )
-      })
+      addErrorToast(
+        null,
+        <EuiI18n token="authError" default="Invalid username or password" />
+      )
     } else {
       api
         .login(username, password)
