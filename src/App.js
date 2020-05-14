@@ -469,15 +469,13 @@ axios.interceptors.response.use(
     return response
   },
   (error) => {
-    if (error.response.status === 401) {
+    if (error.response.status === 401 || error.response.status === 403) {
       addErrorToast(
         null,
         <EuiI18n token="authError" default="Invalid username or password" />
       )
 
-      if (this.state.isLoggedIn) {
-        return api.logout()
-      }
+      return api.logout()
     } else {
       return Promise.reject(error)
     }
