@@ -48,28 +48,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    axios.interceptors.response.use(
-      (response) => {
-        return response
-      },
-      (error) => {
-        if (error.response.status === 401) {
-          addErrorToast({
-            message: (
-              <EuiI18n
-                token="authError"
-                default="Invalid username or password"
-              />
-            )
-          })
-
-          return api.logout()
-        } else {
-          return Promise.reject(error)
-        }
-      }
-    )
-
     this.fetchTranscripts()
   }
 
@@ -485,5 +463,28 @@ class App extends Component {
     )
   }
 }
+
+axios.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    console.log('ADZ', error)
+    if (error.response.status === 401 || error.response.status === 403) {
+      addErrorToast({
+        message: (
+          <EuiI18n
+            token="authError"
+            default="Invalid username or password"
+          />
+        )
+      })
+
+      return api.logout()
+    } else {
+      return Promise.reject(error)
+    }
+  }
+)
 
 export default withProvider(App, LanguageProvider)
