@@ -74,25 +74,25 @@ export default class Tags extends Component {
     })
   }
 
-  loadIcdCodes = async (searchTerm) => {
-    try {
-      const codeData = await api.keywordsSearch(searchTerm)
+    loadIcdCodes = async (searchTerm, namespace) => {
+      try {
+        const codeData = await api.keywordsSearch(searchTerm, namespace)
 
-      // Purpose of doing this is to use free text search
-      if (codeData.data !== null) {
-        const options = codeData.data.map((code) => {
-          const label = `${code.value.toUpperCase()}: ${code.description}`
-          return {
-            ...code,
-            label
-          }
-        })
-        this.setState({ options })
+        // Purpose of doing this is to use free text search
+        if (codeData.data !== null) {
+          const options = codeData.data.map((code) => {
+            const label = `${code.value.toUpperCase()}: ${code.description}`
+            return {
+              ...code,
+              label
+            }
+          })
+          this.setState({ options })
+        }
+      } catch {
+        addErrorToast()
       }
-    } catch {
-      addErrorToast()
     }
-  }
 
   deleteRow = (item) => {
     const { icd10Codes, kvaCodes } = this.state
