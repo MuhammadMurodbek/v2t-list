@@ -532,7 +532,7 @@ export default class LiveDiktering extends Component {
               />
               <EuiButtonEmpty
                 onClick={this.saveRecordedTranscript}
-              > Append already recorded transcript</EuiButtonEmpty>
+              > .</EuiButtonEmpty>
             </div>
             <div style={{
               marginTop: '-80px'
