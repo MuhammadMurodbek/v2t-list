@@ -10,7 +10,7 @@ import Page from '../components/Page'
 import GuidedLiveEditor from '../components/live/GuidedLiveEditor'
 
 import * as recorder from '../utils/recorder'
-import { addErrorToast } from '../components/GlobalToastList'
+import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 // import RecordList from '../components/RecordList'
 
 export default class GuidedLive extends Component {
@@ -72,7 +72,7 @@ export default class GuidedLive extends Component {
         templatesForMenu: finalTemplates
       })
     } catch {
-      addErrorToast()
+      addUnexpectedErrorToast()
     }
   }
 

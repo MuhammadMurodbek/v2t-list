@@ -3,20 +3,24 @@ import PropTypes from 'prop-types'
 import { EuiBasicTable, EuiButtonIcon, EuiButtonEmpty } from '@elastic/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import api from '../api'
-import swal from 'sweetalert'
 
 import '@elastic/eui/dist/eui_theme_light.css'
-import { EuiI18n } from '@elastic/eui'
-import { addErrorToast } from './GlobalToastList'
+import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@elastic/eui'
+import { addUnexpectedErrorToast, addSuccessToast } from './GlobalToastList'
 
 export default class TranscriptionList extends Component {
   static contextType = PreferenceContext
 
-  state = {
-    edited: false,
-    pageIndex: 0,
-    pageSize: 20,
-    loading: false
+  constructor(props) {
+    super(props)
+    this.state = {
+      edited: false,
+      pageIndex: 0,
+      pageSize: 20,
+      loading: false,
+      isConfirmModalVisible: false,
+      dictationToRemove: null
+    }
   }
 
   componentDidMount = async () => {
@@ -59,9 +63,51 @@ export default class TranscriptionList extends Component {
     return false
   }
 
+  showConfirmModal = (dictationToRemove) => {
+    this.setState((prevState) => ({
+      ...prevState,
+      dictationToRemove,
+      isConfirmModalVisible: true
+    }))
+
+    this.forceUpdate()
+  }
+
+  closeConfirmModal = () => {
+    this.setState((prevState) => ({
+      ...prevState,
+      isConfirmModalVisible: false,
+      dictationToRemove: null
+    }))
+
+    this.forceUpdate()
+  }
+
+  onRemoveDictationConfirmed = () => {
+    const { dictationToRemove } = this.state
+    this.closeConfirmModal()
+
+    if (dictationToRemove !== null) {
+      api
+        .rejectTranscription(dictationToRemove)
+        .then(() => {
+          this.updateItems(dictationToRemove)
+          addSuccessToast(
+            <EuiI18n
+              token="dictationRemoveSucces"
+              default="The dictation has been removed successfully!"
+            />
+          )
+        })
+        .catch(() => {
+          addUnexpectedErrorToast()
+        })
+    }
+  }
+
   render() {
     localStorage.setItem('transcriptId', '')
-    const { pageSize, loading } = this.state
+    const { pageSize, loading, isConfirmModalVisible } = this.state
     const { transcripts, contentLength, pageIndex } = this.props
     const [preferences] = this.context
     const pagination = {
@@ -96,29 +142,34 @@ export default class TranscriptionList extends Component {
             color="danger"
             iconType="trash"
             aria-label="Delete"
-            onClick={() => {
-              swal({
-                title: 'Vill du verkligen ta bort diktatet?',
-                text: '',
-                icon: 'warning',
-                buttons: ['Avbryt', 'OK'],
-                dangerMode: true
-              }).then((willDelete) => {
-                api.rejectTranscription(id).catch(() => {
-                  addErrorToast()
-                })
-                if (willDelete) {
-                  swal('Diktatet tas bort!', {
-                    icon: 'success'
-                  })
-                  this.updateItems(id)
-                }
-              })
-            }}
+            onClick={() => this.showConfirmModal(id)}
           />
         )
       }
     ]
+
+    const confirmModal = isConfirmModalVisible ? (
+      <EuiOverlayMask>
+        <EuiConfirmModal
+          title={<EuiI18n token="removeDictation" default="Remove dictation" />}
+          onCancel={this.closeConfirmModal}
+          onConfirm={this.onRemoveDictationConfirmed}
+          cancelButtonText={
+            <EuiI18n token="noDontDoIt" default="No, don't do it" />
+          }
+          confirmButtonText={<EuiI18n token="yesDoIt" default="Yes, do it" />}
+          buttonColor="danger"
+          defaultFocusedButton="confirm"
+        >
+          <p>
+            <EuiI18n
+              token="removeDictationConfirmation"
+              default="Do you really want to remove the dictation?"
+            />
+          </p>
+        </EuiConfirmModal>
+      </EuiOverlayMask>
+    ) : null
 
     return (
       <Fragment>
@@ -140,6 +191,7 @@ export default class TranscriptionList extends Component {
           compressed={true}
           onChange={this.onTableChange}
         />
+        {confirmModal}
       </Fragment>
     )
   }

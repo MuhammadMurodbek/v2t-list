@@ -3,10 +3,10 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useState, useEffect, Fragment } from 'react'
-import swal from 'sweetalert'
 import steps from '../../models/live/steps'
 import validatePersonnummer from '../../models/live/validatePersonnummer'
 import '../../styles/guided.css'
+import { addGlobalToast } from '../GlobalToastList'
 
 const Step = ({
   stepsHierarchy,
@@ -174,13 +174,11 @@ const Step = ({
             setCurrentStep(predefinedSteps[i + 1])
           } else {
             changeHierarchyNext(i, '')
-            swal(personnummerValidation.message)
-            swal({
-              title: personnummerValidation.message,
-              text: '',
-              icon: 'info',
-              buttons: [false, 'Ok']
-            })
+            addGlobalToast(
+              <EuiI18n token="info" default="Info" />,
+              personnummerValidation.message,
+              'info'
+            )
             setCurrentItem('')
             setCurrentStep('patients Personnummer')
           }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { EuiGlobalToastList } from '@elastic/eui'
+import { EuiGlobalToastList, EuiI18n } from '@elastic/eui'
 
 let addToastHandler
 let clearToastsHandler
@@ -16,6 +16,30 @@ const addGlobalToast = (
 
 const clearGlobalToastList = () => {
   clearToastsHandler()
+}
+
+const addErrorToast = (title = null, message = null) => {
+  if (!title) return
+
+  addGlobalToast(title, message && <p>{message}</p>, 'danger', 'alert')
+}
+
+const addUnexpectedErrorToast = () =>
+  addErrorToast(
+    <EuiI18n token="error" default="Error" />,
+    <EuiI18n token="unexpectedError" default="Unexpected error occurred" />
+  )
+
+const addWarningToast = (title = null, message = null) => {
+  if (!title) return
+
+  addGlobalToast(title, message && <p>{message}</p>, 'warning', 'help')
+}
+
+const addSuccessToast = (title = null, message = null) => {
+  if (!title) return
+
+  addGlobalToast(title, message && <p>{message}</p>, 'success', 'check')
 }
 
 const GlobalToastListContainer = () => {
@@ -51,4 +75,12 @@ const GlobalToastListContainer = () => {
   )
 }
 
-export { GlobalToastListContainer, addGlobalToast, clearGlobalToastList }
+export {
+  GlobalToastListContainer,
+  addGlobalToast,
+  clearGlobalToastList,
+  addErrorToast,
+  addUnexpectedErrorToast,
+  addWarningToast,
+  addSuccessToast
+}

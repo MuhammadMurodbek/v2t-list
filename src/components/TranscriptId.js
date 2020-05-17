@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import { EuiFormRow, EuiButtonEmpty } from '@elastic/eui'
-import swal from 'sweetalert'
 import { EuiI18n } from '@elastic/eui'
+import { addSuccessToast, addWarningToast } from './GlobalToastList'
 
 const TranscriptId = ({ id }) => {
   const copyToClipBoard = () => {
@@ -9,25 +9,22 @@ const TranscriptId = ({ id }) => {
       if (result.state === 'granted' || result.state === 'prompt') {
         /* write to the clipboard now */
         navigator.clipboard.writeText(id).then(
-          function () {
-            /* clipboard successfully set */
-            swal({
-              title: 'ID är kopierat till klippbordet',
-              text: '',
-              icon: 'info',
-              button: 'Ok'
-            })
-          },
-          function () {
-            /* clipboard write failed */
-            swal({
-              title:
-                'Web browsern stöds inte, använd t ex Chrome eller Firefox',
-              text: '',
-              icon: 'info',
-              button: 'Ok'
-            })
-          }
+          () =>
+            addSuccessToast(
+              <EuiI18n token="success" default="Success" />,
+              <EuiI18n
+                token="idIsCopied"
+                default="ID copied to the clipboard"
+              />
+            ),
+          () =>
+            addWarningToast(
+              <EuiI18n token="warning" default="Warning" />,
+              <EuiI18n
+                token="browserIsNotSupported"
+                default="Your browser is not supported, use e.g. Chrome or Firefox"
+              />
+            )
         )
       }
     })

@@ -16,11 +16,10 @@ import {
   EuiRadioGroup
 } from '@elastic/eui'
 
-import swal from 'sweetalert'
 import api from '../api'
 import '../styles/tags.css'
 import { EuiI18n } from '@elastic/eui'
-import { addErrorToast } from './GlobalToastList'
+import { addUnexpectedErrorToast, addWarningToast } from './GlobalToastList'
 
 export default class Tags extends Component {
   state = {
@@ -52,21 +51,27 @@ export default class Tags extends Component {
     }
   }
 
-  onChangeCodeSearch = optionId => {
-    const { nameSpacesStringForView, selectedRadioId }  = this.state
-    this.setState({selectedRadioId: optionId}, ()=>{
-      if(selectedRadioId === '0') {
-        this.setState({ selectedNameSpace: nameSpacesStringForView[1], options: []})
+  onChangeCodeSearch = (optionId) => {
+    const { nameSpacesStringForView, selectedRadioId } = this.state
+    this.setState({ selectedRadioId: optionId }, () => {
+      if (selectedRadioId === '0') {
+        this.setState({
+          selectedNameSpace: nameSpacesStringForView[1],
+          options: []
+        })
       } else if (selectedRadioId === '1') {
-        this.setState({ selectedNameSpace: nameSpacesStringForView[0], options: [] })
+        this.setState({
+          selectedNameSpace: nameSpacesStringForView[0],
+          options: []
+        })
       }
     })
   }
 
   loadTagsFromTranscript = () => {
     const { tags } = this.props
-    const icd10Codes = tags.filter(tag => tag.namespace === 'icd-10')
-    const kvaCodes = tags.filter(tag => tag.namespace === 'kva')
+    const icd10Codes = tags.filter((tag) => tag.namespace === 'icd-10')
+    const kvaCodes = tags.filter((tag) => tag.namespace === 'kva')
     this.setState({
       tableOfCodes: tags,
       icd10Codes,
@@ -74,29 +79,29 @@ export default class Tags extends Component {
     })
   }
 
-    loadIcdCodes = async (searchTerm, namespace) => {
-      try {
-        const codeData = await api.keywordsSearch(searchTerm, namespace)
+  loadIcdCodes = async (searchTerm, namespace) => {
+    try {
+      const codeData = await api.keywordsSearch(searchTerm, namespace)
 
-        // Purpose of doing this is to use free text search
-        if (codeData.data !== null) {
-          const options = codeData.data.map((code) => {
-            const label = `${code.value.toUpperCase()}: ${code.description}`
-            return {
-              ...code,
-              label
-            }
-          })
-          this.setState({ options })
-        }
-      } catch {
-        addErrorToast()
+      // Purpose of doing this is to use free text search
+      if (codeData.data !== null) {
+        const options = codeData.data.map((code) => {
+          const label = `${code.value.toUpperCase()}: ${code.description}`
+          return {
+            ...code,
+            label
+          }
+        })
+        this.setState({ options })
       }
+    } catch {
+      addUnexpectedErrorToast()
     }
+  }
 
   deleteRow = (item) => {
     const { icd10Codes, kvaCodes } = this.state
-    if(item.namespace==='icd-10') {
+    if (item.namespace === 'icd-10') {
       const remainingCodes = icd10Codes.filter((el) => el.id !== item.id)
       this.setState({ icd10Codes: remainingCodes }, () => {
         this.props.updateTags([...remainingCodes, ...kvaCodes])
@@ -117,13 +122,12 @@ export default class Tags extends Component {
 
       if (selectedRadioId === '0') {
         if (icd10Codes.some((e) => e.id === data[0])) {
-          // eslint-disable-next-line no-alert
-          swal({
-            title: 'ICD koden får endast förekomma 1 gång',
-            text: '',
-            icon: 'info',
-            button: 'Avbryt'
-          })
+          addWarningToast(
+            <EuiI18n
+              token="ICDCodeError"
+              default="The ICD code may only occur once"
+            />
+          )
           this.emptySelectedOption()
         } else {
           const updatedCodes = [
@@ -141,13 +145,12 @@ export default class Tags extends Component {
         }
       } else if (selectedRadioId === '1') {
         if (kvaCodes.some((e) => e.id === data[0])) {
-          // eslint-disable-next-line no-alert
-          swal({
-            title: 'ICD koden får endast förekomma 1 gång',
-            text: '',
-            icon: 'info',
-            button: 'Avbryt'
-          })
+          addWarningToast(
+            <EuiI18n
+              token="ICDCodeError"
+              default="The ICD code may only occur once"
+            />
+          )
           this.emptySelectedOption()
         } else {
           const updatedCodes = [
@@ -182,18 +185,18 @@ export default class Tags extends Component {
   }
 
   onSearchChange = async (searchValue) => {
-    const {selectedRadioId} = this.state
+    const { selectedRadioId } = this.state
     let namespace
     this.setState({
       isLoading: true
     })
 
-    if (selectedRadioId=== '0') {
+    if (selectedRadioId === '0') {
       namespace = 'icd-10'
     } else if (selectedRadioId === '1') {
       namespace = 'kva'
     }
-    
+
     await this.loadIcdCodes(searchValue, namespace)
     this.setState({
       isLoading: false
@@ -210,7 +213,7 @@ export default class Tags extends Component {
   onDragEnd = ({ source, destination }) => {
     const { icd10Codes, kvaCodes } = this.state
     if (source && destination) {
-      if (source.droppableId==='icd-10') {
+      if (source.droppableId === 'icd-10') {
         this.setState(
           {
             icd10Codes: this.swap(icd10Codes, source.index, destination.index)
@@ -228,12 +231,21 @@ export default class Tags extends Component {
             this.props.updateTags([...icd10Codes, ...kvaCodes])
           }
         )
-      } 
+      }
     }
   }
 
   render() {
-    const { options, isLoading, selectedOption, icd10Codes, kvaCodes, radios, selectedRadioId, selectedNameSpace } = this.state
+    const {
+      options,
+      isLoading,
+      selectedOption,
+      icd10Codes,
+      kvaCodes,
+      radios,
+      selectedRadioId,
+      selectedNameSpace
+    } = this.state
 
     return (
       <Fragment>
@@ -248,7 +260,7 @@ export default class Tags extends Component {
                 options={radios}
                 idSelected={selectedRadioId}
                 className="searchCodes"
-                onChange={id => this.onChangeCodeSearch(id)}
+                onChange={(id) => this.onChangeCodeSearch(id)}
                 name="radio group"
                 compressed={true}
               />
@@ -295,11 +307,7 @@ export default class Tags extends Component {
           </EuiText>
           <EuiSpacer size="m" />
           <EuiDragDropContext onDragEnd={this.onDragEnd}>
-            <EuiDroppable
-              droppableId="icd-10"
-              spacing="m"
-              withPanel
-            >
+            <EuiDroppable droppableId="icd-10" spacing="m" withPanel>
               {icd10Codes.map(({ description, id, namespace }, idx) => (
                 <EuiDraggable
                   spacing="m"
@@ -322,7 +330,11 @@ export default class Tags extends Component {
                           </div>
                         </EuiFlexItem>
                         <EuiFlexItem
-                          style={{ minWidth: 260, fontSize: '1rem', marginLeft: '-8px' }}
+                          style={{
+                            minWidth: 260,
+                            fontSize: '1rem',
+                            marginLeft: '-8px'
+                          }}
                         >
                           <strong>{id}</strong> {description}
                         </EuiFlexItem>
@@ -330,7 +342,9 @@ export default class Tags extends Component {
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"
-                            onClick={() => this.deleteRow({ description, id, namespace })}
+                            onClick={() =>
+                              this.deleteRow({ description, id, namespace })
+                            }
                             iconType="trash"
                             aria-label="Next"
                             className="selectorBottons"
@@ -363,12 +377,8 @@ export default class Tags extends Component {
           </EuiText>
           <EuiSpacer size="m" />
           <EuiDragDropContext onDragEnd={this.onDragEnd}>
-            <EuiDroppable
-              droppableId="kva"
-              spacing="m"
-              withPanel
-            >
-              {kvaCodes.map(({ description, id, namespace}, idx) => (
+            <EuiDroppable droppableId="kva" spacing="m" withPanel>
+              {kvaCodes.map(({ description, id, namespace }, idx) => (
                 <EuiDraggable
                   spacing="m"
                   key={id}
@@ -390,7 +400,11 @@ export default class Tags extends Component {
                           </div>
                         </EuiFlexItem>
                         <EuiFlexItem
-                          style={{ minWidth: 260, fontSize: '1rem', marginLeft: '-8px' }}
+                          style={{
+                            minWidth: 260,
+                            fontSize: '1rem',
+                            marginLeft: '-8px'
+                          }}
                         >
                           <strong>{id}</strong> {description}
                         </EuiFlexItem>
@@ -398,7 +412,9 @@ export default class Tags extends Component {
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"
-                            onClick={() => this.deleteRow({ description, id, namespace })}
+                            onClick={() =>
+                              this.deleteRow({ description, id, namespace })
+                            }
                             iconType="trash"
                             aria-label="Next"
                             className="selectorBottons"

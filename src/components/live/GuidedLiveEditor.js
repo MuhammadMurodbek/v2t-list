@@ -20,7 +20,7 @@ import processChapters from '../../models/processChapters'
 import TemplateMenu from './TemplateMenu'
 import PersonalInfoLive from './PersonalInfoLive'
 import api from '../../api'
-import { addErrorToast } from '../GlobalToastList'
+import { addUnexpectedErrorToast } from '../GlobalToastList'
 
 const GuidedLiveEditor = ({
   prevContent,
@@ -143,7 +143,7 @@ const GuidedLiveEditor = ({
                   }
                 ])
       } catch {
-        addErrorToast()
+        addUnexpectedErrorToast()
       }
     }
   }

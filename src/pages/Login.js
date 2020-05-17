@@ -12,7 +12,10 @@ import { usePreferences } from '../components/PreferencesProvider'
 // import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'
 import api from '../api'
-import { addErrorToast } from '../components/GlobalToastList'
+import {
+  addErrorToast,
+  addUnexpectedErrorToast
+} from '../components/GlobalToastList'
 
 const LoginPage = () => {
   const [username, setUsername] = useState('test')
@@ -31,7 +34,6 @@ const LoginPage = () => {
     e.preventDefault()
     if (username === '' || password === '') {
       addErrorToast(
-        null,
         <EuiI18n token="authError" default="Invalid username or password" />
       )
     } else {
@@ -45,7 +47,7 @@ const LoginPage = () => {
         })
         .catch((error) => {
           if (error.response.status !== 401) {
-            addErrorToast()
+            addUnexpectedErrorToast()
           }
         })
     }

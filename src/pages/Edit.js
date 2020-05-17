@@ -12,7 +12,6 @@ import {
   EuiButtonEmpty,
   EuiI18n
 } from '@elastic/eui'
-import swal from 'sweetalert'
 import Invalid from './Invalid'
 import api from '../api'
 import Page from '../components/Page'
@@ -25,7 +24,13 @@ import Info from '../components/Info'
 import isSuperset from '../models/isSuperset'
 import Sidenote from '../components/Sidenote'
 import processChaptersRegular from '../models/processChaptersRegular'
-import { addErrorToast } from '../components/GlobalToastList'
+import {
+  addUnexpectedErrorToast,
+  addErrorToast,
+  addGlobalToast,
+  addWarningToast,
+  addSuccessToast
+} from '../components/GlobalToastList'
 // import processChapters from '../models/processChapters'
 
 const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [] }]
@@ -175,12 +180,16 @@ export default class EditPage extends Component {
         this.save(true)
       }
     } else {
-      swal({
-        title: 'Det är inte möjligt att skicka till co-worker.',
-        text: 'Personnummer saknas',
-        icon: 'error',
-        button: 'Ok'
-      })
+      addErrorToast(
+        <EuiI18n
+          token="presonNumberIsMissing"
+          default="Person number is missing"
+        />,
+        <EuiI18n
+          token="unableToSendToCoWorker"
+          default="Unbale to send to co-worker"
+        />
+      )
     }
   }
 
@@ -191,16 +200,15 @@ export default class EditPage extends Component {
       if (sendingToCoworker) {
         window.location = '/'
       } else {
-        swal({
-          title:
-            'Det är inte möjligt att Skicka till co-worker, vänligen prova igen senare.',
-          text: '',
-          icon: 'error',
-          button: 'Ok'
-        })
+        addErrorToast(
+          <EuiI18n
+            token="unableToSendToCoWorker"
+            default="Unbale to send to co-worker"
+          />
+        )
       }
     } catch {
-      addErrorToast()
+      addUnexpectedErrorToast()
     }
   }
 
@@ -278,34 +286,44 @@ export default class EditPage extends Component {
       JSON.stringify(tags) === JSON.stringify(originalTags) &&
       originalTemplateId === templateId
     ) {
-      swal({
-        title: 'Det finns inget att uppdatera!',
-        text: 'Diktatet är inte ändrat',
-        icon: 'info',
-        button: 'Ok'
-      })
+      addGlobalToast(
+        <EuiI18n token="info" default="Info" />,
+        <EuiI18n
+          token="nothingToUpdate"
+          default="There is nothing to update!"
+        />,
+        'info'
+      )
       return
     }
 
     const headers = chapters.map((chapter) => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
     if (headers.length !== uniqueHeaders.length) {
-      swal({
-        title: 'Inte möjligt att spara diktatet',
-        text: 'Sökord får endast förekomma 1 gång',
-        icon: 'info',
-        button: 'Ok'
-      })
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <EuiI18n
+          token="keywordsError"
+          default="Keywords may only appear once"
+        />
+      )
       return
     }
 
     if (this.areSectionHeadersBelongToTheTemplate().message === false) {
-      swal({
-        title: 'Inte möjligt att spara diktatet',
-        text: 'Det valda sökordet finns inte för mallen',
-        icon: 'info',
-        button: 'Ok'
-      })
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <EuiI18n
+          token="keywordsNotExist"
+          default="The selected keyword does not exist for the template"
+        />
+      )
       return
     } else if (
       this.areSectionHeadersBelongToTheTemplate().message === 'FUZZY'
@@ -333,12 +351,12 @@ export default class EditPage extends Component {
           originalTags: tags
         },
         () => {
-          swal({
-            title: 'Diktatet är uppdaterat',
-            text: '',
-            icon: 'success',
-            button: 'Ok'
-          })
+          addSuccessToast(
+            <EuiI18n
+              token="dictationUpdated"
+              default="The dictation has been updated"
+            />
+          )
           if (shouldBeSentToCoworker === true) {
             this.sendToCoworker()
           }
@@ -346,7 +364,7 @@ export default class EditPage extends Component {
         }
       )
     } catch {
-      addErrorToast()
+      addUnexpectedErrorToast()
     }
   }
 
@@ -416,8 +434,6 @@ export default class EditPage extends Component {
     return (
       <Page preferences title={<EuiI18n token="editor" default="Editor" />}>
         <div>
-          
-
           <EuiFlexGroup wrap gutterSize="xl">
             <EuiFlexItem>
               <EuiFlexGroup>
@@ -479,37 +495,33 @@ export default class EditPage extends Component {
                         }}
                         onClick={this.finalize}
                       >
-                        <EuiI18n token="sendToWebdoc" default="Send to Co-worker" />
+                        <EuiI18n
+                          token="sendToWebdoc"
+                          default="Send to Co-worker"
+                        />
                       </EuiButton>
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
-               
-            
-            
-            
 
+                <EuiFlexItem grow={false}>
+                  <Info fields={fields} />
+                  <EuiSpacer size="xxl" />
+                  <Tags tags={tags} updateTags={this.onUpdateTags} />
+                  <EuiSpacer size="xxl" />
+                  <Templates
+                    listOfTemplates={templates}
+                    defaultTemplateId={templateId}
+                    updateTemplateId={this.updateTemplateId}
+                  />
 
-
-
-            <EuiFlexItem grow={false}>
-              <Info fields={fields} />
-              <EuiSpacer size="xxl" />
-              <Tags tags={tags} updateTags={this.onUpdateTags} />
-              <EuiSpacer size="xxl" />
-              <Templates
-                listOfTemplates={templates}
-                defaultTemplateId={templateId}
-                updateTemplateId={this.updateTemplateId}
-              />
-
-              <EuiSpacer size="xxl" />
-              <Sidenote
-                content={sidenoteContent}
-                updateSidenote={this.updateSidenote}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
+                  <EuiSpacer size="xxl" />
+                  <Sidenote
+                    content={sidenoteContent}
+                    updateSidenote={this.updateSidenote}
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>

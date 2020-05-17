@@ -1,12 +1,18 @@
 import {
   GlobalToastListContainer,
   addGlobalToast,
-  clearGlobalToastList
+  clearGlobalToastList,
+  addErrorToast,
+  addUnexpectedErrorToast,
+  addWarningToast,
+  addSuccessToast
 } from './GlobalToastList'
-import addErrorToast from './addErrorToast'
 export {
   GlobalToastListContainer,
   addGlobalToast,
   clearGlobalToastList,
-  addErrorToast
+  addErrorToast,
+  addUnexpectedErrorToast,
+  addWarningToast,
+  addSuccessToast
 }

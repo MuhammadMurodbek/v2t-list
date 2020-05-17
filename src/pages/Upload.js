@@ -15,10 +15,12 @@ import {
   EuiFieldText
 } from '@elastic/eui'
 import api from '../api'
-import swal from 'sweetalert'
 import Page from '../components/Page'
 import { EuiI18n } from '@elastic/eui'
-import { addErrorToast } from '../components/GlobalToastList'
+import {
+  addUnexpectedErrorToast,
+  addWarningToast
+} from '../components/GlobalToastList'
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
@@ -104,7 +106,7 @@ export default class UploadPage extends Component {
         }
       }
     } catch {
-      addErrorToast()
+      addUnexpectedErrorToast()
     }
   }
 
@@ -129,12 +131,10 @@ export default class UploadPage extends Component {
   onSubmit = () => {
     const { files } = this.state
     if (files.length === 0) {
-      swal({
-        title: 'Det är inte möjligt att ladda upp.',
-        text: 'Fil saknas',
-        icon: 'error',
-        button: 'Ok'
-      })
+      addWarningToast(
+        <EuiI18n token="unableToUpload" default="Unable to upload" />,
+        <EuiI18n token="fileIsMissing" default="File is missing" />
+      )
     } else {
       const loading = true
       this.setState({ loading })
@@ -169,7 +169,7 @@ export default class UploadPage extends Component {
           selectedJournalSystem
         )
         .catch(() => {
-          addErrorToast()
+          addUnexpectedErrorToast()
         })
     )
     await Promise.all(requests).catch(this.onUploadFailed)

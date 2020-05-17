@@ -21,7 +21,7 @@ import io from 'socket.io-client'
 import Page from '../components/Page'
 import processChapters from '../models/processChapters'
 import inoviaLogo from '../img/livediktering.png'
-import { addErrorToast } from '../components/GlobalToastList'
+import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -71,7 +71,7 @@ export default class LiveDiktering extends Component {
       console.log(templateList)
       this.setState({ listOfTemplates: templateList.data.templates })
     } catch {
-      addErrorToast()
+      addUnexpectedErrorToast()
     }
   }
 

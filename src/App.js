@@ -32,6 +32,7 @@ import {
   GlobalToastListContainer,
   addErrorToast
 } from './components/GlobalToastList'
+import { addUnexpectedErrorToast } from './components/GlobalToastList/GlobalToastList'
 
 class App extends Component {
   state = {
@@ -95,7 +96,7 @@ class App extends Component {
             this.setState({ transcripts })
           })
           .catch(() => {
-            addErrorToast()
+            addUnexpectedErrorToast()
           })
 
         api
@@ -135,7 +136,7 @@ class App extends Component {
                       })
                     })
                     .catch(() => {
-                      addErrorToast()
+                      addUnexpectedErrorToast()
                     })
                 },
                 href: '/#/'
@@ -214,7 +215,7 @@ class App extends Component {
             resolve()
           })
           .catch(() => {
-            addErrorToast()
+            addUnexpectedErrorToast()
           })
       }
     })
@@ -469,8 +470,7 @@ const getQueryStringValue = (key) => {
 }
 
 const queryToken = getQueryStringValue('token')
-if (queryToken)
-  api.setToken(queryToken)
+if (queryToken) api.setToken(queryToken)
 
 axios.interceptors.response.use(
   (response) => {
@@ -479,7 +479,6 @@ axios.interceptors.response.use(
   (error) => {
     if (error.response.status === 401 || error.response.status === 403) {
       addErrorToast(
-        null,
         <EuiI18n token="authError" default="Invalid username or password" />
       )
 
