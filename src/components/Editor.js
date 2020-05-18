@@ -134,16 +134,6 @@ export default class Editor extends Component {
     const timestamp = segment ? segment.startTime || 0 : 0
     const timestampStart = segment ? segment.startTime || 0 : 0
     const timestampEnd = segment ? segment.endTime || 0 : 0
-    console.log('start')
-    console.log('chapterId')
-    console.log(chapterId)
-    console.log('segmentId')
-    console.log(segmentId)
-    console.log('segment')
-    console.log(segment)
-    console.log('timestamp')
-    console.log(timestamp)
-    console.log('end')
     onCursorTimeChange(timestamp, chapterId, segmentId, timestampStart, timestampEnd)
   }
 
@@ -317,7 +307,7 @@ export default class Editor extends Component {
   reduceSegment = (store, segment) => {
     const lastSegment = store[store.length - 1]
     if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
-      store[store.length -1] = {
+      store[store.length - 1] = {
         ...lastSegment,
         endTime: segment.endTime,
         words: `${lastSegment.words}${segment.words}`
@@ -454,7 +444,7 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, 
   return (
     <pre>
       <code
-        style={{minHeight: '20px'}}
+        style={{ minHeight: '20px' }}
         key={JSON.stringify(segments)}
         onInput={e => onChange(e, chapterId)}
         onPaste={e => onPaste(e, chapterId)}
