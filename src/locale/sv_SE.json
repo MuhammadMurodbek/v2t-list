@@ -130,7 +130,7 @@
   "unableToSendToCoWorker": "Det är inte möjligt att skicka till co-worker",
   "nothingToUpdate": "There is nothing to update!",
   "unableToSaveDictation": "Inte möjligt att spara diktatet",
-  "keywordsError": "Keywords may only appear once",
+  "keywordsError": "Sökord får endast förekomma 1 gång",
   "keywordsNotExist": "Det valda sökordet finns inte för mallen",
   "dictationUpdated": "Diktatet är uppdaterat",
   "lettersError": "Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!",
