@@ -20,6 +20,7 @@ import processChapters from '../../models/processChapters'
 import TemplateMenu from './TemplateMenu'
 import PersonalInfoLive from './PersonalInfoLive'
 import api from '../../api'
+import { addUnexpectedErrorToast } from '../GlobalToastList'
 
 const GuidedLiveEditor = ({
   prevContent,
@@ -129,17 +130,21 @@ const GuidedLiveEditor = ({
         .forEach((text) => {
           if (text) textData = textData + text
         })
-      const result = await api.keywordsSearch(textData)
-      if (result)
-        if (result.data)
-          if (result.data[0])
-            if (result.data[0].value)
-              setTags([
-                {
-                  id: result.data[0].value,
-                  description: result.data[0].description
-                }
-              ])
+      try {
+        const result = await api.keywordsSearch(textData)
+        if (result)
+          if (result.data)
+            if (result.data[0])
+              if (result.data[0].value)
+                setTags([
+                  {
+                    id: result.data[0].value,
+                    description: result.data[0].description
+                  }
+                ])
+      } catch {
+        addUnexpectedErrorToast()
+      }
     }
   }
 

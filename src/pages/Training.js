@@ -13,13 +13,16 @@ import {
   EuiTextArea,
   EuiI18n
 } from '@elastic/eui'
-import swal from 'sweetalert'
 import api from '../api'
 import Player from '../components/Player'
 import Page from '../components/Page'
 import '../styles/simple-player.css'
 import TrainingHelp from '../components/training/TrainingHelp'
 import Preview from '../components/training/Preview'
+import {
+  addErrorToast,
+  addUnexpectedErrorToast
+} from '../components/GlobalToastList'
 
 export default class UploadPage extends Component {
   state = {
@@ -68,19 +71,24 @@ export default class UploadPage extends Component {
   }
 
   loadCurrentTranscript = async () => {
-    const status = await api.trainingGetNext()
-    if (status.data.data) {
-      this.setState(
-        {
-          transcriptionId: status.data.data.id,
-          mediaId: status.data.data.id
-        },
-        () => {
-          this.loadSubtitle(status)
-        }
-      )
-    } else {
+    try {
+      const status = await api.trainingGetNext()
+      if (status.data.data) {
+        this.setState(
+          {
+            transcriptionId: status.data.data.id,
+            mediaId: status.data.data.id
+          },
+          () => {
+            this.loadSubtitle(status)
+          }
+        )
+      } else {
+        this.setState({ incompleteTranscriptExists: false })
+      }
+    } catch {
       this.setState({ incompleteTranscriptExists: false })
+      addUnexpectedErrorToast()
     }
   }
 
@@ -177,18 +185,21 @@ export default class UploadPage extends Component {
         },
         async () => {
           this.setState({ chapters: '' })
-          await api.trainingUpdate(transcriptionId, previewContents)
+          try {
+            await api.trainingUpdate(transcriptionId, previewContents)
+          } catch {
+            addUnexpectedErrorToast()
+          }
           this.loadCurrentTranscript()
         }
       )
     } else {
-      swal({
-        title: '',
-        text:
-          'Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!',
-        icon: 'warning',
-        button: 'Avbryt'
-      })
+      addErrorToast(
+        <EuiI18n
+          token="lettersError"
+          default="Use only letters (the instruction has a list of valid characters)!"
+        />
+      )
     }
   }
 
@@ -247,7 +258,17 @@ export default class UploadPage extends Component {
       },
       async () => {
         this.setState({ chapters: [] })
-        await api.trainingReject(transcriptionId)
+        try {
+          await api.trainingReject(transcriptionId)
+        } catch {
+          addErrorToast(
+            <EuiI18n token="error" default="Error" />,
+            <EuiI18n
+              token="trainingNotExists"
+              default="The action cannot be performed as transcript can no longer be found"
+            />
+          )
+        }
         this.loadCurrentTranscript()
       }
     )

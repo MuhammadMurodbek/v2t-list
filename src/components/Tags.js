@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-underscore-dangle */
 import React, { Component, Fragment } from 'react'
 import {
@@ -11,20 +12,36 @@ import {
   EuiDroppable,
   EuiPanel,
   EuiFlexGroup,
-  EuiIcon
+  EuiIcon,
+  EuiRadioGroup
 } from '@elastic/eui'
 
-import swal from 'sweetalert'
 import api from '../api'
 import '../styles/tags.css'
 import { EuiI18n } from '@elastic/eui'
+import { addUnexpectedErrorToast, addWarningToast } from './GlobalToastList'
 
 export default class Tags extends Component {
   state = {
     tableOfCodes: [],
     isLoading: false,
     selectedOption: [],
-    options: []
+    options: [],
+    icd10Codes: [],
+    kvaCodes: [],
+    selectedRadioId: '0',
+    nameSpacesStringForView: ['ICD-10', 'KVA'],
+    selectedNameSpace: 'ICD-10',
+    radios: [
+      {
+        id: '0',
+        label: 'ICD-10'
+      },
+      {
+        id: '1',
+        label: 'KVA'
+      }
+    ]
   }
 
   componentDidUpdate(prevProps) {
@@ -34,61 +51,121 @@ export default class Tags extends Component {
     }
   }
 
-  loadTagsFromTranscript = () => {
-    const { tags } = this.props
-    this.setState({ tableOfCodes: tags })
+  onChangeCodeSearch = (optionId) => {
+    const { nameSpacesStringForView, selectedRadioId } = this.state
+    this.setState({ selectedRadioId: optionId }, () => {
+      if (selectedRadioId === '0') {
+        this.setState({
+          selectedNameSpace: nameSpacesStringForView[1],
+          options: []
+        })
+      } else if (selectedRadioId === '1') {
+        this.setState({
+          selectedNameSpace: nameSpacesStringForView[0],
+          options: []
+        })
+      }
+    })
   }
 
-  loadIcdCodes = async (searchTerm) => {
-    const codeData = await api.keywordsSearch(searchTerm)
+  loadTagsFromTranscript = () => {
+    const { tags } = this.props
+    const icd10Codes = tags.filter((tag) => tag.namespace === 'icd-10')
+    const kvaCodes = tags.filter((tag) => tag.namespace === 'kva')
+    this.setState({
+      tableOfCodes: tags,
+      icd10Codes,
+      kvaCodes
+    })
+  }
 
-    // Purpose of doing this is to use free text search
-    if (codeData.data !== null) {
-      const options = codeData.data.map((code) => {
-        const label = `${code.value.toUpperCase()}: ${code.description}`
-        return {
-          ...code,
-          label
-        }
-      })
-      this.setState({ options })
+  loadIcdCodes = async (searchTerm, namespace) => {
+    try {
+      const codeData = await api.keywordsSearch(searchTerm, namespace)
+
+      // Purpose of doing this is to use free text search
+      if (codeData.data !== null) {
+        const options = codeData.data.map((code) => {
+          const label = `${code.value.toUpperCase()}: ${code.description}`
+          return {
+            ...code,
+            label
+          }
+        })
+        this.setState({ options })
+      }
+    } catch {
+      addUnexpectedErrorToast()
     }
   }
 
   deleteRow = (item) => {
-    const { tableOfCodes } = this.state
-    const remainingCodes = tableOfCodes.filter((el) => el.id !== item.id)
-    this.setState({ tableOfCodes: remainingCodes }, () => {
-      this.props.updateTags(this.state.tableOfCodes)
-    })
+    const { icd10Codes, kvaCodes } = this.state
+    if (item.namespace === 'icd-10') {
+      const remainingCodes = icd10Codes.filter((el) => el.id !== item.id)
+      this.setState({ icd10Codes: remainingCodes }, () => {
+        this.props.updateTags([...remainingCodes, ...kvaCodes])
+      })
+    } else if (item.namespace === 'kva') {
+      const remainingCodes = kvaCodes.filter((el) => el.id !== item.id)
+      this.setState({ kvaCodes: remainingCodes }, () => {
+        this.props.updateTags([...icd10Codes, ...remainingCodes])
+      })
+    }
   }
 
   addCode = () => {
-    const { selectedOption, tableOfCodes } = this.state
+    const { selectedOption, icd10Codes, kvaCodes, selectedRadioId } = this.state
     if (selectedOption.length > 0) {
       let data = selectedOption[0]
       data = data.label.split(': ')
-      if (tableOfCodes.some((e) => e.id === data[0])) {
-        // eslint-disable-next-line no-alert
-        swal({
-          title: 'ICD koden får endast förekomma 1 gång',
-          text: '',
-          icon: 'info',
-          button: 'Avbryt'
-        })
-        this.emptySelectedOption()
-      } else {
-        const updatedCodes = [
-          ...tableOfCodes,
-          {
-            id: data[0],
-            description: data[1]
-          }
-        ]
-        this.setState({ tableOfCodes: updatedCodes }, () => {
+
+      if (selectedRadioId === '0') {
+        if (icd10Codes.some((e) => e.id === data[0])) {
+          addWarningToast(
+            <EuiI18n
+              token="ICDCodeError"
+              default="The ICD code may only occur once"
+            />
+          )
           this.emptySelectedOption()
-          this.props.updateTags(this.state.tableOfCodes)
-        })
+        } else {
+          const updatedCodes = [
+            ...icd10Codes,
+            {
+              id: data[0],
+              namespace: 'icd-10',
+              description: data[1]
+            }
+          ]
+          this.setState({ icd10Codes: updatedCodes }, () => {
+            this.emptySelectedOption()
+            this.props.updateTags([...updatedCodes, ...kvaCodes])
+          })
+        }
+      } else if (selectedRadioId === '1') {
+        if (kvaCodes.some((e) => e.id === data[0])) {
+          addWarningToast(
+            <EuiI18n
+              token="ICDCodeError"
+              default="The ICD code may only occur once"
+            />
+          )
+          this.emptySelectedOption()
+        } else {
+          const updatedCodes = [
+            ...kvaCodes,
+            {
+              id: data[0],
+              namespace: 'kva',
+              description: data[1]
+            }
+          ]
+          this.setState({ kvaCodes: updatedCodes }, () => {
+            this.emptySelectedOption()
+            this.props.updateTags([...icd10Codes, ...updatedCodes])
+          })
+        }
       }
     }
   }
@@ -98,18 +175,29 @@ export default class Tags extends Component {
   }
 
   onChange = (selectedOption) => {
-    this.setState({
-      selectedOption,
-      options: []
-    }, this.addCode)
+    this.setState(
+      {
+        selectedOption,
+        options: []
+      },
+      this.addCode
+    )
   }
 
   onSearchChange = async (searchValue) => {
+    const { selectedRadioId } = this.state
+    let namespace
     this.setState({
       isLoading: true
     })
 
-    await this.loadIcdCodes(searchValue)
+    if (selectedRadioId === '0') {
+      namespace = 'icd-10'
+    } else if (selectedRadioId === '1') {
+      namespace = 'kva'
+    }
+
+    await this.loadIcdCodes(searchValue, namespace)
     this.setState({
       isLoading: false
     })
@@ -123,21 +211,41 @@ export default class Tags extends Component {
   }
 
   onDragEnd = ({ source, destination }) => {
-    const { tableOfCodes } = this.state
+    const { icd10Codes, kvaCodes } = this.state
     if (source && destination) {
-      this.setState(
-        {
-          tableOfCodes: this.swap(tableOfCodes, source.index, destination.index)
-        },
-        () => {
-          this.props.updateTags(this.state.tableOfCodes)
-        }
-      )
+      if (source.droppableId === 'icd-10') {
+        this.setState(
+          {
+            icd10Codes: this.swap(icd10Codes, source.index, destination.index)
+          },
+          () => {
+            this.props.updateTags([...icd10Codes, ...kvaCodes])
+          }
+        )
+      } else if (source.droppableId === 'kva') {
+        this.setState(
+          {
+            kvaCodes: this.swap(kvaCodes, source.index, destination.index)
+          },
+          () => {
+            this.props.updateTags([...icd10Codes, ...kvaCodes])
+          }
+        )
+      }
     }
   }
 
   render() {
-    const { options, isLoading, selectedOption, tableOfCodes } = this.state
+    const {
+      options,
+      isLoading,
+      selectedOption,
+      icd10Codes,
+      kvaCodes,
+      radios,
+      selectedRadioId,
+      selectedNameSpace
+    } = this.state
 
     return (
       <Fragment>
@@ -148,16 +256,25 @@ export default class Tags extends Component {
                 <h6>{code}</h6>
               </EuiText>
               <EuiSpacer size="m" />
+              <EuiRadioGroup
+                options={radios}
+                idSelected={selectedRadioId}
+                className="searchCodes"
+                onChange={(id) => this.onChangeCodeSearch(id)}
+                name="radio group"
+                compressed={true}
+              />
+              <EuiSpacer size="m" />
               <div className="searchKoder" style={{ display: 'flex' }}>
                 <span
                   style={{
-                    width: 400,
+                    width: 350,
                     marginRight: 20,
                     marginBottom: 25
                   }}
                 >
                   <EuiComboBox
-                    placeholder={`${lookFor} ICD-10 ${code}`}
+                    placeholder={`${lookFor} ${selectedNameSpace} ${code}`}
                     async
                     options={options}
                     selectedOptions={selectedOption}
@@ -174,8 +291,8 @@ export default class Tags extends Component {
         <EuiFlexItem
           grow={false}
           style={{
-            width: 400,
-            display: tableOfCodes.length > 0 ? 'block' : 'none'
+            width: 350,
+            display: icd10Codes.length > 0 ? 'block' : 'none'
           }}
         >
           {/* <EuiBasicTable
@@ -184,14 +301,14 @@ export default class Tags extends Component {
             columns={COLUMNS}
             hasActions
           /> */}
-          <EuiSpacer size="l" />
+          <EuiSpacer size="m" />
+          <EuiText>
+            <h6>ICD-10 Kod</h6>
+          </EuiText>
+          <EuiSpacer size="m" />
           <EuiDragDropContext onDragEnd={this.onDragEnd}>
-            <EuiDroppable
-              droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
-              spacing="m"
-              withPanel
-            >
-              {tableOfCodes.map(({ description, id }, idx) => (
+            <EuiDroppable droppableId="icd-10" spacing="m" withPanel>
+              {icd10Codes.map(({ description, id, namespace }, idx) => (
                 <EuiDraggable
                   spacing="m"
                   key={id}
@@ -203,7 +320,7 @@ export default class Tags extends Component {
                     <EuiPanel className="custom" paddingSize="m">
                       <EuiFlexGroup
                         style={{
-                          width: 380,
+                          width: 350,
                           lineHeight: 1.5
                         }}
                       >
@@ -213,7 +330,11 @@ export default class Tags extends Component {
                           </div>
                         </EuiFlexItem>
                         <EuiFlexItem
-                          style={{ minWidth: 260, fontSize: '1rem' }}
+                          style={{
+                            minWidth: 260,
+                            fontSize: '1rem',
+                            marginLeft: '-8px'
+                          }}
                         >
                           <strong>{id}</strong> {description}
                         </EuiFlexItem>
@@ -221,9 +342,82 @@ export default class Tags extends Component {
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"
-                            onClick={() => this.deleteRow({ description, id })}
+                            onClick={() =>
+                              this.deleteRow({ description, id, namespace })
+                            }
                             iconType="trash"
                             aria-label="Next"
+                            className="selectorBottons"
+                          />
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                    </EuiPanel>
+                  )}
+                </EuiDraggable>
+              ))}
+            </EuiDroppable>
+          </EuiDragDropContext>
+        </EuiFlexItem>
+        <EuiFlexItem
+          grow={false}
+          style={{
+            width: 350,
+            display: kvaCodes.length > 0 ? 'block' : 'none'
+          }}
+        >
+          {/* <EuiBasicTable
+            className="transcript"
+            items={tableOfCodes}
+            columns={COLUMNS}
+            hasActions
+          /> */}
+          <EuiSpacer size="xxl" />
+          <EuiText>
+            <h6>Åtgärdskod</h6>
+          </EuiText>
+          <EuiSpacer size="m" />
+          <EuiDragDropContext onDragEnd={this.onDragEnd}>
+            <EuiDroppable droppableId="kva" spacing="m" withPanel>
+              {kvaCodes.map(({ description, id, namespace }, idx) => (
+                <EuiDraggable
+                  spacing="m"
+                  key={id}
+                  index={idx}
+                  draggableId={id}
+                  customDragHandle={true}
+                >
+                  {(provided) => (
+                    <EuiPanel className="custom" paddingSize="m">
+                      <EuiFlexGroup
+                        style={{
+                          width: 350,
+                          lineHeight: 1.5
+                        }}
+                      >
+                        <EuiFlexItem>
+                          <div {...provided.dragHandleProps}>
+                            <EuiIcon type="grab" color="blue" />
+                          </div>
+                        </EuiFlexItem>
+                        <EuiFlexItem
+                          style={{
+                            minWidth: 260,
+                            fontSize: '1rem',
+                            marginLeft: '-8px'
+                          }}
+                        >
+                          <strong>{id}</strong> {description}
+                        </EuiFlexItem>
+                        <EuiFlexItem>
+                          <EuiButtonIcon
+                            iconSize="l"
+                            color="danger"
+                            onClick={() =>
+                              this.deleteRow({ description, id, namespace })
+                            }
+                            iconType="trash"
+                            aria-label="Next"
+                            className="selectorBottons"
                           />
                         </EuiFlexItem>
                       </EuiFlexGroup>

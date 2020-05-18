@@ -1,7 +1,13 @@
 // @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton, EuiButtonEmpty } from '@elastic/eui'
+import {
+  EuiSpacer,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiButton,
+  EuiButtonEmpty
+} from '@elastic/eui'
 import api from '../api'
 import LiveEditor from '../components/LiveEditor'
 import Mic from '../components/Mic'
@@ -13,29 +19,35 @@ import io from 'socket.io-client'
 import Page from '../components/Page'
 import processChapters from '../models/processChapters'
 import inoviaLogo from '../img/livediktering.png'
+import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDikteringEnglish extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
+  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', {
+    path: '/english',
+    transports: ['websocket']
+  })
   state = {
     recording: false,
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
     listOfTemplates: [],
-    chapters: [{
-      keyword: '',
-      segments: [{ words: `...`, startTime: 0.00, endTime: 0.00 }]
-    }],
+    chapters: [
+      {
+        keyword: '',
+        segments: [{ words: '...', startTime: 0.0, endTime: 0.0 }]
+      }
+    ],
     originalText: '',
     currentText: '',
     sections: {
-      'KONTAKTORSAK': [],
-      'AT': [],
-      'LUNGOR': [],
-      'BUK': [],
-      'DIAGNOS': []
+      KONTAKTORSAK: [],
+      AT: [],
+      LUNGOR: [],
+      BUK: [],
+      DIAGNOS: []
     },
     isMicrophoneStarted: false,
     tags: [],
@@ -52,8 +64,12 @@ export default class LiveDikteringEnglish extends Component {
   }
 
   templates = async () => {
-    const templateList = await api.getSectionTemplates()
-    this.setState({ listOfTemplates: templateList.data.templates })
+    try {
+      const templateList = await api.getSectionTemplates()
+      this.setState({ listOfTemplates: templateList.data.templates })
+    } catch {
+      addUnexpectedErrorToast()
+    }
   }
 
   onSelectText = () => {
@@ -89,7 +105,7 @@ export default class LiveDikteringEnglish extends Component {
     const firstKeyword = Object.keys(updatedSectionNames)[0]
 
     if (JSON.stringify(sections) !== JSON.stringify(updatedSectionNames)) {
-      // cheeck if the current sections are incompatible  
+      // cheeck if the current sections are incompatible
       // shuffle chapters according to the new template
       let updatedText = ''
       chapters.forEach((chapter) => {
@@ -100,14 +116,18 @@ export default class LiveDikteringEnglish extends Component {
       })
 
       updatedText = updatedText.replace(firstKeyword, '')
-      // updatedText = updatedText.replace(/\s\s+/g, ' ') 
+      // updatedText = updatedText.replace(/\s\s+/g, ' ')
       updatedText = updatedText.replace(/ny rad/g, '')
       // updatedText = updatedText.replace(/\n/g, '')
 
       this.setState({
-        chapters: processChapters(updatedText, updatedSectionNames, firstKeyword)
+        chapters: processChapters(
+          updatedText,
+          updatedSectionNames,
+          firstKeyword
+        )
       })
-    } // else do nothing 
+    } // else do nothing
   }
 
   updatedSections = (sections) => {
@@ -119,7 +139,6 @@ export default class LiveDikteringEnglish extends Component {
     // console.log('hoho ho')
     this.setState({ sections })
     this.validateSections(sections)
-
   }
 
   gotStream = (stream) => {
@@ -136,12 +155,19 @@ export default class LiveDikteringEnglish extends Component {
     analyserNode.fftSize = 2048
     inputPoint.connect(analyserNode)
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
-    const scriptNode = (createScriptProcessor || createJavaScriptNode)
-      .call(this.audioContext, 1024, 1, 1)
+    const scriptNode = (createScriptProcessor || createJavaScriptNode).call(
+      this.audioContext,
+      1024,
+      1,
+      1
+    )
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
       const {
-        initialRecordTime, previousCurrentTime, microphoneBeingPressed, seconds
+        initialRecordTime,
+        previousCurrentTime,
+        microphoneBeingPressed,
+        seconds
       } = prevState.state
       if (microphoneBeingPressed) {
         const currentTime = new Date()
@@ -149,7 +175,9 @@ export default class LiveDikteringEnglish extends Component {
           prevState.setState({
             seconds: seconds + 1,
             previousCurrentTime: currentTime,
-            duration: Math.ceil((currentTime.getTime() - initialRecordTime.getTime()) / 1000)
+            duration: Math.ceil(
+              (currentTime.getTime() - initialRecordTime.getTime()) / 1000
+            )
           })
         }
       }
@@ -162,7 +190,7 @@ export default class LiveDikteringEnglish extends Component {
         var output = new DataView(buffer)
         for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
-          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
+          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
         }
         prevState.socketio.emit('write-audio', buffer)
       }
@@ -177,10 +205,13 @@ export default class LiveDikteringEnglish extends Component {
     // updateAnalysers();
     this.socketio.on('add-transcript', function (text) {
       if (text.includes('stop recording') || text.includes('Stop recording')) {
-        prevState.setState({ recording: false, microphoneBeingPressed: false }, () => {
-          prevState.socketio.emit('end-recording')
-          prevState.socketio.close()
-        })
+        prevState.setState(
+          { recording: false, microphoneBeingPressed: false },
+          () => {
+            prevState.socketio.emit('end-recording')
+            prevState.socketio.close()
+          }
+        )
       } else {
         // add new recording to page
         const { originalText } = prevState.state
@@ -189,13 +220,19 @@ export default class LiveDikteringEnglish extends Component {
           const finalText = `${originalText} ${prevState.state.currentText}`
           // console.log(finalText)
           const { sections } = prevState.state
-          prevState.setState({ chapters: processChapters(finalText, sections, Object.keys(sections)[0]) })
+          prevState.setState({
+            chapters: processChapters(
+              finalText,
+              sections,
+              Object.keys(sections)[0]
+            )
+          })
         })
       }
     })
   }
 
-  onCursorTimeChange = () => { }
+  onCursorTimeChange = () => {}
 
   initAudio = () => {
     if (navigator.mediaDevices === undefined) {
@@ -209,20 +246,19 @@ export default class LiveDikteringEnglish extends Component {
     if (navigator.mediaDevices.getUserMedia === undefined) {
       navigator.mediaDevices.getUserMedia = function (constraints) {
         // First get ahold of the legacy getUserMedia, if present
-        const getUserMedia
-          = navigator.webkitGetUserMedia || navigator.mozGetUserMedia
+        const getUserMedia =
+          navigator.webkitGetUserMedia || navigator.mozGetUserMedia
 
-        // Some browsers just don't implement it 
+        // Some browsers just don't implement it
         // - return a rejected promise with an error
         // to keep a consistent interface
         if (!getUserMedia) {
-          return Promise
-            .reject(
-              new Error('getUserMedia is not implemented in this browser')
-            )
+          return Promise.reject(
+            new Error('getUserMedia is not implemented in this browser')
+          )
         }
 
-        // Otherwise, wrap the call to the old 
+        // Otherwise, wrap the call to the old
         // navigator.getUserMedia with a Promise
         return new Promise(function (resolve, reject) {
           getUserMedia.call(navigator, constraints, resolve, reject)
@@ -230,7 +266,8 @@ export default class LiveDikteringEnglish extends Component {
       }
     }
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
       .then((stream) => {
         this.gotStream(stream)
       })
@@ -239,10 +276,14 @@ export default class LiveDikteringEnglish extends Component {
       })
   }
 
-
   toggleRecord = () => {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { microphoneBeingPressed, originalText, currentText, initialRecordTime } = this.state
+    const {
+      microphoneBeingPressed,
+      originalText,
+      currentText,
+      initialRecordTime
+    } = this.state
     if (microphoneBeingPressed === true) {
       // console.log('stop recording')
       this.setState({ recording: false }, () => {
@@ -276,7 +317,7 @@ export default class LiveDikteringEnglish extends Component {
     }
   }
 
-  sendAsHorrribleTranscription = () => { }
+  sendAsHorrribleTranscription = () => {}
 
   save = () => {
     /* Check the template compatibility, 
@@ -286,8 +327,10 @@ export default class LiveDikteringEnglish extends Component {
     // as it was actually said by the speaker
     */
     if (!this.socketio.connected) {
-      this.socketio
-        .connect('wss://ilxgpu9000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
+      this.socketio.connect('wss://ilxgpu9000.inoviaai.se/audio', {
+        path: '/english',
+        transports: ['websocket']
+      })
     }
   }
 
@@ -300,33 +343,25 @@ export default class LiveDikteringEnglish extends Component {
       tags,
       seconds
     } = this.state
-    const usedSections = chapters.map(chapter => chapter.keyword)
+    const usedSections = chapters.map((chapter) => chapter.keyword)
     return (
       <Page preferences logo={inoviaLogo} title="">
-        <EuiFlexGroup >
+        <EuiFlexGroup>
           <EuiFlexItem style={{ display: 'block', marginTop: '-50px' }}>
-            <PersonalInformation info={{
-              doktor: '',
-              patient: '',
-              personnummer: '',
-              template: ''
-            }} />
-            <div style={{
-              marginLeft: '35vw',
-              marginTop: '-100px'
-            }}>
-              <Mic
-                microphoneBeingPressed={microphoneBeingPressed}
-                toggleRecord={this.toggleRecord}
-                seconds={seconds}
-              />
-            </div>
+            <PersonalInformation
+              info={{
+                doktor: '',
+                patient: '',
+                personnummer: '',
+                template: ''
+              }}
+            />
             <EuiSpacer size="l" />
             <LiveEditor
               transcript={chapters}
               originalChapters={chapters}
               chapters={chapters}
-              currentTime={0.00}
+              currentTime={0.0}
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
               onCursorTimeChange={this.onCursorTimeChange}
@@ -337,7 +372,7 @@ export default class LiveDikteringEnglish extends Component {
 
             <EuiFlexGroup justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
-                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => { }}>
+                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => {}}>
                   Avbryt
                 </EuiButtonEmpty>
               </EuiFlexItem>
@@ -348,7 +383,8 @@ export default class LiveDikteringEnglish extends Component {
                     border: 'solid 1px black',
                     borderRadius: '25px'
                   }}
-                  onClick={() => { }}>
+                  onClick={() => {}}
+                >
                   Spara ändringar
                 </EuiButton>
               </EuiFlexItem>
@@ -359,7 +395,8 @@ export default class LiveDikteringEnglish extends Component {
                     borderRadius: '25px',
                     color: 'black'
                   }}
-                  onClick={() => { }}>
+                  onClick={() => {}}
+                >
                   “Skicka för granskning”
                 </EuiButton>
               </EuiFlexItem>
@@ -370,7 +407,8 @@ export default class LiveDikteringEnglish extends Component {
                     color: 'white',
                     borderRadius: '25px'
                   }}
-                  onClick={() => { }}>
+                  onClick={() => {}}
+                >
                   Skicka till Co-worker
                 </EuiButton>
               </EuiFlexItem>
@@ -383,14 +421,24 @@ export default class LiveDikteringEnglish extends Component {
               marginTop: '125px'
             }}
           >
-            
-            <div style={{
-              marginTop: '-80px'
-            }}>
-              <Tags
-                tags={tags}
-                updateTags={this.onUpdateTags}
+            <div
+              style={{
+                marginLeft: '-50vw',
+                marginTop: '25px'
+              }}
+            >
+              <Mic
+                microphoneBeingPressed={microphoneBeingPressed}
+                toggleRecord={this.toggleRecord}
+                seconds={seconds}
               />
+            </div>
+            <div
+              style={{
+                marginTop: '-80px'
+              }}
+            >
+              <Tags tags={tags} updateTags={this.onUpdateTags} />
               <EuiSpacer size="l" />
               <LiveTemplateEngine
                 listOfTemplates={listOfTemplates}
@@ -405,5 +453,3 @@ export default class LiveDikteringEnglish extends Component {
     )
   }
 }
-
-

@@ -19,7 +19,7 @@ const SideNote = ({ value }) => {
   return (
     <Fragment>
       <EuiFlexGroup>
-        <EuiFlexItem>
+        <EuiFlexItem style={{ maxWidth: 350 }}>
           <EuiFormRow
             label={<EuiI18n token="compareNotes" default="Compare Notes" />}
           >

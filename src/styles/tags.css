@@ -1,5 +1,5 @@
 .transcript{
-    width: 400px;
+    width: 350px;
 }
 
 .euiListGroupItem.euiListGroupItem-isActive, .euiListGroupItem.euiListGroupItem-isClickable:hover, .euiListGroupItem.euiListGroupItem-isClickable:focus {
@@ -16,4 +16,18 @@
   font-size: 0.75rem;
   line-height: 1.5;
   font-weight: 600;
+}
+
+
+.selectorBottons {
+  margin-left: -25px;
+}
+
+.searchCodes{
+  display: inline-flex;
+}
+
+
+.euiRadioGroup__item + .euiRadioGroup__item.euiRadio--compressed {
+    margin-left: 50px;
 }

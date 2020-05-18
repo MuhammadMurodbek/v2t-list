@@ -21,6 +21,7 @@ import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
 import * as recorder from '../utils/recorder'
 import RecordList from '../components/RecordList'
+import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -75,8 +76,14 @@ export default class LiveDiktering extends Component {
   }
 
   templates = async () => {
-    const templateList = await api.getSectionTemplates()
-    this.setState({ listOfTemplates: templateList.data.templates })
+    try {
+      const templateList = await api.getSectionTemplates()
+      console.log('templates')
+      console.log(templateList)
+      this.setState({ listOfTemplates: templateList.data.templates })
+    } catch {
+      addUnexpectedErrorToast()
+    }
   }
 
   onSelectText = () => {
@@ -98,8 +105,7 @@ export default class LiveDiktering extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    // micStream.stop()
-    this.setState({ chapters })
+    return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 
   convertToMono = (input) => {

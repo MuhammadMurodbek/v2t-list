@@ -9,11 +9,10 @@ import {
   EuiFlexItem,
   EuiSpacer,
   EuiButton,
-  EuiHorizontalRule,
   EuiButtonEmpty,
   EuiI18n
 } from '@elastic/eui'
-import swal from 'sweetalert'
+import Invalid from './Invalid'
 import api from '../api'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
@@ -25,13 +24,23 @@ import Info from '../components/Info'
 import isSuperset from '../models/isSuperset'
 import Sidenote from '../components/Sidenote'
 import processChaptersRegular from '../models/processChaptersRegular'
+import {
+  addUnexpectedErrorToast,
+  addErrorToast,
+  addGlobalToast,
+  addWarningToast,
+  addSuccessToast
+} from '../components/GlobalToastList'
 // import processChapters from '../models/processChapters'
+
+const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [] }]
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
 
   static defaultProps = {
-    transcript: null
+    id: -1,
+    preloadedTranscript: null
   }
 
   state = {
@@ -41,158 +50,94 @@ export default class EditPage extends Component {
     queryTerm: '',
     tags: [],
     chapters: [],
-    fields: {
-      patient_id: '',
-      patient_full_name: ''
-    },
+    fields: {},
     isMediaAudio: true,
     originalTags: [],
-    templates: {
-      templates: []
-    },
+    templates: [],
     templateId: '',
-    originalTemplate: '',
-    // defaultTemplate: '',
+    originalTemplateId: '',
     sectionHeaders: [],
     initialCursor: 0
   }
 
   componentDidMount() {
     document.title = 'Inovia AI :: V2t Editor 🎤'
-    const { transcript } = this.props
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
     this.tagsRef = React.createRef()
-    if (transcript) {
-      this.loadSegments()
-    }
+    this.initiate()
   }
 
   componentDidUpdate(prevProps) {
-    const { transcript } = this.props
-    const prevId = prevProps.transcript && prevProps.transcript.external_id
-    if (transcript && transcript.external_id !== prevId) {
-      this.loadSegments()
+    const { id } = this.props
+    if (id !== prevProps.id) {
+      this.initiate()
     }
   }
 
-  loadSegments = async () => {
-    const { transcript } = this.props
-    localStorage.setItem('transcriptId', transcript.id)
-    // const [preferences] = this.context
-    // const { words } = preferences
-    const response = await api.loadTranscription(transcript.external_id)
-    let capitalizedTranscript
-    // Capitalize the first char of each segment
-    if (response.data) {
-      if (response.data.transcriptions) {
-        capitalizedTranscript = response.data.transcriptions.map((chapter) => {
-          return {
-            ...chapter,
-            segments: chapter.segments
-              ? chapter.segments.map((segment, i) => {
-                if (i === 0) {
-                  return {
-                    ...segment,
-                    words:
-                      segment.words.charAt(0).toUpperCase() +
-                      segment.words.slice(1)
-                  }
-                } else {
-                  return { ...segment }
-                }
-              })
-              : []
-          }
-        })
-      }
-    }
+  initiate = async () => {
+    const { id, defaultTranscript } = this.props
+    if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
+    const [{ data: templates }, { data: transcript }] = await Promise.all([
+      api.getSectionTemplates().catch(this.onError),
+      api.loadTranscription(id).catch(this.onError)
+    ])
+    this.onNewTranscript(transcript, templates.templates)
+  }
 
-    const templates = await api.getSectionTemplates()
-    const originalChapters = this.parseTranscriptions(capitalizedTranscript)
-    const { tags, fields, media_content_type, template_id } = response.data
-    if (tags) {
-      const processedTags = tags.map((tag) => {
-        return {
-          id: tag.id.toUpperCase(),
-          description: tag.description
-        }
-      })
-      this.setState({
-        originalChapters,
-        tags: processedTags,
-        originalTags: processedTags
-      })
-    } else {
-      this.setState({
-        originalChapters,
-        tags: []
-      })
-    }
-
-    if (fields) {
-      this.setState({ fields })
-    } else {
-      this.setState({
-        fields: {
-          patient_id: '',
-          patient_full_name: ''
-        }
-      })
-    }
-
-    if (media_content_type) {
-      if (media_content_type.match(/^video/) !== null) {
-        this.setState({ isMediaAudio: false })
-      }
-    }
-
-    if (templates) {
-      const { data } = templates
-      this.setState(
-        {
-          templates: data,
-          defaultTemplate: template_id,
-          templateId: template_id,
-          originalTemplate: template_id
-        },
-        () => {
-          const { templates } = this.state
-          const { defaultTemplate } = this.state
-          const template = templates.templates.find(
-            (template) => template.id === defaultTemplate
-          )
-          const sections = template ? template.sections : []
-          const sectionHeaders = sections.map((section) => section.name)
-          this.setState({ sectionHeaders })
-        }
-      )
-    }
+  onNewTranscript = (transcript, templates) => {
+    localStorage.setItem('transcriptId', this.props.id)
+    const {
+      tags,
+      fields,
+      media_content_type,
+      template_id,
+      transcriptions
+    } = transcript
+    const originalTags = (tags || []).map((tag) => ({
+      ...tag,
+      id: tag.id.toUpperCase()
+    }))
+    const template =
+      templates.find((template) => template.id === template_id) || {}
+    this.setState({
+      originalTemplateId: template_id,
+      originalChapters: this.parseTranscriptions(transcriptions),
+      originalTags,
+      tags: originalTags,
+      fields: fields || {},
+      isMediaAudio: (media_content_type || '').match(/^video/) === null,
+      templates,
+      templateId: template_id,
+      sectionHeaders: (template.sections || []).map(({ name }) => name)
+    })
   }
 
   parseTranscriptions = (transcriptions) => {
-    if (transcriptions) {
-      return transcriptions.map((transcript) => {
-        const keyword = transcript.keyword.length
-          ? transcript.keyword
-          : 'Kontaktorsak'
-        const segments = transcript.segments.map((chunk, i) => {
-          const isLast = i >= transcript.segments.length - 1
-          const noSpaceSuffix = isLast || /^\s*$/.test(chunk.words)
-          const words = noSpaceSuffix ? chunk.words : `${chunk.words} `
-          return {
-            ...chunk,
-            words: words.replace(/ +$/, ' ')
-          }
-        })
+    if (!transcriptions) return EMPTY_TRANSCRIPTIONS
+    return transcriptions.map((transcript) => {
+      const keyword = transcript.keyword.length
+        ? transcript.keyword
+        : 'Kontaktorsak'
+      const segments = transcript.segments.map((chunk, i) => {
+        const sentenceCase =
+          i > 0
+            ? chunk.words
+            : `${chunk.words.charAt(0).toUpperCase()}${chunk.words.slice(1)}`
+        const isLast = i >= transcript.segments.length - 1
+        const noSpaceSuffix = isLast || /^\s*$/.test(sentenceCase)
+        const words = noSpaceSuffix ? sentenceCase : `${sentenceCase} `
         return {
-          ...transcript,
-          keyword,
-          segments
+          ...chunk,
+          words: words.replace(/ +$/, ' ')
         }
       })
-    }
-    return []
+      return {
+        ...transcript,
+        keyword,
+        segments
+      }
+    })
   }
 
   onTimeUpdate = (currentTime) => {
@@ -222,49 +167,49 @@ export default class EditPage extends Component {
       originalTags,
       fields,
       templateId,
-      originalTemplate
+      originalTemplateId
     } = this.state
     if (fields.patient_id) {
       if (
         JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
         JSON.stringify(tags) === JSON.stringify(originalTags) &&
-        originalTemplate === templateId
+        originalTemplateId === templateId
       ) {
         this.sendToCoworker()
       } else {
         this.save(true)
       }
     } else {
-      swal({
-        title: 'Det är inte möjligt att skicka till co-worker.',
-        text: 'Personnummer saknas',
-        icon: 'error',
-        button: 'Ok'
-      })
+      addErrorToast(
+        <EuiI18n
+          token="presonNumberIsMissing"
+          default="Person number is missing"
+        />,
+        <EuiI18n
+          token="unableToSendToCoWorker"
+          default="Unbale to send to co-worker"
+        />
+      )
     }
   }
 
   sendToCoworker = async () => {
-    const { transcript } = this.props
-    const sendingToCoworker = await api
-      .approveTranscription(transcript.external_id)
-      .catch(this.trowAsyncError)
-    if (sendingToCoworker) {
-      window.location = '/'
-    } else {
-      swal({
-        title:
-          'Det är inte möjligt att Skicka till co-worker, vänligen prova igen senare.',
-        text: '',
-        icon: 'error',
-        button: 'Ok'
-      })
+    const { id } = this.props
+    try {
+      const sendingToCoworker = await api.approveTranscription(id)
+      if (sendingToCoworker) {
+        window.location = '/'
+      } else {
+        addErrorToast(
+          <EuiI18n
+            token="unableToSendToCoWorker"
+            default="Unbale to send to co-worker"
+          />
+        )
+      }
+    } catch {
+      addUnexpectedErrorToast()
     }
-  }
-
-  throwAsyncError = (e) => {
-    alert(e)
-    throw new Error(e)
   }
 
   areSectionHeadersBelongToTheTemplate = () => {
@@ -273,7 +218,7 @@ export default class EditPage extends Component {
     // const templateNames = templates.templates.map(template=>template.id)
     // get the current template
     // get the list of valid headers
-    const sectionHeadersForSelectedTemplate = templates.templates
+    const sectionHeadersForSelectedTemplate = templates
       .filter((template) => template.id === templateId)
       .map((template) => template.sections)[0]
       .map((section) => section.name)
@@ -327,48 +272,58 @@ export default class EditPage extends Component {
   }
 
   save = async (shouldBeSentToCoworker = false) => {
-    const { transcript } = this.props
+    const { id } = this.props
     const {
       originalChapters,
       chapters,
       tags,
       originalTags,
       templateId,
-      originalTemplate
+      originalTemplateId
     } = this.state
     if (
       JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
       JSON.stringify(tags) === JSON.stringify(originalTags) &&
-      originalTemplate === templateId
+      originalTemplateId === templateId
     ) {
-      swal({
-        title: 'Det finns inget att uppdatera!',
-        text: 'Diktatet är inte ändrat',
-        icon: 'info',
-        button: 'Ok'
-      })
+      addGlobalToast(
+        <EuiI18n token="info" default="Info" />,
+        <EuiI18n
+          token="nothingToUpdate"
+          default="There is nothing to update!"
+        />,
+        'info'
+      )
       return
     }
 
     const headers = chapters.map((chapter) => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
     if (headers.length !== uniqueHeaders.length) {
-      swal({
-        title: 'Inte möjligt att spara diktatet',
-        text: 'Sökord får endast förekomma 1 gång',
-        icon: 'info',
-        button: 'Ok'
-      })
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <EuiI18n
+          token="keywordsError"
+          default="Keywords may only appear once"
+        />
+      )
       return
     }
 
     if (this.areSectionHeadersBelongToTheTemplate().message === false) {
-      swal({
-        title: 'Inte möjligt att spara diktatet',
-        text: 'Det valda sökordet finns inte för mallen',
-        icon: 'info',
-        button: 'Ok'
-      })
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <EuiI18n
+          token="keywordsNotExist"
+          default="The selected keyword does not exist for the template"
+        />
+      )
       return
     } else if (
       this.areSectionHeadersBelongToTheTemplate().message === 'FUZZY'
@@ -389,34 +344,27 @@ export default class EditPage extends Component {
     })
 
     try {
-      await api.updateTranscription(
-        transcript.external_id,
-        tags,
-        chapters,
-        templateId
-      )
+      await api.updateTranscription(id, tags, chapters, templateId)
       this.setState(
         {
           originalChapters: this.parseTranscriptions(chapters),
           originalTags: tags
         },
         () => {
-          swal({
-            title: 'Diktatet är uppdaterat',
-            text: '',
-            icon: 'success',
-            button: 'Ok'
-          })
+          addSuccessToast(
+            <EuiI18n
+              token="dictationUpdated"
+              default="The dictation has been updated"
+            />
+          )
           if (shouldBeSentToCoworker === true) {
             this.sendToCoworker()
           }
           return true
         }
       )
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error)
-      return false
+    } catch {
+      addUnexpectedErrorToast()
     }
   }
 
@@ -426,22 +374,25 @@ export default class EditPage extends Component {
 
   updateTemplateId = (templateId) => {
     const { chapters, templates } = this.state
-    const template = templates.templates.find(template => template.id === templateId)
+    const template = templates.find((template) => template.id === templateId)
     const availableSectionHeaders = this.getAvailableSectionHeaders(template)
-    const sectionHeaders = (template.sections || []).map(({name}) => name)
-    const updatedChapters = processChaptersRegular(chapters, availableSectionHeaders)
+    const sectionHeaders = (template.sections || []).map(({ name }) => name)
+    const updatedChapters = processChaptersRegular(
+      chapters,
+      availableSectionHeaders
+    )
     this.setState({ templateId, sectionHeaders, chapters: updatedChapters })
   }
 
   getAvailableSectionHeaders = (template) => {
     if (template.sections)
-      return template.sections.reduce((store, {name, synonyms}) => {
+      return template.sections.reduce((store, { name, synonyms }) => {
         return [...store, name, ...(synonyms || [])]
       }, [])
   }
 
   onUpdateTranscript = (chapters) => {
-    return new Promise(resolve => this.setState({ chapters }, resolve))
+    return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 
   onPause = () => {
@@ -456,8 +407,12 @@ export default class EditPage extends Component {
 
   updateSidenote = () => {}
 
+  onError = (error) => {
+    this.setState({ error })
+  }
+
   render() {
-    const { transcript, token } = this.props
+    const { id, token } = this.props
     const {
       currentTime,
       cursorTime,
@@ -472,96 +427,101 @@ export default class EditPage extends Component {
       // defaultTemplate,
       sectionHeaders,
       initialCursor,
-      sidenoteContent
+      sidenoteContent,
+      error
     } = this.state
-    if (!transcript) return null
+    if (error) return <Invalid />
     return (
       <Page preferences title={<EuiI18n token="editor" default="Editor" />}>
         <div>
-          <Player
-            audioTranscript={originalChapters}
-            trackId={transcript.external_id}
-            cursorTime={cursorTime}
-            getCurrentTime={this.getCurrentTime}
-            updateSeek={this.onTimeUpdate}
-            queryTerm={queryTerm}
-            isPlaying={false}
-            isContentAudio={isMediaAudio}
-            ref={this.playerRef}
-            searchBoxVisible
-            isTraining={false}
-            onPause={this.onPause}
-            token={token}
-          />
-          <EuiSpacer size="l" />
-          <EuiSpacer size="l" />
-          <EuiHorizontalRule margin="xs" />
-          <EuiSpacer size="l" />
-          <EuiSpacer size="l" />
-
           <EuiFlexGroup wrap gutterSize="xl">
             <EuiFlexItem>
-              <Editor
-                transcript={transcript}
-                originalChapters={originalChapters}
-                chapters={chapters}
-                currentTime={currentTime}
-                onCursorTimeChange={this.onCursorTimeChange}
-                onSelect={this.onSelectText}
-                updateTranscript={this.onUpdateTranscript}
-                isDiffVisible
-                templateId={templateId}
-                sectionHeaders={sectionHeaders}
-                initialCursor={initialCursor}
-              />
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <Info fields={fields} />
-              <EuiSpacer size="xxl" />
-              <Tags tags={tags} updateTags={this.onUpdateTags} />
-              <EuiSpacer size="xxl" />
-              <Templates
-                listOfTemplates={templates.templates}
-                defaultTemplateId={templateId}
-                updateTemplateId={this.updateTemplateId}
-              />
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <Player
+                    audioTranscript={originalChapters}
+                    trackId={id}
+                    cursorTime={cursorTime}
+                    getCurrentTime={this.getCurrentTime}
+                    updateSeek={this.onTimeUpdate}
+                    queryTerm={queryTerm}
+                    isPlaying={false}
+                    isContentAudio={isMediaAudio}
+                    ref={this.playerRef}
+                    searchBoxVisible
+                    isTraining={false}
+                    onPause={this.onPause}
+                    token={token}
+                  />
+                  <EuiSpacer size="l" />
+                  <EuiSpacer size="l" />
 
-              <EuiSpacer size="xxl" />
-              <Sidenote
-                content={sidenoteContent}
-                updateSidenote={this.updateSidenote}
-              />
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiFlexGroup>
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty color="#000000" onClick={this.cancel}>
-                <EuiI18n token="cancel" default="Cancel" />
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButton
-                color="subdued"
-                style={{
-                  border: 'solid 1px black',
-                  borderRadius: '25px'
-                }}
-                onClick={this.save}
-              >
-                <EuiI18n token="saveChanges" default="Save Changes" />
-              </EuiButton>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-              <EuiButton
-                style={{
-                  background: 'rgb(9, 99, 255)',
-                  color: 'white',
-                  borderRadius: '25px'
-                }}
-                onClick={this.finalize}
-              >
-                <EuiI18n token="sendToWebdoc" default="Send to Co-worker" />
-              </EuiButton>
+                  <Editor
+                    originalChapters={originalChapters}
+                    chapters={chapters}
+                    currentTime={currentTime}
+                    onCursorTimeChange={this.onCursorTimeChange}
+                    onSelect={this.onSelectText}
+                    updateTranscript={this.onUpdateTranscript}
+                    isDiffVisible
+                    templateId={templateId}
+                    sectionHeaders={sectionHeaders}
+                    initialCursor={initialCursor}
+                  />
+                  <EuiFlexGroup>
+                    <EuiFlexItem grow={false}>
+                      <EuiButtonEmpty color="#000000" onClick={this.cancel}>
+                        <EuiI18n token="cancel" default="Cancel" />
+                      </EuiButtonEmpty>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButton
+                        color="subdued"
+                        style={{
+                          border: 'solid 1px black',
+                          borderRadius: '25px'
+                        }}
+                        onClick={this.save}
+                      >
+                        <EuiI18n token="saveChanges" default="Save Changes" />
+                      </EuiButton>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButton
+                        style={{
+                          background: 'rgb(9, 99, 255)',
+                          color: 'white',
+                          borderRadius: '25px'
+                        }}
+                        onClick={this.finalize}
+                      >
+                        <EuiI18n
+                          token="sendToWebdoc"
+                          default="Send to Co-worker"
+                        />
+                      </EuiButton>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+
+                <EuiFlexItem grow={false}>
+                  <Info fields={fields} />
+                  <EuiSpacer size="xxl" />
+                  <Tags tags={tags} updateTags={this.onUpdateTags} />
+                  <EuiSpacer size="xxl" />
+                  <Templates
+                    listOfTemplates={templates}
+                    defaultTemplateId={templateId}
+                    updateTemplateId={this.updateTemplateId}
+                  />
+
+                  <EuiSpacer size="xxl" />
+                  <Sidenote
+                    content={sidenoteContent}
+                    updateSidenote={this.updateSidenote}
+                  />
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>

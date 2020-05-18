@@ -21,7 +21,6 @@ export default class Editor extends Component {
 
   static defaultProps = {
     diffInstance: new Diff(),
-    transcript: null,
     originalChapters: null,
     chapters: null,
     currentTime: 0,
@@ -38,34 +37,17 @@ export default class Editor extends Component {
     this.initChapters()
   }
 
-  // areChaptersEqual = (o1, o2, ignorePropsArr = []) => {
-  //   // Deep Clone objects
-  //   const _obj1 = JSON.parse(JSON.stringify(o1)),
-  //     _obj2 = JSON.parse(JSON.stringify(o2))
-  //   // Remove props to ignore
-  //   ignorePropsArr.forEach(p => {
-  //     console.log(`_obj1.${p} = _obj2.${p} = "IGNORED"`)
-  //   })
-  //   // compare as strings
-  //   const s1 = JSON.stringify(_obj1),
-  //     s2 = JSON.stringify(_obj2)
-  //   // return [s1==s2,s1,s2];
-  //   return s1 === s2
-  // }
-
   componentDidUpdate(prevProps) {
     const { initialCursor, templateId, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
       this.setCursor(initialCursor, true)
     else
       this.updateCursor()
-    
-    if (JSON.stringify(prevProps.originalChapters)
-        !== JSON.stringify(originalChapters)
-    ) {
+
+    if (JSON.stringify(prevProps.originalChapters) !== JSON.stringify(originalChapters)) {
       this.initChapters()
     }
-    
+
     // if (prevProps.originalChapters !== originalChapters)
     //   this.initChapters()
 
@@ -81,6 +63,7 @@ export default class Editor extends Component {
         return { ...chapter, segments }
       })
       updateTranscript(chapters)
+        .then(this.refreshDiff)
     }
   }
 

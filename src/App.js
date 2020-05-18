@@ -26,8 +26,14 @@ import Invalid from './pages/Invalid'
 import Preference from './models/Preference'
 import './App.css'
 import api from './api'
+import axios from 'axios'
 import { LanguageProvider } from './context'
 import { withProvider } from './hoc'
+import {
+  GlobalToastListContainer,
+  addErrorToast
+} from './components/GlobalToastList'
+import { addUnexpectedErrorToast } from './components/GlobalToastList/GlobalToastList'
 
 class App extends Component {
   state = {
@@ -44,6 +50,10 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const queryToken = getQueryStringValue('token')
+    if (queryToken) {
+      this.setState({ isTokenFromUrl: true })
+    }
     this.fetchTranscripts()
   }
 
@@ -60,25 +70,10 @@ class App extends Component {
     })
   }
 
-  getQueryStringValue(key) {
-    return decodeURIComponent(
-      window.location.href.replace(
-        new RegExp(
-          `^(?:.*[&\\?]${encodeURIComponent(key).replace(
-            /[.+*]/g,
-            '\\$&'
-          )}(?:\\=([^&]*))?)?.*$`,
-          'i'
-        ),
-        '$1'
-      )
-    )
-  }
-
   fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const tokenFromStorage = localStorage.getItem('token')
-      const tokenFromQuery = this.getQueryStringValue('token')
+      const tokenFromQuery = getQueryStringValue('token')
       let token
 
       if (tokenFromStorage) {
@@ -94,23 +89,31 @@ class App extends Component {
         this.setState({ isLoggedIn: true, token })
         api.setToken(token)
 
-        api.loadTickets(tag, pageIndex, pageSize).then((transcripts) => {
-          // Check which one are audio and
-          // which are video before loading all active jobs
-          this.setState({ transcripts })
-        })
+        api
+          .loadTickets(tag, pageIndex, pageSize)
+          .then(({ data: transcripts }) => {
+            // Check which one are audio and
+            // which are video before loading all active jobs
+            this.setState({ transcripts })
+          })
+          .catch(() => {
+            addUnexpectedErrorToast()
+          })
 
         api
           .loadTags()
-          .then((activeTags) => {
+          .then(({ data: activeTags }) => {
             // Count number of active tags
             const { selectedItemName } = this.state
             const sideBar = []
-            const totalContentLength = activeTags.reduce((accumilator, currentTag) => {
-              return accumilator + currentTag.count
-            }, 0)
-            if (this.state.contentLength === -1) 
-              this.setState({ contentLength: totalContentLength})
+            const totalContentLength = activeTags.reduce(
+              (accumilator, currentTag) => {
+                return accumilator + currentTag.count
+              },
+              0
+            )
+            if (this.state.contentLength === -1)
+              this.setState({ contentLength: totalContentLength })
             activeTags.forEach((tag) => {
               const temp = {
                 id: tag.value,
@@ -121,16 +124,21 @@ class App extends Component {
                   this.setState({
                     transcripts: []
                   })
-                  api.loadTickets(tag.value, 0, 20).then((transcripts) => {
-                    // transcripts after job selection
-                    // Check which one are audio and which are video
-                    this.setState({
-                      transcripts,
-                      job: tag.value,
-                      contentLength: tag.count,
-                      pageIndex: 0
+                  api
+                    .loadTickets(tag.value, 0, 20)
+                    .then(({ data: transcripts }) => {
+                      // transcripts after job selection
+                      // Check which one are audio and which are video
+                      this.setState({
+                        transcripts,
+                        job: tag.value,
+                        contentLength: tag.count,
+                        pageIndex: 0
+                      })
                     })
-                  })
+                    .catch(() => {
+                      addUnexpectedErrorToast()
+                    })
                 },
                 href: '/#/'
               }
@@ -214,9 +222,8 @@ class App extends Component {
             this.setState({ sidenav: parentSideBar })
             resolve()
           })
-          .catch((error) => {
-            reject(error)
-            console.log(error)
+          .catch(() => {
+            addUnexpectedErrorToast()
           })
       }
     })
@@ -299,7 +306,7 @@ class App extends Component {
                   fontWeight: 600,
                   bottom: 40,
                   width: 100,
-                  background: 'transparent',
+                  background: 'transparent'
                 }}
                 onClick={() => this.collapse()}
               >
@@ -319,7 +326,7 @@ class App extends Component {
                   fontWeight: 600,
                   bottom: 10,
                   width: 100,
-                  background: 'transparent',
+                  background: 'transparent'
                 }}
                 onClick={() => this.openHelpWindow()}
               >
@@ -402,13 +409,15 @@ class App extends Component {
               <Route
                 path="/edit/:id"
                 render={(props) => {
-                  const transcript = transcripts.find(
-                    (currentTranscript) =>
-                      currentTranscript.external_id === props.match.params.id
+                  const { id } = props.match.params
+                  const preloadedTranscript = transcripts.find(
+                    (currentTranscript) => currentTranscript.id === id
                   )
-                  if (transcript)
-                    return <EditPage {...{ ...props, transcript, token }} />
-                  else return <Invalid />
+                  return (
+                    <EditPage
+                      {...{ ...props, id, preloadedTranscript, token }}
+                    />
+                  )
                 }}
               />
               <Route
@@ -454,11 +463,47 @@ class App extends Component {
                 render={() => (isLoggedIn ? <Invalid /> : <LoginPage />)}
               />
             </Switch>
+            <GlobalToastListContainer />
           </EuiPage>
         </PreferencesProvider>
       </HashRouter>
     )
   }
 }
+
+const getQueryStringValue = (key) => {
+  return decodeURIComponent(
+    window.location.href.replace(
+      new RegExp(
+        `^(?:.*[&\\?]${encodeURIComponent(key).replace(
+          /[.+*]/g,
+          '\\$&'
+        )}(?:\\=([^&]*))?)?.*$`,
+        'i'
+      ),
+      '$1'
+    )
+  )
+}
+
+const queryToken = getQueryStringValue('token')
+if (queryToken) api.setToken(queryToken)
+
+axios.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    if (error.response.status === 401 || error.response.status === 403) {
+      addErrorToast(
+        <EuiI18n token="authError" default="Invalid username or password" />
+      )
+
+      return api.logout()
+    } else {
+      return Promise.reject(error)
+    }
+  }
+)
 
 export default withProvider(App, LanguageProvider)

@@ -1,6 +1,6 @@
 {
   "name": "v2t-list",
-  "version": "2004.29.0",
+  "version": "2005.15.0",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
@@ -19,8 +19,6 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5",
     "socket.io-client": "^2.3.0",
-    "sweetalert": "^2.1.2",
-    "sweetalert-react": "^0.4.11",
     "text-diff": "^1.0.1"
   },
   "scripts": {

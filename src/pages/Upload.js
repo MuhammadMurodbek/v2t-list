@@ -15,9 +15,12 @@ import {
   EuiFieldText
 } from '@elastic/eui'
 import api from '../api'
-import swal from 'sweetalert'
 import Page from '../components/Page'
 import { EuiI18n } from '@elastic/eui'
+import {
+  addUnexpectedErrorToast,
+  addWarningToast
+} from '../components/GlobalToastList'
 
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
@@ -69,7 +72,7 @@ export default class UploadPage extends Component {
       dropdownDisplay: <DropDown title="Jasper 10x3" />
     }
   ]
- 
+
   journalSystems = [
     {
       value: 'WEBDOC',
@@ -87,19 +90,23 @@ export default class UploadPage extends Component {
     document.title = 'Inovia AI :: Ladda Upp'
     localStorage.setItem('transcriptId', '')
     // load the list of templates
-    const templates = await api.getSectionTemplates()
-    if (templates.data) {
-      const listOfTemplates = templates.data.templates
-      if (listOfTemplates) {
-        const templateOptions = listOfTemplates.map((template) => {
-          return {
-            value: template.id,
-            inputDisplay: template.name,
-            dropdownDisplay: <DropDown title={template.name} />
-          }
-        })
-        this.setState({ templates: templateOptions })
+    try {
+      const templates = await api.getSectionTemplates()
+      if (templates.data) {
+        const listOfTemplates = templates.data.templates
+        if (listOfTemplates) {
+          const templateOptions = listOfTemplates.map((template) => {
+            return {
+              value: template.id,
+              inputDisplay: template.name,
+              dropdownDisplay: <DropDown title={template.name} />
+            }
+          })
+          this.setState({ templates: templateOptions })
+        }
       }
+    } catch {
+      addUnexpectedErrorToast()
     }
   }
 
@@ -112,7 +119,7 @@ export default class UploadPage extends Component {
   onJournalSystemChange = (selectedJournalSystem) => {
     this.setState({ selectedJournalSystem })
   }
-  
+
   onJobChange = (selectedJob) => {
     this.setState({ selectedJob })
   }
@@ -124,12 +131,10 @@ export default class UploadPage extends Component {
   onSubmit = () => {
     const { files } = this.state
     if (files.length === 0) {
-      swal({
-        title: 'Det är inte möjligt att ladda upp.',
-        text: 'Fil saknas',
-        icon: 'error',
-        button: 'Ok'
-      })
+      addWarningToast(
+        <EuiI18n token="unableToUpload" default="Unable to upload" />,
+        <EuiI18n token="fileIsMissing" default="File is missing" />
+      )
     } else {
       const loading = true
       this.setState({ loading })
@@ -151,17 +156,21 @@ export default class UploadPage extends Component {
     } = this.state
 
     const requests = Array.from(files).map((file) =>
-      api.uploadMedia(
-        file,
-        metaData,
-        selectedJob,
-        patientsnamn,
-        patientnummer,
-        doktorsnamn,
-        avdelning,
-        selectedTemplate,
-        selectedJournalSystem
-      )
+      api
+        .uploadMedia(
+          file,
+          metaData,
+          selectedJob,
+          patientsnamn,
+          patientnummer,
+          doktorsnamn,
+          avdelning,
+          selectedTemplate,
+          selectedJournalSystem
+        )
+        .catch(() => {
+          addUnexpectedErrorToast()
+        })
     )
     await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
