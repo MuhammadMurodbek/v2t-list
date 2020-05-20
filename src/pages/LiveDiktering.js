@@ -140,12 +140,11 @@ export default class LiveDiktering extends Component {
     this.setState({ sections })
   }
 
-  gotStream = (stream) => {
+  gotStream = async (stream) => {
     const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
     // Create an AudioNode from the stream.
-    const realAudioInput = this.audioContext.createMediaStreamSource(stream)
-
+    const realAudioInput = await this.audioContext.createMediaStreamSource(stream)
     let audioInput = realAudioInput
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
@@ -155,10 +154,9 @@ export default class LiveDiktering extends Component {
       .call(this.audioContext, 1024, 1, 1)
    
     const prevState = this
+    realAudioInput.connect(scriptNode)
+    scriptNode.connect(this.audioContext.destination)
     scriptNode.onaudioprocess = function (audioEvent) {
-      console.log('audio event')
-      console.log(audioEvent)
-      console.log('audio event')
       const { seconds } = prevState.state
       if (seconds !== Math.ceil(prevState.audioContext.currentTime)) {
         prevState.setState({
@@ -168,15 +166,9 @@ export default class LiveDiktering extends Component {
 
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
-        console.log('buffer')
-        console.log(input)
-        console.log('buffer end')
         input = interpolateArray(input, 16000, 44100)
         // convert float audio data to 16-bit PCM
-        var buffer = new ArrayBuffer(input.length * 2)
-        
-        
-        
+        var buffer = new ArrayBuffer(input.length * 2) 
         var output = new DataView(buffer)
         for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
@@ -259,10 +251,7 @@ export default class LiveDiktering extends Component {
         originalText: `${originalText} ${currentText}`
       })
     } else {
-      this.setState({ recording: true }, async () => {
-        
-        
-        
+      this.setState({ recording: true }, async () => {        
         if (this.audioContext.state === 'suspended' && seconds !== 0) {
           this.socketio.emit('start-recording', {
             numChannels: 1,

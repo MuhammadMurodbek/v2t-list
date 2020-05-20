@@ -1,4 +1,4 @@
-import interpolateArray from "../models/interpolateArray";
+import interpolateArray from '../models/interpolateArray'
 
 const config = {
   bufferLen: 1024,
