@@ -23,7 +23,7 @@ export async function init(stream) {
   sampleRate = context.sampleRate
   numChannels = config.numChannels
 
-  initBuffers()
+  initBuffers() 
   const { createScriptProcessor, createJavaScriptNode } = audioContext
   const node = (createScriptProcessor || createJavaScriptNode)
     .call(audioContext, 1024, 1, 1)
@@ -47,12 +47,6 @@ export function record(inputBuffer) {
     recBuffers[channel].push(inputBuffer[channel])
   }
   recLength += inputBuffer[0].length
-  // console.log('recLength')
-  // // console.log(recLength/parseFloat(16000))
-  // console.log(recLength)
-  console.log('recLength start')
-  console.log(recBuffers[0])
-  console.log('recLength end')
 }
 
 export function start() {
@@ -101,14 +95,6 @@ function exportWAV(type, timeStamp) {
   return new Blob([dataView], { type: type })
 }
 
-/*function getBuffer() {
-    let buffers = []
-    for (let channel = 0; channel < numChannels; channel++) {
-        buffers.push(mergeBuffers(recBuffers[channel], recLength))
-    }
-    return buffers
-}*/
-
 export function clear() {
   recLength = 0
   recBuffers = []
@@ -122,39 +108,7 @@ function initBuffers() {
 }
 
 function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffers.length/46.6)) {
-  
-  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  
-  console.log('time stamp')
-  console.log(timeStamp)
-  // console.log('time stamp end')
-  // console.log('Total audio length')
-  // console.log(recLength)
-  // console.log(recBuffers.length)
-  //   console.log('Total audio length end')
-  // console.log('rec buffers  Length')
-  // console.log(recBuffers.length)
-  // console.log('rec buffers  Length')
-  // console.log('Previous audio length')
-  // console.log(previousAudioLength)
-  // console.log(previousBuffers.length)
-  // console.log('Previous audio length end')
-  // console.log('Current audio length')
-  // console.log(recLength-previousAudioLength)
-  // console.log('Current audio length end')
-  // console.log('totaltime')
-  // const totalDuration = recBuffers.length / 46.6
-  // console.log(totalDuration)
-  // console.log('previous clip duration')
   const previousDuration = previousBuffers.length / 46.6
-  // const currentDuration = recBuffers.length - previousBuffers.length 
-  // const currentDurationInSeconds = (recBuffers.length/46.6) - (previousBuffers.length/46.6)
-  // if (previousDuration>0)
-  //   console.log(previousDuration)
-  // else 
-  //   console.log(0)
-
-
   const result = new Float32Array(recLength)
   let offset = 0
   
@@ -167,20 +121,14 @@ function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffe
       }  else {
 
         // Now is the magic, append the latest audio after timestamp
-          if (recBuffers[previousBuffers.length + k]){
-          
+        if (recBuffers[previousBuffers.length + k]){          
           result.set(recBuffers[previousBuffers.length+k], offset)
           offset += recBuffers[previousBuffers.length + k].length
           k+=1
         } else {
-              // console.log('i')
-              // console.log(i)
-              // console.log('previousBuffers.length')
-              // console.log(previousBuffers.length)
-              // console.log('i end')
-              result.set(recBuffers[j], offset)
-              offset += recBuffers[j].length
-              j += 1
+          result.set(recBuffers[j], offset)
+          offset += recBuffers[j].length
+          j += 1
         }
       }
     }
@@ -190,8 +138,7 @@ function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffe
     }
     
   }
-    // previousAudioLength = recLength
-    previousBuffers = recBuffers.slice() // Copy array by value
+  previousBuffers = recBuffers.slice() // Copy array by value
 
 
   return result
