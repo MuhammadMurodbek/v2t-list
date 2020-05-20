@@ -1,5 +1,5 @@
+// @ts-nocheck
 /* eslint-disable no-console */
-// @ts-ignore
 import React, { Component } from 'react'
 import { EuiButtonEmpty, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
 import api from '../api'
@@ -68,13 +68,14 @@ export default class LiveDiktering extends Component {
   componentDidMount = () => {
     this.templates()
     document.title = 'Inovia AI :: Live Diktering 🎤'
+    if (navigator.mediaDevices === undefined) {
+      navigator.mediaDevices = {}
+    }
   }
 
   templates = async () => {
     try {
       const templateList = await api.getSectionTemplates()
-      console.log('templates')
-      console.log(templateList)
       this.setState({ listOfTemplates: templateList.data.templates })
     } catch {
       addUnexpectedErrorToast()
@@ -87,7 +88,6 @@ export default class LiveDiktering extends Component {
   }
 
   onTimeUpdate = (currentTime) => {
-
     this.setState({ currentTime })
   }
 
@@ -116,36 +116,6 @@ export default class LiveDiktering extends Component {
     this.setState({ sections })
   }
 
-  appendChapters = (previousChapters, latestChapters) => {
-    if (previousChapters.length === 0) return latestChapters
-    const finalKeyword = previousChapters[previousChapters.length - 1].keyword
-    let intermediateChapters = JSON.parse(JSON.stringify(previousChapters)) // copy by value
-    let temporaryChapter = {}
-
-    latestChapters.forEach((chapter, i) => {
-      if (i === 0) {
-        if (latestChapters[i].keyword === 'KONTAKTORSAK' || latestChapters[i].keyword === finalKeyword) {
-          latestChapters[i].segments.forEach(seg => {
-            intermediateChapters[intermediateChapters.length - 1].segments.push(seg)
-          })
-        } else {
-          temporaryChapter.keyword = latestChapters[i].keyword
-          temporaryChapter.segments = latestChapters[i].segments
-          intermediateChapters.push(temporaryChapter)
-          temporaryChapter = {}
-        }
-      } else {
-        temporaryChapter.keyword = latestChapters[i].keyword
-        temporaryChapter.segments = latestChapters[i].segments
-      }
-      if (i !== 0) {
-        intermediateChapters.push(temporaryChapter)
-        temporaryChapter = {}
-      }
-    })
-    return intermediateChapters
-  }
-
   gotStream = (stream) => {
     const { recording } = this.state
     const inputPoint = this.audioContext.createGain()
@@ -159,8 +129,6 @@ export default class LiveDiktering extends Component {
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
-   
-   
    
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
@@ -199,35 +167,26 @@ export default class LiveDiktering extends Component {
     zeroGain.gain.value = 0.0
     inputPoint.connect(zeroGain)
     zeroGain.connect(this.audioContext.destination)
-    // updateAnalysers();
-    // @ts-ignore
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
-      // console.log('text')
-      // console.log(text)
-      // console.log('text end')
-      // const { originalText } = prevState.state
       prevState.setState({ currentText: text }, () => {
         // console.log('prevState.state.whole')
         const finalText = `${prevState.state.currentText}`
-
-        // const finalText = `${originalText} ${prevState.state.currentText}`
-        // console.log(finalText)
         const { sections, recordedChapters, cursorTime } = prevState.state
-        let restructuredChapter = processChaptersLive(finalText, sections, Object.keys(sections)[0], cursorTime)
-        // console.log('restructured chapter')
-        // console.log(restructuredChapter)
-        // console.log('recorded chapter')
-        // console.log(recordedChapters)
-        // console.log('joined chapters')
-        const finalChapters = joinRecordedChapters(recordedChapters, restructuredChapter, 2, prevState.state.chapterId, prevState.state.segmentId)
-        // console.log(finalChapters)
-        // prevState.setState({chapters: restructuredChapter}, ()=> {
-
+        const restructuredChapter = 
+          processChaptersLive(finalText, sections, Object.keys(sections)[0], cursorTime)
+        const finalChapters = 
+          joinRecordedChapters(
+            recordedChapters,
+            restructuredChapter, 
+            2, 
+            prevState.state.chapterId, 
+            prevState.state.segmentId
+          )
         prevState.setState({ chapters: finalChapters }, () => {
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-          console.log(recordedChapters)
+          // console.log(recordedChapters)
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
           // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
         })
@@ -237,21 +196,17 @@ export default class LiveDiktering extends Component {
   }
 
   onCursorTimeChange = (cursorTime, chapterId, segmentId, timestampStart, timestampEnd) => {
-    console.log('cursorTime')
-    console.log(cursorTime)
-    console.log('start time')
-    console.log(timestampStart)
-    console.log('end time')
-    console.log(timestampEnd)
-    console.log('cursorTime end')
+    // console.log('cursorTime')
+    // console.log(cursorTime)
+    // console.log('start time')
+    // console.log(timestampStart)
+    // console.log('end time')
+    // console.log(timestampEnd)
+    // console.log('cursorTime end')
     this.setState({ cursorTime, chapterId, segmentId })
   }
 
   initAudio = async () => {
-    if (navigator.mediaDevices === undefined) {
-      navigator.mediaDevices = {}
-    }
-
     // Some browsers partially implement mediaDevices. We can't just assign an object with 
     // getUserMedia as it would overwrite existing properties. Here, we will just add the 
     // getUserMedia property if it's missing.
@@ -347,9 +302,8 @@ export default class LiveDiktering extends Component {
   }
 
   sendAsHorrribleTranscription = () => { }
-
   save = () => { }
-
+  
   saveRecordedTranscript = () => {
     const { chapters } = this.state
     const copiedChapter = [...JSON.parse(JSON.stringify(chapters))]
