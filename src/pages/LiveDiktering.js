@@ -1,18 +1,13 @@
 /* eslint-disable no-console */
 // @ts-ignore
 import React, { Component } from 'react'
-import {
-  EuiButtonEmpty,
-  EuiSpacer,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiButton
-} from '@elastic/eui'
+import { EuiButtonEmpty, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
 import LiveTemplateEngine from '../components/LiveTemplateEngine'
 import interpolateArray from '../models/interpolateArray'
+import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import PersonalInformation from '../components/PersonalInformation'
 import Tags from '../components/Tags'
 import io from 'socket.io-client'
@@ -117,103 +112,9 @@ export default class LiveDiktering extends Component {
     return merger
   }
 
-  validateSections = (updatedSectionNames) => {
-    // const { sections, chapters } = this.state
-    // // console.log('sections beta')
-    // // console.log(sections)
-    // // console.log('updated sections')
-    // // console.log(updatedSectionNames)
-    // // console.log('chapters')
-    // // console.log(chapters)
-    // if (JSON.stringify(sections) !== JSON.stringify(updatedSectionNames)) {
-    //   // cheeck if the current sections are incompatible  
-    //   // shuffle chapters according to the new template
-    //   const firstKeyword = Object.keys(updatedSectionNames)[0]
-    //   let updatedText = ''
-    //   chapters.forEach((chapter) => {
-    //     updatedText = `${updatedText} ${chapter.keyword}`
-    //     chapter.segments.forEach((segment) => {
-    //       updatedText = `${updatedText} ${segment.words}`
-    //     })
-    //   })
-    //   updatedText = updatedText.replace(firstKeyword, '')
-    //   // updatedText = updatedText.replace(/\s\s+/g, ' ') 
-    //   updatedText = updatedText.replace(/ny rad/g, '')
-    //   // updatedText = updatedText.replace(/\n/g, '')
-    //   this.setState({
-    //     chapters: processChaptersLive(updatedText, updatedSectionNames, firstKeyword),
-    //     headerUpdatedChapters: processChaptersLive(updatedText, updatedSectionNames, firstKeyword)
-    //   })
-    // } // else do nothing 
-  }
-
   updatedSections = (sections) => {
-    // console.log('before validating')
-    // console.log(sections)
-    // this.validateSections(sections)
     this.setState({ sections })
   }
-
-  joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, chapterId = -9, segmentId) => {
-    if (previousChapters.length === 0) return latestChapters
-    // In case the text is appended at the end of the previous text
-    if (chapterId === -9) {
-      return this.appendChapters(previousChapters, latestChapters)
-    } else {
-
-      // There should be three parts , first part, middle part and final part
-      let firstPortion = []
-      let tempFirstPortion = { keyword: '', segments: [] }
-      const firstPart = JSON.parse(JSON.stringify(previousChapters))
-      firstPart.forEach((ch, i) => {
-        if (i < chapterId) {
-          tempFirstPortion.keyword = ch.keyword
-          tempFirstPortion.segments = ch.segments
-        } else if (i === chapterId) {
-          tempFirstPortion.keyword = ch.keyword
-          ch.segments.forEach((seg, k) => {
-            if (k <= segmentId)
-              tempFirstPortion.segments.push(seg)
-          })
-        }
-        if (tempFirstPortion.segments.length > 0)
-          firstPortion.push(tempFirstPortion)
-        tempFirstPortion = { keyword: '', segments: [] }
-      })
-
-
-      // Determine the remaining portion
-      let remainingPortion = []
-      let tempRemainingPortion = { keyword: '', segments: [] }
-      firstPart.forEach((ch, i) => {
-        if (i === chapterId) {
-          tempRemainingPortion.keyword = ch.keyword
-          ch.segments.forEach((seg, k) => {
-            if (k > segmentId)
-              tempRemainingPortion.segments.push(seg)
-          })
-        } else if (i > chapterId) {
-          tempRemainingPortion.keyword = ch.keyword
-          tempRemainingPortion.segments = ch.segments
-        }
-        if (tempRemainingPortion.segments.length > 0) {
-          remainingPortion.push(tempRemainingPortion)
-          console.log("🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩")
-          console.log(chapterId)
-          console.log(tempRemainingPortion)
-          console.log("🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩")
-        }
-        tempRemainingPortion = { keyword: '', segments: [] }
-      })
-
-      const appendFirstWithRest = this.appendChapters(firstPortion, latestChapters)
-      return this.appendChapters(appendFirstWithRest, remainingPortion)
-
-      // Combine first, middle and remaining portion
-    }
-  }
-
-
 
   appendChapters = (previousChapters, latestChapters) => {
     if (previousChapters.length === 0) return latestChapters
@@ -258,8 +159,14 @@ export default class LiveDiktering extends Component {
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
+   
+   
+   
     const prevState = this
     scriptNode.onaudioprocess = function (audioEvent) {
+      console.log('audio event')
+      console.log(audioEvent)
+      console.log('audio event')
       const { seconds } = prevState.state
       if (seconds !== Math.ceil(prevState.audioContext.currentTime)) {
         prevState.setState({
@@ -269,9 +176,15 @@ export default class LiveDiktering extends Component {
 
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
+        console.log('buffer')
+        console.log(input)
+        console.log('buffer end')
         input = interpolateArray(input, 16000, 44100)
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
+        
+        
+        
         var output = new DataView(buffer)
         for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
@@ -307,7 +220,7 @@ export default class LiveDiktering extends Component {
         // console.log('recorded chapter')
         // console.log(recordedChapters)
         // console.log('joined chapters')
-        const finalChapters = prevState.joinRecordedChapters(recordedChapters, restructuredChapter, 2, prevState.state.chapterId, prevState.state.segmentId)
+        const finalChapters = joinRecordedChapters(recordedChapters, restructuredChapter, 2, prevState.state.chapterId, prevState.state.segmentId)
         // console.log(finalChapters)
         // prevState.setState({chapters: restructuredChapter}, ()=> {
 
@@ -383,23 +296,11 @@ export default class LiveDiktering extends Component {
   toggleRecord = () => {
     const { cursorTime, originalText, currentText } = this.state
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
-    const { recording } = this.state
+    const { recording, seconds } = this.state
     if (recording === true) {
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
       console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
-      console.log('cursorTime')
-      console.log(cursorTime)
-      console.log('cursorTime end beforerecording ')
       recorder.stop(this.addClipHandler, cursorTime)
       // this.saveRecordedTranscript()
       this.setState({
@@ -411,13 +312,27 @@ export default class LiveDiktering extends Component {
       })
     } else {
       this.setState({ recording: true }, async () => {
-        if (this.audioContext.state === 'suspended') {
+        
+        
+        
+        if (this.audioContext.state === 'suspended' && seconds !== 0) {
           this.socketio.emit('start-recording', {
             numChannels: 1,
             bps: 16,
             fps: parseInt(this.audioContext.sampleRate)
           })
-          this.audioContext.resume()
+          this.audioContext.resume().then((result)=>{
+            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
+            console.log('%c Result! ', 'background: #222; color: #bada55')
+            console.log(this.audioContext.state)
+            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
+          }).catch((error)=>{
+            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
+            console.log('error')
+            console.log(error)
+            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')            
+          })
+          
         } else {
           await this.initAudio()
           this.socketio.emit('start-recording', {

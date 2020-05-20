@@ -50,8 +50,9 @@ export function record(inputBuffer) {
   // console.log('recLength')
   // // console.log(recLength/parseFloat(16000))
   // console.log(recLength)
-  // console.log(recBuffers[0])
-  // console.log('recLength end')
+  console.log('recLength start')
+  console.log(recBuffers[0])
+  console.log('recLength end')
 }
 
 export function start() {
@@ -122,11 +123,6 @@ function initBuffers() {
 
 function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffers.length/46.6)) {
   
-  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
-  console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
   console.log('🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩🇧🇩')
   
   console.log('time stamp')

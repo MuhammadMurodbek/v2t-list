@@ -90,32 +90,7 @@ const restructureChapter = (data) => {
 }
 
 const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
-  console.log('finalTextqq')
-  console.log(finalText)
-  // console.log(finalText[0])
-  // const extractedFinalText = finalText
   const extractedFinalText = extractedText(finalText)
-  console.log('%c ExtractedFinalText! ', 'background: #222; color: #bada55')
-
-  console.log(extractedFinalText)
-  console.log(extractedFinalText[0])
-  console.log('updatedSections')
-  console.log(updatedSections)  
-  console.log('first keyword')  
-  console.log(firstKeyword)  
-  console.log('extractedFinalText end')
-  // return extractedFinalText
-
-  // return [{
-  //   keyword: 'KONTAKTORSAK',
-  //   segments: [ 
-  //     { words: '.', startTime: 0.0, endTime: 0.0 },
-  //     { words: '.', startTime: 0.0, endTime: 0.0 },
-  //     { words: '.', startTime: 0.0, endTime: 0.0 }
-  //   ]
-  // }]
-
-
   const sectionHeadersInLowerCase = Object.keys(updatedSections).map(sectionHeader => sectionHeader.toLowerCase())
   const wordsOfTheChapter = extractedFinalText || []
   const usedSectionHeaders = []
@@ -138,11 +113,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
     }
   })
 
-  // console.log('newlyOrientedWords')
-  // console.log(newlyOrientedWords)
   const finalChapters = []
-  // console.log('finalChapters before')
-  // console.log(finalChapters)
   
   let tempObject = { segments: [] }
   newlyOrientedWords.forEach((word, i) => {
@@ -177,16 +148,14 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       ]
     })
   }
-  // console.log('finalChapters')
-  // console.log(finalChapters)
 
-//     // Fix the case of a section header as per backend data
+  // Fix the case of a section header as per backend data
   const fixedCase = fixedCaseSections(finalChapters, updatedSections)
-//     // Capitalize the transcript
-    // const capitalized = capitalizeSections(fixedCase)
-    // return capitalized
+  // Capitalize the transcript
+  // const capitalized = capitalizeSections(fixedCase)
+  // return capitalized
   // return capitalized ? setThePunkt(capitalized) : fixedCase
-//     // return tempChapters
+  // return tempChapters
 
   return fixedCase
 }
