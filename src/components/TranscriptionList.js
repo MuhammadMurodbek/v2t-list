@@ -14,8 +14,6 @@ export default class TranscriptionList extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      edited: false,
-      pageIndex: 0,
       pageSize: 20,
       loading: false,
       isConfirmModalVisible: false,
@@ -25,14 +23,6 @@ export default class TranscriptionList extends Component {
 
   componentDidMount = async () => {
     document.title = 'Inovia AI :: All Transcripts'
-  }
-
-  updateItems = (id) => {
-    const { items } = this.state
-    this.setState({
-      items: items.filter((item) => item.id !== id),
-      edited: true
-    })
   }
 
   onTableChange = async ({ page = {} }) => {
@@ -51,26 +41,12 @@ export default class TranscriptionList extends Component {
     setPageIndex(pageIndex)
   }
 
-  shouldComponentUpdate({ transcripts: nextTranscripts, job: nextJob }) {
-    const { transcripts, job } = this.props
-    const { edited } = this.state
-    if (
-      (transcripts.length !== nextTranscripts.length && edited === false) ||
-      job !== nextJob
-    ) {
-      return true
-    }
-    return false
-  }
-
   showConfirmModal = (dictationToRemove) => {
     this.setState((prevState) => ({
       ...prevState,
       dictationToRemove,
       isConfirmModalVisible: true
     }))
-
-    this.forceUpdate()
   }
 
   closeConfirmModal = () => {
@@ -79,8 +55,6 @@ export default class TranscriptionList extends Component {
       isConfirmModalVisible: false,
       dictationToRemove: null
     }))
-
-    this.forceUpdate()
   }
 
   onRemoveDictationConfirmed = () => {
@@ -90,8 +64,14 @@ export default class TranscriptionList extends Component {
     if (dictationToRemove !== null) {
       api
         .rejectTranscription(dictationToRemove)
-        .then(() => {
-          this.updateItems(dictationToRemove)
+        .then(async () => {
+          await this.onTableChange({
+            page: {
+              index: this.props.pageIndex,
+              size: this.state.pageSize
+            }
+          })
+
           addSuccessToast(
             <EuiI18n
               token="dictationRemoveSucces"
