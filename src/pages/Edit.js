@@ -78,11 +78,60 @@ export default class EditPage extends Component {
   initiate = async () => {
     const { id, defaultTranscript } = this.props
     if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
-    const [{ data: templates }, { data: transcript }] = await Promise.all([
+    const [
+      {
+        data: { templates }
+      },
+      { data: transcript }
+    ] = await Promise.all([
       api.getSectionTemplates().catch(this.onError),
       api.loadTranscription(id).catch(this.onError)
     ])
-    this.onNewTranscript(transcript, templates.templates)
+
+    const {
+      fields: { department_id }
+    } = transcript
+    const filteredTemplates = await this.filterTemplatesByDepartmentId(
+      templates,
+      department_id
+    )
+
+    this.onNewTranscript(transcript, filteredTemplates)
+  }
+
+  filterTemplatesByDepartmentId = async (templates, department_id) => {
+    const {
+      data: { jobs }
+    } = await api.getListOfAllJobs()
+
+    const allowedSectionTemplates = []
+    let isEmptyFieldFound = false
+
+    jobs.forEach((job) => {
+      if (isEmptyFieldFound) return
+      const {
+        file_source: {
+          med_speech: { departments }
+        }
+      } = job
+
+      const rx = new RegExp(department_id, 'gim')
+      if (departments.some((d) => rx.test(d))) {
+        if (
+          !job.allowed_section_templates ||
+          !job.allowed_section_templates.length
+        ) {
+          isEmptyFieldFound = true
+          return
+        }
+
+        allowedSectionTemplates.push(...job.allowed_section_templates)
+      }
+    })
+
+    return isEmptyFieldFound
+      ? templates
+      : templates.filter(({ id }) => allowedSectionTemplates.includes(id))
   }
 
   onNewTranscript = (transcript, templates) => {
@@ -432,100 +481,106 @@ export default class EditPage extends Component {
     } = this.state
     if (error) return <Invalid />
     return (
-      <Page preferences title={<EuiI18n token="editor" default="Editor" />}>
-        <div>
-          <EuiFlexGroup wrap gutterSize="xl">
-            <EuiFlexItem>
-              <EuiFlexGroup>
+      <EuiI18n token="editor" default="Editor">
+        {(pageTitle) => (
+          <Page preferences title={pageTitle}>
+            <div>
+              <EuiFlexGroup wrap gutterSize="xl">
                 <EuiFlexItem>
-                  <Player
-                    audioTranscript={originalChapters}
-                    trackId={id}
-                    cursorTime={cursorTime}
-                    getCurrentTime={this.getCurrentTime}
-                    updateSeek={this.onTimeUpdate}
-                    queryTerm={queryTerm}
-                    isPlaying={false}
-                    isContentAudio={isMediaAudio}
-                    ref={this.playerRef}
-                    searchBoxVisible
-                    isTraining={false}
-                    onPause={this.onPause}
-                    token={token}
-                  />
-                  <EuiSpacer size="l" />
-                  <EuiSpacer size="l" />
-
-                  <Editor
-                    originalChapters={originalChapters}
-                    chapters={chapters}
-                    currentTime={currentTime}
-                    onCursorTimeChange={this.onCursorTimeChange}
-                    onSelect={this.onSelectText}
-                    updateTranscript={this.onUpdateTranscript}
-                    isDiffVisible
-                    templateId={templateId}
-                    sectionHeaders={sectionHeaders}
-                    initialCursor={initialCursor}
-                  />
                   <EuiFlexGroup>
-                    <EuiFlexItem grow={false}>
-                      <EuiButtonEmpty color="#000000" onClick={this.cancel}>
-                        <EuiI18n token="cancel" default="Cancel" />
-                      </EuiButtonEmpty>
+                    <EuiFlexItem>
+                      <Player
+                        audioTranscript={originalChapters}
+                        trackId={id}
+                        cursorTime={cursorTime}
+                        getCurrentTime={this.getCurrentTime}
+                        updateSeek={this.onTimeUpdate}
+                        queryTerm={queryTerm}
+                        isPlaying={false}
+                        isContentAudio={isMediaAudio}
+                        ref={this.playerRef}
+                        searchBoxVisible
+                        isTraining={false}
+                        onPause={this.onPause}
+                        token={token}
+                      />
+                      <EuiSpacer size="l" />
+                      <EuiSpacer size="l" />
+
+                      <Editor
+                        originalChapters={originalChapters}
+                        chapters={chapters}
+                        currentTime={currentTime}
+                        onCursorTimeChange={this.onCursorTimeChange}
+                        onSelect={this.onSelectText}
+                        updateTranscript={this.onUpdateTranscript}
+                        isDiffVisible
+                        templateId={templateId}
+                        sectionHeaders={sectionHeaders}
+                        initialCursor={initialCursor}
+                      />
+                      <EuiFlexGroup>
+                        <EuiFlexItem grow={false}>
+                          <EuiButtonEmpty onClick={this.cancel}>
+                            <EuiI18n token="cancel" default="Cancel" />
+                          </EuiButtonEmpty>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiButton
+                            style={{
+                              border: 'solid 1px black',
+                              borderRadius: '25px'
+                            }}
+                            onClick={this.save}
+                          >
+                            <EuiI18n
+                              token="saveChanges"
+                              default="Save Changes"
+                            />
+                          </EuiButton>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiButton
+                            style={{
+                              background: 'rgb(9, 99, 255)',
+                              color: 'white',
+                              borderRadius: '25px'
+                            }}
+                            onClick={this.finalize}
+                          >
+                            <EuiI18n
+                              token="sendToWebdoc"
+                              default="Send to Co-worker"
+                            />
+                          </EuiButton>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
                     </EuiFlexItem>
+
                     <EuiFlexItem grow={false}>
-                      <EuiButton
-                        color="subdued"
-                        style={{
-                          border: 'solid 1px black',
-                          borderRadius: '25px'
-                        }}
-                        onClick={this.save}
-                      >
-                        <EuiI18n token="saveChanges" default="Save Changes" />
-                      </EuiButton>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiButton
-                        style={{
-                          background: 'rgb(9, 99, 255)',
-                          color: 'white',
-                          borderRadius: '25px'
-                        }}
-                        onClick={this.finalize}
-                      >
-                        <EuiI18n
-                          token="sendToWebdoc"
-                          default="Send to Co-worker"
-                        />
-                      </EuiButton>
+                      <Info fields={fields} />
+                      <EuiSpacer size="xxl" />
+                      <Tags tags={tags} updateTags={this.onUpdateTags} />
+                      <EuiSpacer size="xxl" />
+                      <Templates
+                        listOfTemplates={templates}
+                        defaultTemplateId={templateId}
+                        updateTemplateId={this.updateTemplateId}
+                      />
+
+                      <EuiSpacer size="xxl" />
+                      <Sidenote
+                        content={sidenoteContent}
+                        updateSidenote={this.updateSidenote}
+                      />
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
-
-                <EuiFlexItem grow={false}>
-                  <Info fields={fields} />
-                  <EuiSpacer size="xxl" />
-                  <Tags tags={tags} updateTags={this.onUpdateTags} />
-                  <EuiSpacer size="xxl" />
-                  <Templates
-                    listOfTemplates={templates}
-                    defaultTemplateId={templateId}
-                    updateTemplateId={this.updateTemplateId}
-                  />
-
-                  <EuiSpacer size="xxl" />
-                  <Sidenote
-                    content={sidenoteContent}
-                    updateSidenote={this.updateSidenote}
-                  />
-                </EuiFlexItem>
               </EuiFlexGroup>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </div>
-      </Page>
+            </div>
+          </Page>
+        )}
+      </EuiI18n>
     )
   }
 }

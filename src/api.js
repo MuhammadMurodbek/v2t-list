@@ -143,6 +143,11 @@ const getSectionTemplates = () => axios.get('/api/sections/v1')
 
 const getChartData = () => axios.get('/api/charts/v1/CHART_ID')
 
+const getListOfAllJobs = () =>
+  axios.post('/api/import/v1/search', {
+    source: 'MED_SPEECH'
+  })
+
 export default {
   approveTranscription,
   rejectTranscription,
@@ -159,5 +164,6 @@ export default {
   updateTranscription,
   uploadMedia,
   getSectionTemplates,
-  getChartData
+  getChartData,
+  getListOfAllJobs
 }
