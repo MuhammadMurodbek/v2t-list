@@ -1,3 +1,36 @@
+const appendChapters = (previousChapters, latestChapters) => {
+  if (previousChapters.length === 0) return latestChapters
+  const finalKeyword = previousChapters[previousChapters.length - 1].keyword
+  const intermediateChapters = JSON.parse(JSON.stringify(previousChapters)) // copy by value
+  let temporaryChapter = {}
+
+  latestChapters.forEach((chapter, i) => {
+    if (i === 0) {
+      if (
+        latestChapters[i].keyword === 'KONTAKTORSAK'
+        || latestChapters[i].keyword === finalKeyword
+      ) {
+        latestChapters[i].segments.forEach(seg => {
+          intermediateChapters[intermediateChapters.length - 1].segments.push(seg)
+        })
+      } else {
+        temporaryChapter.keyword = latestChapters[i].keyword
+        temporaryChapter.segments = latestChapters[i].segments
+        intermediateChapters.push(temporaryChapter)
+        temporaryChapter = {}
+      }
+    } else {
+      temporaryChapter.keyword = latestChapters[i].keyword
+      temporaryChapter.segments = latestChapters[i].segments
+    }
+    if (i !== 0) {
+      intermediateChapters.push(temporaryChapter)
+      temporaryChapter = {}
+    }
+  })
+  return intermediateChapters
+}
+
 const joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, chapterId = -9, segmentId) => {
   if (previousChapters.length === 0) return latestChapters
   // In case the text is appended at the end of the previous text
@@ -44,8 +77,8 @@ const joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, c
       tempRemainingPortion = { keyword: '', segments: [] }
     })
 
-    const appendFirstWithRest = this.appendChapters(firstPortion, latestChapters)
-    return this.appendChapters(appendFirstWithRest, remainingPortion)
+    const appendFirstWithRest = appendChapters(firstPortion, latestChapters)
+    return appendChapters(appendFirstWithRest, remainingPortion)
   }
 }
 
