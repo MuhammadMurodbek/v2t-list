@@ -1,12 +1,11 @@
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
-import DropDown from './DropDown'
 import {
   EuiSpacer,
   EuiForm,
   EuiFormRow,
-  EuiSuperSelect,
-  EuiI18n
+  EuiI18n,
+  EuiComboBox
 } from '@elastic/eui'
 import ListOfHeaders from './ListOfHeaders'
 import '../App.css'
@@ -86,9 +85,9 @@ const LiveTemplateEngine = ({
   }
 
   const onTemplateChange = (e) => {
-    setSelectedTemplate(e)
+    setSelectedTemplate(e[0].id)
     listOfTemplates.forEach((template) => {
-      if (template.id === e) {
+      if (template.id === e[0].id) {
         const updatedSectionHeaders = template.sections.map((section) => {
           if (usedSections.includes(section.name)) {
             if (section.synonyms) {
@@ -119,13 +118,8 @@ const LiveTemplateEngine = ({
     })
   }
 
-  const templateOptions = listOfTemplates.map((template) => {
-    return {
-      value: template.id,
-      inputDisplay: template.name,
-      dropdownDisplay: <DropDown title={template.name} />
-    }
-  })
+  const templateOptions = listOfTemplates
+    .map((template) => ({ ...template, value: template.id, label: template.name }))
 
   return (
     <Fragment>
@@ -139,11 +133,12 @@ const LiveTemplateEngine = ({
             />
           }
         >
-          <EuiSuperSelect
+          <EuiComboBox
             options={templateOptions}
-            valueOfSelected={selectedTemplate}
+            selectedOptions={ [{label: selectedTemplate}] }
+            singleSelection={{ asPlainText: true }}
             onChange={onTemplateChange}
-            itemLayoutAlign="top"
+            isClearable={false}
           />
         </EuiFormRow>
       </EuiForm>
