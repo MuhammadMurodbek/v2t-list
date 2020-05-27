@@ -301,7 +301,7 @@ export default class LiveDiktering extends Component {
       tags,
       seconds,
       initialCursor,
-      recordedAudioClip,
+      // recordedAudioClip,
       recording
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
