@@ -15,7 +15,7 @@ import Page from '../components/Page'
 import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
 import * as recorder from '../utils/recorder'
-import RecordList from '../components/RecordList'
+// import RecordList from '../components/RecordList'
 import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDiktering extends Component {
@@ -408,11 +408,11 @@ export default class LiveDiktering extends Component {
             </div>
           </EuiFlexItem>
         </EuiFlexGroup>
-        <EuiFlexGroup>
+        {/* <EuiFlexGroup>
           <EuiFlexItem>
             <RecordList audioClip={recordedAudioClip} />
           </EuiFlexItem>
-        </EuiFlexGroup>
+        </EuiFlexGroup> */}
       </Page>
     )
   }
