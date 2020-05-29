@@ -86,54 +86,10 @@ export default class EditPage extends Component {
     ] = await Promise.all([
       api.getSectionTemplates().catch(this.onError),
       api.loadTranscription(id).catch(this.onError)
-    ])
-
-    const {
-      fields: { department_id }
-    } = transcript
-    const filteredTemplates = await this.filterTemplatesByDepartmentId(
-      templates,
-      department_id
-    )
-
-    this.onNewTranscript(transcript, filteredTemplates)
+    ])    
+    this.onNewTranscript(transcript, templates)
   }
-
-  filterTemplatesByDepartmentId = async (templates, department_id) => {
-    const {
-      data: { jobs }
-    } = await api.getListOfAllJobs()
-
-    const allowedSectionTemplates = []
-    let isEmptyFieldFound = false
-
-    jobs.forEach((job) => {
-      if (isEmptyFieldFound) return
-      const {
-        file_source: {
-          med_speech: { departments }
-        }
-      } = job
-
-      const rx = new RegExp(department_id, 'gim')
-      if (departments.some((d) => rx.test(d))) {
-        if (
-          !job.allowed_section_templates ||
-          !job.allowed_section_templates.length
-        ) {
-          isEmptyFieldFound = true
-          return
-        }
-
-        allowedSectionTemplates.push(...job.allowed_section_templates)
-      }
-    })
-
-    return isEmptyFieldFound
-      ? templates
-      : templates.filter(({ id }) => allowedSectionTemplates.includes(id))
-  }
-
+  
   onNewTranscript = (transcript, templates) => {
     localStorage.setItem('transcriptId', this.props.id)
     const {
@@ -147,6 +103,7 @@ export default class EditPage extends Component {
       ...tag,
       id: tag.id.toUpperCase()
     }))
+
     const template =
       templates.find((template) => template.id === template_id) || {}
     this.setState({
