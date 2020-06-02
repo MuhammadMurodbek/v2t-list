@@ -16,7 +16,8 @@ import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', {
+  socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', {
+    path: '/pnr', 
     transports: ['websocket']
   })
   state = {

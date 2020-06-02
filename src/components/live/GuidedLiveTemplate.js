@@ -2,8 +2,7 @@
 /* eslint-disable no-console */
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
-import DropDown from '../DropDown'
-import { EuiSpacer, EuiForm, EuiFormRow, EuiSuperSelect } from '@elastic/eui'
+import { EuiSpacer, EuiForm, EuiFormRow, EuiComboBox } from '@elastic/eui'
 import ListOfHeaders from '../ListOfHeaders'
 import '../../App.css'
 
@@ -94,24 +93,20 @@ const GuidedLiveTemplate =  ({
     })
   }
 
-  const templateOptions = listOfTemplates.map((template) => {
-    return {
-      value: template.id,
-      inputDisplay: template.name,
-      dropdownDisplay: (<DropDown title={template.name} />)
-    }
-  })
+  const templateOptions = listOfTemplates
+    .map((template) => ({ ...template, value: template.id, label: template.name }))
 
   return (
     <Fragment>
       <EuiSpacer size="m" />
       <EuiForm>
         <EuiFormRow label="Välj journalmall">
-          <EuiSuperSelect
+          <EuiComboBox
             options={templateOptions}
-            valueOfSelected={selectedTemplate}
+            selectedOptions={[{ label: selectedTemplate }]}
+            singleSelection={{ asPlainText: true }}
             onChange={onTemplateChange}
-            itemLayoutAlign="top"
+            isClearable={false}
           />
         </EuiFormRow>
       </EuiForm>
