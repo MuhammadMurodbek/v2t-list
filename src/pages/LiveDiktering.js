@@ -33,9 +33,7 @@ export default class LiveDiktering extends Component {
     chapters: [{
       keyword: 'KONTAKTORSAK',
       segments: [
-        { words: '. ', startTime: 0.0, endTime: 0.0 },
-        { words: '. ', startTime: 0.0, endTime: 0.0 },
-        { words: '. ', startTime: 0.0, endTime: 0.0 }
+        { words: '', startTime: 0.0, endTime: 0.0 }
       ]
     }],
     originalText: '',
@@ -377,9 +375,6 @@ export default class LiveDiktering extends Component {
                 toggleRecord={this.toggleRecord}
                 seconds={seconds}
               />
-              <EuiButtonEmpty
-                onClick={this.saveRecordedTranscript}
-              > .</EuiButtonEmpty>
             </div>
             <div style={{
               marginTop: '-80px'
