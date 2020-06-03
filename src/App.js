@@ -20,6 +20,7 @@ import UploadPage from './pages/Upload'
 import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
 import LiveDikteringEnglishPage from './pages/LiveDikteringEnglish'
+import LiveDikteringNorwegianPage from './pages/LiveDikteringNorwegian'
 import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
@@ -442,6 +443,12 @@ class App extends Component {
                 path="/live-diktering-engelska/"
                 render={() =>
                   isLoggedIn ? <LiveDikteringEnglishPage /> : <LoginPage />
+                }
+              />
+              <Route
+                path="/live-diktering-norska/"
+                render={() =>
+                  isLoggedIn ? <LiveDikteringNorwegianPage /> : <LoginPage />
                 }
               />
               <Route
