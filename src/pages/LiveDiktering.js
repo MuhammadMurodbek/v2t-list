@@ -195,7 +195,7 @@ export default class LiveDiktering extends Component {
           joinRecordedChapters(
             recordedChapters,
             restructuredChapter, 
-            2, 
+            0, 
             prevState.state.chapterId, 
             prevState.state.segmentId
           )
@@ -242,7 +242,7 @@ export default class LiveDiktering extends Component {
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
       recorder.stop(this.addClipHandler, cursorTime)
-      // this.saveRecordedTranscript()
+      
       this.setState({
         // recordedChapters: this.state.chapters, 
         // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters), 
@@ -258,18 +258,7 @@ export default class LiveDiktering extends Component {
             bps: 16,
             fps: parseInt(this.audioContext.sampleRate)
           })
-          this.audioContext.resume().then((result)=>{
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
-            console.log('%c Result! ', 'background: #222; color: #bada55')
-            console.log(this.audioContext.state)
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
-          }).catch((error)=>{
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
-            console.log('error')
-            console.log(error)
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')            
-          })
-          
+          this.audioContext.resume()
         } else {
           await this.initAudio()
           this.socketio.emit('start-recording', {
@@ -278,6 +267,7 @@ export default class LiveDiktering extends Component {
             fps: parseInt(this.audioContext.sampleRate)
           })
         }
+        await this.saveRecordedTranscript()
         recorder.start()
       })
     }
@@ -286,7 +276,7 @@ export default class LiveDiktering extends Component {
   sendAsHorrribleTranscription = () => { }
   save = () => { }
   
-  saveRecordedTranscript = () => {
+  saveRecordedTranscript = async() => {
     const { chapters } = this.state
     const copiedChapter = [...JSON.parse(JSON.stringify(chapters))]
     this.setState({ recordedChapters: copiedChapter })
