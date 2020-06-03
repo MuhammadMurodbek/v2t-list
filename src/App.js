@@ -164,22 +164,22 @@ class App extends Component {
                     name: <EuiI18n token="upload" default="Upload" />,
                     onClick: () => this.selectItem('Upload')
                   },
-                  // {
-                  //   href: '/#/livediktering',
-                  //   id: 4,
-                  //   isSelected: selectedItemName === 'Live',
-                  //   name: <EuiI18n token="live" default="Live Dictation" />,
-                  //   onClick: () => this.selectItem('Live')
-                  // },
+                  {
+                    href: '/#/livediktering',
+                    id: 4,
+                    isSelected: selectedItemName === 'Live',
+                    name: <EuiI18n token="live" default="Live Dictation" />,
+                    onClick: () => this.selectItem('Live')
+                  },
                   {
                     href: '/#/training',
-                    id: 4,
+                    id: 5,
                     isSelected: selectedItemName === 'Training',
                     name: <EuiI18n token="training" default="Training" />,
                     onClick: () => this.selectItem('Training')
                   },
                   {
-                    id: 5,
+                    id: 6,
                     isSelected: selectedItemName === 'Co-worker',
                     name: <EuiI18n token="coWorker" default="Co-Worker" />,
                     onClick: () => {
@@ -285,7 +285,7 @@ class App extends Component {
                 url={logo}
                 onClick={this.loadHomescreen}
               />
-              
+
               <EuiSideNav
                 mobileTitle=""
                 // toggleOpenOnMobile={false}
@@ -350,7 +350,7 @@ class App extends Component {
                 url={collapsedLogo}
                 onClick={this.loadHomescreen}
               />
-              
+
               <EuiButtonIcon
                 style={{
                   color: 'white',
@@ -403,8 +403,8 @@ class App extends Component {
                       }}
                     />
                   ) : (
-                    <LoginPage />
-                  )
+                      <LoginPage />
+                    )
                 }
               />
               <Route
@@ -462,8 +462,8 @@ class App extends Component {
                       }}
                     />
                   ) : (
-                    <LoginPage />
-                  )
+                      <LoginPage />
+                    )
                 }
               />
               <Route
