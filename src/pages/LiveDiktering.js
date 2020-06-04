@@ -23,6 +23,7 @@ export default class LiveDiktering extends Component {
   audioContext = null
   // eslint-disable-next-line max-len
   socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'] })
+
   state = {
     alreadyRecorded: false,
     recording: false,
