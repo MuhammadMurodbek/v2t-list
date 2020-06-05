@@ -389,7 +389,16 @@ export default class LiveDiktering extends Component {
                 listOfTemplates={listOfTemplates}
                 usedSections={usedSections}
                 defaultTemplate={'ext1'}
+                defaultTemplate={{ id: 'ext1', value: 'Allergi' }}
                 updatedSections={this.updatedSections}
+                defaultSectionHeaders={[
+                  { name: 'KONTAKTORSAK', done: true },
+                  { name: 'AT', done: false },
+                  { name: 'LUNGOR', done: false },
+                  { name: 'BUK', done: false },
+                  { name: 'BEDÖMNING & ÅTGÄRD', done: false },
+                  { name: 'DIAGNOS', done: false }
+                ]}
               />
             </div>
           </EuiFlexItem>

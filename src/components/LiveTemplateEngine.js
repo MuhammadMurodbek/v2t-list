@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
 import {
@@ -14,18 +15,14 @@ const LiveTemplateEngine = ({
   listOfTemplates,
   usedSections,
   defaultTemplate,
-  updatedSections
+  updatedSections,
+  defaultSectionHeaders
 }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState('ext1')
+  const [selectedTemplate, setSelectedTemplate] = useState({ id: 'english2', value: 'English2' })
   const [defaultTemplateLoadStatus, setDefaultTemplateLoadStatus] = useState(
     false
   )
-  const [sectionHeaders, setSectionHeaders] = useState([
-    { name: 'Examination', done: true },
-    { name: 'Clinical details', done: false },
-    { name: 'Findings', done: false },
-    { name: 'Comment', done: false }
-  ])
+  const [sectionHeaders, setSectionHeaders] = useState(defaultSectionHeaders)
 
   // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
@@ -48,7 +45,7 @@ const LiveTemplateEngine = ({
 
   const updateSectionHeader = () => {
     listOfTemplates.forEach((template) => {
-      if (template.id === selectedTemplate) {
+      if (template.id === selectedTemplate.id) {
         const updatedSectionHeaders = template.sections.map((section) => {
           if (usedSections.includes(section.name)) {
             if (section.synonyms) {
@@ -85,7 +82,7 @@ const LiveTemplateEngine = ({
   }
 
   const onTemplateChange = (e) => {
-    setSelectedTemplate(e[0].id)
+    setSelectedTemplate({ id: e[0].id, value: e[0].value})
     listOfTemplates.forEach((template) => {
       if (template.id === e[0].id) {
         const updatedSectionHeaders = template.sections.map((section) => {
@@ -135,7 +132,7 @@ const LiveTemplateEngine = ({
         >
           <EuiComboBox
             options={templateOptions}
-            selectedOptions={ [{label: selectedTemplate}] }
+            selectedOptions={ [{label: selectedTemplate.value}] }
             singleSelection={{ asPlainText: true }}
             onChange={onTemplateChange}
             isClearable={false}

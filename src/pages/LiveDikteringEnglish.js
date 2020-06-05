@@ -440,8 +440,14 @@ export default class LiveDikteringEnglish extends Component {
               <LiveTemplateEngine
                 listOfTemplates={listOfTemplates}
                 usedSections={usedSections}
-                defaultTemplate={'english2'}
+                defaultTemplate={{id: 'english2', value: 'English2'}}
                 updatedSections={this.updatedSections}
+                defaultSectionHeaders= {[
+                  {name: 'Examination', done: true },
+                  {name: 'Clinical details', done: false },
+                  {name: 'Findings', done: false },
+                  {name: 'Comment', done: false }
+                ]}
               />
             </div>
           </EuiFlexItem>
