@@ -388,7 +388,6 @@ export default class LiveDiktering extends Component {
               <LiveTemplateEngine
                 listOfTemplates={listOfTemplates}
                 usedSections={usedSections}
-                defaultTemplate={'ext1'}
                 defaultTemplate={{ id: 'ext1', value: 'Allergi' }}
                 updatedSections={this.updatedSections}
                 defaultSectionHeaders={[
