@@ -69,42 +69,79 @@ const uploadMedia = (
 ) => {
   const body = new FormData()
   body.append('media', file)
+  let metadataPart
   if (metadata) {
-    const metadataPart = new Blob(
-      [
-        JSON.stringify({
-          transcription: {
-            model: metadata,
-            tags: [selectedJob],
-            language: 'sv',
-            fields: {
-              department_id: 'Inovia',
-              department_name: avdelning,
-              examination_time: '2019-11-06T03:29:33.344Z',
-              doctor_id: doktorsnamn,
-              doctor_first_name: '',
-              doctor_last_name: '',
-              doctor_full_name: doktorsnamn,
-              patient_id: patientnummer,
-              patient_full_name: patientsnamn
-            }
-          },
-          word_spotter: {
-            section_template: selectedSchema,
-            categories: ['icd-10', 'kva']
-          },
-          export: [
-            {
-              system_id: selectedJournalSystem
-            }
-          ]
-        })
-      ],
-      {
-        type: 'application/json'
-      }
-    )
-
+    if (metadata !== 'norwegian') { 
+      metadataPart = new Blob(
+        [
+          JSON.stringify({
+            transcription: {
+              model: metadata,
+              tags: [selectedJob],
+              language: 'sv',
+              fields: {
+                department_id: 'Inovia',
+                department_name: avdelning,
+                examination_time: '2019-11-06T03:29:33.344Z',
+                doctor_id: doktorsnamn,
+                doctor_first_name: '',
+                doctor_last_name: '',
+                doctor_full_name: doktorsnamn,
+                patient_id: patientnummer,
+                patient_full_name: patientsnamn
+              }
+            },
+            word_spotter: {
+              section_template: selectedSchema,
+              categories: ['icd-10', 'kva']
+            },
+            export: [
+              {
+                system_id: selectedJournalSystem
+              }
+            ]
+          })
+        ],
+        {
+          type: 'application/json'
+        }
+      )
+    } else {
+      metadataPart = new Blob(
+        [
+          JSON.stringify({
+            transcription: {
+              model: metadata,
+              tags: [selectedJob],
+              language: 'sv',
+              fields: {
+                department_id: 'Inovia',
+                department_name: avdelning,
+                examination_time: '2019-11-06T03:29:33.344Z',
+                doctor_id: doktorsnamn,
+                doctor_first_name: '',
+                doctor_last_name: '',
+                doctor_full_name: doktorsnamn,
+                patient_id: patientnummer,
+                patient_full_name: patientsnamn
+              }
+            },
+            word_spotter: {
+              section_template: 'norwegian',
+              categories: ['icd-10', 'kva']
+            },
+            export: [
+              {
+                system_id: selectedJournalSystem
+              }
+            ]
+          })
+        ],
+        {
+          type: 'application/json'
+        }
+      )
+    }
     body.set('metadata', metadataPart)
   }
 

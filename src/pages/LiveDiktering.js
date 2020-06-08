@@ -23,6 +23,7 @@ export default class LiveDiktering extends Component {
   audioContext = null
   // eslint-disable-next-line max-len
   socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'] })
+
   state = {
     alreadyRecorded: false,
     recording: false,
@@ -33,9 +34,7 @@ export default class LiveDiktering extends Component {
     chapters: [{
       keyword: 'KONTAKTORSAK',
       segments: [
-        { words: '. ', startTime: 0.0, endTime: 0.0 },
-        { words: '. ', startTime: 0.0, endTime: 0.0 },
-        { words: '. ', startTime: 0.0, endTime: 0.0 }
+        { words: '', startTime: 0.0, endTime: 0.0 }
       ]
     }],
     originalText: '',
@@ -194,9 +193,9 @@ export default class LiveDiktering extends Component {
         const finalChapters =
           joinRecordedChapters(
             recordedChapters,
-            restructuredChapter,
-            2,
-            prevState.state.chapterId,
+            restructuredChapter, 
+            0, 
+            prevState.state.chapterId, 
             prevState.state.segmentId
           )
         prevState.setState({ chapters: finalChapters }, () => {
@@ -242,7 +241,7 @@ export default class LiveDiktering extends Component {
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
       recorder.stop(this.addClipHandler, cursorTime)
-      // this.saveRecordedTranscript()
+      
       this.setState({
         // recordedChapters: this.state.chapters,
         // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters),
@@ -258,18 +257,7 @@ export default class LiveDiktering extends Component {
             bps: 16,
             fps: parseInt(this.audioContext.sampleRate)
           })
-          this.audioContext.resume().then((result)=>{
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
-            console.log('%c Result! ', 'background: #222; color: #bada55')
-            console.log(this.audioContext.state)
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
-          }).catch((error)=>{
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
-            console.log('error')
-            console.log(error)
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
-          })
-
+          this.audioContext.resume()
         } else {
           await this.initAudio()
           this.socketio.emit('start-recording', {
@@ -278,6 +266,7 @@ export default class LiveDiktering extends Component {
             fps: parseInt(this.audioContext.sampleRate)
           })
         }
+        await this.saveRecordedTranscript()
         recorder.start()
       })
     }
@@ -285,8 +274,8 @@ export default class LiveDiktering extends Component {
 
   sendAsHorrribleTranscription = () => { }
   save = () => { }
-
-  saveRecordedTranscript = () => {
+  
+  saveRecordedTranscript = async() => {
     const { chapters } = this.state
     const copiedChapter = [...JSON.parse(JSON.stringify(chapters))]
     this.setState({ recordedChapters: copiedChapter })
@@ -387,9 +376,6 @@ export default class LiveDiktering extends Component {
                 toggleRecord={this.toggleRecord}
                 seconds={seconds}
               />
-              <EuiButtonEmpty
-                onClick={this.saveRecordedTranscript}
-              > .</EuiButtonEmpty>
             </div>
             <div style={{
               marginTop: '-80px'
@@ -403,7 +389,16 @@ export default class LiveDiktering extends Component {
                 listOfSchemas={listOfSchemas}
                 usedSections={usedSections}
                 defaultSchema={defaultSchema && defaultSchema.id}
+                //defaultTemplate={{ id: 'ext1', value: 'Allergi' }}
                 updatedSections={this.updatedSections}
+                defaultSectionHeaders={[
+                  { name: 'KONTAKTORSAK', done: true },
+                  { name: 'AT', done: false },
+                  { name: 'LUNGOR', done: false },
+                  { name: 'BUK', done: false },
+                  { name: 'BEDÖMNING & ÅTGÄRD', done: false },
+                  { name: 'DIAGNOS', done: false }
+                ]}
               />
             </div>
           </EuiFlexItem>

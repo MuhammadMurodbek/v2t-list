@@ -70,6 +70,11 @@ export default class UploadPage extends Component {
       value: 'jasper',
       inputDisplay: 'Jasper 10x3',
       dropdownDisplay: <DropDown title="Jasper 10x3" />
+    },
+    {
+      value: 'norwegian',
+      inputDisplay: 'Norwegian',
+      dropdownDisplay: <DropDown title="Norwegian" />
     }
   ]
 

@@ -153,7 +153,8 @@ export default class GuidedLive extends Component {
         prevState.setState({ recording: false }, () => {
           prevState.socketio.emit('end-recording')
           prevState.socketio.close()
-          recorder.stop()
+          recorder.stop(prevState.addClipHandler)
+          prevState.audioContext.suspend()
         })
       } else {
         prevState.setState({ currentText: text }, () => {

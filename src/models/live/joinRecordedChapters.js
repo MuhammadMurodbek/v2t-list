@@ -35,7 +35,7 @@ const joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, c
   if (previousChapters.length === 0) return latestChapters
   // In case the text is appended at the end of the previous text
   if (chapterId === -9) {
-    return this.appendChapters(previousChapters, latestChapters)
+    return appendChapters(previousChapters, latestChapters)
   } else {
     // There should be three parts , first part, middle part and final part
     let firstPortion = []

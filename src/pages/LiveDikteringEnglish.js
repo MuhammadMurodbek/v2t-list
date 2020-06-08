@@ -19,16 +19,13 @@ import io from 'socket.io-client'
 import Page from '../components/Page'
 import processChapters from '../models/processChapters'
 import inoviaLogo from '../img/livediktering.png'
-import { addUnexpectedErrorToast } from '../components/GlobalToastList'
+import { addErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDikteringEnglish extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  socketio = io.connect('wss://ilxgpu9000.inoviaai.se/audio', {
-    path: '/english',
-    transports: ['websocket']
-  })
+  socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
   state = {
     recording: false,
     recordingAction: 'Starta',
@@ -68,7 +65,7 @@ export default class LiveDikteringEnglish extends Component {
       const { data } = await api.getSchemas()
       this.setState({ listOfSchemas: data.schemas })
     } catch {
-      addUnexpectedErrorToast()
+      addErrorToast()
     }
   }
 
@@ -232,7 +229,7 @@ export default class LiveDikteringEnglish extends Component {
     })
   }
 
-  onCursorTimeChange = () => {}
+  onCursorTimeChange = () => { }
 
   initAudio = () => {
     if (navigator.mediaDevices === undefined) {
@@ -317,7 +314,7 @@ export default class LiveDikteringEnglish extends Component {
     }
   }
 
-  sendAsHorrribleTranscription = () => {}
+  sendAsHorrribleTranscription = () => { }
 
   save = () => {
     /* Check the schema compatibility,
@@ -373,7 +370,7 @@ export default class LiveDikteringEnglish extends Component {
 
             <EuiFlexGroup justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
-                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => {}}>
+                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => { }}>
                   Avbryt
                 </EuiButtonEmpty>
               </EuiFlexItem>
@@ -384,7 +381,7 @@ export default class LiveDikteringEnglish extends Component {
                     border: 'solid 1px black',
                     borderRadius: '25px'
                   }}
-                  onClick={() => {}}
+                  onClick={() => { }}
                 >
                   Spara ändringar
                 </EuiButton>
@@ -396,7 +393,7 @@ export default class LiveDikteringEnglish extends Component {
                     borderRadius: '25px',
                     color: 'black'
                   }}
-                  onClick={() => {}}
+                  onClick={() => { }}
                 >
                   “Skicka för granskning”
                 </EuiButton>
@@ -408,7 +405,7 @@ export default class LiveDikteringEnglish extends Component {
                     color: 'white',
                     borderRadius: '25px'
                   }}
-                  onClick={() => {}}
+                  onClick={() => { }}
                 >
                   Skicka till Co-worker
                 </EuiButton>
@@ -419,7 +416,7 @@ export default class LiveDikteringEnglish extends Component {
             style={{
               maxWidth: '400px',
               display: 'block',
-              marginTop: '125px'
+              marginTop: '-50px'
             }}
           >
             <div
@@ -445,7 +442,14 @@ export default class LiveDikteringEnglish extends Component {
                 listOfSchemas={listOfSchemas}
                 usedSections={usedSections}
                 defaultSchema={defaultSchema && defaultSchema.id}
+                // defaultTemplate={{id: 'english2', value: 'English2'}}
                 updatedSections={this.updatedSections}
+                defaultSectionHeaders= {[
+                  {name: 'Examination', done: true },
+                  {name: 'Clinical details', done: false },
+                  {name: 'Findings', done: false },
+                  {name: 'Comment', done: false }
+                ]}
               />
             </div>
           </EuiFlexItem>

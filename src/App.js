@@ -20,6 +20,7 @@ import UploadPage from './pages/Upload'
 import TrainingPage from './pages/Training'
 import LiveDikteringPage from './pages/LiveDiktering'
 import LiveDikteringEnglishPage from './pages/LiveDikteringEnglish'
+import LiveDikteringNorwegianPage from './pages/LiveDikteringNorwegian'
 import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
@@ -163,22 +164,22 @@ class App extends Component {
                     name: <EuiI18n token="upload" default="Upload" />,
                     onClick: () => this.selectItem('Upload')
                   },
-                  {
-                    href: '/#/livediktering',
-                    id: 4,
-                    isSelected: selectedItemName === 'Live',
-                    name: <EuiI18n token="live" default="Live Dictation" />,
-                    onClick: () => this.selectItem('Live')
-                  },
+                  // {
+                  //   href: '/#/livediktering',
+                  //   id: 4,
+                  //   isSelected: selectedItemName === 'Live',
+                  //   name: <EuiI18n token="live" default="Live Dictation" />,
+                  //   onClick: () => this.selectItem('Live')
+                  // },
                   {
                     href: '/#/training',
-                    id: 5,
+                    id: 4,
                     isSelected: selectedItemName === 'Training',
                     name: <EuiI18n token="training" default="Training" />,
                     onClick: () => this.selectItem('Training')
                   },
                   {
-                    id: 6,
+                    id: 5,
                     isSelected: selectedItemName === 'Co-worker',
                     name: <EuiI18n token="coWorker" default="Co-Worker" />,
                     onClick: () => {
@@ -284,7 +285,7 @@ class App extends Component {
                 url={logo}
                 onClick={this.loadHomescreen}
               />
-              
+
               <EuiSideNav
                 mobileTitle=""
                 // toggleOpenOnMobile={false}
@@ -349,7 +350,7 @@ class App extends Component {
                 url={collapsedLogo}
                 onClick={this.loadHomescreen}
               />
-              
+
               <EuiButtonIcon
                 style={{
                   color: 'white',
@@ -402,8 +403,8 @@ class App extends Component {
                       }}
                     />
                   ) : (
-                    <LoginPage />
-                  )
+                      <LoginPage />
+                    )
                 }
               />
               <Route
@@ -445,6 +446,12 @@ class App extends Component {
                 }
               />
               <Route
+                path="/live-diktering-norska/"
+                render={() =>
+                  isLoggedIn ? <LiveDikteringNorwegianPage /> : <LoginPage />
+                }
+              />
+              <Route
                 path="/login"
                 render={(props) =>
                   isLoggedIn ? (
@@ -455,8 +462,8 @@ class App extends Component {
                       }}
                     />
                   ) : (
-                    <LoginPage />
-                  )
+                      <LoginPage />
+                    )
                 }
               />
               <Route
