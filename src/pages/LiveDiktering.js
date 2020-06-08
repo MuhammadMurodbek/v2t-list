@@ -5,7 +5,7 @@ import { EuiButtonEmpty, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from 
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
-import LiveTemplateEngine from '../components/LiveTemplateEngine'
+import LiveSchemaEngine from '../components/LiveSchemaEngine'
 import interpolateArray from '../models/interpolateArray'
 import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import PersonalInformation from '../components/PersonalInformation'
@@ -28,7 +28,7 @@ export default class LiveDiktering extends Component {
     recording: false,
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
-    listOfTemplates: [],
+    listOfSchemas: [],
     recordedChapters: [],
     chapters: [{
       keyword: 'KONTAKTORSAK',
@@ -66,14 +66,14 @@ export default class LiveDiktering extends Component {
   }
 
   componentDidMount = () => {
-    this.templates()
+    this.schemas()
     document.title = 'Inovia AI :: Live Diktering 🎤'
     if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {}
     }
 
-    // Some browsers partially implement mediaDevices. We can't just assign an object with 
-    // getUserMedia as it would overwrite existing properties. Here, we will just add the 
+    // Some browsers partially implement mediaDevices. We can't just assign an object with
+    // getUserMedia as it would overwrite existing properties. Here, we will just add the
     // getUserMedia property if it's missing.
     if (navigator.mediaDevices.getUserMedia === undefined) {
       navigator.mediaDevices.getUserMedia = function (constraints) {
@@ -97,10 +97,10 @@ export default class LiveDiktering extends Component {
     }
   }
 
-  templates = async () => {
+  schemas = async () => {
     try {
-      const templateList = await api.getSectionTemplates()
-      this.setState({ listOfTemplates: templateList.data.templates })
+      const schemaList = await api.getSchemas()
+      this.setState({ listOfSchemas: schemaList.data.schemas })
     } catch {
       addUnexpectedErrorToast()
     }
@@ -152,7 +152,7 @@ export default class LiveDiktering extends Component {
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 1024, 1, 1)
-   
+
     const prevState = this
     realAudioInput.connect(scriptNode)
     scriptNode.connect(this.audioContext.destination)
@@ -168,7 +168,7 @@ export default class LiveDiktering extends Component {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, 44100)
         // convert float audio data to 16-bit PCM
-        var buffer = new ArrayBuffer(input.length * 2) 
+        var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer)
         for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
           var s = Math.max(-1, Math.min(1, input[i]))
@@ -189,14 +189,14 @@ export default class LiveDiktering extends Component {
         // console.log('prevState.state.whole')
         const finalText = `${prevState.state.currentText}`
         const { sections, recordedChapters, cursorTime } = prevState.state
-        const restructuredChapter = 
+        const restructuredChapter =
           processChaptersLive(finalText, sections, Object.keys(sections)[0], cursorTime)
-        const finalChapters = 
+        const finalChapters =
           joinRecordedChapters(
             recordedChapters,
-            restructuredChapter, 
-            2, 
-            prevState.state.chapterId, 
+            restructuredChapter,
+            2,
+            prevState.state.chapterId,
             prevState.state.segmentId
           )
         prevState.setState({ chapters: finalChapters }, () => {
@@ -244,14 +244,14 @@ export default class LiveDiktering extends Component {
       recorder.stop(this.addClipHandler, cursorTime)
       // this.saveRecordedTranscript()
       this.setState({
-        // recordedChapters: this.state.chapters, 
-        // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters), 
+        // recordedChapters: this.state.chapters,
+        // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters),
         alreadyRecorded: true,
         recording: false,
         originalText: `${originalText} ${currentText}`
       })
     } else {
-      this.setState({ recording: true }, async () => {        
+      this.setState({ recording: true }, async () => {
         if (this.audioContext.state === 'suspended' && seconds !== 0) {
           this.socketio.emit('start-recording', {
             numChannels: 1,
@@ -267,9 +267,9 @@ export default class LiveDiktering extends Component {
             console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
             console.log('error')
             console.log(error)
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')            
+            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴')
           })
-          
+
         } else {
           await this.initAudio()
           this.socketio.emit('start-recording', {
@@ -285,7 +285,7 @@ export default class LiveDiktering extends Component {
 
   sendAsHorrribleTranscription = () => { }
   save = () => { }
-  
+
   saveRecordedTranscript = () => {
     const { chapters } = this.state
     const copiedChapter = [...JSON.parse(JSON.stringify(chapters))]
@@ -295,7 +295,7 @@ export default class LiveDiktering extends Component {
   render() {
     const {
       chapters,
-      listOfTemplates,
+      listOfSchemas,
       sections,
       currentTime,
       tags,
@@ -305,6 +305,7 @@ export default class LiveDiktering extends Component {
       recording
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
+    const defaultSchema = listOfSchemas && listOfSchemas.find(({name}) => name === 'Allergi')
     return (
       <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup >
@@ -312,8 +313,7 @@ export default class LiveDiktering extends Component {
             <PersonalInformation info={{
               doktor: '',
               patient: '',
-              personnummer: '',
-              template: ''
+              personnummer: ''
             }} />
             <EuiSpacer size="l" />
             <Editor
@@ -325,7 +325,7 @@ export default class LiveDiktering extends Component {
               onSelect={this.onSelectText}
               updateTranscript={this.onUpdateTranscript}
               isDiffVisible
-              templateId={'ext1'}
+              schemaId={defaultSchema && defaultSchema.id}
               sectionHeaders={Object.keys(sections)}
               initialCursor={initialCursor}
             />
@@ -399,10 +399,10 @@ export default class LiveDiktering extends Component {
                 updateTags={this.onUpdateTags}
               />
               <EuiSpacer size="l" />
-              <LiveTemplateEngine
-                listOfTemplates={listOfTemplates}
+              <LiveSchemaEngine
+                listOfSchemas={listOfSchemas}
                 usedSections={usedSections}
-                defaultTemplate={'ext1'}
+                defaultSchema={defaultSchema && defaultSchema.id}
                 updatedSections={this.updatedSections}
               />
             </div>

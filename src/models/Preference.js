@@ -242,13 +242,13 @@ export default class Preference {
   set columnsForCombo(v) {
     this._columnsForCombo = v
     const visibleLabels = v.map((u) => u.label)
-    const updatedTemplate = COLUMN_OPTIONS.filter(
+    const updatedColumns = COLUMN_OPTIONS.filter(
       (obj) =>
         obj.label === 'Öppna' ||
         obj.label === 'Ta bort' ||
         visibleLabels.includes(obj.label)
     )
-    this._columnsForTranscriptList = updatedTemplate
+    this._columnsForTranscriptList = updatedColumns
   }
 
   get columnsForTranscriptList() {

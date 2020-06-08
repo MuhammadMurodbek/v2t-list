@@ -19,9 +19,8 @@ import { PreferenceContext } from '../components/PreferencesProvider'
 import Editor from '../components/Editor'
 import Tags from '../components/Tags'
 import Player from '../components/Player'
-import Templates from '../components/Templates'
+import Schemas from '../components/Schemas'
 import Info from '../components/Info'
-import isSuperset from '../models/isSuperset'
 import Sidenote from '../components/Sidenote'
 import processChaptersRegular from '../models/processChaptersRegular'
 import {
@@ -53,9 +52,9 @@ export default class EditPage extends Component {
     fields: {},
     isMediaAudio: true,
     originalTags: [],
-    templates: [],
-    templateId: '',
-    originalTemplateId: '',
+    schemas: [],
+    schemaId: '',
+    originalSchemaId: '',
     sectionHeaders: [],
     initialCursor: 0
   }
@@ -80,42 +79,41 @@ export default class EditPage extends Component {
     if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
     const [
       {
-        data: { templates }
+        data: { schemas }
       },
       { data: transcript }
     ] = await Promise.all([
-      api.getSectionTemplates().catch(this.onError),
+      api.getSchemas().catch(this.onError),
       api.loadTranscription(id).catch(this.onError)
-    ])    
-    this.onNewTranscript(transcript, templates)
+    ])
+    this.onNewTranscript(transcript, schemas)
   }
-  
-  onNewTranscript = (transcript, templates) => {
+
+  onNewTranscript = async (transcript, schemas) => {
     localStorage.setItem('transcriptId', this.props.id)
     const {
       tags,
       fields,
       media_content_type,
-      template_id,
+      schemaId,
       transcriptions
     } = transcript
     const originalTags = (tags || []).map((tag) => ({
       ...tag,
       id: tag.id.toUpperCase()
     }))
+    const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
 
-    const template =
-      templates.find((template) => template.id === template_id) || {}
     this.setState({
-      originalTemplateId: template_id,
+      originalSchemaId: schemaId,
       originalChapters: this.parseTranscriptions(transcriptions),
       originalTags,
       tags: originalTags,
       fields: fields || {},
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
-      templates,
-      templateId: template_id,
-      sectionHeaders: (template.sections || []).map(({ name }) => name)
+      schemas,
+      schemaId,
+      sectionHeaders: (schema.fields || []).map(({ name }) => name)
     })
   }
 
@@ -172,14 +170,14 @@ export default class EditPage extends Component {
       tags,
       originalTags,
       fields,
-      templateId,
-      originalTemplateId
+      schemaId,
+      originalSchemaId
     } = this.state
     if (fields.patient_id) {
       if (
         JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
         JSON.stringify(tags) === JSON.stringify(originalTags) &&
-        originalTemplateId === templateId
+        originalSchemaId === schemaId
       ) {
         this.sendToCoworker()
       } else {
@@ -218,65 +216,6 @@ export default class EditPage extends Component {
     }
   }
 
-  areSectionHeadersBelongToTheTemplate = () => {
-    // get the list of templates
-    const { templates, templateId, chapters } = this.state
-    // const templateNames = templates.templates.map(template=>template.id)
-    // get the current template
-    // get the list of valid headers
-    const sectionHeadersForSelectedTemplate = templates
-      .filter((template) => template.id === templateId)
-      .map((template) => template.sections)[0]
-      .map((section) => section.name)
-    // get the current headers
-    const currentKeyWords = chapters.map((chapter) => chapter.keyword)
-    // check if the headers are compatible with the template
-    //
-    const set1 = new Set(sectionHeadersForSelectedTemplate)
-    const set2 = new Set(currentKeyWords)
-    // Check if they are same, but having different case
-    // Conver the set into array to use map
-    // function and then convert it back to a set
-    const set1LowerCase = new Set(
-      Array.from(set1).map((keyword) => keyword.toLowerCase())
-    )
-    const set2LowerCase = new Set(
-      Array.from(set2).map((keyword) => keyword.toLowerCase())
-    )
-    if (isSuperset(set1LowerCase, set2LowerCase)) {
-      // check if they are exactly same
-      if (isSuperset(set1, set2)) {
-        return {
-          message: true
-        }
-      } else {
-        // Change the keyword
-        const set1Array = Array.from(set1)
-        const set2CorrespondingKeywords = Array.from(set2)
-        const newKeywords = []
-        set2CorrespondingKeywords.forEach((currentKeyword) => {
-          set1Array.forEach((keyWordFromTemplate) => {
-            if (
-              keyWordFromTemplate.toLowerCase() === currentKeyword.toLowerCase()
-            ) {
-              newKeywords.push(keyWordFromTemplate)
-            }
-          })
-        })
-
-        // this.setState({ chapters: updatedTranscriptHeaders})
-        return {
-          message: 'FUZZY',
-          newKeywords
-        }
-      }
-    } else {
-      return {
-        message: false
-      }
-    }
-  }
-
   save = async (shouldBeSentToCoworker = false) => {
     const { id } = this.props
     const {
@@ -284,13 +223,13 @@ export default class EditPage extends Component {
       chapters,
       tags,
       originalTags,
-      templateId,
-      originalTemplateId
+      schemaId,
+      originalSchemaId
     } = this.state
     if (
       JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
       JSON.stringify(tags) === JSON.stringify(originalTags) &&
-      originalTemplateId === templateId
+      originalSchemaId === schemaId
     ) {
       addGlobalToast(
         <EuiI18n token="info" default="Info" />,
@@ -305,7 +244,8 @@ export default class EditPage extends Component {
 
     const headers = chapters.map((chapter) => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
-    if (headers.length !== uniqueHeaders.length) {
+    const hasEmptyHeader = headers.some(header => !header)
+    if (hasEmptyHeader || headers.length !== uniqueHeaders.length) {
       addWarningToast(
         <EuiI18n
           token="unableToSaveDictation"
@@ -313,32 +253,10 @@ export default class EditPage extends Component {
         />,
         <EuiI18n
           token="keywordsError"
-          default="Keywords may only appear once"
+          default="All keywords must be set and may only appear once"
         />
       )
       return
-    }
-
-    if (this.areSectionHeadersBelongToTheTemplate().message === false) {
-      addWarningToast(
-        <EuiI18n
-          token="unableToSaveDictation"
-          default="Unable to save the dictation"
-        />,
-        <EuiI18n
-          token="keywordsNotExist"
-          default="The selected keyword does not exist for the template"
-        />
-      )
-      return
-    } else if (
-      this.areSectionHeadersBelongToTheTemplate().message === 'FUZZY'
-    ) {
-      const keywordsAfterTemplateChange = this.areSectionHeadersBelongToTheTemplate()
-        .newKeywords
-      chapters.forEach((chapter, i) => {
-        chapter.keyword = keywordsAfterTemplateChange[i]
-      })
     }
 
     chapters.forEach((chapter) => {
@@ -350,7 +268,7 @@ export default class EditPage extends Component {
     })
 
     try {
-      await api.updateTranscription(id, tags, chapters, templateId)
+      await api.updateTranscription(id, tags, chapters, schemaId)
       this.setState(
         {
           originalChapters: this.parseTranscriptions(chapters),
@@ -378,22 +296,22 @@ export default class EditPage extends Component {
     this.setState({ tags })
   }
 
-  updateTemplateId = (templateId) => {
-    const { chapters, templates } = this.state
-    const template = templates.find((template) => template.id === templateId)
-    const availableSectionHeaders = this.getAvailableSectionHeaders(template)
-    const sectionHeaders = (template.sections || []).map(({ name }) => name)
+  updateSchemaId = async (schemaId) => {
+    const { chapters } = this.state
+    const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
+    const availableSectionHeaders = this.getAvailableSectionHeaders(schema)
+    const sectionHeaders = (schema.fields || []).map(({ name }) => name)
     const updatedChapters = processChaptersRegular(
       chapters,
       availableSectionHeaders
     )
-    this.setState({ templateId, sectionHeaders, chapters: updatedChapters })
+    this.setState({ schemaId, sectionHeaders, chapters: updatedChapters })
   }
 
-  getAvailableSectionHeaders = (template) => {
-    if (template.sections)
-      return template.sections.reduce((store, { name, synonyms }) => {
-        return [...store, name, ...(synonyms || [])]
+  getAvailableSectionHeaders = (schema) => {
+    if (schema.fields)
+      return schema.fields.reduce((store, { name, headerPatterns }) => {
+        return [...store, name, ...(headerPatterns || [])]
       }, [])
   }
 
@@ -428,9 +346,8 @@ export default class EditPage extends Component {
       tags,
       isMediaAudio,
       fields,
-      templates,
-      templateId,
-      // defaultTemplate,
+      schemas,
+      schemaId,
       sectionHeaders,
       initialCursor,
       sidenoteContent,
@@ -472,7 +389,7 @@ export default class EditPage extends Component {
                         onSelect={this.onSelectText}
                         updateTranscript={this.onUpdateTranscript}
                         isDiffVisible
-                        templateId={templateId}
+                        schemaId={schemaId}
                         sectionHeaders={sectionHeaders}
                         initialCursor={initialCursor}
                       />
@@ -519,10 +436,10 @@ export default class EditPage extends Component {
                       <EuiSpacer size="xxl" />
                       <Tags tags={tags} updateTags={this.onUpdateTags} />
                       <EuiSpacer size="xxl" />
-                      <Templates
-                        listOfTemplates={templates}
-                        defaultTemplateId={templateId}
-                        updateTemplateId={this.updateTemplateId}
+                      <Schemas
+                        schemas={schemas}
+                        schemaId={schemaId}
+                        onUpdate={this.updateSchemaId}
                       />
 
                       <EuiSpacer size="xxl" />

@@ -17,12 +17,12 @@ export default class GuidedLive extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', {
-    path: '/pnr', 
+    path: '/pnr',
     transports: ['websocket']
   })
   state = {
     recording: false,
-    listOfTemplates: [],
+    listOfSchemas: [],
     chapters: [
       {
         keyword: 'KONTAKTORSAK',
@@ -42,13 +42,13 @@ export default class GuidedLive extends Component {
     finalText: '',
     counter: 0,
     writeAudioMessage: 'write-audio-pnr',
-    templatesForMenu: [],
+    schemasForMenu: [],
     seconds: 0,
     recordedAudioClip: null
   }
 
   componentDidMount = () => {
-    this.templates()
+    this.schemas()
     document.title = 'Inovia AI :: Live Diktering 🎤'
   }
 
@@ -56,21 +56,21 @@ export default class GuidedLive extends Component {
     recorder.clear()
   }
 
-  templates = async () => {
+  schemas = async () => {
     try {
-      const templateList = await api.getSectionTemplates()
-      const tempTemplates = templateList.data.templates.map((template) => {
-        return { name: template.name, id: template.id }
+      const schemaList = await api.getSchemas()
+      const tempSchemas = schemaList.data.schemas.map((schema) => {
+        return { name: schema.name, id: schema.id }
       })
-      const finalTemplates = {
+      const finalSchemas = {
         id: 0,
         title: 'Journalmallar',
-        items: tempTemplates
+        items: tempSchemas
       }
-      this.setState({ templatesForMenu: finalTemplates })
+      this.setState({ schemasForMenu: finalSchemas })
       this.setState({
-        listOfTemplates: templateList.data.templates,
-        templatesForMenu: finalTemplates
+        listOfSchemas: schemaList.data.schemas,
+        schemasForMenu: finalSchemas
       })
     } catch {
       addUnexpectedErrorToast()
@@ -242,8 +242,8 @@ export default class GuidedLive extends Component {
       recording,
       finalText,
       currentText,
-      listOfTemplates,
-      templatesForMenu,
+      listOfSchemas,
+      schemasForMenu,
       seconds // ,
       // recordedAudioClip
     } = this.state
@@ -265,8 +265,8 @@ export default class GuidedLive extends Component {
             <GuidedLiveEditor
               prevContent={finalText}
               currentContent={currentText}
-              listOfTemplates={listOfTemplates}
-              templatesForMenu={templatesForMenu}
+              listOfSchemas={listOfSchemas}
+              schemasForMenu={schemasForMenu}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

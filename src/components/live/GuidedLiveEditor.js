@@ -13,11 +13,10 @@ import {
 import Dots from './Dots'
 import Tags from '../Tags'
 import LiveEditor from '../LiveEditor'
-// import LiveTemplateEngine from '../LiveTemplateEngine'
-import GuidedLiveTemplate from './GuidedLiveTemplate'
+import GuidedLiveSchema from './GuidedLiveSchema'
 import '../../styles/guided.css'
 import processChapters from '../../models/processChapters'
-import TemplateMenu from './TemplateMenu'
+import SchemaMenu from './SchemaMenu'
 import PersonalInfoLive from './PersonalInfoLive'
 import api from '../../api'
 import { addUnexpectedErrorToast } from '../GlobalToastList'
@@ -25,8 +24,8 @@ import { addUnexpectedErrorToast } from '../GlobalToastList'
 const GuidedLiveEditor = ({
   prevContent,
   currentContent,
-  listOfTemplates,
-  templatesForMenu
+  listOfSchema,
+  schemasForMenu
 }) => {
   const [editorVisible, setEditorVisible] = useState(false)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
@@ -81,9 +80,11 @@ const GuidedLiveEditor = ({
     }
   ])
 
+  const defaultSchema = listOfSchema && listOfSchema.find(({name}) => name === 'Allergi')
+  const defaultId = defaultSchema && defaultSchema.id
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
-  const [template, setTemplate] = useState('ext1')
+  const [schema, setSchema] = useState(defaultId)
   const [personnummer, setPersonnummer] = useState('')
 
   useEffect(() => {
@@ -163,9 +164,9 @@ const GuidedLiveEditor = ({
         return { ...step, ...tempObject }
       } else if (i === index + 1) {
         if (index < 3) {
-          console.log('templatesForMenu')
-          console.log(templatesForMenu)
-          console.log('templatesForMenu end')
+          console.log('schemasForMenu')
+          console.log(schemasForMenu)
+          console.log('schemasForMenu end')
           if (index === 2) {
             tempObject = {
               status: 'primary',
@@ -173,7 +174,7 @@ const GuidedLiveEditor = ({
                 <Fragment>
                   <Dots />
                   <EuiSpacer size="m" />
-                  <TemplateMenu templatesForMenu={templatesForMenu} />
+                  <SchemaMenu schemasForMenu={schemasForMenu} />
                 </Fragment>
               )
             }
@@ -216,7 +217,7 @@ const GuidedLiveEditor = ({
           setPersonnummer(content)
         }
         if (index === 3) {
-          setTemplate(content)
+          setSchema(content)
         }
         const tempObject = {
           children: <p>{content}</p>
@@ -264,8 +265,7 @@ const GuidedLiveEditor = ({
             info={{
               doktor,
               patient,
-              personnummer,
-              template
+              personnummer
             }}
           />
 
@@ -335,11 +335,11 @@ const GuidedLiveEditor = ({
           }}
         >
           <Tags tags={tags} updateTags={onUpdateTags} />
-          <GuidedLiveTemplate
-            listOfTemplates={listOfTemplates}
+          <GuidedLiveSchema
+            listOfSchema={listOfSchema}
             usedSections={chapters.map((chapter) => chapter.keyword)}
             updatedSections={updatedSections}
-            templateFromVoice={template}
+            schemaFromVoice={schema}
           />
         </EuiFlexItem>
       </EuiFlexGroup>

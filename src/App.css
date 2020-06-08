@@ -75,11 +75,6 @@ p {
   cursor: pointer;
 }
 
-.templateSelect{
-  width: 300px;
-}
-
-
 .euiText pre {
   background: #dde3ed;
   border-radius: 12px;

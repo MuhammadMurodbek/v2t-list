@@ -34,7 +34,7 @@ export default class UploadPage extends Component {
     doktorsnamn: '',
     avdelning: '',
     selectedJob: 'KS Lungs',
-    selectedTemplate: 'ext1',
+    selectedSchema: undefined,
     jobs: [
       {
         value: 'KS Lungs',
@@ -57,7 +57,7 @@ export default class UploadPage extends Component {
 
   state = {
     ...this.DEFAULT_STATE,
-    templates: []
+    schemaOptions: []
   }
 
   options = [
@@ -89,22 +89,19 @@ export default class UploadPage extends Component {
   componentDidMount = async () => {
     document.title = 'Inovia AI :: Ladda Upp'
     localStorage.setItem('transcriptId', '')
-    // load the list of templates
+    // load the list of schemaOptions
     try {
-      const templates = await api.getSectionTemplates()
-      if (templates.data) {
-        const listOfTemplates = templates.data.templates
-        if (listOfTemplates) {
-          const templateOptions = listOfTemplates.map((template) => {
-            return {
-              value: template.id,
-              inputDisplay: template.name,
-              dropdownDisplay: <DropDown title={template.name} />
-            }
-          })
-          this.setState({ templates: templateOptions })
+      const { data } = await api.getSchemas()
+      const schemaOptions = data.schemas.map((schema) => {
+        return {
+          value: schema.id,
+          inputDisplay: schema.name,
+          dropdownDisplay: <DropDown title={schema.name} />
         }
-      }
+      })
+      const defaultSchema = schemaOptions && schemaOptions.find(({inputDisplay}) => inputDisplay === 'Allergi')
+      const selectedSchema = defaultSchema && defaultSchema.value
+      this.setState({ schemaOptions, selectedSchema })
     } catch {
       addUnexpectedErrorToast()
     }
@@ -151,7 +148,7 @@ export default class UploadPage extends Component {
       patientnummer,
       doktorsnamn,
       avdelning,
-      selectedTemplate,
+      selectedSchema,
       selectedJournalSystem
     } = this.state
 
@@ -165,7 +162,7 @@ export default class UploadPage extends Component {
           patientnummer,
           doktorsnamn,
           avdelning,
-          selectedTemplate,
+          selectedSchema,
           selectedJournalSystem
         )
         .catch(() => {
@@ -225,8 +222,8 @@ export default class UploadPage extends Component {
     this.setState({ toasts: [] })
   }
 
-  onTemplateChange = (selectedTemplate) => {
-    this.setState({ selectedTemplate })
+  onSchemaChange = (selectedSchema) => {
+    this.setState({ selectedSchema })
   }
 
   render() {
@@ -236,8 +233,8 @@ export default class UploadPage extends Component {
       toasts,
       selectedJob,
       jobs,
-      templates,
-      selectedTemplate,
+      schemaOptions,
+      selectedSchema,
       selectedJournalSystem
     } = this.state
 
@@ -309,15 +306,15 @@ export default class UploadPage extends Component {
           <EuiFormRow
             label={
               <EuiI18n
-                token="selectJournalTemplateForTheTranscription"
-                default="Select journal template for the transcription"
+                token="selectSchemaForTheTranscription"
+                default="Select a schema for the transcription"
               />
             }
           >
             <EuiSuperSelect
-              options={templates}
-              valueOfSelected={selectedTemplate}
-              onChange={this.onTemplateChange}
+              options={schemaOptions}
+              valueOfSelected={selectedSchema}
+              onChange={this.onSchemaChange}
               itemLayoutAlign="top"
               hasDividers
             />

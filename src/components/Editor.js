@@ -38,7 +38,7 @@ export default class Editor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { initialCursor, templateId, originalChapters } = this.props
+    const { initialCursor, schemaId, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
       this.setCursor(initialCursor, true)
     else
@@ -51,7 +51,7 @@ export default class Editor extends Component {
     // if (prevProps.originalChapters !== originalChapters)
     //   this.initChapters()
 
-    if (prevProps.templateId !== templateId)
+    if (prevProps.schemaId !== schemaId)
       this.refreshDiff()
   }
 

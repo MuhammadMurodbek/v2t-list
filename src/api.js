@@ -64,7 +64,7 @@ const uploadMedia = (
   patientnummer,
   doktorsnamn,
   avdelning,
-  selectedTemplate,
+  selectedSchema,
   selectedJournalSystem
 ) => {
   const body = new FormData()
@@ -90,7 +90,7 @@ const uploadMedia = (
             }
           },
           word_spotter: {
-            section_template: selectedTemplate,
+            section_template: selectedSchema,
             categories: ['icd-10', 'kva']
           },
           export: [
@@ -120,11 +120,11 @@ const approveTranscription = (transcriptionId) =>
 const rejectTranscription = (transcriptionId) =>
   axios.post(`/api/transcriptions/v1/${transcriptionId}/reject`)
 
-const updateTranscription = (transcriptionId, tags, chapters, template_id) =>
+const updateTranscription = (transcriptionId, tags, chapters, schemaId) =>
   axios.put(`/api/transcriptions/v1/${transcriptionId}`, {
     tags,
     transcriptions: chapters,
-    template_id
+    schemaId
   })
 
 const trainingGetNext = () => axios.get('/api/training/v2/transcript')
@@ -139,7 +139,12 @@ const trainingReject = (transcriptionId) =>
     reject: true
   })
 
-const getSectionTemplates = () => axios.get('/api/sections/v1')
+const getSchemas = () => axios.post('/api/schema/v1/search', {
+  start: 0,
+  size: 1000
+})
+
+const getSchema = (id) => axios.get(`/api/schema/v1/id/${id}`)
 
 const getChartData = () => axios.get('/api/charts/v1/CHART_ID')
 
@@ -163,7 +168,8 @@ export default {
   trainingUpdate,
   updateTranscription,
   uploadMedia,
-  getSectionTemplates,
   getChartData,
-  getListOfAllJobs
+  getListOfAllJobs,
+  getSchemas,
+  getSchema
 }

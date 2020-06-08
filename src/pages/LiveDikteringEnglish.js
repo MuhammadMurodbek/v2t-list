@@ -11,7 +11,7 @@ import {
 import api from '../api'
 import LiveEditor from '../components/LiveEditor'
 import Mic from '../components/Mic'
-import LiveTemplateEngine from '../components/LiveTemplateEngine'
+import LiveSchemaEngine from '../components/LiveSchemaEngine'
 import interpolateArray from '../models/interpolateArray'
 import PersonalInformation from '../components/PersonalInformation'
 import Tags from '../components/Tags'
@@ -33,7 +33,7 @@ export default class LiveDikteringEnglish extends Component {
     recording: false,
     recordingAction: 'Starta',
     microphoneBeingPressed: false,
-    listOfTemplates: [],
+    listOfSchemas: [],
     chapters: [
       {
         keyword: '',
@@ -59,14 +59,14 @@ export default class LiveDikteringEnglish extends Component {
   }
 
   componentDidMount = () => {
-    this.templates()
+    this.schemas()
     document.title = 'Inovia AI :: Live Diktering 🎤'
   }
 
-  templates = async () => {
+  schemas = async () => {
     try {
-      const templateList = await api.getSectionTemplates()
-      this.setState({ listOfTemplates: templateList.data.templates })
+      const { data } = await api.getSchemas()
+      this.setState({ listOfSchemas: data.schemas })
     } catch {
       addUnexpectedErrorToast()
     }
@@ -106,7 +106,7 @@ export default class LiveDikteringEnglish extends Component {
 
     if (JSON.stringify(sections) !== JSON.stringify(updatedSectionNames)) {
       // cheeck if the current sections are incompatible
-      // shuffle chapters according to the new template
+      // shuffle chapters according to the new schema
       let updatedText = ''
       chapters.forEach((chapter) => {
         updatedText = `${updatedText} ${chapter.keyword}`
@@ -320,9 +320,9 @@ export default class LiveDikteringEnglish extends Component {
   sendAsHorrribleTranscription = () => {}
 
   save = () => {
-    /* Check the template compatibility, 
-    // if the section headers don't belong to the template, 
-    // notify the user and clear up the keywords and move 
+    /* Check the schema compatibility,
+    // if the section headers don't belong to the schema,
+    // notify the user and clear up the keywords and move
     // the keyword as a regular text
     // as it was actually said by the speaker
     */
@@ -338,12 +338,13 @@ export default class LiveDikteringEnglish extends Component {
     const {
       chapters,
       microphoneBeingPressed,
-      listOfTemplates,
+      listOfSchemas,
       sections,
       tags,
       seconds
     } = this.state
     const usedSections = chapters.map((chapter) => chapter.keyword)
+    const defaultSchema = listOfSchemas && listOfSchemas.find(({name}) => name === 'English2')
     return (
       <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup>
@@ -353,7 +354,7 @@ export default class LiveDikteringEnglish extends Component {
                 doktor: '',
                 patient: '',
                 personnummer: '',
-                template: ''
+                schema: ''
               }}
             />
             <EuiSpacer size="l" />
@@ -440,10 +441,10 @@ export default class LiveDikteringEnglish extends Component {
             >
               <Tags tags={tags} updateTags={this.onUpdateTags} />
               <EuiSpacer size="l" />
-              <LiveTemplateEngine
-                listOfTemplates={listOfTemplates}
+              <LiveSchemaEngine
+                listOfSchemas={listOfSchemas}
                 usedSections={usedSections}
-                defaultTemplate={'english2'}
+                defaultSchema={defaultSchema && defaultSchema.id}
                 updatedSections={this.updatedSections}
               />
             </div>
