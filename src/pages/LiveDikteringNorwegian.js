@@ -5,7 +5,7 @@ import { EuiButtonEmpty, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from 
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
-import LiveSchemaEngine from '../components/LiveSchemaEngine'
+// import LiveSchemaEngine from '../components/LiveSchemaEngine'
 import interpolateArray from '../models/interpolateArray'
 import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import PersonalInformation from '../components/PersonalInformation'
@@ -365,7 +365,7 @@ export default class LiveDikteringNorwegian extends Component {
                   updateTags={this.onUpdateTags}
                 />
                 <EuiSpacer size="l" />
-                <LiveSchemaEngine
+                {/* <LiveSchemaEngine
                   listOfTemplates={listOfTemplates}
                   usedSections={usedSections}
                   defaultTemplate={{ id: 'ext1', value: 'Allergi' }}
@@ -378,7 +378,7 @@ export default class LiveDikteringNorwegian extends Component {
                     { name: 'BEDÖMNING & ÅTGÄRD', done: false },
                     { name: 'DIAGNOS', done: false }
                   ]}
-                />
+                /> */}
               </div>
             </EuiFlexItem>
           </EuiFlexGroup>
