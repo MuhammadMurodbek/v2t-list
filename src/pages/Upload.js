@@ -152,6 +152,7 @@ export default class UploadPage extends Component {
       selectedJournalSystem
     } = this.state
 
+    const { data: schema } = await api.getSchema(selectedSchema)
     const requests = Array.from(files).map((file) =>
       api
         .uploadMedia(
@@ -162,7 +163,7 @@ export default class UploadPage extends Component {
           patientnummer,
           doktorsnamn,
           avdelning,
-          selectedSchema,
+          schema.mappings.MEDSPEECH,
           selectedJournalSystem
         )
         .catch(() => {
