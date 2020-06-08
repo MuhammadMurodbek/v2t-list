@@ -264,7 +264,7 @@ export default class LiveDikteringNorwegian extends Component {
     render() {
       const {
         chapters,
-        listOfTemplates,
+        //listOfTemplates,
         sections,
         currentTime,
         tags,
@@ -273,7 +273,7 @@ export default class LiveDikteringNorwegian extends Component {
         // recordedAudioClip,
         recording
       } = this.state
-      const usedSections = chapters.map(chapter => chapter.keyword)
+      // const usedSections = chapters.map(chapter => chapter.keyword)
       return (
         <Page preferences logo={inoviaLogo} title="">
           <EuiFlexGroup >
