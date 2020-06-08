@@ -24,7 +24,7 @@ import { addUnexpectedErrorToast } from '../GlobalToastList'
 const GuidedLiveEditor = ({
   prevContent,
   currentContent,
-  listOfSchema,
+  listOfSchemas,
   schemasForMenu
 }) => {
   const [editorVisible, setEditorVisible] = useState(false)
@@ -80,7 +80,7 @@ const GuidedLiveEditor = ({
     }
   ])
 
-  const defaultSchema = listOfSchema && listOfSchema.find(({name}) => name === 'Allergi')
+  const defaultSchema = listOfSchemas && listOfSchemas.find(({name}) => name === 'Allergi')
   const defaultId = defaultSchema && defaultSchema.id
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
@@ -336,7 +336,7 @@ const GuidedLiveEditor = ({
         >
           <Tags tags={tags} updateTags={onUpdateTags} />
           <GuidedLiveSchema
-            listOfSchema={listOfSchema}
+            listOfSchemas={listOfSchemas}
             usedSections={chapters.map((chapter) => chapter.keyword)}
             updatedSections={updatedSections}
             schemaFromVoice={schema}

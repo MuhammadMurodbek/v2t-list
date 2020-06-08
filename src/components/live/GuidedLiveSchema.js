@@ -10,9 +10,7 @@ import '../../App.css'
 const GuidedLiveSchema =  ({
   listOfSchemas, usedSections, updatedSections, schemaFromVoice
 }) => {
-  const defaultSchema = listOfSchemas && listOfSchemas.find(({name}) => name === 'Allergi')
-  const defaultId = defaultSchema && defaultSchema.id
-  const [selectedSchema, setSelectedSchema] = useState(defaultId)
+  const [selectedSchema, setSelectedSchema] = useState()
   const [sectionHeaders, setSectionHeaders] = useState([
     { name: 'KONTAKTORSAK', done: true },
     { name: 'AT', done: false },
@@ -20,9 +18,22 @@ const GuidedLiveSchema =  ({
     { name: 'BUK', done: false },
     { name: 'DIAGNOS', done: false }])
 
-  // Similar to componentDidMount and componentDidUpdate:
   useEffect(() => {
-    if (listOfSchemas)
+    const schema = listOfSchemas.find(schema =>
+      schema.name.trim().toLowerCase() === schemaFromVoice.trim().toLowerCase()
+    ) || {}
+    setSelectedSchema(schema.id)
+  }, [schemaFromVoice])
+
+  useEffect(() => {
+    const defaultSchema = listOfSchemas && listOfSchemas.find(({name}) => name === 'Allergi')
+    const defaultId = defaultSchema && defaultSchema.id
+    setSelectedSchema(defaultId)
+  }, [listOfSchemas])
+
+  useEffect(() => {
+    console.log('schemaFromVoice', schemaFromVoice)
+    if (listOfSchemas && selectedSchema)
       updateSectionHeader()
   })
 
@@ -37,11 +48,6 @@ const GuidedLiveSchema =  ({
   }
 
   const updateSectionHeader = async () => {
-    listOfSchemas.forEach(schema => {
-      if (schema.name.trim().toLowerCase() === schemaFromVoice.trim().toLowerCase()) {
-        setSelectedSchema(schema.id)
-      }
-    })
     const { data: schema } = await api.getSchema(selectedSchema)
 
     const updatedSectionHeaders = schema.fields.map(field => {
@@ -69,8 +75,8 @@ const GuidedLiveSchema =  ({
 
   const schemaOptions = (listOfSchemas || [])
     .map((schema) => ({ ...schema, value: schema.id, label: schema.name }))
-    const selectedOptions = selectedSchema || defaultId ?
-      [{ label: selectedSchema || defaultId }] : []
+  const selected = schemaOptions.find(({id}) => id === selectedSchema)
+  const selectedOptions = selected ? [selected] : []
 
   return (
     <Fragment>
