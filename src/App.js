@@ -164,22 +164,22 @@ class App extends Component {
                     name: <EuiI18n token="upload" default="Upload" />,
                     onClick: () => this.selectItem('Upload')
                   },
-                  {
-                    href: '/#/livediktering',
-                    id: 4,
-                    isSelected: selectedItemName === 'Live',
-                    name: <EuiI18n token="live" default="Live Dictation" />,
-                    onClick: () => this.selectItem('Live')
-                  },
+                  // {
+                  //   href: '/#/livediktering',
+                  //   id: 4,
+                  //   isSelected: selectedItemName === 'Live',
+                  //   name: <EuiI18n token="live" default="Live Dictation" />,
+                  //   onClick: () => this.selectItem('Live')
+                  // },
                   {
                     href: '/#/training',
-                    id: 5,
+                    id: 4,
                     isSelected: selectedItemName === 'Training',
                     name: <EuiI18n token="training" default="Training" />,
                     onClick: () => this.selectItem('Training')
                   },
                   {
-                    id: 6,
+                    id: 5,
                     isSelected: selectedItemName === 'Co-worker',
                     name: <EuiI18n token="coWorker" default="Co-Worker" />,
                     onClick: () => {
