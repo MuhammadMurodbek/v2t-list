@@ -20,9 +20,22 @@ const LiveSchemaEngine = ({
 }) => {
   const [selectedSchema, setSelectedSchema] = useState(defaultSchema)
   const [sectionHeaders, setSectionHeaders] = useState(defaultSectionHeaders)
+  const [defaultTemplateLoadStatus, setDefaultTemplateLoadStatus] = useState(
+    false
+  )
 
   useEffect(() => {
-    if (selectedSchema)
+    if (selectedSchema) updateSectionHeader()
+    else 
+      if (defaultTemplateLoadStatus === false) {
+      setDefaultTemplateLoadStatus(true)
+      setSelectedSchema(defaultSchema)
+        // console.log('🎮🎮🎮🎮')
+        // console.log('🎮🎮🎮🎮')
+        // console.log(defaultSchema)
+        // console.log('🎮🎮🎮🎮')
+        // console.log('🎮🎮🎮🎮')
+      }
       updateSectionHeader()
   })
 
@@ -45,6 +58,13 @@ const LiveSchemaEngine = ({
     if (JSON.stringify(updatedSectionHeaders) !== JSON.stringify(sectionHeaders)) {
       setSectionHeaders(updatedSectionHeaders)
       // Send the name of the synonyms too
+      // console.log('......................................................................................................................................................................................')
+      // console.log('......................................................................................................................................................................................')
+      // console.log('getHeaderWithSynonyms(updatedSectionHeaders)')
+      // console.log(getHeaderWithSynonyms(updatedSectionHeaders))
+      // console.log('getHeaderWithSynonyms(updatedSectionHeaders) end')
+      // console.log('......................................................................................................................................................................................')
+      // console.log('......................................................................................................................................................................................')
       updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
     }
   }

@@ -109,18 +109,22 @@ const capitalizeSections = (tempChapters) => {
 }
 
 const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
+  
   const extractedFinalText = extractedText(finalText)
-  console.log('updatedSections')
-  console.log(updatedSections)
-  console.log('updatedSections end')
-  const sectionHeadersInLowerCase = Object.keys(updatedSections).map(sectionHeader => [`${sectionHeader.toLowerCase()}:`, sectionHeader.toLowerCase()]).flat()
-  console.log('sectionHeadersInLowerCase')
-  console.log(sectionHeadersInLowerCase)
-  console.log('sectionHeadersInLowerCase end')
+  // console.log('updatedSections')
+  // console.log(updatedSections)
+  // console.log('updatedSections end')
+  const m = Object.keys(updatedSections).map(m => m.toLowerCase()) 
+  const n = Object.values(updatedSections).flat().map(m => m.toLowerCase())
+  const sectionHeadersInLowerCase = [m, n].flat()
+  
+  // console.log('sectionHeadersInLowerCase')
+  // console.log(sectionHeadersInLowerCase)
+  // console.log('sectionHeadersInLowerCase end')
   const wordsOfTheChapter = extractedFinalText || []
-  console.log('wordsOfTheChapter')
-  console.log(wordsOfTheChapter)
-  console.log('wordsOfTheChapter end')
+  // console.log('wordsOfTheChapter')
+  // console.log(wordsOfTheChapter)
+  // console.log('wordsOfTheChapter end')
   const usedSectionHeaders = []
   const newlyOrientedWords = []
   let latestKeyword = Object.keys(updatedSections)[0]
@@ -129,9 +133,9 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       sectionHeadersInLowerCase.includes(segment.words.trim().toLowerCase())
         && !usedSectionHeaders.includes(segment.words.trim().toLowerCase())
     ) {
-      console.log('segment.words')
-      console.log(segment.words)
-      console.log('segment.words end')
+      // console.log('segment.words')
+      // console.log(segment.words)
+      // console.log('segment.words end')
       latestKeyword = segment.words.trim()
       if(segment.words[segment.words.length-1]===':') 
         latestKeyword = latestKeyword.slice(0, -1)
@@ -147,6 +151,9 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
     }
   })
 
+  // console.log('newlyOrientedWords')
+  // console.log(newlyOrientedWords)
+  // console.log('newlyOrientedWords end')
   const finalChapters = []
   
   let tempObject = { segments: [] }
@@ -174,6 +181,11 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       finalChapters.push(tempObject)
   })
 
+  // console.log('finalChapters')
+  // console.log(finalChapters)
+  // console.log('finalChapters end')
+
+
   if (finalChapters.length===0) {
     finalChapters.push({
       keyword: 'KONTAKTORSAK',
@@ -186,7 +198,13 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // Fix the case of a section header as per backend data
   const fixedCase = fixedCaseSections(finalChapters, updatedSections)
   // Capitalize the transcript
+  console.log('fixedCase')
+  console.log(fixedCase)
+  console.log('fixedCase end')
   const capitalized = capitalizeSections(fixedCase)
+  console.log('capitalized')
+  console.log(capitalized)
+  console.log('capitalized end')
   return capitalized
   // return capitalized ? setThePunkt(capitalized) : fixedCase
   // return tempChapters

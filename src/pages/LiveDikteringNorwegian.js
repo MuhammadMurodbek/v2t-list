@@ -34,7 +34,7 @@ export default class LiveDikteringNorwegian extends Component {
       listOfSchemas: [],
       recordedChapters: [],
       chapters: [{
-        keyword: 'Pupiller',
+        keyword: 'Respirasjonsfrekvens',
         segments: [
           { words: '', startTime: 0.0, endTime: 0.0 }
         ]
@@ -102,18 +102,6 @@ export default class LiveDikteringNorwegian extends Component {
         }
       }
     }
-
-      // templates = async () => {
-      //   try {
-      //     const templateList = await api.getSectionTemplates()
-      //     this.setState({ listOfTemplates: templateList.data.templates })
-      //   } catch (e){
-      //     console.log('e')
-      //     console.log(e)
-      //     console.log('e end')
-      //     addUnexpectedErrorToast()
-      //   }
-      // }
 
   schemas = async () => {
     try {
@@ -411,8 +399,8 @@ export default class LiveDikteringNorwegian extends Component {
                   // defaultTemplate={{id: 'english2', value: 'English2'}}
                   updatedSections={this.updatedSections}
                   defaultSectionHeaders={[
-                    { name: 'Pupiller', done: true },
-                    { name: 'Respirasjonsfrekvens', done: false },
+                    { name: 'Respirasjonsfrekvens', done: true },
+                    { name: 'Pupiller', done: false },
                     { name: 'Blodtrykk', done: false },
                     { name: 'Stimulantia', done: false },
                     { name: 'Temperatur', done: false },
