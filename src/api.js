@@ -19,11 +19,14 @@ const logout = () => {
   window.location.replace('/')
 }
 
-const login = (username, password) => {
+const getDomains = () => axios.get('/api/login/v1/domains')
+
+const login = (domain, username, password) => {
   return axios
     .post(
       '/api/login/v1',
       {
+        domain,
         username,
         password
       },
@@ -195,6 +198,7 @@ export default {
   rejectTranscription,
   setToken,
   keywordsSearch,
+  getDomains,
   login,
   loadTags,
   loadTickets,

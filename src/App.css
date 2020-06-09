@@ -14,20 +14,11 @@ p {
 }
 
 .euiPage {
+  min-height: 100vh;
   background-image: url("./img/sidebar.png");
   background-repeat: no-repeat;
   background-size: cover;
   padding: 0px;
-}
-
-.login{
-  padding-top: 35vh;
-  padding-left: 39vw;
-  width: 100vw;
-  height: 100vh;
-  background-image: url("./img/sidebar.png");
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .euiSideNavItemButton__label {

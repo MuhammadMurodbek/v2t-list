@@ -32,7 +32,6 @@ const GuidedLiveSchema =  ({
   }, [listOfSchemas])
 
   useEffect(() => {
-    console.log('schemaFromVoice', schemaFromVoice)
     if (listOfSchemas && selectedSchema)
       updateSectionHeader()
   })

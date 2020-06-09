@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import {
-  EuiButtonEmpty,
+  EuiButton,
   EuiFieldPassword,
   EuiFieldText,
+  EuiComboBox,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiForm,
+  EuiFormRow,
   EuiImage,
-  EuiI18n
+  EuiI18n,
+  EuiTextColor
 } from '@elastic/eui'
 import { usePreferences } from '../components/PreferencesProvider'
 // import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
@@ -18,6 +22,8 @@ import {
 } from '../components/GlobalToastList'
 
 const LoginPage = () => {
+  const [domainList, setDomainList] = useState([])
+  const [domain, setDomain] = useState()
   const [username, setUsername] = useState('test')
   const [password, setPassword] = useState('test')
   // eslint-disable-next-line no-unused-vars
@@ -28,7 +34,13 @@ const LoginPage = () => {
 
   useEffect(() => {
     document.title = 'Inovia AI :: Log in 🗝'
-  })
+    loadDomains()
+  }, [])
+
+  const loadDomains = async () => {
+    const { data: {domains} } = await api.getDomains()
+    setDomainList(domains)
+  }
 
   const login = (e) => {
     e.preventDefault()
@@ -38,7 +50,7 @@ const LoginPage = () => {
       )
     } else {
       api
-        .login(username, password)
+        .login(domain, username, password)
         .then((token) => {
           setUsername('')
           setPassword('')
@@ -53,6 +65,11 @@ const LoginPage = () => {
     }
   }
 
+  const changeDomain = (selection) => {
+    const domain = selection[0] ? selection[0].label : undefined
+    setDomain(domain)
+  }
+
   const changePassword = (e) => {
     setPassword(e.target.value)
   }
@@ -62,35 +79,47 @@ const LoginPage = () => {
   }
 
   return (
-    <form className="login" onSubmit={login}>
-      <EuiImage className="logo" size="m" alt="logo" url={logo} />
-
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          <EuiFieldText
-            placeholder="username"
-            value={username}
-            onChange={changeUsername}
-          />
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          <EuiFieldPassword
-            placeholder="password"
-            value={password}
-            onChange={changePassword}
-          />
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiFlexGroup>
-        <EuiFlexItem grow={false}>
-          <EuiButtonEmpty size="l" style={{ color: 'white' }} type="submit">
-            <EuiI18n token="login" default="Login" />
-          </EuiButtonEmpty>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </form>
+    <EuiFlexGroup gutterSize="none" direction="column" justifyContent="center" alignItems="center">
+      <EuiFlexItem grow={false}>
+        <EuiImage className="logo" size="m" alt="logo" url={logo} />
+      </EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <form onSubmit={login} style={{ width: 300 }}>
+          <EuiForm>
+            <EuiFormRow
+              label={<EuiTextColor color="ghost">domain</EuiTextColor>}
+            >
+              <EuiComboBox
+                singleSelection={{ asPlainText: true }}
+                options={domainList.map(label => ({ label }))}
+                selectedOptions={ domain ? [{ label: domain }] : []}
+                onChange={changeDomain}
+                isClearable={false}
+              />
+            </EuiFormRow>
+            <EuiFormRow
+              label={<EuiTextColor color="ghost">username/ password</EuiTextColor>}
+            >
+              <EuiFieldText
+                placeholder="username"
+                value={username}
+                onChange={changeUsername}
+              />
+            </EuiFormRow>
+            <EuiFormRow>
+              <EuiFieldPassword
+                placeholder="password"
+                value={password}
+                onChange={changePassword}
+              />
+            </EuiFormRow>
+            <EuiButton color="ghost" type="submit">
+              <EuiI18n token="login" default="Login" />
+            </EuiButton>
+          </EuiForm>
+        </form>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   )
 }
 
