@@ -15,15 +15,11 @@ const LiveSchemaEngine = ({
   listOfSchemas,
   usedSections,
   defaultSchema,
-  updatedSections
+  updatedSections,
+  defaultSectionHeaders
 }) => {
   const [selectedSchema, setSelectedSchema] = useState(defaultSchema)
-  const [sectionHeaders, setSectionHeaders] = useState([
-    { name: 'Examination', done: true },
-    { name: 'Clinical details', done: false },
-    { name: 'Findings', done: false },
-    { name: 'Comment', done: false }
-  ])
+  const [sectionHeaders, setSectionHeaders] = useState(defaultSectionHeaders)
 
   useEffect(() => {
     if (selectedSchema)

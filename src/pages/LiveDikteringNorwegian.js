@@ -5,7 +5,7 @@ import { EuiButtonEmpty, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from 
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
-// import LiveSchemaEngine from '../components/LiveSchemaEngine'
+import LiveSchemaEngine from '../components/LiveSchemaEngine'
 import interpolateArray from '../models/interpolateArray'
 import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import PersonalInformation from '../components/PersonalInformation'
@@ -16,7 +16,7 @@ import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
 import * as recorder from '../utils/recorder'
 // import RecordList from '../components/RecordList'
-import { addUnexpectedErrorToast } from '../components/GlobalToastList'
+import { addUnexpectedErrorToast, addErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDikteringNorwegian extends Component {
     AudioContext = window.AudioContext || window.webkitAudioContext
@@ -31,9 +31,10 @@ export default class LiveDikteringNorwegian extends Component {
       recordingAction: 'Starta',
       microphoneBeingPressed: false,
       listOfTemplates: [],
+      listOfSchemas: [],
       recordedChapters: [],
       chapters: [{
-        keyword: 'KONTAKTORSAK',
+        keyword: 'Respirasjonsfrekvens',
         segments: [
           { words: '', startTime: 0.0, endTime: 0.0 }
         ]
@@ -66,7 +67,7 @@ export default class LiveDikteringNorwegian extends Component {
     }
 
     componentDidMount = () => {
-      this.templates()
+      this.schemas()
       document.title = 'Inovia AI :: Live Diktering 🎤'
       if (navigator.mediaDevices === undefined) {
         navigator.mediaDevices = {}
@@ -92,14 +93,26 @@ export default class LiveDikteringNorwegian extends Component {
       }
     }
 
-    templates = async () => {
-      try {
-        const templateList = await api.getSectionTemplates()
-        this.setState({ listOfTemplates: templateList.data.templates })
-      } catch {
-        addUnexpectedErrorToast()
-      }
+      // templates = async () => {
+      //   try {
+      //     const templateList = await api.getSectionTemplates()
+      //     this.setState({ listOfTemplates: templateList.data.templates })
+      //   } catch (e){
+      //     console.log('e')
+      //     console.log(e)
+      //     console.log('e end')
+      //     addUnexpectedErrorToast()
+      //   }
+      // }
+
+  schemas = async () => {
+    try {
+      const { data } = await api.getSchemas()
+      this.setState({ listOfSchemas: data.schemas })
+    } catch {
+      addErrorToast()
     }
+  }
 
     onSelectText = () => {
       const selctedText = window.getSelection().toString()
@@ -265,6 +278,7 @@ export default class LiveDikteringNorwegian extends Component {
       const {
         chapters,
         //listOfTemplates,
+        listOfSchemas,
         sections,
         currentTime,
         tags,
@@ -273,7 +287,8 @@ export default class LiveDikteringNorwegian extends Component {
         // recordedAudioClip,
         recording
       } = this.state
-      // const usedSections = chapters.map(chapter => chapter.keyword)
+      const usedSections = chapters.map(chapter => chapter.keyword)
+      const defaultSchema = listOfSchemas && listOfSchemas.find(({ name }) => name === 'norwegian')
       return (
         <Page preferences logo={inoviaLogo} title="">
           <EuiFlexGroup >
@@ -379,6 +394,30 @@ export default class LiveDikteringNorwegian extends Component {
                     { name: 'DIAGNOS', done: false }
                   ]}
                 /> */}
+                <LiveSchemaEngine
+                  listOfSchemas={listOfSchemas}
+                  usedSections={usedSections}
+                  defaultSchema={defaultSchema && defaultSchema.id}
+                  // defaultTemplate={{id: 'english2', value: 'English2'}}
+                  updatedSections={this.updatedSections}
+                  defaultSectionHeaders={[
+                    { name: 'Respirasjonsfrekvens', done: true },
+                    { name: 'Blodtrykk', done: false },
+                    { name: 'Stimulantia', done: false },
+                    { name: 'Temperatur', done: false },
+                    { name: 'Puls', done: false },
+                    { name: 'Vurdering', done: false },
+                    { name: 'Cavum oris', done: false },
+                    { name: 'Pulm', done: false },
+                    { name: 'Abdomen', done: false },
+                    { name: 'Underekstremiteter', done: false },
+                    { name: 'Hud', done: false },
+                    { name: 'Pupiller', done: false },
+                    { name: 'Ører', done: false },
+                    { name: 'Collum', done: false },
+                    { name: 'Cor', done: false }
+                  ]}
+                />
               </div>
             </EuiFlexItem>
           </EuiFlexGroup>
