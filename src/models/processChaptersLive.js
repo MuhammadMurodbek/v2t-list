@@ -90,8 +90,11 @@ const restructureChapter = (data) => {
 }
 
 const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
+  console.log('🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄')
+  console.log(updatedSections)
+  console.log('🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄')
   const extractedFinalText = extractedText(finalText)
-  const sectionHeadersInLowerCase = Object.keys(updatedSections).map(sectionHeader => sectionHeader.toLowerCase())
+  const sectionHeadersInLowerCase = Object.keys(updatedSections).map(sectionHeader => `${sectionHeader.toLowerCase()}:`)
   const wordsOfTheChapter = extractedFinalText || []
   const usedSectionHeaders = []
   const newlyOrientedWords = []
@@ -101,7 +104,13 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       sectionHeadersInLowerCase.includes(segment.words.trim().toLowerCase())
         && !usedSectionHeaders.includes(segment.words.trim().toLowerCase())
     ) {
+      console.log('segment.words')
+      console.log(segment.words)
+      console.log('segment.words end')
       latestKeyword = segment.words.trim()
+      if(segment.words[segment.words.length-1]===':') 
+        latestKeyword = latestKeyword.slice(0, -1)
+      
       usedSectionHeaders.push(segment.words.trim().toLowerCase())
     } else {
       newlyOrientedWords.push({
