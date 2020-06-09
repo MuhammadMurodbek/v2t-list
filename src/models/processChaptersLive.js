@@ -90,9 +90,6 @@ const restructureChapter = (data) => {
 }
 
 const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
-  console.log('🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄')
-  console.log(updatedSections)
-  console.log('🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄🙄')
   const extractedFinalText = extractedText(finalText)
   const sectionHeadersInLowerCase = Object.keys(updatedSections).map(sectionHeader => `${sectionHeader.toLowerCase()}:`)
   const wordsOfTheChapter = extractedFinalText || []

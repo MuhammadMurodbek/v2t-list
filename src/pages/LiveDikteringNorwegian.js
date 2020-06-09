@@ -43,13 +43,6 @@ export default class LiveDikteringNorwegian extends Component {
       currentText: '',
       currentTime: 0,
       queryTerm: '',
-      // sections: {
-      //   'KONTAKTORSAK': [],
-      //   'AT': [],
-      //   'LUNGOR': [],
-      //   'BUK': [],
-      //   'DIAGNOS': []
-      // },
       sections: {
         'Pupiller': [],
         'Respirasjonsfrekvens': [],
