@@ -16,7 +16,7 @@ import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
 import * as recorder from '../utils/recorder'
 // import RecordList from '../components/RecordList'
-import { addUnexpectedErrorToast, addErrorToast } from '../components/GlobalToastList'
+import { addErrorToast } from '../components/GlobalToastList'
 
 export default class LiveDikteringNorwegian extends Component {
     AudioContext = window.AudioContext || window.webkitAudioContext
@@ -34,7 +34,7 @@ export default class LiveDikteringNorwegian extends Component {
       listOfSchemas: [],
       recordedChapters: [],
       chapters: [{
-        keyword: 'Respirasjonsfrekvens',
+        keyword: 'Pupiller',
         segments: [
           { words: '', startTime: 0.0, endTime: 0.0 }
         ]
@@ -401,7 +401,8 @@ export default class LiveDikteringNorwegian extends Component {
                   // defaultTemplate={{id: 'english2', value: 'English2'}}
                   updatedSections={this.updatedSections}
                   defaultSectionHeaders={[
-                    { name: 'Respirasjonsfrekvens', done: true },
+                    { name: 'Pupiller', done: true },
+                    { name: 'Respirasjonsfrekvens', done: false },
                     { name: 'Blodtrykk', done: false },
                     { name: 'Stimulantia', done: false },
                     { name: 'Temperatur', done: false },
@@ -412,7 +413,6 @@ export default class LiveDikteringNorwegian extends Component {
                     { name: 'Abdomen', done: false },
                     { name: 'Underekstremiteter', done: false },
                     { name: 'Hud', done: false },
-                    { name: 'Pupiller', done: false },
                     { name: 'Ører', done: false },
                     { name: 'Collum', done: false },
                     { name: 'Cor', done: false }
