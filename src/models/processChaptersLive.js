@@ -89,6 +89,25 @@ const restructureChapter = (data) => {
 
 }
 
+const capitalize = (str) => str
+  .trim().charAt(0).toUpperCase() + str.trim().slice(1)
+
+const capitalizeSections = (tempChapters) => {
+  return tempChapters.map(({ keyword, segments }) => {
+    return {
+      keyword,
+      segments: segments.map((segment, i) => {
+        if (i === 0) {
+          return {
+            words: capitalize(segment.words),
+            startTime: segment.startTime,
+            endTime: segment.endTime
+          }
+        }
+        else return segment
+      })}})
+}
+
 const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
   const extractedFinalText = extractedText(finalText)
   console.log('updatedSections')
@@ -167,12 +186,12 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // Fix the case of a section header as per backend data
   const fixedCase = fixedCaseSections(finalChapters, updatedSections)
   // Capitalize the transcript
-  // const capitalized = capitalizeSections(fixedCase)
-  // return capitalized
+  const capitalized = capitalizeSections(fixedCase)
+  return capitalized
   // return capitalized ? setThePunkt(capitalized) : fixedCase
   // return tempChapters
 
-  return fixedCase
+  // return fixedCase
 }
 
 export default processChaptersLive
