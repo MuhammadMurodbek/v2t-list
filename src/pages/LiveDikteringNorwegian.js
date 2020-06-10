@@ -34,7 +34,7 @@ export default class LiveDikteringNorwegian extends Component {
       listOfSchemas: [],
       recordedChapters: [],
       chapters: [{
-        keyword: 'Respirasjonsfrekvens',
+        keyword: 'Pupiller',
         segments: [
           { words: '', startTime: 0.0, endTime: 0.0 }
         ]
@@ -399,8 +399,8 @@ export default class LiveDikteringNorwegian extends Component {
                   // defaultTemplate={{id: 'english2', value: 'English2'}}
                   updatedSections={this.updatedSections}
                   defaultSectionHeaders={[
-                    { name: 'Respirasjonsfrekvens', done: true },
-                    { name: 'Pupiller', done: false },
+                    { name: 'Respirasjonsfrekvens', done: false },
+                    { name: 'Pupiller', done: true },
                     { name: 'Blodtrykk', done: false },
                     { name: 'Stimulantia', done: false },
                     { name: 'Temperatur', done: false },
