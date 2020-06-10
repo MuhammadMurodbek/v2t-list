@@ -150,7 +150,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // console.log(wordsOfTheChapter)
   // console.log('wordsOfTheChapter end')
   const usedSectionHeaders = []
-  const newlyOrientedWords = []
+  let newlyOrientedWords = []
   
   let latestKeyword = Object.keys(updatedSections)[0]
   wordsOfTheChapter.forEach((segment, i) => {
@@ -173,11 +173,16 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       && isTheSegmentASectionHeader(segment.words.trim().toLowerCase(), wordsOfTheChapter[i-1].words.trim().toLowerCase(), sectionHeadersInLowerCase, usedSectionHeaders)
     ){
       const newKeyword = `${wordsOfTheChapter[i - 1].words.trim().toLocaleLowerCase()} ${segment.words.trim().toLocaleLowerCase()}`
+      const previousKeyword = latestKeyword
       latestKeyword = newKeyword
       if (segment.words[segment.words.length - 1] === ':')
         latestKeyword = latestKeyword.slice(0, -1)
 
       usedSectionHeaders.push(newKeyword)
+      // remove last segment newlyOrientedKeyword
+      
+      newlyOrientedWords 
+        = newlyOrientedWords.filter(p => !(p.keyword.trim().toLowerCase() === previousKeyword.trim().toLowerCase() && p.words.trim().toLowerCase() === wordsOfTheChapter[i - 1].words.trim().toLowerCase())) 
     }
     else {
       newlyOrientedWords.push({
