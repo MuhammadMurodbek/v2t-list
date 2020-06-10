@@ -226,6 +226,22 @@ export default class EditPage extends Component {
       schemaId,
       originalSchemaId
     } = this.state
+    
+    const isThereAnyEmptySection = chapters.find(chapter=>chapter.segments.length === 0) || false
+    if (isThereAnyEmptySection) {
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <EuiI18n
+          token="emptySectionError"
+          default="Section must not be empty"
+        />
+      )
+      return
+    }
+
     if (
       JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
       JSON.stringify(tags) === JSON.stringify(originalTags) &&

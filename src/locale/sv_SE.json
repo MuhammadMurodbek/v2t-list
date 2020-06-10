@@ -131,6 +131,7 @@
   "nothingToUpdate": "There is nothing to update!",
   "unableToSaveDictation": "Inte möjligt att spara diktatet",
   "keywordsError": "Sökord måste vara satt och får endast förekomma 1 gång",
+  "emptySectionError": "Rubrik utan efterföljande text är ej tillåten",
   "dictationUpdated": "Diktatet är uppdaterat",
   "lettersError": "Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!",
   "unableToUpload": "Det är inte möjligt att ladda upp",
