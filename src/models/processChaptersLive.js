@@ -4,17 +4,26 @@
 
 const getCorrectKeyword = (keyword, updatedSections) => {
   const allTheKeywords = Object.keys(updatedSections)
-  // Remaining task
-  // use the values of the object to confirm as keyword
-  // Remaining task
-  // use the values of the object to confirm as keyword
-  // Remaining task
-  // use the values of the object to confirm as keyword
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
+  // console.log('keyword')
+  // console.log(keyword)
+  // console.log('keyword end')
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
   // Remaining task
   // use the values of the object to confirm as keyword
   const keywords = allTheKeywords.map(section =>
     section.toUpperCase() === keyword.toUpperCase() ? section : ''
   )
+  // console.log('allTheKeywords')
+  // console.log(allTheKeywords)
+  // console.log('allTheKeywords')
+  // console.log('keywords öööööö')
+  // console.log(keywords)
+  // console.log('keywords')
   const correctCasedKeyword = keywords.filter(k => k.length > 0)[0]
   return correctCasedKeyword
 }
@@ -132,6 +141,35 @@ const isTheSegmentASectionHeader = (
 
 }
 
+
+const isKeywordSynonym = (word, sectionHeaderOriginals) => {
+  // console.log('word')
+  // console.log(word)
+  // console.log('word end')
+  // console.log('sectionHeaderOriginals')
+  // console.log(sectionHeaderOriginals)
+  // console.log('sectionHeaderOriginals end')
+  return sectionHeaderOriginals.includes(word.trim().toLowerCase()) ? false : true
+}
+
+
+const getTheKeywordFromSynonym = (word, updatedSections) => {
+  // console.log('updatedSections')
+  // console.log(updatedSections)
+  // console.log('updatedSections end')
+  const synonymTree = {}
+  Object.keys(updatedSections).forEach(k => {
+    updatedSections[k].forEach(m => { synonymTree[m.trim().toLowerCase()]= k })
+  })
+  
+  // console.log('synonymTree[word]')
+  // console.log(synonymTree)
+  // console.log(`word ${word}`)
+  // console.log(synonymTree[word.toLowerCase()])
+  // console.log('synonymTree[word]')
+  return synonymTree[word.toLowerCase()]
+}
+
 const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
   
   const extractedFinalText = extractedText(finalText)
@@ -161,9 +199,45 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       // console.log('segment.words')
       // console.log(segment.words)
       // console.log('segment.words end')
-      latestKeyword = segment.words.trim()
-      if(segment.words[segment.words.length-1]===':') 
+      // The issue is that the system can detect a synonym as a valid keyword, 
+      // but as it is not in the combo box, the combobox shows an empty keyword.
+      // That is why if the user says something which is not in the combo box,
+      // but is a synonym of a member of the combobox, the parser should use the 
+      // main word instead of the synonym.
+
+      // Step 1 :: Check if the keyword is a synonym
+      const candidateKeyword = segment.words.trim()
+      const isTheKeywordASynonym = isKeywordSynonym(candidateKeyword, sectionHeaderOriginals)
+      // console.log('isKeywordSynonym')
+      // console.log(isTheKeywordASynonym)
+      // console.log('isKeywordSynonym end')
+      if (isTheKeywordASynonym) {
+        // Find out the actual keyword
+        latestKeyword = getTheKeywordFromSynonym(candidateKeyword, updatedSections)
+        // console.log('--------------------------------------------------------------_')
+        // console.log('--------------------------------------------------------------_')
+        // console.log('latestKeyword')
+        // console.log(latestKeyword)
+        // console.log('latestKeyword end')
+        // console.log('--------------------------------------------------------------_')
+        // console.log('--------------------------------------------------------------_')
+      } else {
+        latestKeyword = segment.words.trim()
+      }
+      
+      if (latestKeyword[latestKeyword.length-1]===':') 
         latestKeyword = latestKeyword.slice(0, -1)
+
+      // console.log('🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅')
+      // console.log('🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅')
+      // console.log('--------------------------------------------------------------_')
+      // console.log('latestKeyword')
+      // console.log(latestKeyword)
+      // console.log('latestKeyword end')
+      // console.log('--------------------------------------------------------------_')
+      // console.log('🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅')
+      // console.log('🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅')
+      // console.log('🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅')
       
       usedSectionHeaders.push(segment.words.trim().toLowerCase())
     } 
@@ -174,8 +248,30 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
     ){
       const newKeyword = `${wordsOfTheChapter[i - 1].words.trim().toLocaleLowerCase()} ${segment.words.trim().toLocaleLowerCase()}`
       const previousKeyword = latestKeyword
-      latestKeyword = newKeyword
-      if (segment.words[segment.words.length - 1] === ':')
+
+
+      const candidateKeyword = newKeyword
+      const isTheKeywordASynonym = isKeywordSynonym(candidateKeyword, sectionHeaderOriginals)
+      // console.log('isKeywordSynonym')
+      // console.log(isTheKeywordASynonym)
+      // console.log('isKeywordSynonym end')
+      if (isTheKeywordASynonym) {
+        // Find out the actual keyword
+        latestKeyword = getTheKeywordFromSynonym(candidateKeyword, updatedSections)
+        // console.log('--------------------------------------------------------------_++++++++')
+        // console.log('--------------------------------------------------------------_++++++++')
+        // console.log('latestKeyword')
+        // console.log(latestKeyword)
+        // console.log('latestKeyword end')
+        // console.log('--------------------------------------------------------------_++++++++')
+        // console.log('--------------------------------------------------------------_++++++++')
+      } else {
+        latestKeyword = newKeyword
+      }
+
+
+      // latestKeyword = newKeyword
+      if (latestKeyword[latestKeyword.length - 1] === ':') 
         latestKeyword = latestKeyword.slice(0, -1)
 
       usedSectionHeaders.push(newKeyword)
