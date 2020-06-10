@@ -138,8 +138,8 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // console.log('updatedSections')
   // console.log(updatedSections)
   // console.log('updatedSections end')
-  const sectionHeaderOriginals = Object.keys(updatedSections).map(m => m.toLowerCase()) 
-  const sectionHeaderSynonyms = Object.values(updatedSections).flat().map(m => m.toLowerCase())
+  const sectionHeaderOriginals = Object.keys(updatedSections).map(m => m.trim().toLowerCase()) 
+  const sectionHeaderSynonyms = Object.values(updatedSections).flat().map(m => m.trim().toLowerCase())
   const sectionHeadersInLowerCase = [sectionHeaderOriginals, sectionHeaderSynonyms].flat()
   
   // console.log('sectionHeadersInLowerCase')
