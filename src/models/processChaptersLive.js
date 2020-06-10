@@ -99,7 +99,7 @@ const capitalizeSections = (tempChapters) => {
       segments: segments.map((segment, i) => {
         if (i === 0) {
           return {
-            words: capitalize(segment.words),
+            words: `${capitalize(segment.words)} `,
             startTime: segment.startTime,
             endTime: segment.endTime
           }
@@ -228,7 +228,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // console.log(finalChapters)
   // console.log('finalChapters end')
 
-
+  // Fix it
   if (finalChapters.length===0) {
     finalChapters.push({
       keyword: 'KONTAKTORSAK',
