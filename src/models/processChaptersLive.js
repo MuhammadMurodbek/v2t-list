@@ -23,7 +23,7 @@ const fixedCaseSections = (tempChapters, updatedSectionNames) => {
   return tempChapters.map(({ keyword, segments }) => {
     return {
       keyword: getCorrectKeyword(keyword, updatedSectionNames),
-      segments
+      segments: segments[segments.length - 1].words === '\n ' ? segments.slice(0, segments.length - 1) : segments
     }
   })
 }
