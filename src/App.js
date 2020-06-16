@@ -203,6 +203,17 @@ class App extends Component {
                           .focus()
                       }
                     }
+                  }, {
+                    href: '/#/live-diktering',
+                    id: 8,
+                    isSelected: selectedItemName === 'Live Diktering',
+                    name: 'Live Diktering',
+                    onClick: () => {
+                      this.selectItem('Live Diktering')
+                      this.setState({
+                        isCollapsed: true
+                      })
+                    }
                   }
                   // , {
                   //   href: '/#/guided-live',
@@ -435,6 +446,12 @@ class App extends Component {
               />
               <Route
                 path="/livediktering/"
+                render={() =>
+                  isLoggedIn ? <LiveDikteringPage /> : <LoginPage />
+                }
+              />
+              <Route
+                path="/live-diktering/"
                 render={() =>
                   isLoggedIn ? <LiveDikteringPage /> : <LoginPage />
                 }

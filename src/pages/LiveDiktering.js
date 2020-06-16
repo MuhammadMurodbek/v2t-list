@@ -17,12 +17,13 @@ import inoviaLogo from '../img/livediktering.png'
 import * as recorder from '../utils/recorder'
 // import RecordList from '../components/RecordList'
 import { addUnexpectedErrorToast } from '../components/GlobalToastList'
+import getParameterByName from '../utils/url'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
-  socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'] })
+  socketio = null
 
   state = {
     alreadyRecorded: false,
@@ -69,6 +70,25 @@ export default class LiveDiktering extends Component {
     document.title = 'Inovia AI :: Live Diktering 🎤'
     if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {}
+    }
+    
+    let language = getParameterByName('language')
+    console.log('language')
+    console.log(language)
+    console.log('language end')
+    if(language===null) {
+      language = 'sv'
+    }
+    console.log('language')
+    console.log(language)
+    console.log('language end')
+
+    if (language === 'no') {
+      this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/norwegian', transports: ['websocket'] })
+    // } else if (language === 'en') {
+    //   this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
+    } else {
+      this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'] })
     }
 
     // Some browsers partially implement mediaDevices. We can't just assign an object with
