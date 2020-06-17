@@ -24,8 +24,8 @@ import {
 const LoginPage = () => {
   const [domainList, setDomainList] = useState([])
   const [domain, setDomain] = useState()
-  const [username, setUsername] = useState('test')
-  const [password, setPassword] = useState('test')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   // eslint-disable-next-line no-unused-vars
   const [prefernces, setPreferences] = usePreferences()
   const setToken = (authtoken) => {
@@ -40,6 +40,7 @@ const LoginPage = () => {
   const loadDomains = async () => {
     const { data: {domains} } = await api.getDomains()
     setDomainList(domains)
+    setDomain(domains[0])
   }
 
   const login = (e) => {
@@ -67,7 +68,8 @@ const LoginPage = () => {
 
   const changeDomain = (selection) => {
     const domain = selection[0] ? selection[0].label : undefined
-    setDomain(domain)
+    if (domain)
+      setDomain(domain)
   }
 
   const changePassword = (e) => {
