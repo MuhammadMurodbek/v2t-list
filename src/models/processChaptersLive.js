@@ -225,8 +225,8 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
         latestKeyword = segment.words.trim()
       }
       
-      if (latestKeyword[latestKeyword.length-1]===':') 
-        latestKeyword = latestKeyword.slice(0, -1)
+      // if (latestKeyword[latestKeyword.length-1]===':') 
+      //   latestKeyword = latestKeyword.slice(0, -1)
 
       // console.log('🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅')
       // console.log('🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅🏅')
@@ -290,9 +290,9 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
     }
   })
 
-  // console.log('newlyOrientedWords')
-  // console.log(newlyOrientedWords)
-  // console.log('newlyOrientedWords end')
+  console.log('newlyOrientedWords')
+  console.log(newlyOrientedWords)
+  console.log('newlyOrientedWords end')
   const finalChapters = []
   
   let tempObject = { segments: [] }
