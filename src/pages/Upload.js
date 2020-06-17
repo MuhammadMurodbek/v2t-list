@@ -12,6 +12,7 @@ import {
   EuiProgress,
   EuiSpacer,
   EuiSuperSelect,
+  EuiComboBox,
   EuiFieldText
 } from '@elastic/eui'
 import api from '../api'
@@ -35,6 +36,7 @@ export default class UploadPage extends Component {
     avdelning: '',
     selectedJob: 'KS Lungs',
     selectedSchema: undefined,
+    selectedOptions: [],
     jobs: [
       {
         value: 'KS Lungs',
@@ -100,22 +102,20 @@ export default class UploadPage extends Component {
       const schemaOptions = data.schemas.map((schema) => {
         return {
           value: schema.id,
-          inputDisplay: schema.name,
-          dropdownDisplay: <DropDown title={schema.name} />
+          label: schema.name
         }
       })
-      const defaultSchema = schemaOptions && schemaOptions.find(({inputDisplay}) => inputDisplay === 'Allergi')
+      const defaultSchema = schemaOptions && schemaOptions.find(({label}) => label === 'Allergi')
       const selectedSchema = defaultSchema && defaultSchema.value
-      this.setState({ schemaOptions, selectedSchema })
+      const selectedOptions = defaultSchema ? [defaultSchema] : []
+      this.setState({ schemaOptions, selectedSchema, selectedOptions })
     } catch {
       addUnexpectedErrorToast()
     }
   }
 
   onMetadataChange = (metaData) => {
-    this.setState({ metaData }, () => {
-      // console.log(this.state.metaData)
-    })
+    this.setState({ metaData })
   }
 
   onJournalSystemChange = (selectedJournalSystem) => {
@@ -228,8 +228,11 @@ export default class UploadPage extends Component {
     this.setState({ toasts: [] })
   }
 
-  onSchemaChange = (selectedSchema) => {
-    this.setState({ selectedSchema })
+  onSchemaChange = (selectedOptions) => {
+    if (selectedOptions.length) {
+      const selectedSchema = selectedOptions[0].value
+      this.setState({ selectedSchema, selectedOptions })
+    }
   }
 
   render() {
@@ -240,7 +243,7 @@ export default class UploadPage extends Component {
       selectedJob,
       jobs,
       schemaOptions,
-      selectedSchema,
+      selectedOptions,
       selectedJournalSystem
     } = this.state
 
@@ -317,12 +320,12 @@ export default class UploadPage extends Component {
               />
             }
           >
-            <EuiSuperSelect
+            <EuiComboBox
               options={schemaOptions}
-              valueOfSelected={selectedSchema}
               onChange={this.onSchemaChange}
-              itemLayoutAlign="top"
-              hasDividers
+              selectedOptions={selectedOptions}
+              singleSelection={{ asPlainText: true }}
+              isClearable={false}
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
