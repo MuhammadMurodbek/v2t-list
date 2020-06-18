@@ -62,7 +62,16 @@ export default class LiveDiktering extends Component {
     recordedAudioClip: {},
     cursorTime: 0,
     chapterId: -9,
-    segmentId: 0
+    segmentId: 0,
+    defaultSectionHeaders: [
+      { name: 'KONTAKTORSAK', done: true },
+      { name: 'AT', done: false },
+      { name: 'LUNGOR', done: false },
+      { name: 'BUK', done: false },
+      { name: 'BEDÖMNING & ÅTGÄRD', done: false },
+      { name: 'DIAGNOS', done: false }
+    ],
+    defaultSchema: null
   }
 
   componentDidMount = () => {
@@ -72,25 +81,7 @@ export default class LiveDiktering extends Component {
       navigator.mediaDevices = {}
     }
     
-    let language = getParameterByName('language')
-    console.log('language')
-    console.log(language)
-    console.log('language end')
-    if(language===null) {
-      language = 'sv'
-    }
-    console.log('language')
-    console.log(language)
-    console.log('language end')
-
-    if (language === 'no') {
-      this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/norwegian', transports: ['websocket'] })
-    // } else if (language === 'en') {
-    //   this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
-    } else {
-      this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'] })
-    }
-
+    
     // Some browsers partially implement mediaDevices. We can't just assign an object with
     // getUserMedia as it would overwrite existing properties. Here, we will just add the
     // getUserMedia property if it's missing.
@@ -120,9 +111,106 @@ export default class LiveDiktering extends Component {
     try {
       const schemaList = await api.getSchemas()
       this.setState({ listOfSchemas: schemaList.data.schemas })
+      if (this.state.listOfSchemas) {
+        console.log('list of schemas')
+        console.log(this.state.listOfSchemas)
+        console.log('list of schemas')
+        this.localize()
+      }
     } catch {
       addUnexpectedErrorToast()
     }
+  }
+
+  localize = () => {
+    let language = getParameterByName('language')
+    if (language === null) {
+      language = 'sv'
+    }
+    if (language === 'no') {
+      this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/norwegian', transports: ['websocket'] })
+      this.setState({
+        chapters: [{
+          keyword: 'Pupiller',
+          segments: [
+            { words: '', startTime: 0.0, endTime: 0.0 }
+          ]
+        }],
+        sections: {
+          'Pupiller': [],
+          'Respirasjonsfrekvens': [],
+          'Blodtrykk': [],
+          'Stimulantia': [],
+          'Temperatur': [],
+          'Puls': [],
+          'Vurdering': [],
+          'Cavum oris': [],
+          'Pulm': [],
+          'Abdomen': [],
+          'Underekstremiteter': [],
+          'Hud': [],
+          'Ører': [],
+          'Collum': [],
+          'Cor': []
+        },
+        defaultSectionHeaders: [
+          { name: 'Respirasjonsfrekvens', done: false },
+          { name: 'Pupiller', done: true },
+          { name: 'Blodtrykk', done: false },
+          { name: 'Stimulantia', done: false },
+          { name: 'Temperatur', done: false },
+          { name: 'Puls', done: false },
+          { name: 'Vurdering', done: false },
+          { name: 'Cavum oris', done: false },
+          { name: 'Pulm', done: false },
+          { name: 'Abdomen', done: false },
+          { name: 'Underekstremiteter', done: false },
+          { name: 'Hud', done: false },
+          { name: 'Ører', done: false },
+          { name: 'Collum', done: false },
+          { name: 'Cor', done: false }
+        ],
+        defaultSchema: 
+        this.state.listOfSchemas 
+        && this.state.listOfSchemas.find(({ name }) => name === 'norwegian')
+      }, () => {
+        console.log('defaultSchema')
+        console.log(this.state.defaultSchema)
+        console.log('defaultSchema end')
+      })
+    } else if (language === 'en') {
+      // eslint-disable-next-line max-len
+      this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
+
+      this.setState({
+        chapters: [{
+          keyword: 'Examination',
+          segments: [
+            { words: '', startTime: 0.0, endTime: 0.0 }
+          ]
+        }],
+        sections: {
+          'Examination': [],
+          'Clinical details': [],
+          'Findings': [],
+          'Comment': []
+        },
+        defaultSectionHeaders: [
+          { name: 'Examination', done: true },
+          { name: 'Clinical details', done: false },
+          { name: 'Findings', done: false },
+          { name: 'Comment', done: false }
+        ],
+        defaultSchema: this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'English2')
+      })
+    } else {
+      this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'] })
+      this.setState({
+        defaultSchema: this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'Allergi')
+      })
+    }
+
+
   }
 
   onSelectText = () => {
@@ -314,7 +402,7 @@ export default class LiveDiktering extends Component {
       recording
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
-    const defaultSchema = listOfSchemas && listOfSchemas.find(({name}) => name === 'Allergi')
+    const defaultSchema = this.state.defaultSchema
     return (
       <Page preferences logo={inoviaLogo} title="">
         <EuiFlexGroup >
@@ -409,16 +497,8 @@ export default class LiveDiktering extends Component {
                 listOfSchemas={listOfSchemas}
                 usedSections={usedSections}
                 defaultSchema={defaultSchema && defaultSchema.id}
-                //defaultTemplate={{ id: 'ext1', value: 'Allergi' }}
                 updatedSections={this.updatedSections}
-                defaultSectionHeaders={[
-                  { name: 'KONTAKTORSAK', done: true },
-                  { name: 'AT', done: false },
-                  { name: 'LUNGOR', done: false },
-                  { name: 'BUK', done: false },
-                  { name: 'BEDÖMNING & ÅTGÄRD', done: false },
-                  { name: 'DIAGNOS', done: false }
-                ]}
+                defaultSectionHeaders={this.state.defaultSectionHeaders}
               />
             </div>
           </EuiFlexItem>
