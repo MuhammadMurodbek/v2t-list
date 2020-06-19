@@ -30,7 +30,6 @@ import {
   addWarningToast,
   addSuccessToast
 } from '../components/GlobalToastList'
-// import processChapters from '../models/processChapters'
 
 const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [] }]
 
@@ -56,7 +55,8 @@ export default class EditPage extends Component {
     schemaId: '',
     originalSchemaId: '',
     sectionHeaders: [],
-    initialCursor: 0
+    initialCursor: 0,
+    requiredSectionHeaders: []
   }
 
   componentDidMount() {
@@ -103,7 +103,7 @@ export default class EditPage extends Component {
       id: tag.id.toUpperCase()
     }))
     const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
-
+    const requiredSectionHeaders = schema.fields ? schema.fields.filter(schemaField => schemaField.required === true).map(requiredField => requiredField.name) : []
     this.setState({
       originalSchemaId: schemaId,
       originalChapters: this.parseTranscriptions(transcriptions),
@@ -113,7 +113,8 @@ export default class EditPage extends Component {
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
       schemas,
       schemaId,
-      sectionHeaders: (schema.fields || []).map(({ name }) => name)
+      sectionHeaders: (schema.fields || []).map(({ name }) => name),
+      requiredSectionHeaders
     })
   }
 
@@ -224,7 +225,8 @@ export default class EditPage extends Component {
       tags,
       originalTags,
       schemaId,
-      originalSchemaId
+      originalSchemaId,
+      requiredSectionHeaders
     } = this.state
     
     const isThereAnyEmptySection = chapters.find(chapter=>chapter.segments.length === 0) || false
@@ -237,6 +239,22 @@ export default class EditPage extends Component {
         <EuiI18n
           token="emptySectionError"
           default="Section must not be empty"
+        />
+      )
+      return
+    }
+
+    const areAllRequiredSectionPresented = requiredSectionHeaders.every(val => chapters.map(chapter => chapter.keyword).includes(val))
+    
+    if (areAllRequiredSectionPresented) {
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <EuiI18n
+          token="missingReuiredHeaders"
+          default="Required keyword is missing"
         />
       )
       return
@@ -321,7 +339,8 @@ export default class EditPage extends Component {
       chapters,
       availableSectionHeaders
     )
-    this.setState({ schemaId, sectionHeaders, chapters: updatedChapters })
+    const requiredSectionHeaders = schema.fields? schema.fields.filter(schemaField => schemaField.required === true).map(requiredField => requiredField.name): []
+    this.setState({ schemaId, sectionHeaders, chapters: updatedChapters, requiredSectionHeaders })
   }
 
   getAvailableSectionHeaders = (schema) => {

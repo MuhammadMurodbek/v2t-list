@@ -135,5 +135,6 @@
   "dictationUpdated": "Diktatet är uppdaterat",
   "lettersError": "Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!",
   "unableToUpload": "Det är inte möjligt att ladda upp",
-  "fileIsMissing": "Fil saknas"
+  "fileIsMissing": "Fil saknas",
+  "missingReuiredHeaders": "Sökord saknas"
 }

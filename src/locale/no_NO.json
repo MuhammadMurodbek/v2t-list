@@ -134,5 +134,6 @@
   "dictationUpdated": "Diktatet er oppdatert",
   "lettersError": "Bruk bare bokstaver (instruksjonen har en liste over gyldige tegn)!",
   "unableToUpload": "Det er ikke mulig å laste opp",
-  "fileIsMissing": "Filen mangler"
+  "fileIsMissing": "Filen mangler",
+  "missingReuiredHeaders": "Nøkkelord mangler"
 }
