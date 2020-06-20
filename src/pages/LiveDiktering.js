@@ -131,44 +131,44 @@ export default class LiveDiktering extends Component {
       this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/norwegian', transports: ['websocket'] })
       this.setState({
         chapters: [{
-          keyword: 'Pupiller',
+          keyword: 'Pupiller:',
           segments: [
             { words: '', startTime: 0.0, endTime: 0.0 }
           ]
         }],
         sections: {
-          'Pupiller': [],
-          'Respirasjonsfrekvens': [],
-          'Blodtrykk': [],
-          'Stimulantia': [],
-          'Temperatur': [],
-          'Puls': [],
-          'Vurdering': [],
-          'Cavum oris': [],
-          'Pulm': [],
-          'Abdomen': [],
-          'Underekstremiteter': [],
-          'Hud': [],
-          'Ører': [],
-          'Collum': [],
-          'Cor': []
+          'Pupiller:': [],
+          'Blodtrykk:': [],
+          'Stimulantia:': [],
+          'Temperatur:': [],
+          'Puls:': [],        
+          'Vurdering': [],        
+          'Cavum oris:': [],        
+          'Pulm:': [],        
+          'Abdomen:': [],        
+          'Underekstremiteter:': [],        
+          'Hud:': [],        
+          'Respirasjonsfrekvens': [],         
+          'Ører:': [],         
+          'Collum:': [],         
+          'Cor:': []
         },
         defaultSectionHeaders: [
-          { name: 'Respirasjonsfrekvens', done: false },
-          { name: 'Pupiller', done: true },
-          { name: 'Blodtrykk', done: false },
-          { name: 'Stimulantia', done: false },
-          { name: 'Temperatur', done: false },
-          { name: 'Puls', done: false },
+          { name: 'Pupiller:', done: true },
+          { name: 'Blodtrykk:', done: false },
+          { name: 'Stimulantia:', done: false },
+          { name: 'Temperatur:', done: false },
+          { name: 'Puls:', done: false },
           { name: 'Vurdering', done: false },
-          { name: 'Cavum oris', done: false },
-          { name: 'Pulm', done: false },
-          { name: 'Abdomen', done: false },
-          { name: 'Underekstremiteter', done: false },
-          { name: 'Hud', done: false },
-          { name: 'Ører', done: false },
-          { name: 'Collum', done: false },
-          { name: 'Cor', done: false }
+          { name: 'Cavum oris:', done: false },
+          { name: 'Pulm:', done: false },
+          { name: 'Abdomen:', done: false },
+          { name: 'Underekstremiteter:', done: false },
+          { name: 'Hud:', done: false },
+          { name: 'Respirasjonsfrekvens', done: false },
+          { name: 'Ører:', done: false },
+          { name: 'Collum:', done: false },
+          { name: 'Cor:', done: false }
         ],
         defaultSchema: 
         this.state.listOfSchemas 
