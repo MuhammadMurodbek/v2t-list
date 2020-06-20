@@ -112,9 +112,9 @@ export default class LiveDiktering extends Component {
       const schemaList = await api.getSchemas()
       this.setState({ listOfSchemas: schemaList.data.schemas })
       if (this.state.listOfSchemas) {
-        console.log('list of schemas')
-        console.log(this.state.listOfSchemas)
-        console.log('list of schemas')
+        // console.log('list of schemas')
+        // console.log(this.state.listOfSchemas)
+        // console.log('list of schemas')
         this.localize()
       }
     } catch {

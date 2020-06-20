@@ -4,26 +4,26 @@
 
 const getCorrectKeyword = (keyword, updatedSections) => {
   const allTheKeywords = Object.keys(updatedSections)
-  console.log('********************************************************************************')
-  console.log('********************************************************************************')
-  console.log('********************************************************************************')
-  console.log('keyword')
-  console.log(keyword)
-  console.log('keyword end')
-  console.log('********************************************************************************')
-  console.log('********************************************************************************')
-  console.log('********************************************************************************')
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
+  // console.log('keyword')
+  // console.log(keyword)
+  // console.log('keyword end')
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
+  // console.log('********************************************************************************')
   // Remaining task
   // use the values of the object to confirm as keyword
   const keywords = allTheKeywords.map(section =>
     section.toUpperCase().includes(keyword.toUpperCase()) ? section : ''
   )
-  console.log('allTheKeywords')
-  console.log(allTheKeywords)
-  console.log('allTheKeywords')
-  console.log('keywords öööööö')
-  console.log(keywords)
-  console.log('keywords')
+  // console.log('allTheKeywords')
+  // console.log(allTheKeywords)
+  // console.log('allTheKeywords')
+  // console.log('keywords öööööö')
+  // console.log(keywords)
+  // console.log('keywords')
   const correctCasedKeyword = keywords.filter(k => k.length > 0)[0]
   return correctCasedKeyword
 }
@@ -173,9 +173,9 @@ const getTheKeywordFromSynonym = (word, updatedSections) => {
 const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
   
   const extractedFinalText = extractedText(finalText)
-  console.log('updatedSections')
-  console.log(updatedSections)
-  console.log('updatedSections end')
+  // console.log('updatedSections')
+  // console.log(updatedSections)
+  // console.log('updatedSections end')
   const sectionHeaderOriginals = Object.keys(updatedSections).map(m => m.trim().toLowerCase()) 
   const sectionHeaderSynonyms = Object.values(updatedSections).flat().map(m => m.trim().toLowerCase())
   const sectionHeadersInLowerCase = [sectionHeaderOriginals, sectionHeaderSynonyms].flat()
@@ -290,9 +290,9 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
     }
   })
 
-  console.log('newlyOrientedWords')
-  console.log(newlyOrientedWords)
-  console.log('newlyOrientedWords end')
+  // console.log('newlyOrientedWords')
+  // console.log(newlyOrientedWords)
+  // console.log('newlyOrientedWords end')
   const finalChapters = []
   
   let tempObject = { segments: [] }
@@ -337,9 +337,9 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // Fix the case of a section header as per backend data
   const fixedCase = fixedCaseSections(finalChapters, updatedSections)
   // Capitalize the transcript
-  console.log('fixedCase')
-  console.log(fixedCase)
-  console.log('fixedCase end')
+  // console.log('fixedCase')
+  // console.log(fixedCase)
+  // console.log('fixedCase end')
   const capitalized = capitalizeSections(fixedCase)
   // console.log('capitalized')
   // console.log(capitalized)
