@@ -30,10 +30,10 @@ const addUnexpectedErrorToast = () =>
     <EuiI18n token="unexpectedError" default="Unexpected error occurred" />
   )
 
-const addWarningToast = (title = null, message = null, optionalString='') => {
+const addWarningToast = (title = null, message = null) => {
   if (!title) return
 
-  addGlobalToast(title, message && <p>{message} {optionalString}</p>, 'warning', 'help')
+  addGlobalToast(title, message && <p>{message}</p>, 'warning', 'help')
 }
 
 const addSuccessToast = (title = null, message = null) => {

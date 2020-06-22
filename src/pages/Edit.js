@@ -245,13 +245,6 @@ export default class EditPage extends Component {
     }
 
     const areAllRequiredSectionPresented = requiredSectionHeaders.every(val => chapters.map(chapter => chapter.keyword).includes(val))
-    let requiredSectionHeadersInString = '::'
-    requiredSectionHeaders.forEach((sh, i)=>{
-      if(i===0)
-        requiredSectionHeadersInString = `${requiredSectionHeadersInString} ${sh}`
-      else 
-        requiredSectionHeadersInString = `${requiredSectionHeadersInString}, ${sh}`
-    })
 
     if (!areAllRequiredSectionPresented) {
       addWarningToast(
@@ -259,11 +252,12 @@ export default class EditPage extends Component {
           token="unableToSaveDictation"
           default="Unable to save the dictation"
         />,
+        <>
         <EuiI18n
           token="missingReuiredHeaders"
           default="Required keyword is missing"
-        />,
-        requiredSectionHeadersInString
+        />:: <strong>{requiredSectionHeaders.join(', ')}</strong>
+        </>
       )
       return
     }
