@@ -33,6 +33,10 @@ const appendChapters = (previousChapters, latestChapters) => {
 
 const joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, chapterId = -9, segmentId) => {
   if (previousChapters.length === 0) return latestChapters
+  if (previousChapters[0].segments)
+    if (previousChapters[0].segments.length===0) {
+      return latestChapters
+    }
   // In case the text is appended at the end of the previous text
   if (chapterId === -9) {
     return appendChapters(previousChapters, latestChapters)
