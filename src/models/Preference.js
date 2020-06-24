@@ -277,15 +277,15 @@ export default class Preference {
     fontSizeList: [
       {
         value: '15px',
-        inputDisplay: 'Liten'
+        inputDisplay: <EuiI18n token="small" default="Small" />
       },
       {
         value: '18px',
-        inputDisplay: 'Mellan'
+        inputDisplay: <EuiI18n token="medium" default="Medium" />
       },
       {
         value: '20px',
-        inputDisplay: 'Stor'
+        inputDisplay: <EuiI18n token="large" default="Large" />
       }
     ],
     currentFontSize: '18px',
