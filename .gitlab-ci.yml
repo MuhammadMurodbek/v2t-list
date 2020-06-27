@@ -1,3 +1,6 @@
+variables:
+  GIT_DEPTH: 1
+
 stages:
   - prepare release
   - build
@@ -69,7 +72,7 @@ stages:
 
 .docker_scripts: &docker_scripts |
   function init_docker() {
-    mkdir -p ~/.docker && echo "$DOCKER_AUTH_CONFIG" > ~/.docker/config.json
+    mkdir -p ~/.docker && echo "$V2T_DOCKER_CONFIG" > ~/.docker/config.json
   }
 
   function get_other_image_tags() {
@@ -81,9 +84,9 @@ stages:
     fi
   }
 
-  function docker_build() {
-    commit_image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:$CI_COMMIT_SHA"
-    docker build --pull --build-arg version="$VERSION" -t "$commit_image_name" .
+  function docker_build_static() {
+    commit_image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:commit-$CI_COMMIT_SHA"
+    docker build --pull --build-arg version="$VERSION" -t "$commit_image_name" -f nginx/Dockerfile .
     docker push "$commit_image_name"
 
     for tag in $(get_other_image_tags); do \
@@ -92,18 +95,7 @@ stages:
     done
   }
 
-  function docker_build_static() {
-    commit_image_name="$DOCKER_SNAPSHOT_REGISTRY/$IMAGE_NAME:$CI_COMMIT_SHA-static"
-    docker build --pull --build-arg version="$VERSION" -t "$commit_image_name" -f nginx/Dockerfile .
-    docker push "$commit_image_name"
-
-    for tag in $(get_other_image_tags); do \
-      docker tag "$commit_image_name" "$tag-static"
-      docker push "$tag-static"
-    done
-  }
-
-  export IMAGE_NAME="${IMAGE_NAME-$CI_PROJECT_NAMESPACE/${CI_PROJECT_NAME#docker-}}"
+  export IMAGE_NAME="v2t/${CI_PROJECT_NAME}"
 
 
 .release_condition: &release_condition
