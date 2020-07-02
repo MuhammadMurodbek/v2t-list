@@ -17,7 +17,9 @@ export default class TranscriptionList extends Component {
       pageSize: 20,
       loading: false,
       isConfirmModalVisible: false,
-      dictationToRemove: null
+      dictationToRemove: null,
+      sortField: 'createdTime',
+      sortDirection: 'desc'
     }
   }
 
@@ -25,20 +27,26 @@ export default class TranscriptionList extends Component {
     document.title = 'Inovia AI :: All Transcripts'
   }
 
-  onTableChange = async ({ page = {} }) => {
+  onTableChange = async ({ page = {}, sort = {} }) => {
     const { index: pageIndex, size: pageSize } = page
-    const { fetchTranscripts, setPageIndex, job } = this.props
+    const { field: sortField, direction: sortDirection } = sort
+    const { fetchTranscripts, setPageIndex, job: department } = this.props
     this.setState({
       loading: true
     })
 
-    await fetchTranscripts(job, pageIndex, pageSize)
+    await fetchTranscripts(department, pageIndex, pageSize, sortField, sortDirection)
 
+    setPageIndex(pageIndex)
     this.setState({
       pageSize,
-      loading: false
+      sortField,
+      sortDirection
+    }, () => {
+      this.setState({
+        loading: false
+      })
     })
-    setPageIndex(pageIndex)
   }
 
   showConfirmModal = (dictationToRemove) => {
@@ -87,7 +95,13 @@ export default class TranscriptionList extends Component {
 
   render() {
     localStorage.setItem('transcriptId', '')
-    const { pageSize, loading, isConfirmModalVisible } = this.state
+    const {
+      pageSize,
+      loading,
+      isConfirmModalVisible,
+      sortField,
+      sortDirection
+    } = this.state
     const { transcripts, contentLength, pageIndex } = this.props
     const [preferences] = this.context
     const pagination = {
@@ -96,16 +110,23 @@ export default class TranscriptionList extends Component {
       totalItemCount: contentLength,
       pageSizeOptions: [20, 50, 100]
     }
-
+    const sorting = {
+      sort: {
+        field: sortField,
+        direction: sortDirection
+      },
+      allowNeutralSort: true,
+      enableAllColumns: true
+    }
     const columns = [
       ...preferences.columnsForTranscriptList,
       {
-        label: 'Öppna',
-        field: 'external_id',
+        label: <EuiI18n token="open" default="Open" />,
+        field: 'id',
         name: '',
         width: '100px',
-        render: (external_id) => (
-          <EuiButtonEmpty href={`/#edit/${external_id}`}>
+        render: (schemaId) => (
+          <EuiButtonEmpty href={`/#edit/${schemaId}`}>
             <EuiI18n token="open" default="Open" />
           </EuiButtonEmpty>
         ),
@@ -166,6 +187,7 @@ export default class TranscriptionList extends Component {
               Loading ...
             </h4>
           }
+          sorting={sorting}
           items={loading ? [] : transcripts}
           loading={!transcripts.length || loading}
           compressed={true}

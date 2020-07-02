@@ -21,67 +21,45 @@ export const WORD_OPTIONS = [
 
 export const COLUMN_OPTIONS = [
   {
+    label: 'Id',
+    field: 'id',
+    name: <EuiI18n token="id" default="Id" />
+  },
+  {
     label: 'Skapad',
-    field: 'created_time',
-    name: <EuiI18n token="created" default="Created" />,
-    width: '170px',
-    // sortable: true,
-    render: (created) => moment(created).format('YYYY-MM-DD HH:mm:ss')
+    field: 'createdTime',
+    name: <EuiI18n token="createdTime" default="Created" />,
+    render: (createdTime) => moment(createdTime).format('YYYY-MM-DD HH:mm:ss'),
+    sortable: true
   },
   {
-    label: 'Typ',
-    name: <EuiI18n token="type" default="Type" />,
-    width: '70px',
-    render: (transcript) =>
-      `${
-        (transcript || {}).media_content_type
-          ? transcript.media_content_type
-          : 'ljud'
-      }`
+    label: 'Status',
+    name: <EuiI18n token="status" default="Status" />,
+    field: 'status'
   },
   {
-    label: 'Doktor',
-    name: <EuiI18n token="doctor" default="Doctor" />,
-    width: '140px',
-    render: (transcript) =>
-      `${
-        ((transcript || {}).fields || {}).doctor_full_name
-          ? transcript.fields.doctor_full_name
-          : ''
-      }`
+    label: 'Schema Id',
+    name: <EuiI18n token="schemaId" default="Schema Id" />,
+    field: 'schemaId'
   },
   {
-    label: 'Patient',
-    name: <EuiI18n token="patient" default="Patient" />,
-    width: '140px',
-    render: (transcript) =>
-      `${
-        ((transcript || {}).fields || {}).patient_full_name
-          ? transcript.fields.patient_full_name
-          : ''
-      }`
+    label: 'Schema Name',
+    name: <EuiI18n token="schemaName" default="Schema Name" />,
+    field: 'schemaName'
   },
   {
-    label: 'PatientId',
-    name: <EuiI18n token="patientId" default="Patient ID" />,
-    width: '150px',
-    render: (transcript) =>
-      `${
-        ((transcript || {}).fields || {}).patient_id
-          ? transcript.fields.patient_id
-          : ''
-      }`
+    label: 'Received',
+    name: <EuiI18n token="receivedTime" default="Received" />,
+    field: 'receivedTime',
+    render: (receivedTime) => moment(receivedTime).format('YYYY-MM-DD HH:mm:ss'),
+    sortable: true
   },
   {
-    label: 'Avdelning',
-    name: <EuiI18n token="section" default="Section" />,
-    width: '200px',
-    render: (transcript) =>
-      `${
-        ((transcript || {}).fields || {}).department_name
-          ? transcript.fields.department_name
-          : ''
-      }`
+    label: 'Updated',
+    name: <EuiI18n token="updatedTime" default="Updated" />,
+    field: 'updatedTime',
+    render: (updatedTime) => moment(updatedTime).format('YYYY-MM-DD HH:mm:ss'),
+    sortable: true
   }
 ]
 
@@ -268,11 +246,11 @@ export default class Preference {
     columnsForCombo: COLUMN_OPTIONS.map(({ render, ...items }) => items).filter(
       (column) =>
         column.label !== 'Id' &&
-        column.label !== 'Öppna' &&
-        column.label !== 'Ta bort'
+        column.label !== 'Schema Id'
     ),
     columnsForTranscriptList: COLUMN_OPTIONS.filter(
-      (column) => column.label !== 'Id'
+      (column) => column.label !== 'Id' &&
+      column.label !== 'Schema Id'
     ),
     fontSizeList: [
       {

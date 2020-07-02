@@ -42,15 +42,15 @@ const login = (domain, username, password) => {
 
 const loadTags = () => axios.get('/api/tickets/v1/tags/active')
 
-const loadTickets = (tag, pageIndex, pageSize) => {
-  let tagParams = ''
-  if (tag) {
-    tagParams = `&tags=${tag}`
-  }
-  return axios.get(
-    `/api/tickets/v1?pageStart=${
-      pageIndex * pageSize
-    }&pageSize=${pageSize}${tagParams}`
+const loadTickets = (department, pageIndex, pageSize, orderBy) => {
+  return axios.post(
+    '/api/transcription/search/v2',
+    {
+      department,
+      orderBy: orderBy ? [orderBy] : [],
+      start: pageIndex * pageSize,
+      size: pageSize
+    }
   )
 }
 

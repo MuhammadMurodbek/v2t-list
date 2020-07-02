@@ -38,7 +38,7 @@ class App extends Component {
   state = {
     transcripts: [],
     preferences: new Preference(),
-    selectedItemName: 'lungor',
+    selectedItem: '',
     isLoggedIn: false,
     isTokenFromUrl: false,
     token: null,
@@ -69,11 +69,12 @@ class App extends Component {
     })
   }
 
-  fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20) => {
+  fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20, sortField, sortDirection) => {
     return new Promise((resolve) => {
       const tokenFromStorage = localStorage.getItem('token')
       const tokenFromQuery = getQueryStringValue('token')
       let token
+      let orderBy
 
       if (tokenFromStorage) {
         token = tokenFromStorage
@@ -84,60 +85,82 @@ class App extends Component {
         this.setState({ isTokenFromUrl: true })
       }
 
+      if (sortField && sortDirection) {
+        switch(sortField) {
+        case 'updatedTime':
+          orderBy = `UPDATED_${sortDirection.toUpperCase()}`
+          break
+        case 'receivedTime':
+          orderBy = `RECEIVED_${sortDirection.toUpperCase()}`
+          break
+        case 'createdTime':
+        default:
+          orderBy = `CREATED_${sortDirection.toUpperCase()}`
+        }
+      }
+
       if (token) {
         this.setState({ isLoggedIn: true, token })
         api.setToken(token)
 
         api
-          .loadTickets(tag, pageIndex, pageSize)
-          .then(({ data: transcripts }) => {
-            // Check which one are audio and
-            // which are video before loading all active jobs
-            this.setState({ transcripts })
-          })
-          .catch(() => {
-            addUnexpectedErrorToast()
-          })
-
-        api
           .loadTags()
           .then(({ data: activeTags }) => {
             // Count number of active tags
-            const { selectedItemName } = this.state
             const sideBar = []
-            const totalContentLength = activeTags.reduce(
-              (accumilator, currentTag) => {
-                return accumilator + currentTag.count
-              },
-              0
-            )
-            if (this.state.contentLength === -1)
-              this.setState({ contentLength: totalContentLength })
+            if(!tag && activeTags.length) {
+              tag = activeTags[0].value
+              this.selectItem(tag)
+            }
+            api
+              .loadTickets(tag, pageIndex, pageSize, orderBy)
+              .then(({ data }) => {
+                const {
+                  items: transcripts,
+                  total: contentLength
+                } = data
+                // Check which one are audio and
+                // which are video before loading all active jobs
+                this.setState({
+                  transcripts,
+                  contentLength
+                })
+              })
+              .catch(() => {
+                addUnexpectedErrorToast()
+              })
+
             activeTags.forEach((tag) => {
               const temp = {
                 id: tag.value,
                 name: `${tag.value} (${tag.count})`,
-                isSelected: selectedItemName === tag.value,
                 onClick: () => {
-                  this.selectItem(tag.value)
-                  this.setState({
-                    transcripts: []
-                  })
-                  api
-                    .loadTickets(tag.value, 0, 20)
-                    .then(({ data: transcripts }) => {
-                      // transcripts after job selection
-                      // Check which one are audio and which are video
-                      this.setState({
-                        transcripts,
-                        job: tag.value,
-                        contentLength: tag.count,
-                        pageIndex: 0
+                  const { selectedItem } = this.state
+                  if (selectedItem !== tag.value) {
+                    this.setState({
+                      transcripts: [],
+                      selectedItem: tag.value
+                    })
+                    api
+                      .loadTickets(tag.value, pageIndex, pageSize, orderBy)
+                      .then(({ data }) => {
+                        const {
+                          items: transcripts,
+                          total: contentLength
+                        } = data
+                        // transcripts after job selection
+                        // Check which one are audio and which are video
+                        this.setState({
+                          transcripts,
+                          job: tag.value,
+                          contentLength,
+                          pageIndex: 0
+                        })
                       })
-                    })
-                    .catch(() => {
-                      addUnexpectedErrorToast()
-                    })
+                      .catch(() => {
+                        addUnexpectedErrorToast()
+                      })
+                  }
                 },
                 href: '/#/'
               }
@@ -147,38 +170,33 @@ class App extends Component {
             const parentSideBar = [
               {
                 id: '',
-                isSelected: false,
                 items: [
                   {
                     id: 'V2T Jobs',
                     items: sideBar,
-                    isSelected: true,
+                    forceOpen: true,
                     name: <EuiI18n token="v2TJob" default="V2T Job" />
                   },
                   {
                     href: '/#/upload',
-                    id: 3,
-                    isSelected: selectedItemName === 'Upload',
+                    id: 'Upload',
                     name: <EuiI18n token="upload" default="Upload" />,
                     onClick: () => this.selectItem('Upload')
                   },
                   // {
                   //   href: '/#/livediktering',
-                  //   id: 4,
-                  //   isSelected: selectedItemName === 'Live',
+                  //   id: 'Live',
                   //   name: <EuiI18n token="live" default="Live Dictation" />,
                   //   onClick: () => this.selectItem('Live')
                   // },
                   {
                     href: '/#/training',
-                    id: 4,
-                    isSelected: selectedItemName === 'Training',
+                    id: 'Training',
                     name: <EuiI18n token="training" default="Training" />,
                     onClick: () => this.selectItem('Training')
                   },
                   {
-                    id: 5,
-                    isSelected: selectedItemName === 'Co-worker',
+                    id: 'Co-worker',
                     name: <EuiI18n token="coWorker" default="Co-Worker" />,
                     onClick: () => {
                       if (
@@ -203,8 +221,7 @@ class App extends Component {
                     }
                   }, {
                     href: '/#/live-diktering',
-                    id: 8,
-                    isSelected: selectedItemName === 'Live Diktering',
+                    id: 'Live Diktering',
                     name: 'Live Diktering',
                     onClick: () => {
                       this.selectItem('Live Diktering')
@@ -213,18 +230,6 @@ class App extends Component {
                       })
                     }
                   }
-                  // , {
-                  //   href: '/#/guided-live',
-                  //   id: 8,
-                  //   isSelected: selectedItemName === 'Live',
-                  //   name: 'Live Flow',
-                  //   onClick: () => {
-                  //     this.selectItem('Live')
-                  //     this.setState({
-                  //       isCollapsed: true
-                  //     })
-                  //   }
-                  // }
                 ],
                 name: ''
               }
@@ -243,9 +248,9 @@ class App extends Component {
     window.location.replace('/')
   }
 
-  selectItem = (name) => {
+  selectItem = (selectedItem) => {
     this.setState({
-      selectedItemName: name
+      selectedItem
     })
   }
 
@@ -260,11 +265,38 @@ class App extends Component {
     })
   }
 
+  getSideNavItems = () => {
+    const {
+      sidenav,
+      selectedItem
+    } = this.state
+    if (sidenav && sidenav.length > 0) {
+      sidenav[0].items = sidenav[0].items.map(item => {
+        const updatedItem = {
+          ...item,
+          isSelected: item.id === selectedItem
+        }
+        if (Array.isArray(updatedItem.items)) {
+          return {
+            ...updatedItem,
+            items: updatedItem.items.map(subitem => {
+              return {
+                ...subitem,
+                isSelected: subitem.id === selectedItem
+              }
+            })
+          }
+        }
+        return updatedItem
+      })
+    }
+    return sidenav
+  }
+
   render() {
     const {
       transcripts,
       preferences,
-      sidenav,
       isLoggedIn,
       isTokenFromUrl,
       token,
@@ -300,7 +332,7 @@ class App extends Component {
                 // toggleOpenOnMobile={false}
                 isOpenOnMobile={false}
                 style={{ width: 300 }}
-                items={sidenav}
+                items={this.getSideNavItems()}
               />
               <EuiButtonEmpty
                 size="l"
@@ -412,8 +444,8 @@ class App extends Component {
                       }}
                     />
                   ) : (
-                      <LoginPage />
-                    )
+                    <LoginPage />
+                  )
                 }
               />
               <Route
