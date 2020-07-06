@@ -61,94 +61,37 @@ const keywordsSearch = (searchTerm, namespace = 'icd-10') =>
 
 const uploadMedia = (
   file,
-  metadata,
-  selectedJob,
-  patientsnamn,
-  patientnummer,
-  doktorsnamn,
-  avdelning,
-  selectedSchema,
-  selectedJournalSystem
+  schemaId,
+  fields
 ) => {
   const body = new FormData()
   body.append('media', file)
-  let metadataPart
-  if (metadata) {
-    if (metadata !== 'norwegian') { 
-      metadataPart = new Blob(
-        [
-          JSON.stringify({
-            transcription: {
-              model: metadata,
-              tags: [selectedJob],
-              language: 'sv',
-              fields: {
-                department_id: 'Inovia',
-                department_name: avdelning,
-                examination_time: '2019-11-06T03:29:33.344Z',
-                doctor_id: doktorsnamn,
-                doctor_first_name: '',
-                doctor_last_name: '',
-                doctor_full_name: doktorsnamn,
-                patient_id: patientnummer,
-                patient_full_name: patientsnamn
-              }
-            },
-            word_spotter: {
-              section_template: selectedSchema,
-              categories: ['icd-10', 'kva']
-            },
-            export: [
-              {
-                system_id: selectedJournalSystem
-              }
-            ]
-          })
-        ],
-        {
-          type: 'application/json'
-        }
-      )
-    } else {
-      metadataPart = new Blob(
-        [
-          JSON.stringify({
-            transcription: {
-              model: metadata,
-              tags: [selectedJob],
-              language: 'sv',
-              fields: {
-                department_id: 'Inovia',
-                department_name: avdelning,
-                examination_time: '2019-11-06T03:29:33.344Z',
-                doctor_id: doktorsnamn,
-                doctor_first_name: '',
-                doctor_last_name: '',
-                doctor_full_name: doktorsnamn,
-                patient_id: patientnummer,
-                patient_full_name: patientsnamn
-              }
-            },
-            word_spotter: {
-              section_template: 'norwegian',
-              categories: ['icd-10', 'kva']
-            },
-            export: [
-              {
-                system_id: selectedJournalSystem
-              }
-            ]
-          })
-        ],
-        {
-          type: 'application/json'
-        }
-      )
-    }
-    body.set('metadata', metadataPart)
-  }
 
-  return axios.post('/api/transcriptions/v1', body)
+  const data = new Blob(
+    [
+      JSON.stringify({
+        schemaId,
+        fields: [
+          ...Object.keys(fields)
+            .filter(id => fields[id])
+            .map(id => ({
+              id,
+              values: [
+                {
+                  value: fields[id]
+                }
+              ]
+            }))
+        ]
+      })
+    ],
+    {
+      type: 'application/json'
+    }
+  )
+  body.set('data', data)
+
+  return axios.post('/api/transcription/v2', body)
 }
 
 const loadTranscription = (transcriptionId) =>
@@ -193,6 +136,8 @@ const getListOfAllJobs = () =>
     source: 'MED_SPEECH'
   })
 
+const getDepartments = () => axios.get('/api/transcription/search/v2/departments')
+
 export default {
   approveTranscription,
   rejectTranscription,
@@ -212,5 +157,6 @@ export default {
   getChartData,
   getListOfAllJobs,
   getSchemas,
-  getSchema
+  getSchema,
+  getDepartments
 }

@@ -12,6 +12,7 @@
     "echarts-for-react": "^2.0.15-beta.1",
     "eslint-config-airbnb": "^17.1.0",
     "googleapis": "39",
+    "jwt-decode": "^2.2.0",
     "moment": "^2.24.0",
     "query-string": "^6.9.0",
     "react": "^16.8.2",
