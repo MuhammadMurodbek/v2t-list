@@ -116,6 +116,8 @@
   "lookFor": "Sök",
   "code": "Kod",
   "thePageCouldNotBeFound": "Sidan kunde inte hittas",
+  "theTranscriptNotAvailable": "Transkriptet är inte tillgängligt",
+  "theTranscriptNotAvailableDescription": "Transkriptet är redan exporterat eller inte tillgängligt",
   "back": "Tillbaka",
   "startDictation": "Starta Diktering",
   "chooseTheJournalSystemForTheTranscription": "Mottagande journalsystem",

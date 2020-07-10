@@ -6,7 +6,7 @@ const headers = {
 }
 
 const setToken = (token) => {
-  if (token !== '') {
+  if (token) {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`
   } else {
     axios.defaults.headers.common.Authorization = undefined
@@ -94,6 +94,9 @@ const uploadMedia = (
   return axios.post('/api/transcription/v2', body)
 }
 
+const transcriptState = (transcriptionId) =>
+  axios.get(`/api/transcription/v2/${transcriptionId}/state`)
+
 const loadTranscription = (transcriptionId) =>
   axios.get(`/api/transcriptions/v1/${transcriptionId}`)
 
@@ -158,5 +161,6 @@ export default {
   getListOfAllJobs,
   getSchemas,
   getSchema,
-  getDepartments
+  getDepartments,
+  transcriptState
 }

@@ -41,7 +41,7 @@ class App extends Component {
     selectedItem: '',
     isLoggedIn: false,
     isTokenFromUrl: false,
-    token: null,
+    token: localStorage.getItem('token'),
     isCollapsed: false,
     job: null,
     contentLength: -1,
@@ -306,6 +306,8 @@ class App extends Component {
       pageIndex
     } = this.state
     const { fetchTranscripts, setPageIndex } = this
+    // set authorization token when the app is refreshed
+    api.setToken(token)
 
     return (
       <HashRouter>

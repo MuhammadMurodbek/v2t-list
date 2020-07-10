@@ -1,7 +1,8 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { EuiFlexGroup, EuiFlexItem, EuiButton, EuiI18n } from '@elastic/eui'
 
-const Invalid = () => {
+const Invalid = ({title, message}) => {
   return (
     <div
       style={{
@@ -33,12 +34,27 @@ const Invalid = () => {
               margin: '1rem'
             }}
           >
-            <EuiI18n
-              token="thePageCouldNotBeFound"
-              default="The page could not be found"
-            />
+            {
+              title ? title : (
+                <EuiI18n
+                  token="thePageCouldNotBeFound"
+                  default="The page could not be found"
+                />
+              )
+            }
           </p>
-
+          {
+            message &&
+            <p
+              style={{
+                color: 'white',
+                fontSize: '1rem',
+                textAlign: 'center'
+              }}
+            >
+              { message }
+            </p>
+          }
           <EuiButton
             href="/"
             style={{
@@ -55,6 +71,17 @@ const Invalid = () => {
       </EuiFlexGroup>
     </div>
   )
+}
+
+Invalid.propTypes = {
+  title: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.objectOf(EuiI18n)
+  ]),
+  message: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.objectOf(EuiI18n)
+  ])
 }
 
 export default Invalid

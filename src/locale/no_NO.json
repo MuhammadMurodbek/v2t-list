@@ -116,6 +116,8 @@
   "lookFor": "Søk",
   "code": "Kode",
   "thePageCouldNotBeFound": "Finner ikke siden",
+  "theTranscriptNotAvailable": "Transkriptet er ikke tilgjengelig",
+  "theTranscriptNotAvailableDescription": "Transkriptet er allerede eksportert eller ikke tilgjengelig",
   "back": "Tilbake",
   "startDictation": "Start diktering",
   "chooseTheJournalSystemForTheTranscription": "Motta journalsystem",

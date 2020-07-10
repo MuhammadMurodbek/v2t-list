@@ -32,6 +32,7 @@ import {
 } from '../components/GlobalToastList'
 
 const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [] }]
+const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -42,6 +43,7 @@ export default class EditPage extends Component {
   }
 
   state = {
+    isTranscriptAvailable: true,
     sidenoteContent: '',
     originalChapters: null,
     currentTime: 0,
@@ -64,14 +66,30 @@ export default class EditPage extends Component {
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
     this.tagsRef = React.createRef()
-    this.initiate()
+    this.checkTranscriptStateAndLoad()
   }
 
   componentDidUpdate(prevProps) {
     const { id } = this.props
     if (id !== prevProps.id) {
-      this.initiate()
+      this.checkTranscriptStateAndLoad()
     }
+  }
+
+  checkTranscriptStateAndLoad = async () => {
+    const { id } = this.props
+    let isTranscriptAvailable = true
+    try {
+      const { data: transcriptState } = await api.transcriptState(id)
+      if (transcriptState.id && VALID_TRANSCRIPT_STATES.includes(transcriptState.state)) {
+        this.initiate()
+      } else {
+        throw new ReferenceError()
+      }
+    } catch(e) {
+      isTranscriptAvailable = false
+    }
+    this.setState({ isTranscriptAvailable })
   }
 
   initiate = async () => {
@@ -388,9 +406,28 @@ export default class EditPage extends Component {
       sectionHeaders,
       initialCursor,
       sidenoteContent,
-      error
+      error,
+      isTranscriptAvailable
     } = this.state
     if (error) return <Invalid />
+    if (!isTranscriptAvailable) {
+      return (
+        <Invalid
+          title={(
+            <EuiI18n
+              token="theTranscriptNotAvailable"
+              default="The transcript is not available"
+            />
+          )}
+          message={(
+            <EuiI18n
+              token="theTranscriptNotAvailableDescription"
+              default="The transcript is already exported or not available"
+            />
+          )}
+        />
+      )
+    }
     return (
       <EuiI18n token="editor" default="Editor">
         {(pageTitle) => (
