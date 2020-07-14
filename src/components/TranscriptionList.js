@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { EuiBasicTable, EuiButtonIcon, EuiButtonEmpty } from '@elastic/eui'
+import { EuiBasicTable, EuiButtonIcon, EuiButtonEmpty } from '@patronum/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import api from '../api'
 
-import '@elastic/eui/dist/eui_theme_light.css'
-import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@elastic/eui'
+import '@patronum/eui/dist/eui_theme_light.css'
+import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@patronum/eui'
 import { addUnexpectedErrorToast, addSuccessToast } from './GlobalToastList'
 
 export default class TranscriptionList extends Component {

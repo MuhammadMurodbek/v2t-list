@@ -7,10 +7,10 @@ import {
   EuiForm,
   EuiBasicTable,
   EuiSpacer
-} from '@elastic/eui'
+} from '@patronum/eui'
 import '../styles/editor.css'
 import '../styles/tags.css'
-import { EuiI18n } from '@elastic/eui'
+import { EuiI18n } from '@patronum/eui'
 
 const Info = ({ fields }) => {
   if (!fields.patient_full_name && !fields.patient_id) return null
@@ -35,7 +35,7 @@ const Info = ({ fields }) => {
       </div>
       <EuiSpacer size="m" />
       <EuiFlexGroup>
-        <EuiFlexItem grow={false} style={{ width: 380 }}>
+        <EuiFlexItem>
           <EuiBasicTable
             className="transcript"
             items={items}
@@ -63,8 +63,7 @@ const COLUMNS = [
   {
     field: 'patientNamn',
     name: <EuiI18n token="patientsName" default="Patient's name" />,
-    sortable: true,
-    width: '190px'
+    sortable: true
   },
   {
     field: 'patientId',
@@ -73,8 +72,7 @@ const COLUMNS = [
         token="patientsPersonalNumber"
         default="Patient's personal number"
       />
-    ),
-    width: '110px'
+    )
   }
 ]
 

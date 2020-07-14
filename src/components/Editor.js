@@ -3,7 +3,7 @@ import Diff from 'text-diff'
 
 import {
   EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor
-} from '@elastic/eui'
+} from '@patronum/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
 import SectionHeader from '../components/SectionHeader'

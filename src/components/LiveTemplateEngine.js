@@ -7,7 +7,7 @@ import {
   EuiFormRow,
   EuiI18n,
   EuiComboBox
-} from '@elastic/eui'
+} from '@patronum/eui'
 import ListOfHeaders from './ListOfHeaders'
 import '../App.css'
 

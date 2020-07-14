@@ -9,7 +9,7 @@ import {
   EuiSpacer,
   EuiButton,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 import Dots from './Dots'
 import Tags from '../Tags'
 import LiveEditor from '../LiveEditor'

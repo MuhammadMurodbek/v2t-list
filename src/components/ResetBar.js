@@ -6,7 +6,7 @@ import {
   EuiButton,
   EuiBottomBar,
   EuiButtonEmpty
-} from '@elastic/eui'
+} from '@patronum/eui'
 
 const ResetBar = ({ showCancelBar, showHideCancelBox, resetState }) => (
   <EuiBottomBar style={showCancelBar === false ? { display: 'none' } : { display: 'flex' }}>

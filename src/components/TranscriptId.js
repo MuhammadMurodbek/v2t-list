@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
-import { EuiFormRow, EuiButtonEmpty } from '@elastic/eui'
-import { EuiI18n } from '@elastic/eui'
+import { EuiFormRow, EuiButtonEmpty } from '@patronum/eui'
+import { EuiI18n } from '@patronum/eui'
 import { addSuccessToast, addWarningToast } from './GlobalToastList'
 
 const TranscriptId = ({ id }) => {

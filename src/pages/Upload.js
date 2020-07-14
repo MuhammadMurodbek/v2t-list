@@ -15,7 +15,7 @@ import {
   EuiI18n,
   EuiLoadingContent,
   EuiSuperSelect
-} from '@elastic/eui'
+} from '@patronum/eui'
 import jwtDecode from 'jwt-decode'
 import api from '../api'
 import Page from '../components/Page'

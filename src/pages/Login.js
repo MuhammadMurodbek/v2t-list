@@ -11,7 +11,7 @@ import {
   EuiImage,
   EuiI18n,
   EuiTextColor
-} from '@elastic/eui'
+} from '@patronum/eui'
 import { usePreferences } from '../components/PreferencesProvider'
 // import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'

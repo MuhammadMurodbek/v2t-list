@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import '../styles/record-list.css'
 
-import { EuiTitle, EuiButton } from '@elastic/eui'
+import { EuiTitle, EuiButton } from '@patronum/eui'
 
 const  RecordList = ({audioClip}) => {
   return ( audioClip && <section>

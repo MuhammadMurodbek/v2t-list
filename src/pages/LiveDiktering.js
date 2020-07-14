@@ -1,7 +1,14 @@
 // @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
-import { EuiButtonEmpty, EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from '@elastic/eui'
+import {
+  EuiButtonEmpty,
+  EuiSpacer,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiButton,
+  EuiI18n
+} from '@patronum/eui'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
@@ -404,111 +411,111 @@ export default class LiveDiktering extends Component {
     const usedSections = chapters.map(chapter => chapter.keyword)
     const defaultSchema = this.state.defaultSchema
     return (
-      <Page preferences logo={inoviaLogo} title="">
-        <EuiFlexGroup >
-          <EuiFlexItem style={{ display: 'block', marginTop: '-50px' }}>
-            <PersonalInformation info={{
-              doktor: '',
-              patient: '',
-              personnummer: ''
-            }} />
-            <EuiSpacer size="l" />
-            <Editor
-              transcript={chapters}
-              originalChapters={chapters}
-              chapters={chapters}
-              currentTime={currentTime}
-              onCursorTimeChange={this.onCursorTimeChange}
-              onSelect={this.onSelectText}
-              updateTranscript={this.onUpdateTranscript}
-              isDiffVisible
-              schemaId={defaultSchema && defaultSchema.id}
-              sectionHeaders={Object.keys(sections)}
-              initialCursor={initialCursor}
-            />
-
-            <EuiFlexGroup justifyContent="flexEnd">
+      <EuiI18n token="live" default="Live Dictation">{ title => {
+        // set translated document title
+        document.title = `Inovia AI :: ${title}`
+        return (
+          <Page preferences logo={inoviaLogo} title={title}>
+            <EuiFlexGroup wrap>
+              <EuiFlexItem grow={3}>
+                <EuiFlexGroup wrap>
+                  <EuiFlexItem grow={false}>
+                    <PersonalInformation info={{
+                      doktor: '',
+                      patient: '',
+                      personnummer: ''
+                    }} />
+                  </EuiFlexItem>
+                  <EuiFlexItem>
+                    <Mic
+                      microphoneBeingPressed={recording}
+                      toggleRecord={this.toggleRecord}
+                      seconds={seconds}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+                <EuiSpacer size="l" />
+                <Editor
+                  transcript={chapters}
+                  originalChapters={chapters}
+                  chapters={chapters}
+                  currentTime={currentTime}
+                  onCursorTimeChange={this.onCursorTimeChange}
+                  onSelect={this.onSelectText}
+                  updateTranscript={this.onUpdateTranscript}
+                  isDiffVisible
+                  schemaId={defaultSchema && defaultSchema.id}
+                  sectionHeaders={Object.keys(sections)}
+                  initialCursor={initialCursor}
+                />
+              </EuiFlexItem>
+              <EuiFlexItem grow={1}>
+                <Tags
+                  tags={tags}
+                  updateTags={this.onUpdateTags}
+                />
+                <LiveSchemaEngine
+                  listOfSchemas={listOfSchemas}
+                  usedSections={usedSections}
+                  defaultSchema={defaultSchema && defaultSchema.id}
+                  updatedSections={this.updatedSections}
+                  defaultSectionHeaders={this.state.defaultSectionHeaders}
+                />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiFlexGroup wrap justifyContent="flexStart">
               <EuiFlexItem grow={false}>
-                <EuiButtonEmpty style={{ color: '#000000' }} onClick={() => { }}>
-                  Avbryt
+                <EuiButtonEmpty
+                  size="s"
+                  onClick={() => { }}
+                >
+                  <EuiI18n token="cancel" default="Cancel" />
                 </EuiButtonEmpty>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <EuiButton
-                  style={{
-                    color: '#000000',
-                    border: 'solid 1px black',
-                    borderRadius: '25px'
-                  }}
+                  size="s"
                   onClick={() => { }}>
-                  Spara ändringar
+                  <EuiI18n
+                    token="saveChanges"
+                    default="Save Changes"
+                  />
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <EuiButton
-                  style={{
-                    background: 'rgb(112, 221, 127)',
-                    borderRadius: '25px',
-                    color: 'black'
-                  }}
+                  size="s"
+                  color="secondary"
+                  fill
                   onClick={() => { }}>
-                  “Skicka för granskning”
+                  <EuiI18n
+                    token="submitForReview"
+                    default="Submit for review"
+                  />
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <EuiButton
-                  style={{
-                    background: 'rgb(9, 99, 255)',
-                    color: 'white',
-                    borderRadius: '25px'
-                  }}
+                  size="s"
+                  fill
                   onClick={() => { }}>
-                  Skicka till Webdoc
+                  <EuiI18n
+                    token="sendToWebdoc"
+                    default="Send to Webdoc"
+                  />
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
-          </EuiFlexItem>
-          <EuiFlexItem
-            style={{
-              maxWidth: '400px',
-              display: 'block',
-              marginTop: '-50px'
-            }}
-          >
-            <div style={{
-              marginLeft: '-50vw',
-              marginTop: '25px'
-            }}>
-              <Mic
-                microphoneBeingPressed={recording}
-                toggleRecord={this.toggleRecord}
-                seconds={seconds}
-              />
-            </div>
-            <div style={{
-              marginTop: '-80px'
-            }}>
-              <Tags
-                tags={tags}
-                updateTags={this.onUpdateTags}
-              />
-              <EuiSpacer size="l" />
-              <LiveSchemaEngine
-                listOfSchemas={listOfSchemas}
-                usedSections={usedSections}
-                defaultSchema={defaultSchema && defaultSchema.id}
-                updatedSections={this.updatedSections}
-                defaultSectionHeaders={this.state.defaultSectionHeaders}
-              />
-            </div>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        {/* <EuiFlexGroup>
-          <EuiFlexItem>
-            <RecordList audioClip={recordedAudioClip} />
-          </EuiFlexItem>
-        </EuiFlexGroup> */}
-      </Page>
+            {/* <EuiFlexGroup>
+              <EuiFlexItem>
+                <RecordList audioClip={recordedAudioClip} />
+              </EuiFlexItem>
+            </EuiFlexGroup> */}
+          </Page>
+        )
+      }}
+      </EuiI18n>
+      
     )
   }
 }

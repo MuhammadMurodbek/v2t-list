@@ -8,7 +8,7 @@ import {
   EuiFormRow,
   EuiComboBox,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 import '../App.css'
 
 const Schemas = ({ schemas, schemaId, onUpdate }) => {
@@ -30,7 +30,7 @@ const Schemas = ({ schemas, schemaId, onUpdate }) => {
         </h2>
       </EuiText>
       <EuiSpacer size="m" />
-      <EuiForm style={{ maxWidth: 350}}>
+      <EuiForm>
         <EuiFormRow
           label={
             <EuiI18n

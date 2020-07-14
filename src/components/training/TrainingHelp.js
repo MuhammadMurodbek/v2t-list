@@ -2,7 +2,7 @@
 import React, { useState, Fragment } from 'react'
 import {
   EuiSpacer, EuiTabbedContent, EuiFlexGroup, EuiFlexItem
-} from '@elastic/eui'
+} from '@patronum/eui'
 import TrainingInstructions from './TrainingInstructions'
 import TrainingButtonActions from './TrainingButtonActions'
 import TrainingHelpText from './TrainingHelpText'

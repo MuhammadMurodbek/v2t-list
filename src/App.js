@@ -10,7 +10,7 @@ import {
   EuiSideNav,
   EuiButtonIcon,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
 import collapsedLogo from './img/medspeech+Inovia_logo_rgb_collapsed.png'
 import PreferencesProvider from './components/PreferencesProvider'
@@ -34,6 +34,8 @@ import {
   clearGlobalToastList
 } from './components/GlobalToastList'
 import { addUnexpectedErrorToast } from './components/GlobalToastList/GlobalToastList'
+import { EuiFlexGroup } from '@patronum/eui'
+import { EuiFlexItem } from '@patronum/eui'
 
 class App extends Component {
   state = {
@@ -205,12 +207,6 @@ class App extends Component {
                     name: <EuiI18n token="upload" default="Upload" />,
                     onClick: () => this.selectItem('Upload')
                   },
-                  // {
-                  //   href: '/#/livediktering',
-                  //   id: 'Live',
-                  //   name: <EuiI18n token="live" default="Live Dictation" />,
-                  //   onClick: () => this.selectItem('Live')
-                  // },
                   {
                     href: '/#/training',
                     id: 'Training',
@@ -244,12 +240,9 @@ class App extends Component {
                   }, {
                     href: '/#/live-diktering',
                     id: 'Live Diktering',
-                    name: 'Live Diktering',
+                    name: <EuiI18n token="live" default="Live Dictation" />,
                     onClick: () => {
                       this.selectItem('Live Diktering')
-                      this.setState({
-                        isCollapsed: true
-                      })
                     }
                   }
                 ],
@@ -281,10 +274,9 @@ class App extends Component {
   }
 
   collapse = () => {
-    const { isCollapsed } = this.state
-    this.setState({
-      isCollapsed: !isCollapsed
-    })
+    this.setState(prevState => ({
+      isCollapsed: !prevState.isCollapsed
+    }))
   }
 
   getSideNavItems = () => {
@@ -358,46 +350,40 @@ class App extends Component {
                 style={{ width: 300 }}
                 items={this.getSideNavItems()}
               />
-              <EuiButtonEmpty
-                size="l"
-                contentProps={{
-                  style: {
-                    justifyContent: 'flex-start'
-                  }
-                }}
-                style={{
-                  color: 'white',
-                  position: 'fixed',
-                  left: 12,
-                  fontWeight: 600,
-                  bottom: 40,
-                  width: 100,
-                  background: 'transparent'
-                }}
-                onClick={() => this.collapse()}
+              <EuiFlexGroup
+                direction="column"
+                gutterSize="s"
+                className="sidebarBottomButtons"
               >
-                <EuiI18n token="collapse" default="Collapse" />
-              </EuiButtonEmpty>
-              <EuiButtonEmpty
-                size="l"
-                contentProps={{
-                  style: {
-                    justifyContent: 'flex-start'
-                  }
-                }}
-                style={{
-                  color: 'white',
-                  position: 'fixed',
-                  left: 12,
-                  fontWeight: 600,
-                  bottom: 10,
-                  width: 100,
-                  background: 'transparent'
-                }}
-                onClick={() => this.openHelpWindow()}
-              >
-                <EuiI18n token="help" default="Help" />
-              </EuiButtonEmpty>
+                <EuiFlexItem>
+                  <EuiButtonEmpty
+                    size="s"
+                    contentProps={{
+                      style: {
+                        justifyContent: 'flex-start'
+                      }
+                    }}
+                    color="ghost"
+                    onClick={() => this.collapse()}
+                  >
+                    <EuiI18n token="collapse" default="Collapse" />
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <EuiButtonEmpty
+                    size="s"
+                    contentProps={{
+                      style: {
+                        justifyContent: 'flex-start'
+                      }
+                    }}
+                    color="ghost"
+                    onClick={() => this.openHelpWindow()}
+                  >
+                    <EuiI18n token="help" default="Help" />
+                  </EuiButtonEmpty>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiPageSideBar>
             <EuiPageSideBar
               style={{
@@ -423,7 +409,7 @@ class App extends Component {
                   left: -20,
                   right: 10,
                   fontWeight: 600,
-                  bottom: 40,
+                  bottom: 60,
                   width: 100,
                   background: 'transparent'
                 }}

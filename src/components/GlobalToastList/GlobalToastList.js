@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { EuiGlobalToastList, EuiI18n } from '@elastic/eui'
+import { EuiGlobalToastList, EuiI18n } from '@patronum/eui'
 
 let addToastHandler
 let clearToastsHandler

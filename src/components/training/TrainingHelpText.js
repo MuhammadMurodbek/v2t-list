@@ -1,8 +1,8 @@
 // Used react synthetic event
 import React, { Fragment } from 'react'
-import { EuiSpacer, EuiText } from '@elastic/eui'
+import { EuiSpacer, EuiText } from '@patronum/eui'
 import '../../App.css'
-import { EuiI18n } from '@elastic/eui'
+import { EuiI18n } from '@patronum/eui'
 
 const TrainingHelpText = () => (
   <Fragment>

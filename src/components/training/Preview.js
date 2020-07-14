@@ -1,7 +1,7 @@
 // Used react synthetic event
 import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { EuiText, EuiSpacer } from '@elastic/eui'
+import { EuiText, EuiSpacer } from '@patronum/eui'
 import '../../App.css'
 
 const Preview = ({ contents, visible }) => (

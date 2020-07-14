@@ -11,7 +11,7 @@ import {
   EuiButton,
   EuiButtonEmpty,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 import Invalid from './Invalid'
 import api from '../api'
 import Page from '../components/Page'
@@ -437,100 +437,88 @@ export default class EditPage extends Component {
       <EuiI18n token="editor" default="Editor">
         {(pageTitle) => (
           <Page preferences title={pageTitle}>
-            <div>
-              <EuiFlexGroup wrap gutterSize="xl">
-                <EuiFlexItem>
-                  <EuiFlexGroup>
-                    <EuiFlexItem>
-                      <Player
-                        audioTranscript={originalChapters}
-                        trackId={id}
-                        cursorTime={cursorTime}
-                        getCurrentTime={this.getCurrentTime}
-                        updateSeek={this.onTimeUpdate}
-                        queryTerm={queryTerm}
-                        isPlaying={false}
-                        isContentAudio={isMediaAudio}
-                        ref={this.playerRef}
-                        searchBoxVisible
-                        isTraining={false}
-                        onPause={this.onPause}
-                        token={token}
-                      />
-                      <EuiSpacer size="l" />
-                      <EuiSpacer size="l" />
+            <EuiFlexGroup className="transcriptEdit" wrap>
+              <EuiFlexItem grow={3}>
+                <Player
+                  audioTranscript={originalChapters}
+                  trackId={id}
+                  cursorTime={cursorTime}
+                  getCurrentTime={this.getCurrentTime}
+                  updateSeek={this.onTimeUpdate}
+                  queryTerm={queryTerm}
+                  isPlaying={false}
+                  isContentAudio={isMediaAudio}
+                  ref={this.playerRef}
+                  searchBoxVisible
+                  isTraining={false}
+                  onPause={this.onPause}
+                  token={token}
+                />
+                <EuiSpacer size="l" />
+                <EuiSpacer size="l" />
 
-                      <Editor
-                        originalChapters={originalChapters}
-                        chapters={chapters}
-                        currentTime={currentTime}
-                        onCursorTimeChange={this.onCursorTimeChange}
-                        onSelect={this.onSelectText}
-                        updateTranscript={this.onUpdateTranscript}
-                        isDiffVisible
-                        schemaId={schemaId}
-                        sectionHeaders={sectionHeaders}
-                        initialCursor={initialCursor}
-                      />
-                      <EuiFlexGroup>
-                        <EuiFlexItem grow={false}>
-                          <EuiButtonEmpty onClick={this.cancel}>
-                            <EuiI18n token="cancel" default="Cancel" />
-                          </EuiButtonEmpty>
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiButton
-                            style={{
-                              border: 'solid 1px black',
-                              borderRadius: '25px'
-                            }}
-                            onClick={this.save}
-                          >
-                            <EuiI18n
-                              token="saveChanges"
-                              default="Save Changes"
-                            />
-                          </EuiButton>
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiButton
-                            style={{
-                              background: 'rgb(9, 99, 255)',
-                              color: 'white',
-                              borderRadius: '25px'
-                            }}
-                            onClick={this.finalize}
-                          >
-                            <EuiI18n
-                              token="sendToWebdoc"
-                              default="Send to Co-worker"
-                            />
-                          </EuiButton>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                    </EuiFlexItem>
+                <Editor
+                  originalChapters={originalChapters}
+                  chapters={chapters}
+                  currentTime={currentTime}
+                  onCursorTimeChange={this.onCursorTimeChange}
+                  onSelect={this.onSelectText}
+                  updateTranscript={this.onUpdateTranscript}
+                  isDiffVisible
+                  schemaId={schemaId}
+                  sectionHeaders={sectionHeaders}
+                  initialCursor={initialCursor}
+                />
+              </EuiFlexItem>
 
-                    <EuiFlexItem grow={false}>
-                      <Info fields={fields} />
-                      <EuiSpacer size="xxl" />
-                      <Tags tags={tags} updateTags={this.onUpdateTags} />
-                      <EuiSpacer size="xxl" />
-                      <Schemas
-                        schemas={schemas}
-                        schemaId={schemaId}
-                        onUpdate={this.updateSchemaId}
-                      />
+              <EuiFlexItem grow={1}>
+                <Info fields={fields} />
+                <EuiSpacer size="xxl" />
+                <Tags tags={tags} updateTags={this.onUpdateTags} />
+                <EuiSpacer size="xxl" />
+                <Schemas
+                  schemas={schemas}
+                  schemaId={schemaId}
+                  onUpdate={this.updateSchemaId}
+                />
 
-                      <EuiSpacer size="xxl" />
-                      <Sidenote
-                        content={sidenoteContent}
-                        updateSidenote={this.updateSidenote}
-                      />
-                    </EuiFlexItem>
-                  </EuiFlexGroup>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </div>
+                <EuiSpacer size="xxl" />
+                <Sidenote
+                  content={sidenoteContent}
+                  updateSidenote={this.updateSidenote}
+                />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiFlexGroup alignItems="baseline">
+              <EuiFlexItem grow={false}>
+                <EuiButtonEmpty size="s" onClick={this.cancel}>
+                  <EuiI18n token="cancel" default="Cancel" />
+                </EuiButtonEmpty>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  size="s"
+                  onClick={this.save}
+                >
+                  <EuiI18n
+                    token="saveChanges"
+                    default="Save Changes"
+                  />
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  size="s"
+                  fill
+                  onClick={this.finalize}
+                >
+                  <EuiI18n
+                    token="sendToCoWorker"
+                    default="Send to Co-worker"
+                  />
+                </EuiButton>
+              </EuiFlexItem>
+            </EuiFlexGroup>
           </Page>
         )}
       </EuiI18n>

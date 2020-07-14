@@ -5,12 +5,12 @@ import {
   EuiText,
   EuiSpacer,
   EuiToolTip
-} from '@elastic/eui'
+} from '@patronum/eui'
 import '../styles/player.css'
 import Seek from './Seek'
 
 import { PreferenceContext } from './PreferencesProvider'
-import { EuiI18n } from '@elastic/eui'
+import { EuiI18n } from '@patronum/eui'
 
 const KEYCODE = {
   J: 'KeyJ',

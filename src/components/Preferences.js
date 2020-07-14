@@ -18,7 +18,7 @@ import {
   EuiTabs,
   EuiSelect,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 
 import help from '../img/help.png'
 import Logout from '../components/Logout'

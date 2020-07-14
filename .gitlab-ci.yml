@@ -40,6 +40,12 @@ stages:
     echo $CI_PROJECT_URL | sed 's!https://\([^/]*\)/\(.*\)$!git@\1:\2.git!g'
   }
 
+  function set_npm_token() {
+    npm c set "//gitlab.inoviagroup.se/api/v4/projects/:_authToken" $CI_JOB_TOKEN
+    npm c set "//gitlab.inoviagroup.se/api/v4/packages/npm/:_authToken" $CI_JOB_TOKEN
+    echo 'Successfully set NPM registry token'
+  }
+
 .release_scripts: &release_scripts |
   function increment_version() {
     current_version_str=$1
@@ -139,10 +145,11 @@ build-static:
     - node_modules/
     - .yarn
   before_script:
+    - *common_scripts
+    - set_npm_token
     - apt update && apt install -y jq
     - yarn config set cache-folder .yarn
     - yarn install
-    - *common_scripts
   script:
     - yarn build
   only:

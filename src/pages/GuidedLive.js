@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable no-console */
 import React, { Component } from 'react'
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem } from '@patronum/eui'
 import api from '../api'
 import Mic from '../components/Mic'
 import interpolateArray from '../models/interpolateArray'

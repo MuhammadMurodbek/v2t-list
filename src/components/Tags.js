@@ -14,11 +14,11 @@ import {
   EuiFlexGroup,
   EuiIcon,
   EuiRadioGroup
-} from '@elastic/eui'
+} from '@patronum/eui'
 
 import api from '../api'
 import '../styles/tags.css'
-import { EuiI18n } from '@elastic/eui'
+import { EuiI18n } from '@patronum/eui'
 import { addUnexpectedErrorToast, addWarningToast } from './GlobalToastList'
 
 export default class Tags extends Component {
@@ -265,14 +265,8 @@ export default class Tags extends Component {
                 compressed={true}
               />
               <EuiSpacer size="m" />
-              <div className="searchKoder" style={{ display: 'flex' }}>
-                <span
-                  style={{
-                    width: 350,
-                    marginRight: 20,
-                    marginBottom: 25
-                  }}
-                >
+              <EuiFlexGroup>
+                <EuiFlexItem>
                   <EuiComboBox
                     placeholder={`${lookFor} ${selectedNameSpace} ${code}`}
                     async
@@ -282,16 +276,15 @@ export default class Tags extends Component {
                     isLoading={isLoading}
                     onChange={this.onChange}
                     onSearchChange={this.onSearchChange}
-                  />
-                </span>
-              </div>
+                  />                  
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </>
           )}
         </EuiI18n>
         <EuiFlexItem
           grow={false}
           style={{
-            width: 350,
             display: icd10Codes.length > 0 ? 'block' : 'none'
           }}
         >
@@ -320,25 +313,22 @@ export default class Tags extends Component {
                     <EuiPanel className="custom" paddingSize="m">
                       <EuiFlexGroup
                         style={{
-                          width: 350,
                           lineHeight: 1.5
                         }}
                       >
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <div {...provided.dragHandleProps}>
                             <EuiIcon type="grab" color="blue" />
                           </div>
                         </EuiFlexItem>
                         <EuiFlexItem
                           style={{
-                            minWidth: 260,
-                            fontSize: '1rem',
-                            marginLeft: '-8px'
+                            fontSize: '1rem'
                           }}
                         >
                           <strong>{id}</strong> {description}
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"
@@ -361,7 +351,6 @@ export default class Tags extends Component {
         <EuiFlexItem
           grow={false}
           style={{
-            width: 350,
             display: kvaCodes.length > 0 ? 'block' : 'none'
           }}
         >
@@ -390,25 +379,22 @@ export default class Tags extends Component {
                     <EuiPanel className="custom" paddingSize="m">
                       <EuiFlexGroup
                         style={{
-                          width: 350,
                           lineHeight: 1.5
                         }}
                       >
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <div {...provided.dragHandleProps}>
                             <EuiIcon type="grab" color="blue" />
                           </div>
                         </EuiFlexItem>
                         <EuiFlexItem
                           style={{
-                            minWidth: 260,
-                            fontSize: '1rem',
-                            marginLeft: '-8px'
+                            fontSize: '1rem'
                           }}
                         >
                           <strong>{id}</strong> {description}
                         </EuiFlexItem>
-                        <EuiFlexItem>
+                        <EuiFlexItem grow={false}>
                           <EuiButtonIcon
                             iconSize="l"
                             color="danger"

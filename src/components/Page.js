@@ -1,8 +1,9 @@
 import React from 'react'
 import {
   EuiPageBody, EuiPageContent, EuiPageContentHeader,
-  EuiPageContentHeaderSection, EuiText, EuiPageContentBody
-} from '@elastic/eui'
+  EuiPageContentHeaderSection, EuiPageContentBody,
+  EuiTitle
+} from '@patronum/eui'
 import PropTypes from 'prop-types'
 import Preferences from './Preferences'
 
@@ -11,13 +12,14 @@ const Start = ({ title, logo, children, preferences }) => (
     minHeight: '100vh',
     margin: '0px',
     paddingLeft: '0px'
-  }}>
+  }}
+  className="pageBody">
     <EuiPageContent style={{ borderRadius: 0 }}>
       <EuiPageContentHeader>
         <EuiPageContentHeaderSection>
-          <EuiText>
+          <EuiTitle size="l">
             <h2>{title}</h2>
-          </EuiText>
+          </EuiTitle>
         </EuiPageContentHeaderSection>
         <EuiPageContentHeaderSection>
           {preferences ? <Preferences /> : null}

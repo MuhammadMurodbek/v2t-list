@@ -2,7 +2,7 @@
 import React from 'react'
 import moment from 'moment'
 import api from '../api'
-import { EuiI18n } from '@elastic/eui'
+import { EuiI18n } from '@patronum/eui'
 
 export const WORD_OPTIONS = [
   {

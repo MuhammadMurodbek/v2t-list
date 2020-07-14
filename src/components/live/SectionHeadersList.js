@@ -1,5 +1,5 @@
 import React from 'react'
-import { EuiListGroup, EuiListGroupItem } from '@elastic/eui'
+import { EuiListGroup, EuiListGroupItem } from '@patronum/eui'
 
 const SectionHeadersList = ({headers}) => {
   if (headers) {

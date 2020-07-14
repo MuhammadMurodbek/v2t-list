@@ -5,7 +5,7 @@ import {
   EuiTextArea,
   EuiFormRow,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 
 const SideNote = ({ value }) => {
   const [note, setNote] = useState('')
@@ -19,7 +19,7 @@ const SideNote = ({ value }) => {
   return (
     <Fragment>
       <EuiFlexGroup>
-        <EuiFlexItem style={{ maxWidth: 350 }}>
+        <EuiFlexItem>
           <EuiFormRow
             label={<EuiI18n token="compareNotes" default="Compare Notes" />}
           >

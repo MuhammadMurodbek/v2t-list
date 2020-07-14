@@ -3,7 +3,7 @@ import React from 'react';
 import {
   EuiContextMenu,
   EuiPopover
-} from '@elastic/eui'
+} from '@patronum/eui'
 
 const SchemaMenu = ({schemasForMenu}) => {
 

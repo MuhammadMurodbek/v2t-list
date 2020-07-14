@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { EuiSpacer, EuiFormRow, EuiButtonEmpty, EuiI18n } from '@elastic/eui'
+import { EuiSpacer, EuiFormRow, EuiButtonEmpty, EuiI18n } from '@patronum/eui'
 
 const Logout = ({ setPreferences }) => {
   const logout = () => {

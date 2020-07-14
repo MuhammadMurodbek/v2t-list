@@ -12,7 +12,7 @@ import {
   EuiButtonEmpty,
   EuiTextArea,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 import api from '../api'
 import Player from '../components/Player'
 import Page from '../components/Page'
@@ -40,7 +40,6 @@ export default class UploadPage extends Component {
   }
 
   componentDidMount = async () => {
-    document.title = 'Inovia AI :: Träning ⛷'
     this.playerRef = React.createRef()
     this.setState(
       {
@@ -312,151 +311,150 @@ export default class UploadPage extends Component {
     )
 
     return (
-      <Page preferences title="">
-        <EuiTitle
-          size="l"
-          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
-        >
-          <h1>
-            <EuiI18n token="training" default="Training" />
-          </h1>
-        </EuiTitle>
-        <EuiSpacer size="l" />
-        <EuiFlexGroup
-          style={{ display: incompleteTranscriptExists ? 'none' : 'flex' }}
-          alignItems="center"
-        >
-          <EuiFlexItem>
-            <EuiTextAlign textAlign="center">
-              <EuiText>
-                <h1 style={{ fontSize: '100px', marginTop: '30vh' }}>
-                  <span role="img" aria-label="Shortcake">
-                    🍰
-                  </span>
-                </h1>
-                <h1 style={{ fontSize: '50px', marginTop: '5vh' }}>
-                  <EuiI18n token="allDone" default="All done" />
-                </h1>
-              </EuiText>
-            </EuiTextAlign>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiFlexGroup
-          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
-          alignItems="center"
-        >
-          <EuiFlexItem>
-            <Player
-              trackId={mediaId}
-              getCurrentTime={this.getCurrentTime}
-              updateSeek={this.onTimeUpdate}
-              queryTerm={queryTerm}
-              isContentAudio={isMediaAudio}
-              ref={this.playerRef}
-              searchBoxVisible={false}
-              isTraining
-              autoplayEnabled={autoplayStatus}
-              onPause={() => {}}
-              token={token}
-            />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiSpacer size="m" />
-        <EuiSpacer size="m" />
-        <EuiSpacer size="m" />
-        <EuiFlexGroup
-          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
-        >
-          <EuiFlexItem style={{ fontSize: '22px' }}>
-            <EuiTextArea
-              style={{ width: '760px' }}
-              value={chapters}
-              onChange={this.onUpdateTranscript}
-              resize="none"
-              fullWidth={true}
-            />
+      <EuiI18n token="training" default="Training">{ title => {
+        // set translated document title
+        document.title = `Inovia AI :: ${title}`
+        return (
+          <Page preferences title={incompleteTranscriptExists ? title : ''}>
+            <EuiSpacer size="l" />
+            <EuiFlexGroup
+              style={{ display: incompleteTranscriptExists ? 'none' : 'flex' }}
+              alignItems="center"
+            >
+              <EuiFlexItem>
+                <EuiTextAlign textAlign="center">
+                  <EuiText>
+                    <h1 style={{ fontSize: '100px', marginTop: '30vh' }}>
+                      <span role="img" aria-label="Shortcake">
+                        🍰
+                      </span>
+                    </h1>
+                    <h1 style={{ fontSize: '50px', marginTop: '5vh' }}>
+                      <EuiI18n token="allDone" default="All done" />
+                    </h1>
+                  </EuiText>
+                </EuiTextAlign>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiFlexGroup
+              style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
+              alignItems="center"
+            >
+              <EuiFlexItem>
+                <Player
+                  trackId={mediaId}
+                  getCurrentTime={this.getCurrentTime}
+                  updateSeek={this.onTimeUpdate}
+                  queryTerm={queryTerm}
+                  isContentAudio={isMediaAudio}
+                  ref={this.playerRef}
+                  searchBoxVisible={false}
+                  isTraining
+                  autoplayEnabled={autoplayStatus}
+                  onPause={() => {}}
+                  token={token}
+                />
+              </EuiFlexItem>
+            </EuiFlexGroup>
             <EuiSpacer size="m" />
-            <EuiText textAlign="right">
-              <EuiButtonEmpty
-                onClick={this.changePreviewVisibility}
-                style={{
-                  display:
-                    incompleteTranscriptExists && chapters.length
-                      ? 'flex'
-                      : 'none'
-                }}
-              >
-                {visibilityChange}
-                &nbsp; <EuiI18n token="preview" default="Preview" />
-              </EuiButtonEmpty>
-            </EuiText>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiSpacer size="m" />
-        <EuiFlexGroup>
-          <EuiFlexItem style={{ fontSize: '22px' }}>
-            <Preview visible={isPreviewVisible} contents={previewContents} />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiFlexGroup
-          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
-        >
-          <EuiFlexItem grow={false}>
-            <EuiButton
-              className="complete"
-              fill
-              color="secondary"
-              onClick={this.completeTranscript}
+            <EuiSpacer size="m" />
+            <EuiSpacer size="m" />
+            <EuiFlexGroup
+              style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
             >
-              <EuiI18n token="accept" default="Accept" />
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton
-              className="skip"
-              color="warning"
-              onClick={this.skipTranscript}
+              <EuiFlexItem style={{ fontSize: '22px' }}>
+                <EuiTextArea
+                  style={{ width: '760px' }}
+                  value={chapters}
+                  onChange={this.onUpdateTranscript}
+                  resize="none"
+                  fullWidth={true}
+                />
+                <EuiSpacer size="m" />
+                <EuiText textAlign="right">
+                  <EuiButtonEmpty
+                    onClick={this.changePreviewVisibility}
+                    style={{
+                      display:
+                        incompleteTranscriptExists && chapters.length
+                          ? 'flex'
+                          : 'none'
+                    }}
+                  >
+                    {visibilityChange}
+                    &nbsp; <EuiI18n token="preview" default="Preview" />
+                  </EuiButtonEmpty>
+                </EuiText>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiSpacer size="m" />
+            <EuiFlexGroup>
+              <EuiFlexItem style={{ fontSize: '22px' }}>
+                <Preview visible={isPreviewVisible} contents={previewContents} />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiFlexGroup
+              style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
             >
-              <EuiI18n token="skip" default="Skip" />
-            </EuiButton>
-          </EuiFlexItem>
-          <EuiFlexItem grow={false}>
-            <EuiButton
-              className="reject"
-              fill
-              color="danger"
-              onClick={this.rejectTranscript}
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  className="complete"
+                  fill
+                  color="secondary"
+                  onClick={this.completeTranscript}
+                >
+                  <EuiI18n token="accept" default="Accept" />
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  className="skip"
+                  color="warning"
+                  onClick={this.skipTranscript}
+                >
+                  <EuiI18n token="skip" default="Skip" />
+                </EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  className="reject"
+                  fill
+                  color="danger"
+                  onClick={this.rejectTranscript}
+                >
+                  <EuiI18n token="reject" default="Reject" />
+                </EuiButton>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiSpacer size="xxl" />
+            <EuiSpacer size="xxl" />
+            <EuiSpacer size="m" />
+            <EuiTitle
+              size="s"
+              style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
             >
-              <EuiI18n token="reject" default="Reject" />
-            </EuiButton>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiSpacer size="xxl" />
-        <EuiSpacer size="xxl" />
-        <EuiSpacer size="m" />
-        <EuiTitle
-          size="s"
-          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
-        >
-          <h6>
-            <EuiI18n token="instructions" default="Instructions" />
-          </h6>
-        </EuiTitle>
-        <EuiSpacer size="m" />
-        <EuiFlexGroup
-          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
-        >
-          <EuiFlexItem>
-            <TrainingHelp />
-          </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiGlobalToastList
-          style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
-          toasts={toasts}
-          dismissToast={this.removeToast}
-          toastLifeTimeMs={1000}
-        />
-      </Page>
+              <h6>
+                <EuiI18n token="instructions" default="Instructions" />
+              </h6>
+            </EuiTitle>
+            <EuiSpacer size="m" />
+            <EuiFlexGroup
+              style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
+            >
+              <EuiFlexItem>
+                <TrainingHelp />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiGlobalToastList
+              style={{ display: incompleteTranscriptExists ? 'flex' : 'none' }}
+              toasts={toasts}
+              dismissToast={this.removeToast}
+              toastLifeTimeMs={1000}
+            />
+          </Page>
+        )
+      }}
+      </EuiI18n>
     )
   }
 }

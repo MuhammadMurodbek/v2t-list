@@ -7,7 +7,7 @@ import {
   EuiText,
   EuiSpacer,
   EuiI18n
-} from '@elastic/eui'
+} from '@patronum/eui'
 import validatePersonnummer from '../models/live/validatePersonnummer'
 
 const PersonalInfoLive = ({ info }) => {

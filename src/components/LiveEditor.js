@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { Component, Fragment } from 'react'
 import Diff from 'text-diff'
-import { EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor } from '@elastic/eui'
+import { EuiFlexGroup, EuiFlexItem, EuiText, EuiTextColor } from '@patronum/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import SectionHeader from '../components/SectionHeader'
 import '../styles/editor.css'

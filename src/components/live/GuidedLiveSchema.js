@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
-import { EuiSpacer, EuiForm, EuiFormRow, EuiComboBox } from '@elastic/eui'
+import { EuiSpacer, EuiForm, EuiFormRow, EuiComboBox } from '@patronum/eui'
 import ListOfHeaders from '../ListOfHeaders'
 import api from '../../api'
 import '../../App.css'

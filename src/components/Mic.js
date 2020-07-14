@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React from 'react'
-import { EuiSpacer, EuiTextAlign, EuiI18n } from '@elastic/eui'
+import { EuiSpacer, EuiTextAlign, EuiI18n } from '@patronum/eui'
 import mic from '../img/voice-recording.png'
 import micRecording from '../img/voice-recording-red.png'
 import '../styles/mic.css'
