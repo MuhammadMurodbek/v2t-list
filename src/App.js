@@ -24,13 +24,14 @@ import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
 import Preference from './models/Preference'
 import './App.css'
-import api from './api'
+import api, { URLS } from './api'
 import axios from 'axios'
 import { LanguageProvider } from './context'
 import { withProvider } from './hoc'
 import {
   GlobalToastListContainer,
-  addErrorToast
+  addErrorToast,
+  clearGlobalToastList
 } from './components/GlobalToastList'
 import { addUnexpectedErrorToast } from './components/GlobalToastList/GlobalToastList'
 
@@ -49,6 +50,27 @@ class App extends Component {
   }
 
   componentDidMount() {
+    axios.interceptors.response.use(
+      (response) => {
+        return response
+      },
+      (error) => {
+        if (error.response.status === 401 || error.response.status === 403) {
+          console.info('Here: Error 401')
+          if(error.config.url !== URLS.login) {
+            clearGlobalToastList()
+            addErrorToast(
+              <EuiI18n token="sessionError"
+                default="Your session has been expired, please login again" />
+            )
+          }
+          api.logout()
+          this.setState({isLoggedIn: false})
+        }
+        return Promise.reject(error)
+      }
+    )
+
     const queryToken = getQueryStringValue('token')
     if (queryToken) {
       this.setState({ isTokenFromUrl: true })
@@ -56,10 +78,10 @@ class App extends Component {
     this.fetchTranscripts()
   }
 
-  setPreferences = (state) => {
+  setPreferences = (update) => {
     const { preferences } = this.state
     this.setState({
-      preferences: preferences.clone().add(state)
+      preferences: preferences.add(update)
     })
   }
 
@@ -126,8 +148,8 @@ class App extends Component {
                   contentLength
                 })
               })
-              .catch(() => {
-                addUnexpectedErrorToast()
+              .catch((e) => {
+                addUnexpectedErrorToast(e)
               })
 
             activeTags.forEach((tag) => {
@@ -157,8 +179,8 @@ class App extends Component {
                           pageIndex: 0
                         })
                       })
-                      .catch(() => {
-                        addUnexpectedErrorToast()
+                      .catch((e) => {
+                        addUnexpectedErrorToast(e)
                       })
                   }
                 },
@@ -237,8 +259,8 @@ class App extends Component {
             this.setState({ sidenav: parentSideBar })
             resolve()
           })
-          .catch(() => {
-            addUnexpectedErrorToast()
+          .catch((e) => {
+            addUnexpectedErrorToast(e)
           })
       }
     })
@@ -427,84 +449,69 @@ class App extends Component {
               --
               {/* </EuiButtonEmpty> */}
             </EuiPageSideBar>
-
-            <Switch>
-              <Route
-                exact
-                path="/"
-                render={(props) =>
-                  isLoggedIn ? (
-                    <StartPage
-                      {...{
-                        ...props,
-                        transcripts,
-                        job,
-                        fetchTranscripts,
-                        contentLength,
-                        pageIndex,
-                        setPageIndex
-                      }}
-                    />
-                  ) : (
-                    <LoginPage />
-                  )
-                }
-              />
-              <Route
-                path="/edit/:id"
-                render={(props) => {
-                  const { id } = props.match.params
-                  const preloadedTranscript = transcripts.find(
-                    (currentTranscript) => currentTranscript.id === id
-                  )
-                  return (
-                    <EditPage
-                      {...{ ...props, id, preloadedTranscript, token }}
-                    />
-                  )
-                }}
-              />
-              <Route
-                path="/upload/"
-                render={() => (isLoggedIn ? <UploadPage /> : <LoginPage />)}
-              />
-              <Route
-                path="/training/"
-                render={() => (isLoggedIn ? <TrainingPage /> : <LoginPage />)}
-              />
-              <Route
-                path="/guided-live/"
-                render={() => (isLoggedIn ? <GuidedLivePage /> : <LoginPage />)}
-              />
-              <Route
-                path="/livediktering/"
-                render={() =>
-                  isLoggedIn ? <LiveDikteringPage /> : <LoginPage />
-                }
-              />
-              <Route
-                path="/live-diktering/"
-                render={() =>
-                  isLoggedIn ? <LiveDikteringPage /> : <LoginPage />
-                }
-              />
-              <Route
-                path="/login"
-                render={(props) =>
-                  isLoggedIn ? (
-                    <StartPage
-                      {...{
-                        ...props,
-                        transcripts
-                      }}
-                    />
-                  ) : (<LoginPage />)
-                }
-              />
-              <Route
-                render={() => (isLoggedIn ? <Invalid /> : <LoginPage />)}
-              />
-            </Switch>
+            {
+              isLoggedIn ? (
+                <Switch>
+                  <Route
+                    exact
+                    path="/"
+                    render={(props) =>
+                      <StartPage
+                        {...{
+                          ...props,
+                          transcripts,
+                          job,
+                          fetchTranscripts,
+                          contentLength,
+                          pageIndex,
+                          setPageIndex
+                        }}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/edit/:id"
+                    render={(props) => {
+                      const { id } = props.match.params
+                      const preloadedTranscript = transcripts.find(
+                        (currentTranscript) => currentTranscript.id === id
+                      )
+                      return (
+                        <EditPage
+                          {...{ ...props, id, preloadedTranscript, token }}
+                        />
+                      )
+                    }}
+                  />
+                  <Route
+                    path="/upload/"
+                    render={() => <UploadPage />}
+                  />
+                  <Route
+                    path="/training/"
+                    render={() => <TrainingPage />}
+                  />
+                  <Route
+                    path="/guided-live/"
+                    render={() => <GuidedLivePage />}
+                  />
+                  <Route
+                    path="/livediktering/"
+                    render={() => <LiveDikteringPage />}
+                  />
+                  <Route
+                    path="/live-diktering/"
+                    render={() => <LiveDikteringPage />}
+                  />
+                  <Route
+                    render={() => <Invalid />}
+                  />
+                </Switch>
+              )
+                : (
+                  <LoginPage />
+                )
+            }
             <GlobalToastListContainer />
           </EuiPage>
         </PreferencesProvider>
@@ -530,22 +537,5 @@ const getQueryStringValue = (key) => {
 
 const queryToken = getQueryStringValue('token')
 if (queryToken) api.setToken(queryToken)
-
-axios.interceptors.response.use(
-  (response) => {
-    return response
-  },
-  (error) => {
-    if (error.response.status === 401 || error.response.status === 403) {
-      addErrorToast(
-        <EuiI18n token="authError" default="Invalid username or password" />
-      )
-
-      return api.logout()
-    } else {
-      return Promise.reject(error)
-    }
-  }
-)
 
 export default withProvider(App, LanguageProvider)

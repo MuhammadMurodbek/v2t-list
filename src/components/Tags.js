@@ -94,8 +94,8 @@ export default class Tags extends Component {
         })
         this.setState({ options })
       }
-    } catch {
-      addUnexpectedErrorToast()
+    } catch (e) {
+      addUnexpectedErrorToast(e)
     }
   }
 

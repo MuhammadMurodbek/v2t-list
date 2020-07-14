@@ -24,11 +24,20 @@ const addErrorToast = (title = null, message = null) => {
   addGlobalToast(title, message && <p>{message}</p>, 'danger', 'alert')
 }
 
-const addUnexpectedErrorToast = () =>
+const addUnexpectedErrorToast = (error) => {
+  if (error &&
+      error.response &&
+      (error.response.status === 401
+      || error.response.status === 403)
+  ) {
+    return false
+  }
   addErrorToast(
     <EuiI18n token="error" default="Error" />,
     <EuiI18n token="unexpectedError" default="Unexpected error occurred" />
   )
+  return true
+}
 
 const addWarningToast = (title = null, message = null) => {
   if (!title) return

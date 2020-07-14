@@ -93,18 +93,22 @@ export default class EditPage extends Component {
   }
 
   initiate = async () => {
-    const { id, defaultTranscript } = this.props
-    if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
-    const [
-      {
-        data: { schemas }
-      },
-      { data: transcript }
-    ] = await Promise.all([
-      api.getSchemas().catch(this.onError),
-      api.loadTranscription(id).catch(this.onError)
-    ])
-    this.onNewTranscript(transcript, schemas)
+    try {
+      const { id, defaultTranscript } = this.props
+      if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
+      const [
+        {
+          data: { schemas }
+        },
+        { data: transcript }
+      ] = await Promise.all([
+        api.getSchemas().catch(this.onError),
+        api.loadTranscription(id).catch(this.onError)
+      ])
+      this.onNewTranscript(transcript, schemas)
+    } catch(e) {
+      addUnexpectedErrorToast(e)
+    }
   }
 
   onNewTranscript = async (transcript, schemas) => {
@@ -120,6 +124,7 @@ export default class EditPage extends Component {
       ...tag,
       id: tag.id.toUpperCase()
     }))
+
     const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
     const requiredSectionHeaders = schema.fields ? schema.fields.filter(schemaField => schemaField.required === true).map(requiredField => requiredField.name) : []
     this.setState({
@@ -230,8 +235,8 @@ export default class EditPage extends Component {
           />
         )
       }
-    } catch {
-      addUnexpectedErrorToast()
+    } catch(e) {
+      addUnexpectedErrorToast(e)
     }
   }
 
@@ -341,8 +346,8 @@ export default class EditPage extends Component {
           return true
         }
       )
-    } catch {
-      addUnexpectedErrorToast()
+    } catch(e) {
+      addUnexpectedErrorToast(e)
     }
   }
 

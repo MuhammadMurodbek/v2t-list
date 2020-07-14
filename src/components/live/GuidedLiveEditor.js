@@ -143,8 +143,8 @@ const GuidedLiveEditor = ({
                     description: result.data[0].description
                   }
                 ])
-      } catch {
-        addUnexpectedErrorToast()
+      } catch(e) {
+        addUnexpectedErrorToast(e)
       }
     }
   }

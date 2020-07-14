@@ -5,6 +5,20 @@ const headers = {
   'Content-Type': 'application/json'
 }
 
+const URLS = {
+  login: '/api/login/v1',
+  domains: '/api/login/v1/domains',
+  activeTags: '/api/tickets/v1/tags/active',
+  searchTranscriptions: '/api/transcription/search/v2',
+  keywordsV1: '/api/keywords/v1/',
+  transcriptionsV1: '/api/transcriptions/v1',
+  trainingTranscript: '/api/training/v2/transcript',
+  schemaSearch: '/api/schema/v1/search',
+  schemaById: '/api/schema/v1/id',
+  searchDepartments: '/api/transcription/search/v2/departments',
+  transcriptionV2: '/api/transcription/v2'
+}
+
 const setToken = (token) => {
   if (token) {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -16,15 +30,14 @@ const setToken = (token) => {
 const logout = () => {
   axios.defaults.headers.common.Authorization = undefined
   localStorage.setItem('token', '')
-  window.location.replace('/')
 }
 
-const getDomains = () => axios.get('/api/login/v1/domains')
+const getDomains = () => axios.get(URLS.domains)
 
 const login = (domain, username, password) => {
   return axios
     .post(
-      '/api/login/v1',
+      URLS.login,
       {
         domain,
         username,
@@ -40,11 +53,11 @@ const login = (domain, username, password) => {
     })
 }
 
-const loadTags = () => axios.get('/api/tickets/v1/tags/active')
+const loadTags = () => axios.get(URLS.activeTags)
 
 const loadTickets = (department, pageIndex, pageSize, orderBy) => {
   return axios.post(
-    '/api/transcription/search/v2',
+    URLS.searchTranscriptions,
     {
       department,
       orderBy: orderBy ? [orderBy] : [],
@@ -55,7 +68,7 @@ const loadTickets = (department, pageIndex, pageSize, orderBy) => {
 }
 
 const keywordsSearch = (searchTerm, namespace = 'icd-10') =>
-  axios.post(`/api/keywords/v1/${namespace}/search`, {
+  axios.post(`${URLS.keywordsV1}${namespace}/search`, {
     text: searchTerm
   })
 
@@ -91,55 +104,50 @@ const uploadMedia = (
   )
   body.set('data', data)
 
-  return axios.post('/api/transcription/v2', body)
+  return axios.post(URLS.transcriptionV2, body)
 }
 
 const transcriptState = (transcriptionId) =>
   axios.get(`/api/transcription/v2/${transcriptionId}/state`)
 
 const loadTranscription = (transcriptionId) =>
-  axios.get(`/api/transcriptions/v1/${transcriptionId}`)
+  axios.get(`${URLS.transcriptionsV1}/${transcriptionId}`)
 
 const approveTranscription = (transcriptionId) =>
-  axios.post(`/api/transcriptions/v1/${transcriptionId}/approve`)
+  axios.post(`${URLS.transcriptionsV1}/${transcriptionId}/approve`)
 
 const rejectTranscription = (transcriptionId) =>
-  axios.post(`/api/transcriptions/v1/${transcriptionId}/reject`)
+  axios.post(`${URLS.transcriptionsV1}/${transcriptionId}/reject`)
 
 const updateTranscription = (transcriptionId, tags, chapters, schemaId) =>
-  axios.put(`/api/transcriptions/v1/${transcriptionId}`, {
+  axios.put(`${URLS.transcriptionsV1}/${transcriptionId}`, {
     tags,
     transcriptions: chapters,
     schemaId
   })
 
-const trainingGetNext = () => axios.get('/api/training/v2/transcript')
+const trainingGetNext = () => axios.get(URLS.trainingTranscript)
 
 const trainingUpdate = (transcriptionId, updatedText) =>
-  axios.post(`/api/training/v2/transcript/${transcriptionId}/status`, {
+  axios.post(`${URLS.trainingTranscript}/${transcriptionId}/status`, {
     text: updatedText
   })
 
 const trainingReject = (transcriptionId) =>
-  axios.post(`/api/training/v2/transcript/${transcriptionId}/status`, {
+  axios.post(`${URLS.trainingTranscript}/${transcriptionId}/status`, {
     reject: true
   })
 
-const getSchemas = () => axios.post('/api/schema/v1/search', {
+const getSchemas = () => axios.post(URLS.schemaSearch, {
   start: 0,
   size: 1000
 })
 
-const getSchema = (id) => axios.get(`/api/schema/v1/id/${id}`)
+const getSchema = (id) => axios.get(`${URLS.schemaById}/${id}`)
 
-const getChartData = () => axios.get('/api/charts/v1/CHART_ID')
+export { URLS }
 
-const getListOfAllJobs = () =>
-  axios.post('/api/import/v1/search', {
-    source: 'MED_SPEECH'
-  })
-
-const getDepartments = () => axios.get('/api/transcription/search/v2/departments')
+const getDepartments = () => axios.get(URLS.searchDepartments)
 
 export default {
   approveTranscription,
@@ -157,8 +165,6 @@ export default {
   trainingUpdate,
   updateTranscription,
   uploadMedia,
-  getChartData,
-  getListOfAllJobs,
   getSchemas,
   getSchema,
   getDepartments,

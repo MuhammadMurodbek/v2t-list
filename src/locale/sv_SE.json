@@ -1,6 +1,7 @@
 {
   "settings": "Inställningar",
-  "editor": "Editor",
+  "editor": "Redaktör",
+  "general": "Allmän",
   "activityListSettings": "Inställningar för aktivitetslista",
   "enterTheColumnsInTheOrderYouWantToDisplayThem": "Ange kolumnerna i den ordning du vill visa dem",
   "editorSettings": "Inställningar för Editor",
@@ -123,6 +124,7 @@
   "chooseTheJournalSystemForTheTranscription": "Mottagande journalsystem",
   "error": "Fel",
   "authError": "Ogiltigt användarnamn eller lösenord",
+  "sessionError": "Din session har gått ut, logga in igen",
   "unexpectedError": "Oväntat fel inträffade",
   "trainingNotExists": "Åtgärden kan inte utföras eftersom transkriptet inte längre kan hittas",
   "ICDCodeError": "ICD koden får endast förekomma 1 gång",

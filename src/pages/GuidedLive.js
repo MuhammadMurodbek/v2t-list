@@ -72,8 +72,8 @@ export default class GuidedLive extends Component {
         listOfSchemas: schemaList.data.schemas,
         schemasForMenu: finalSchemas
       })
-    } catch {
-      addUnexpectedErrorToast()
+    } catch(e) {
+      addUnexpectedErrorToast(e)
     }
   }
 

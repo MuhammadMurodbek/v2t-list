@@ -57,11 +57,13 @@ const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
   const [preferences, setPreferences] = usePreferences()
   const setColumns = (columnsForCombo) => setPreferences({ columnsForCombo })
-  const setAutoPlayStatus = (autoPlayStatus) =>
+  const setAutoPlayStatus = ({ target: { checked: autoPlayStatus}}) =>
     setPreferences({ autoPlayStatus })
-  const setStopButtonVisibilityStatus = (stopButtonVisibilityStatus) =>
+  const setExternalMode = ({ target: { checked: externalMode }}) =>
+    setPreferences({ externalMode })
+  const setStopButtonVisibilityStatus = ({ target: { checked: stopButtonVisibilityStatus }}) =>
     setPreferences({ stopButtonVisibilityStatus })
-  const setShowVideo = (showVideo) => setPreferences({ showVideo })
+  const setShowVideo = ({ target: { checked: showVideo }}) => setPreferences({ showVideo })
   const setFontSize = (currentFontSize) => setPreferences({ currentFontSize })
   const [selectedTabId, setSelectedTabId] = useState('0')
   const transcriptId = localStorage.getItem('transcriptId')
@@ -79,7 +81,7 @@ const Flyout = ({ visible, onClose }) => {
   const tabs = [
     {
       id: '0',
-      name: <EuiI18n token="editor" default="Editor" />,
+      name: <EuiI18n token="general" default="General" />,
       content: (
         <Fragment>
           <EuiText>
@@ -91,20 +93,22 @@ const Flyout = ({ visible, onClose }) => {
             </h5>
           </EuiText>
           <EuiSpacer size="s" />
-          <EuiFormRow>
-            <EuiComboBox
-              placeholder={
-                <EuiI18n
-                  token="enterTheColumnsInTheOrderYouWantToDisplayThem"
-                  default="Enter the columns in the order you want to display them"
+          <EuiI18n
+            token="enterTheColumnsInTheOrderYouWantToDisplayThem"
+            default="Enter the columns in the order you want to display them"
+          >
+            {(translation) => (
+              <EuiFormRow fullWidth={true}>
+                <EuiComboBox
+                  placeholder={translation}
+                  selectedOptions={preferences.columnsForCombo}
+                  options={COLUMN_OPTIONS}
+                  onChange={setColumns}
+                  fullWidth={true}
                 />
-              }
-              selectedOptions={preferences.columnsForCombo}
-              options={COLUMN_OPTIONS}
-              onChange={setColumns}
-            />
-          </EuiFormRow>
-
+              </EuiFormRow>
+            )}
+          </EuiI18n>
           <EuiSpacer size="l" />
           <EuiText>
             <h5>
@@ -112,13 +116,26 @@ const Flyout = ({ visible, onClose }) => {
             </h5>
           </EuiText>
           <EuiSpacer size="s" />
-          <EuiFormRow label={<EuiI18n token="textSize" default="Text size" />}>
+          <EuiFormRow
+            label={<EuiI18n token="textSize" default="Text size" />}
+            fullWidth={true}
+          >
             <EuiSuperSelect
+              fullWidth={true}
               options={preferences.fontSizeList}
               valueOfSelected={preferences.currentFontSize}
               onChange={setFontSize}
               itemLayoutAlign="top"
               hasDividers
+            />
+          </EuiFormRow>
+          <EuiFormRow label="" fullWidth={true}>
+            <EuiSwitch
+              label={
+                <EuiI18n token="externalMode" default="External mode" />
+              }
+              checked={preferences.externalMode}
+              onChange={setExternalMode}
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
@@ -140,7 +157,7 @@ const Flyout = ({ visible, onClose }) => {
 
           <EuiSpacer size="m" />
 
-          <EuiFormRow label="">
+          <EuiFormRow label="" fullWidth={true}>
             <EuiSwitch
               className="autoplaySwitch"
               label={
@@ -151,7 +168,7 @@ const Flyout = ({ visible, onClose }) => {
             />
           </EuiFormRow>
 
-          <EuiFormRow label="">
+          <EuiFormRow label="" fullWidth={true}>
             <EuiSwitch
               label={
                 <EuiI18n token="showStopButton" default="Show stop button" />
@@ -160,7 +177,7 @@ const Flyout = ({ visible, onClose }) => {
               onChange={setStopButtonVisibilityStatus}
             />
           </EuiFormRow>
-          <EuiFormRow label="">
+          <EuiFormRow label="" fullWidth={true}>
             <EuiSwitch
               className="videoSwitch"
               label={<EuiI18n token="viewVideo" default="View video" />}
@@ -187,12 +204,14 @@ const Flyout = ({ visible, onClose }) => {
           <EuiSpacer size="s" />
           <EuiFormRow
             label={<EuiI18n token="selectLanguage" default="Select language" />}
+            fullWidth={true}
           >
             <EuiSelect
               id="languagesSelect"
               options={languageOptions}
               value={language}
               onChange={onLanguageChange}
+              fullWidth={true}
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
@@ -222,7 +241,13 @@ const Flyout = ({ visible, onClose }) => {
   }
 
   return (
-    <EuiFlyout onClose={onClose} aria-labelledby="flyoutTitle" size="s">
+    <EuiFlyout
+      onClose={onClose}
+      aria-labelledby="flyoutTitle"
+      size="m"
+      maxWidth="500px"
+      className="preferencesFlyout"
+    >
       <EuiFlyoutHeader hasBorder>
         <EuiTitle size="m">
           <h4 id="flyoutTitle">
@@ -230,7 +255,7 @@ const Flyout = ({ visible, onClose }) => {
           </h4>
         </EuiTitle>
       </EuiFlyoutHeader>
-      <EuiFlyoutBody>
+      <EuiFlyoutBody style={{ paddingLeft: '15px', paddingRight: '15px' }}>
         <EuiTabs style={{ marginBottom: '-25px' }}>{renderTabs()}</EuiTabs>
         <EuiSpacer size="l" />
         <EuiSpacer size="l" />

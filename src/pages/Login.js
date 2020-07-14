@@ -46,9 +46,7 @@ const LoginPage = () => {
   const login = (e) => {
     e.preventDefault()
     if (username === '' || password === '') {
-      addErrorToast(
-        <EuiI18n token="authError" default="Invalid username or password" />
-      )
+      showErrorToast()
     } else {
       api
         .login(domain, username, password)
@@ -59,11 +57,19 @@ const LoginPage = () => {
           window.location.replace('/')
         })
         .catch((error) => {
-          if (error.response.status !== 401) {
-            addUnexpectedErrorToast()
+          if (error.response.status === 401 || error.response.status === 403) {
+            showErrorToast()
+          } else {
+            addUnexpectedErrorToast(error)
           }
         })
     }
+  }
+
+  const showErrorToast = () => {
+    addErrorToast(
+      <EuiI18n token="authError" default="Invalid username or password" />
+    )
   }
 
   const changeDomain = (selection) => {

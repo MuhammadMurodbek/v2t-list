@@ -86,9 +86,9 @@ export default class UploadPage extends Component {
       } else {
         this.setState({ incompleteTranscriptExists: false })
       }
-    } catch {
+    } catch(e) {
       this.setState({ incompleteTranscriptExists: false })
-      addUnexpectedErrorToast()
+      addUnexpectedErrorToast(e)
     }
   }
 
@@ -187,8 +187,8 @@ export default class UploadPage extends Component {
           this.setState({ chapters: '' })
           try {
             await api.trainingUpdate(transcriptionId, previewContents)
-          } catch {
-            addUnexpectedErrorToast()
+          } catch(e) {
+            addUnexpectedErrorToast(e)
           }
           this.loadCurrentTranscript()
         }

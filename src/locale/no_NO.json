@@ -1,6 +1,7 @@
 {
   "settings": "Innstillningar",
   "editor": "Redaktør",
+  "general": "Generell",
   "activityListSettings": "Innstillningar for aktivitetsliste",
   "enterTheColumnsInTheOrderYouWantToDisplayThem": "Skriv inn kolonnen I den rekkefølgen du vil vise dem",
   "editorSettings": "Redigeringsinnstillinger",
@@ -123,6 +124,7 @@
   "chooseTheJournalSystemForTheTranscription": "Motta journalsystem",
   "error": "Feil",
   "authError": "Ugyldig brukernavn eller passord",
+  "sessionError": "Økten din er utløpt, vennligst logg inn igjen",
   "unexpectedError": "Uventet feil oppstod",
   "trainingNotExists": "Operasjonen kan ikke utføres fordi transkriptet ikke lenger er å finne",
   "ICDCodeError": "ICD-koden kan bare forekomme en gang",

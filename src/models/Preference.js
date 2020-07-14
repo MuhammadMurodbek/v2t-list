@@ -189,6 +189,30 @@ export default class Preference {
     this._fontSizeIteration = this._fontSizeIteration + 1
   }
 
+  get externalMode() {
+    return this._externalMode
+  }
+
+  set externalMode(mode) {
+    if (this._externalMode === true) {
+      this._externalMode = false
+      localStorage.setItem('externalMode', this._externalMode)
+    } else if (this._externalMode === false) {
+      this._externalMode = true
+      localStorage.setItem('externalMode', this._externalMode)
+    } else {
+      const externalModeFromStorage = localStorage.getItem('externalMode')
+      if (externalModeFromStorage === 'true') {
+        this._externalMode = true
+      } else if (externalModeFromStorage === 'false') {
+        this._externalMode = false
+      } else {
+        this._externalMode = false
+      }
+      localStorage.setItem('externalMode', this._externalMode)
+    }
+  }
+
   get fontSizeIteration() {
     return this._fontSizeIteration
   }
@@ -267,6 +291,7 @@ export default class Preference {
       }
     ],
     currentFontSize: '18px',
+    externalMode: false,
     fontSizeIteration: 0,
     keywordInit: true
   }

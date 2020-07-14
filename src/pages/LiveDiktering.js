@@ -117,8 +117,8 @@ export default class LiveDiktering extends Component {
         // console.log('list of schemas')
         this.localize()
       }
-    } catch {
-      addUnexpectedErrorToast()
+    } catch(e) {
+      addUnexpectedErrorToast(e)
     }
   }
 

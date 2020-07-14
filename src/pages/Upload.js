@@ -65,8 +65,8 @@ export default class UploadPage extends Component {
       }, () => {
         this.resetSelections()
       })
-    } catch {
-      addUnexpectedErrorToast()
+    } catch(e) {
+      addUnexpectedErrorToast(e)
     }
   }
 
@@ -144,8 +144,8 @@ export default class UploadPage extends Component {
           selectedSchema,
           fields
         )
-        .catch(() => {
-          addUnexpectedErrorToast()
+        .catch((e) => {
+          addUnexpectedErrorToast(e)
         })
     )
     await Promise.all(requests).catch(this.onUploadFailed)

@@ -87,9 +87,26 @@ export default class TranscriptionList extends Component {
             />
           )
         })
-        .catch(() => {
-          addUnexpectedErrorToast()
+        .catch((e) => {
+          addUnexpectedErrorToast(e)
         })
+    }
+  }
+
+  getTranscriptHref = (schemaId) => {
+    const [ preferences ] = this.context
+    const token = localStorage.getItem('token')
+
+    if (preferences.externalMode) {
+      return {
+        href: `/#edit/${schemaId}?token=${token}`,
+        target: '_blank'
+      }
+    } else {
+      return {
+        href: `/#edit/${schemaId}`,
+        target: '_self'
+      }
     }
   }
 
@@ -126,7 +143,9 @@ export default class TranscriptionList extends Component {
         name: '',
         width: '100px',
         render: (schemaId) => (
-          <EuiButtonEmpty href={`/#edit/${schemaId}`}>
+          <EuiButtonEmpty
+            {...this.getTranscriptHref(schemaId)}
+          >
             <EuiI18n token="open" default="Open" />
           </EuiButtonEmpty>
         ),
