@@ -363,6 +363,17 @@ export default class EditPage extends Component {
     this.setState({ error })
   }
 
+  getEditableChapters = () => {
+    const {
+      chapters,
+      hiddenSectionHeaders,
+      readonlySectionHeaders
+    } = this.state
+    return chapters.filter(({keyword}) =>
+      !hiddenSectionHeaders.includes(keyword) && !readonlySectionHeaders.includes(keyword)
+    )
+  }
+
   render() {
     const { id, token } = this.props
     const {
