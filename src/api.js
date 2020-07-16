@@ -129,10 +129,10 @@ const loadTranscription = (transcriptionId) => {
 
 
 const approveTranscription = (transcriptionId) =>
-  axios.post(`${URLS.transcriptionsV2}/${transcriptionId}/approve`)
+  axios.post(`${URLS.transcriptionV2}/${transcriptionId}/approve`)
 
 const rejectTranscription = (transcriptionId) =>
-  axios.post(`${URLS.transcriptionsV2}/${transcriptionId}/reject`)
+  axios.post(`${URLS.transcriptionV2}/${transcriptionId}/reject`)
 
 const updateTranscription = (transcriptionId, schemaId, fields) =>
   axios.put(`/api/transcription/v2/${transcriptionId}`, {
