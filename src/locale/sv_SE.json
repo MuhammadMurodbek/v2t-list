@@ -103,7 +103,7 @@
   "sendToWebdoc": "Skicka till Webdoc",
   "submitForReview": "Skicka för granskning",
   "schema": "Schema",
-  "selectSchema": "Välj schema",
+  "selectSchema": "Välj Journalmallar",
   "compareNotes": "Anteckningar",
   "writeANoteToCoWorker": "Skriva en anteckning till medarbetaren",
   "findWords": "Leta ord",
@@ -141,7 +141,6 @@
   "noDontDoIt": "Nej, gör det inte",
   "dictationRemoveSucces": "Diktatet har tagits bort!",
   "info": "Info",
-  "presonNumberIsMissing": "Personnummer saknas",
   "unableToSendToCoWorker": "Det är inte möjligt att skicka till co-worker",
   "nothingToUpdate": "There is nothing to update!",
   "unableToSaveDictation": "Inte möjligt att spara diktatet",
@@ -151,5 +150,7 @@
   "lettersError": "Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!",
   "unableToUpload": "Det är inte möjligt att ladda upp",
   "fileIsMissing": "Fil saknas",
-  "missingReuiredHeaders": "Sökord saknas"
+  "missingReuiredHeaders": "Sökord saknas",
+  "unableToStartLiveTranscriptSession": "Det gick inte att starta live-dikteringen",
+  "checkNetworkConnectionOrContactSupport": "Kontrollera nätverksanslutningen eller kontakta IT-support"
 }

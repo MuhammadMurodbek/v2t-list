@@ -14,6 +14,7 @@ import Editor from '../components/Editor'
 import Mic from '../components/Mic'
 import LiveSchemaEngine from '../components/LiveSchemaEngine'
 import interpolateArray from '../models/interpolateArray'
+import convertToV2API from '../models/convertToV2API'
 import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import PersonalInformation from '../components/PersonalInformation'
 import Tags from '../components/Tags'
@@ -22,9 +23,12 @@ import Page from '../components/Page'
 import processChaptersLive from '../models/processChaptersLive'
 import inoviaLogo from '../img/livediktering.png'
 import * as recorder from '../utils/recorder'
-// import RecordList from '../components/RecordList'
+import RecordList from '../components/RecordList'
 import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 import getParameterByName from '../utils/url'
+import { addWarningToast, addSuccessToast } from '../components/GlobalToastList'
+
+const SCHEMA_ID = '1dfd8f4d-245d-4e6c-bc6e-cc343ca2d0c2'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -78,17 +82,45 @@ export default class LiveDiktering extends Component {
       { name: 'BEDÖMNING & ÅTGÄRD', done: false },
       { name: 'DIAGNOS', done: false }
     ],
-    defaultSchema: null
+    defaultSchema: null,
+    doktorsNamn: null,
+    patientsNamn: null,
+    patientsPersonnummer: null,
+    transcriptionId: null,
+    files: [],
+    selectedJob: 'KS Lungs',
+    selectedSchema: undefined,
+    selectedOptions: [],
+    metaData: 'default',
+    selectedJournalSystem: 'WEBDOC',
+    avdelning: 'Live',
+    schema: {}
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    const transcriptionId = await api.createLiveSession()
+    if (!transcriptionId) {
+      addWarningToast(
+        <EuiI18n
+          token="unableToStartLiveTranscriptSession"
+          default="Unable to start live trancript session."
+        />,
+        <EuiI18n
+          token="checkNetworkConnectionOrContactSupport"
+          default="Please check network connection, or contact support."
+        />
+      )
+    } else {
+      this.setState({ transcriptionId })
+    }
+
     this.schemas()
     document.title = 'Inovia AI :: Live Diktering 🎤'
     if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {}
     }
-    
-    
+
+
     // Some browsers partially implement mediaDevices. We can't just assign an object with
     // getUserMedia as it would overwrite existing properties. Here, we will just add the
     // getUserMedia property if it's missing.
@@ -112,6 +144,23 @@ export default class LiveDiktering extends Component {
         })
       }
     }
+
+    try {
+      const { data } = await api.getSchemas()
+      const { data: schema } = await api.getSchema(SCHEMA_ID)
+      const schemaOptions = data.schemas.map((schema) => {
+        return {
+          value: schema.id,
+          label: schema.name
+        }
+      })
+      const defaultSchema = schemaOptions && schemaOptions.find(({ label }) => label === 'Allergi')
+      const selectedSchema = defaultSchema && defaultSchema.value
+      const selectedOptions = defaultSchema ? [defaultSchema] : []
+      this.setState({ schemaOptions, selectedSchema, selectedOptions, schema })
+    } catch {
+      addUnexpectedErrorToast()
+    }
   }
 
   schemas = async () => {
@@ -119,9 +168,6 @@ export default class LiveDiktering extends Component {
       const schemaList = await api.getSchemas()
       this.setState({ listOfSchemas: schemaList.data.schemas })
       if (this.state.listOfSchemas) {
-        // console.log('list of schemas')
-        // console.log(this.state.listOfSchemas)
-        // console.log('list of schemas')
         this.localize()
       }
     } catch(e) {
@@ -148,16 +194,16 @@ export default class LiveDiktering extends Component {
           'Blodtrykk:': [],
           'Stimulantia:': [],
           'Temperatur:': [],
-          'Puls:': [],        
-          'Vurdering': [],        
-          'Cavum oris:': [],        
-          'Pulm:': [],        
-          'Abdomen:': [],        
-          'Underekstremiteter:': [],        
-          'Hud:': [],        
-          'Respirasjonsfrekvens': [],         
-          'Ører:': [],         
-          'Collum:': [],         
+          'Puls:': [],
+          'Vurdering': [],
+          'Cavum oris:': [],
+          'Pulm:': [],
+          'Abdomen:': [],
+          'Underekstremiteter:': [],
+          'Hud:': [],
+          'Respirasjonsfrekvens': [],
+          'Ører:': [],
+          'Collum:': [],
           'Cor:': []
         },
         defaultSectionHeaders: [
@@ -177,13 +223,9 @@ export default class LiveDiktering extends Component {
           { name: 'Collum:', done: false },
           { name: 'Cor:', done: false }
         ],
-        defaultSchema: 
-        this.state.listOfSchemas 
+        defaultSchema:
+        this.state.listOfSchemas
         && this.state.listOfSchemas.find(({ name }) => name === 'norwegian')
-      }, () => {
-        console.log('defaultSchema')
-        console.log(this.state.defaultSchema)
-        console.log('defaultSchema end')
       })
     } else if (language === 'en') {
       // eslint-disable-next-line max-len
@@ -250,6 +292,10 @@ export default class LiveDiktering extends Component {
     return merger
   }
 
+  onUpdatedSchema = (schema) => {
+    this.setState({ schema })
+  }
+
   updatedSections = (sections) => {
     this.setState({ sections })
   }
@@ -300,7 +346,6 @@ export default class LiveDiktering extends Component {
     this.socketio.on('add-transcript', function (text) {
       // add new recording to page
       prevState.setState({ currentText: text }, () => {
-        // console.log('prevState.state.whole')
         const finalText = `${prevState.state.currentText}`
         const { sections, recordedChapters, cursorTime } = prevState.state
         const restructuredChapter =
@@ -308,19 +353,12 @@ export default class LiveDiktering extends Component {
         const finalChapters =
           joinRecordedChapters(
             recordedChapters,
-            restructuredChapter, 
-            0, 
-            prevState.state.chapterId, 
+            restructuredChapter,
+            0,
+            prevState.state.chapterId,
             prevState.state.segmentId
           )
-        prevState.setState({ chapters: finalChapters }, () => {
-          // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-          // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-          // console.log(recordedChapters)
-          // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-          // console.log("🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦🇨🇦")
-        })
-
+        prevState.setState({ chapters: finalChapters })
       })
     })
   }
@@ -352,11 +390,10 @@ export default class LiveDiktering extends Component {
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
     const { recording, seconds } = this.state
     if (recording === true) {
-      console.log('🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪🇸🇪')
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
       recorder.stop(this.addClipHandler, cursorTime)
-      
+
       this.setState({
         // recordedChapters: this.state.chapters,
         // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters),
@@ -388,25 +425,107 @@ export default class LiveDiktering extends Component {
   }
 
   sendAsHorrribleTranscription = () => { }
-  save = () => { }
-  
+
   saveRecordedTranscript = async() => {
     const { chapters } = this.state
     const copiedChapter = [...JSON.parse(JSON.stringify(chapters))]
     this.setState({ recordedChapters: copiedChapter })
   }
 
+  updateDoktorsNamn = (doktorsNamn) => { this.setState({doktorsNamn}) }
+
+  updatePatientsNamn = (patientsNamn) => { this.setState({ patientsNamn }) }
+
+  updatePatientsPersonnummer = (patientsPersonnummer) => { this.setState({ patientsPersonnummer}) }
+
+  sparaDiktering = async() => {
+    const {
+      patientsNamn,
+      patientsPersonnummer,
+      doktorsNamn,
+      transcriptionId,
+      chapters
+    } = this.state
+    const { data: schema } = await api.getSchema(SCHEMA_ID)
+    const convertedTranscript = convertToV2API(schema, chapters)
+    await this.mediaUpload()
+    await api.updateTranscriptionV2(
+      transcriptionId,
+      doktorsNamn,
+      patientsNamn,
+      patientsPersonnummer,
+      convertedTranscript
+    )
+
+    addSuccessToast(
+      <EuiI18n
+        token="dictationUpdated"
+        default="The dictation has been updated"
+      />
+    )
+  }
+
+  skickaTillCoworker = async () => {
+    const {transcriptionId} = this.state
+    await api.completeLiveTranscript(transcriptionId)
+    window.location = '/'
+  }
+
+  mediaUpload = async() => {
+    // Start uploading the transcript
+    const {
+      transcriptionId,
+      recordedAudioClip,
+      patientsNamn,
+      patientsPersonnummer,
+      doktorsNamn
+    } = this.state
+    const file = await api.getBlobFile(recordedAudioClip)
+    const fields = [
+      {
+        id: 'doctor_full_name',
+        values: [{
+          value: doktorsNamn
+        }]
+      },
+      {
+        id: 'patient_full_name',
+        values: [{
+          value: patientsNamn
+        }]
+      },
+      {
+        id: 'patient_id',
+        values: [{
+          value: patientsPersonnummer
+        }]
+      }]
+
+    api
+      .uploadMediaLive(
+        transcriptionId,
+        file,
+        SCHEMA_ID,
+        fields
+      )
+      .catch((error) => {
+        console.log(error)
+        addUnexpectedErrorToast()
+      })
+
+  }
+
   render() {
     const {
       chapters,
       listOfSchemas,
-      sections,
       currentTime,
       tags,
       seconds,
       initialCursor,
-      // recordedAudioClip,
-      recording
+      recordedAudioClip,
+      recording,
+      schema
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     const defaultSchema = this.state.defaultSchema
@@ -420,11 +539,16 @@ export default class LiveDiktering extends Component {
               <EuiFlexItem grow={3}>
                 <EuiFlexGroup wrap>
                   <EuiFlexItem grow={false}>
-                    <PersonalInformation info={{
-                      doktor: '',
-                      patient: '',
-                      personnummer: ''
-                    }} />
+                    <PersonalInformation
+                      info={{
+                        doktor: '',
+                        patient: '',
+                        personnummer: ''
+                      }}
+                      updateDoktorsNamn = {this.updateDoktorsNamn}
+                      updatePatientsNamn={this.updatePatientsNamn}
+                      updatePatientsPersonnummer = {this.updatePatientsPersonnummer}
+                    />
                   </EuiFlexItem>
                   <EuiFlexItem>
                     <Mic
@@ -444,8 +568,7 @@ export default class LiveDiktering extends Component {
                   onSelect={this.onSelectText}
                   updateTranscript={this.onUpdateTranscript}
                   isDiffVisible
-                  schemaId={defaultSchema && defaultSchema.id}
-                  sectionHeaders={Object.keys(sections)}
+                  schema={schema}
                   initialCursor={initialCursor}
                 />
               </EuiFlexItem>
@@ -459,6 +582,7 @@ export default class LiveDiktering extends Component {
                   usedSections={usedSections}
                   defaultSchema={defaultSchema && defaultSchema.id}
                   updatedSections={this.updatedSections}
+                  onUpdatedSchema={this.onUpdatedSchema}
                   defaultSectionHeaders={this.state.defaultSectionHeaders}
                 />
               </EuiFlexItem>
@@ -475,7 +599,7 @@ export default class LiveDiktering extends Component {
               <EuiFlexItem grow={false}>
                 <EuiButton
                   size="s"
-                  onClick={() => { }}>
+                  onClick={this.sparaDiktering}>
                   <EuiI18n
                     token="saveChanges"
                     default="Save Changes"
@@ -487,7 +611,7 @@ export default class LiveDiktering extends Component {
                   size="s"
                   color="secondary"
                   fill
-                  onClick={() => { }}>
+                   onClick={this.skickaTillCoworker}>
                   <EuiI18n
                     token="submitForReview"
                     default="Submit for review"
@@ -506,16 +630,15 @@ export default class LiveDiktering extends Component {
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
-            {/* <EuiFlexGroup>
+            <EuiFlexGroup>
               <EuiFlexItem>
                 <RecordList audioClip={recordedAudioClip} />
               </EuiFlexItem>
-            </EuiFlexGroup> */}
+            </EuiFlexGroup>
           </Page>
         )
       }}
       </EuiI18n>
-      
     )
   }
 }

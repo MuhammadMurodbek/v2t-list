@@ -10,7 +10,7 @@ import {
 } from '@patronum/eui'
 import validatePersonnummer from '../models/live/validatePersonnummer'
 
-const PersonalInfoLive = ({ info }) => {
+const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, updatePatientsPersonnummer }) => {
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
   const [personnummer, setPersonnummer] = useState('')
@@ -59,12 +59,15 @@ const PersonalInfoLive = ({ info }) => {
 
   const onChangeDoktor = (e) => {
     setDoktor(e.target.value)
+    updateDoktorsNamn(e.target.value)
   }
   const onChangePatient = (e) => {
     setPatient(e.target.value)
+    updatePatientsNamn(e.target.value)
   }
   const onChangePersonnummer = (e) => {
     setPersonnummer(e.target.value)
+    updatePatientsPersonnummer(e.target.value)
   }
 
   return (
@@ -139,4 +142,4 @@ const PersonalInfoLive = ({ info }) => {
   )
 }
 
-export default PersonalInfoLive
+export default PersonalInformation

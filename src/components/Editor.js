@@ -38,7 +38,7 @@ export default class Editor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { initialCursor, schemaId, originalChapters } = this.props
+    const { initialCursor, schema, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
       this.setCursor(initialCursor, true)
     else
@@ -48,10 +48,7 @@ export default class Editor extends Component {
       this.initChapters()
     }
 
-    // if (prevProps.originalChapters !== originalChapters)
-    //   this.initChapters()
-
-    if (prevProps.schemaId !== schemaId)
+    if (prevProps.schema && prevProps.schema.id !== schema.id)
       this.refreshDiff()
   }
 
@@ -97,7 +94,8 @@ export default class Editor extends Component {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
     // firefox paste #text into a sibling before it is merged into one #text element
-    const siblingOffset = node.previousSibling ? node.previousSibling.data.length : 0
+    const siblingOffset = node.previousSibling && node.previousSibling.data ?
+      node.previousSibling.data.length : 0
     const dataset = this.getClosestDataset(node)
     this.cursor = {
       keyword: Number(dataset.keyword),
@@ -226,7 +224,7 @@ export default class Editor extends Component {
   }
 
   splitChapter = (e, chapterId, segmentId) => {
-    const { updateTranscript, sectionHeaders } = this.props
+    const { updateTranscript, schema } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     e.preventDefault()
     const range = window.getSelection().getRangeAt(0)
@@ -235,13 +233,10 @@ export default class Editor extends Component {
     if (!segment) return
     const nextSegment = { ...segment }
     nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
-    // const nextChapter = {
-    //   keyword: NEW_KEYWORD,
-    //   segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
-    //     .filter(segment => segment.words.length)
-    // }
+    const usedKeywords = chapters.map(({keyword}) => keyword)
+    const nextField = schema.fields.find(({id}) => !usedKeywords.includes(id))
     const nextChapter = {
-      keyword: sectionHeaders[sectionHeaders.length - 1],
+      keyword: nextField ? nextField.id : '',
       segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
         .filter(segment => segment.words.length)
     }
@@ -351,11 +346,13 @@ export default class Editor extends Component {
   }
 
   setKeyword = (keywordValue, chapterId) => {
-    this.updateKeyword(chapterId, keywordValue)
+    const { schema } = this.props
+    const keywordId = schema.fields.find(field => field.name === keywordValue).id
+    this.updateKeyword(chapterId, keywordId)
   }
 
   render() {
-    const { currentTime, chapters, onSelect, isDiffVisible, sectionHeaders } = this.props
+    const { currentTime, chapters, onSelect, isDiffVisible, schema } = this.props
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
@@ -372,7 +369,7 @@ export default class Editor extends Component {
           onCursorChange={this.onCursorChange}
           error={error}
           context={preferences}
-          sectionHeaders={sectionHeaders}
+          schema={schema}
           setKeyword={this.setKeyword}
         />
         <EuiFlexGroup style={{ display: isDiffVisible ? 'flex' : 'none' }}>
@@ -403,31 +400,16 @@ const EditableChapters = ({ chapters, inputRef, ...editableChapterProps }) => {
   )
 }
 
-const EditableChapter = ({ chapterId, keyword, sectionHeaders, setKeyword, ...chunkProps }) => {
-  // const onFocus = () => {
-  // if (keyword === NEW_KEYWORD)
-  //    setTimeout(() => document.execCommand('selectAll', false, null), 0)
-  // }
+const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps }) => {
+  const sectionHeaders = schema.fields ? schema.fields.map(({name}) => name) : []
+  const field = schema.fields ? schema.fields.find(({id}) => id === keyword) : null
+  const sectionHeader = field ? field.name : ''
   return (
     <Fragment>
-      {/* <h2
-        key={keyword}
-        onInput={e => onChange(e, chapterId)}
-        onKeyDown={e => { if (e.keyCode === 13) e.preventDefault() }}
-        contentEditable
-        suppressContentEditableWarning
-        onFocus={onFocus}
-        onBlur={validate}
-        data-keyword={chapterId}
-      >
-        <EuiTextColor color={error.includes(keyword) ? 'danger' : 'default'}>
-          {keyword}
-        </EuiTextColor>
-      </h2> */}
       <SectionHeader
         isVisible
         keywords={sectionHeaders}
-        selectedHeader={keyword}
+        selectedHeader={sectionHeader}
         updateKey={setKeyword}
         chapterId={chapterId}
       />

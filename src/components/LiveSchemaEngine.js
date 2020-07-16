@@ -16,6 +16,7 @@ const LiveSchemaEngine = ({
   usedSections,
   defaultSchema,
   updatedSections,
+  onUpdatedSchema,
   defaultSectionHeaders
 }) => {
   const [selectedSchema, setSelectedSchema] = useState(defaultSchema)
@@ -26,7 +27,7 @@ const LiveSchemaEngine = ({
 
   useEffect(() => {
     if (selectedSchema) updateSectionHeader()
-    else 
+    else
       if (defaultTemplateLoadStatus === false) {
       setDefaultTemplateLoadStatus(true)
       setSelectedSchema(defaultSchema)
@@ -70,15 +71,17 @@ const LiveSchemaEngine = ({
   }
 
   const onSchemaChange = async (e) => {
-    setSelectedSchema(e[0].id)
+    const selectedSchema = e[0].id
     const { data: schema } = await api.getSchema(selectedSchema)
     const updatedSectionHeaders = schema.fields.map(field => {
       const done = usedSections.includes(field.name)
       return { name: field.name, synonyms: field.headerPatterns || [], done }
     })
+    setSelectedSchema(selectedSchema)
     setSectionHeaders(updatedSectionHeaders)
     // Send the name of the synonyms too
     updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
+    onUpdatedSchema(schema)
   }
 
   const schemaOptions = listOfSchemas

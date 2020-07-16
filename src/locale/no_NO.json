@@ -104,7 +104,7 @@
   "sendToWebdoc": "Send til Webdoc",
   "submitForReview": "Send inn til gjennomgang",
   "schema": "Skjema",
-  "selectSchema": "Velg skjema",
+  "selectSchema": "Velg journalmaler",
   "compareNotes": "Notater",
   "writeANoteToCoWorker": "Skrive et notat til den ansatte",
   "findWords": "Se etter ord",
@@ -142,7 +142,6 @@
   "noDontDoIt": "Nei, det gjør det ikke",
   "dictationRemoveSucces": "Diktatet er fjernet!",
   "info": "Info",
-  "presonNumberIsMissing": "Mangler personnummer",
   "unableToSendToCoWorker": "Det er ikke mulig å sende til medarbeider",
   "nothingToUpdate": "Det er ingenting å oppdatere!",
   "unableToSaveDictation": "Kan ikke lagre diktat",
@@ -152,5 +151,7 @@
   "lettersError": "Bruk bare bokstaver (instruksjonen har en liste over gyldige tegn)!",
   "unableToUpload": "Det er ikke mulig å laste opp",
   "fileIsMissing": "Filen mangler",
-  "missingReuiredHeaders": "Nøkkelord mangler"
+  "missingReuiredHeaders": "Nøkkelord mangler",
+  "unableToStartLiveTranscriptSession": "Kan ikke starte direkte transkripsjon",
+  "checkNetworkConnectionOrContactSupport": "Vennligst sjekk nettverkstilkoblingen, eller kontakt IT support."
 }

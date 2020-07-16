@@ -347,7 +347,7 @@ class App extends Component {
                 mobileTitle=""
                 // toggleOpenOnMobile={false}
                 isOpenOnMobile={false}
-                style={{ width: 300 }}
+                style={{ width: 400 }}
                 items={this.getSideNavItems()}
               />
               <EuiFlexGroup

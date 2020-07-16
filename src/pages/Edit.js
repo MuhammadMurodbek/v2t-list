@@ -22,7 +22,8 @@ import Player from '../components/Player'
 import Schemas from '../components/Schemas'
 import Info from '../components/Info'
 import Sidenote from '../components/Sidenote'
-import processChaptersRegular from '../models/processChaptersRegular'
+import convertToV1API from '../models/convertToV1API'
+import convertToV2API from '../models/convertToV2API'
 import {
   addUnexpectedErrorToast,
   addErrorToast,
@@ -54,11 +55,9 @@ export default class EditPage extends Component {
     isMediaAudio: true,
     originalTags: [],
     schemas: [],
-    schemaId: '',
+    schema: {},
     originalSchemaId: '',
-    sectionHeaders: [],
-    initialCursor: 0,
-    requiredSectionHeaders: []
+    initialCursor: 0
   }
 
   componentDidMount() {
@@ -93,22 +92,19 @@ export default class EditPage extends Component {
   }
 
   initiate = async () => {
-    try {
-      const { id, defaultTranscript } = this.props
-      if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
-      const [
-        {
-          data: { schemas }
-        },
-        { data: transcript }
-      ] = await Promise.all([
-        api.getSchemas().catch(this.onError),
-        api.loadTranscription(id).catch(this.onError)
-      ])
-      this.onNewTranscript(transcript, schemas)
-    } catch(e) {
-      addUnexpectedErrorToast(e)
-    }
+    const { id, defaultTranscript } = this.props
+    if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
+    const [
+      {
+        data: { schemas }
+      },
+      { data: transcript }
+    ] = await Promise.all([
+      api.getSchemas().catch(this.onError),
+      api.loadTranscription(id).catch(this.onError)
+    ])
+    const legacyTranscript = convertToV1API(transcript)
+    this.onNewTranscript(legacyTranscript, schemas)
   }
 
   onNewTranscript = async (transcript, schemas) => {
@@ -124,9 +120,8 @@ export default class EditPage extends Component {
       ...tag,
       id: tag.id.toUpperCase()
     }))
-
+    
     const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
-    const requiredSectionHeaders = schema.fields ? schema.fields.filter(schemaField => schemaField.required === true).map(requiredField => requiredField.name) : []
     this.setState({
       originalSchemaId: schemaId,
       originalChapters: this.parseTranscriptions(transcriptions),
@@ -135,9 +130,7 @@ export default class EditPage extends Component {
       fields: fields || {},
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
       schemas,
-      schemaId,
-      sectionHeaders: (schema.fields || []).map(({ name }) => name),
-      requiredSectionHeaders
+      schema
     })
   }
 
@@ -193,31 +186,17 @@ export default class EditPage extends Component {
       chapters,
       tags,
       originalTags,
-      fields,
-      schemaId,
+      schema,
       originalSchemaId
     } = this.state
-    if (fields.patient_id) {
-      if (
-        JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
-        JSON.stringify(tags) === JSON.stringify(originalTags) &&
-        originalSchemaId === schemaId
-      ) {
-        this.sendToCoworker()
-      } else {
-        this.save(true)
-      }
+    if (
+      JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
+      JSON.stringify(tags) === JSON.stringify(originalTags) &&
+      originalSchemaId === schema.id
+    ) {
+      this.sendToCoworker()
     } else {
-      addErrorToast(
-        <EuiI18n
-          token="presonNumberIsMissing"
-          default="Person number is missing"
-        />,
-        <EuiI18n
-          token="unableToSendToCoWorker"
-          default="Unbale to send to co-worker"
-        />
-      )
+      this.save(true)
     }
   }
 
@@ -247,12 +226,11 @@ export default class EditPage extends Component {
       chapters,
       tags,
       originalTags,
-      schemaId,
-      originalSchemaId,
-      requiredSectionHeaders
+      schema,
+      originalSchemaId
     } = this.state
-    
-    const isThereAnyEmptySection = chapters.find(chapter=>chapter.segments.length === 0) || false
+
+    const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
     if (isThereAnyEmptySection) {
       addWarningToast(
         <EuiI18n
@@ -267,19 +245,23 @@ export default class EditPage extends Component {
       return
     }
 
-    const areAllRequiredSectionPresented = requiredSectionHeaders.every(val => chapters.map(chapter => chapter.keyword).includes(val))
+    const missingSections = schema.fields.reduce((store, {id, name, required}) => {
+      if (required && !chapters.map(chapter => chapter.keyword).includes(id))
+        store.push(name)
+      return store
+    }, [])
 
-    if (!areAllRequiredSectionPresented) {
+    if (missingSections.length) {
       addWarningToast(
         <EuiI18n
           token="unableToSaveDictation"
           default="Unable to save the dictation"
         />,
         <>
-        <EuiI18n
-          token="missingReuiredHeaders"
-          default="Required keyword is missing"
-        />:: <strong>{requiredSectionHeaders.join(', ')}</strong>
+          <EuiI18n
+            token="missingReuiredHeaders"
+            default="Required keyword is missing"
+          />:: <strong>{missingSections.join(', ')}</strong>
         </>
       )
       return
@@ -288,7 +270,7 @@ export default class EditPage extends Component {
     if (
       JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
       JSON.stringify(tags) === JSON.stringify(originalTags) &&
-      originalSchemaId === schemaId
+      originalSchemaId === schema.id
     ) {
       addGlobalToast(
         <EuiI18n token="info" default="Info" />,
@@ -327,7 +309,8 @@ export default class EditPage extends Component {
     })
 
     try {
-      await api.updateTranscription(id, tags, chapters, schemaId)
+      const fields = convertToV2API(schema, chapters, tags)
+      await api.updateTranscription(id, schema.id, fields)
       this.setState(
         {
           originalChapters: this.parseTranscriptions(chapters),
@@ -356,23 +339,8 @@ export default class EditPage extends Component {
   }
 
   updateSchemaId = async (schemaId) => {
-    const { chapters } = this.state
     const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
-    const availableSectionHeaders = this.getAvailableSectionHeaders(schema)
-    const sectionHeaders = (schema.fields || []).map(({ name }) => name)
-    const updatedChapters = processChaptersRegular(
-      chapters,
-      availableSectionHeaders
-    )
-    const requiredSectionHeaders = schema.fields? schema.fields.filter(schemaField => schemaField.required === true).map(requiredField => requiredField.name): []
-    this.setState({ schemaId, sectionHeaders, chapters: updatedChapters, requiredSectionHeaders })
-  }
-
-  getAvailableSectionHeaders = (schema) => {
-    if (schema.fields)
-      return schema.fields.reduce((store, { name, headerPatterns }) => {
-        return [...store, name, ...(headerPatterns || [])]
-      }, [])
+    this.setState({ schema })
   }
 
   onUpdateTranscript = (chapters) => {
@@ -389,7 +357,7 @@ export default class EditPage extends Component {
     window.location = '/'
   }
 
-  updateSidenote = () => {}
+  updateSidenote = () => { }
 
   onError = (error) => {
     this.setState({ error })
@@ -407,8 +375,7 @@ export default class EditPage extends Component {
       isMediaAudio,
       fields,
       schemas,
-      schemaId,
-      sectionHeaders,
+      schema,
       initialCursor,
       sidenoteContent,
       error,
@@ -465,8 +432,7 @@ export default class EditPage extends Component {
                   onSelect={this.onSelectText}
                   updateTranscript={this.onUpdateTranscript}
                   isDiffVisible
-                  schemaId={schemaId}
-                  sectionHeaders={sectionHeaders}
+                  schema={schema}
                   initialCursor={initialCursor}
                 />
               </EuiFlexItem>
@@ -478,10 +444,9 @@ export default class EditPage extends Component {
                 <EuiSpacer size="xxl" />
                 <Schemas
                   schemas={schemas}
-                  schemaId={schemaId}
+                  schemaId={schema.id}
                   onUpdate={this.updateSchemaId}
                 />
-
                 <EuiSpacer size="xxl" />
                 <Sidenote
                   content={sidenoteContent}
