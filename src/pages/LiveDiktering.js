@@ -465,9 +465,16 @@ export default class LiveDiktering extends Component {
     )
   }
 
-  skickaTillCoworker = async () => {
+  sendToReview = async () => {
     const {transcriptionId} = this.state
     await api.completeLiveTranscript(transcriptionId)
+    window.location = '/'
+  }
+
+  sendToCoworker = async () => {
+    const {transcriptionId} = this.state
+    await api.completeLiveTranscript(transcriptionId)
+    await api.approveTranscription(transcriptionId)
     window.location = '/'
   }
 
@@ -611,7 +618,7 @@ export default class LiveDiktering extends Component {
                   size="s"
                   color="secondary"
                   fill
-                   onClick={this.skickaTillCoworker}>
+                   onClick={this.sendToReview}>
                   <EuiI18n
                     token="submitForReview"
                     default="Submit for review"
@@ -622,7 +629,7 @@ export default class LiveDiktering extends Component {
                 <EuiButton
                   size="s"
                   fill
-                  onClick={() => { }}>
+                  onClick={this.sendToCoworker}>
                   <EuiI18n
                     token="sendToWebdoc"
                     default="Send to Webdoc"
