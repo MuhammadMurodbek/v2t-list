@@ -31,8 +31,9 @@ import {
   addWarningToast,
   addSuccessToast
 } from '../components/GlobalToastList'
+import ReadOnlyChapters from '../components/ReadOnlyChapters'
 
-const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [] }]
+const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [], values: [] }]
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
 
 export default class EditPage extends Component {
@@ -57,7 +58,11 @@ export default class EditPage extends Component {
     schemas: [],
     schema: {},
     originalSchemaId: '',
-    initialCursor: 0
+    initialCursor: 0,
+    allChapters: [],
+    readOnlyHeaders: [],
+    hiddenHeaderIds: [],
+    defaultHeaderIds: []
   }
 
   componentDidMount() {
@@ -122,8 +127,10 @@ export default class EditPage extends Component {
     }))
     
     const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
+    await this.extractHeaders(schema)
     this.setState({
       originalSchemaId: schemaId,
+      allChapters: transcriptions,
       originalChapters: this.parseTranscriptions(transcriptions),
       originalTags,
       tags: originalTags,
@@ -134,9 +141,31 @@ export default class EditPage extends Component {
     })
   }
 
+  extractHeaders = (schema) => new Promise(resolve => {
+    if (schema.fields) {
+      const readOnlyHeaders = schema.fields.filter(f => !f.editable)
+      const hiddenHeaderIds = schema.fields.filter(f => !f.visible).map(({ id }) => id)
+      const defaultHeaderIds = schema.fields.filter(f => f.default).map(({ id }) => id)
+      this.setState({
+        readOnlyHeaders,
+        hiddenHeaderIds,
+        defaultHeaderIds
+      }, resolve)   
+    } else {
+      this.setState({
+        readOnlyHeaders: [],
+        hiddenHeaderIds: [],
+        defaultHeaderIds: []
+      }, resolve)
+    }
+  })
+
   parseTranscriptions = (transcriptions) => {
     if (!transcriptions) return EMPTY_TRANSCRIPTIONS
-    return transcriptions.map((transcript) => {
+    const { readOnlyHeaders, hiddenHeaderIds, defaultHeaderIds } = this.state
+    const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
+
+    const transcripts = transcriptions.map((transcript) => {
       const keyword = transcript.keyword.length
         ? transcript.keyword
         : 'Kontaktorsak'
@@ -159,6 +188,38 @@ export default class EditPage extends Component {
         segments
       }
     })
+    return transcripts
+      .filter(transcript => !excludedKeywords.includes(transcript.keyword))
+      .sort(transcript => {
+        if(defaultHeaderIds.includes(transcript.keyword)) {
+          return -1
+        }
+        return 0
+      })
+  }
+
+  parseReadOnlyTranscripts = (transcriptions) => {
+    if(!transcriptions) return []
+    // filter read only transcripts by id, and add name field from the schema to display
+    const { readOnlyHeaders, hiddenHeaderIds, defaultHeaderIds } = this.state
+    return transcriptions.reduce((store, transcript) => {
+      if(!hiddenHeaderIds.includes(transcript.keyword)) {
+        const readOnlyHeader = readOnlyHeaders.find(({id}) => id === transcript.keyword)
+        if(readOnlyHeader) {
+          store.push({
+            ...transcript,
+            name: readOnlyHeader.name
+          })
+        }
+      }
+      return store
+    }, [])
+      .sort(transcript => {
+        if(defaultHeaderIds.includes(transcript.keyword)) {
+          return -1
+        }
+        return 0
+      })
   }
 
   onTimeUpdate = (currentTime) => {
@@ -313,6 +374,7 @@ export default class EditPage extends Component {
       await api.updateTranscription(id, schema.id, fields)
       this.setState(
         {
+          allChapters: chapters,
           originalChapters: this.parseTranscriptions(chapters),
           originalTags: tags
         },
@@ -339,8 +401,13 @@ export default class EditPage extends Component {
   }
 
   updateSchemaId = async (schemaId) => {
+    const { allChapters } = this.state
     const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
-    this.setState({ schema })
+    await this.extractHeaders(schema)
+    this.setState({
+      schema,
+      originalChapters: this.parseTranscriptions(allChapters)
+    })
   }
 
   onUpdateTranscript = (chapters) => {
@@ -363,17 +430,6 @@ export default class EditPage extends Component {
     this.setState({ error })
   }
 
-  getEditableChapters = () => {
-    const {
-      chapters,
-      hiddenSectionHeaders,
-      readonlySectionHeaders
-    } = this.state
-    return chapters.filter(({keyword}) =>
-      !hiddenSectionHeaders.includes(keyword) && !readonlySectionHeaders.includes(keyword)
-    )
-  }
-
   render() {
     const { id, token } = this.props
     const {
@@ -390,7 +446,8 @@ export default class EditPage extends Component {
       initialCursor,
       sidenoteContent,
       error,
-      isTranscriptAvailable
+      isTranscriptAvailable,
+      allChapters
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -449,6 +506,8 @@ export default class EditPage extends Component {
               </EuiFlexItem>
 
               <EuiFlexItem grow={1}>
+                <ReadOnlyChapters chapters={this.parseReadOnlyTranscripts(allChapters)} />
+                <EuiSpacer size="xxl" />
                 <Info fields={fields} />
                 <EuiSpacer size="xxl" />
                 <Tags tags={tags} updateTags={this.onUpdateTags} />

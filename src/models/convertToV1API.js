@@ -15,8 +15,8 @@ const convertToV1API = ({ id, schemaId, fields }) => {
         }
       })]
     }, [])
-    return { keyword, segments }
-  }) : [ { keyword: '', segments: [] } ]
+    return { keyword, segments, values: field.values }
+  }) : [ { keyword: '', segments: [], values: [] } ]
   return { id, schemaId, transcriptions }
 }
 
