@@ -145,6 +145,7 @@ const updateTranscriptionV2 = (
   doktorsNamn,
   patientsNamn,
   patientsPersonnummer,
+  departmentId,
   convertedTranscript
 ) => {
   const fields = [
@@ -164,6 +165,12 @@ const updateTranscriptionV2 = (
       id: 'patient_id',
       values: [{
         value: patientsPersonnummer
+      }]
+    },
+    {
+      id: 'department_id',
+      values: [{
+        value: departmentId
       }]
     }]
   convertedTranscript.forEach(chapter => fields.push(chapter))

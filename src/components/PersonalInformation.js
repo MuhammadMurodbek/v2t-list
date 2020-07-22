@@ -10,10 +10,11 @@ import {
 } from '@patronum/eui'
 import validatePersonnummer from '../models/live/validatePersonnummer'
 
-const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, updatePatientsPersonnummer }) => {
+const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, updatePatientsPersonnummer, updateDepartmentId }) => {
   const [doktor, setDoktor] = useState('')
   const [patient, setPatient] = useState('')
   const [personnummer, setPersonnummer] = useState('')
+  const [departmentId, setDepartmentId] = useState('')
 
   useEffect(() => {
     if (info) {
@@ -42,6 +43,15 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
           setPersonnummer(organizePersonummer(info.personnummer))
         }
       }
+      if (info.departmentId) {
+        if (
+          departmentId === '' &&
+          departmentId.toLowerCase().trim() !==
+          info.departmentId.toLowerCase().trim()
+        ) {
+          setDepartmentId(info.departmentId)
+        }
+      }
     }
   })
 
@@ -68,6 +78,11 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
   const onChangePersonnummer = (e) => {
     setPersonnummer(e.target.value)
     updatePatientsPersonnummer(e.target.value)
+  }
+  
+  const onChangeDepartmentId = (e) => {
+    setDepartmentId(e.target.value)
+    updateDepartmentId(e.target.value)
   }
 
   return (
@@ -132,6 +147,29 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
                 placeholder={translation}
                 value={personnummer}
                 onChange={onChangePersonnummer}
+                aria-label="Use aria labels when no actual label is in use"
+              />
+            )}
+          </EuiI18n>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+      <EuiFlexGroup>
+        <EuiFlexItem>
+          <EuiText>
+            <h6>
+              <EuiI18n token="departmentId" default="Department Id" />
+            </h6>
+          </EuiText>
+          <EuiSpacer size="m" />
+          <EuiI18n
+            token="departmentId"
+            default="Department Id"
+          >
+            {(translation) => (
+              <EuiFieldText
+                placeholder={translation}
+                value={departmentId}
+                onChange={onChangeDepartmentId}
                 aria-label="Use aria labels when no actual label is in use"
               />
             )}

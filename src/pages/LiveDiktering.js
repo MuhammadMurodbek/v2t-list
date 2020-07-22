@@ -86,6 +86,7 @@ export default class LiveDiktering extends Component {
     doktorsNamn: null,
     patientsNamn: null,
     patientsPersonnummer: null,
+    departmentId: null,
     transcriptionId: null,
     files: [],
     selectedJob: 'KS Lungs',
@@ -437,6 +438,8 @@ export default class LiveDiktering extends Component {
   updatePatientsNamn = (patientsNamn) => { this.setState({ patientsNamn }) }
 
   updatePatientsPersonnummer = (patientsPersonnummer) => { this.setState({ patientsPersonnummer}) }
+ 
+  updateDepartmentId = (departmentId) => { this.setState({ departmentId}) }
 
   sparaDiktering = async() => {
     const {
@@ -444,6 +447,7 @@ export default class LiveDiktering extends Component {
       patientsPersonnummer,
       doktorsNamn,
       transcriptionId,
+      departmentId,
       chapters
     } = this.state
     const { data: schema } = await api.getSchema(SCHEMA_ID)
@@ -454,6 +458,7 @@ export default class LiveDiktering extends Component {
       doktorsNamn,
       patientsNamn,
       patientsPersonnummer,
+      departmentId,
       convertedTranscript
     )
 
@@ -550,11 +555,13 @@ export default class LiveDiktering extends Component {
                       info={{
                         doktor: '',
                         patient: '',
-                        personnummer: ''
+                        personnummer: '',
+                        departmentId: ''
                       }}
                       updateDoktorsNamn = {this.updateDoktorsNamn}
                       updatePatientsNamn={this.updatePatientsNamn}
                       updatePatientsPersonnummer = {this.updatePatientsPersonnummer}
+                      updateDepartmentId={this.updateDepartmentId}
                     />
                   </EuiFlexItem>
                   <EuiFlexItem>
