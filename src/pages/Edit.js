@@ -62,7 +62,8 @@ export default class EditPage extends Component {
     allChapters: [],
     readOnlyHeaders: [],
     hiddenHeaderIds: [],
-    defaultHeaderIds: []
+    defaultHeaderIds: [],
+    patientInfo: {}
   }
 
   componentDidMount() {
@@ -108,12 +109,20 @@ export default class EditPage extends Component {
       api.getSchemas().catch(this.onError),
       api.loadTranscription(id).catch(this.onError)
     ])
-    // console.log('transcript')
-    // console.log(transcript)
-    // console.log('transcript end')
+    await this.extractPatientInformation(transcript.fields)
     const legacyTranscript = convertToV1API(transcript)
     this.onNewTranscript(legacyTranscript, schemas)
   }
+
+  extractPatientInformation = async(fields) => {
+    const patientFullName = fields.filter(field => field.id === 'patient_full_name')[0].values[0].value
+    const patientId = fields.filter(field => field.id === 'patient_id')[0].values[0].value
+    this.setState({patientInfo: {
+      patient_full_name: patientFullName,
+      patient_id: patientId
+    }})
+  }
+
 
   onNewTranscript = async (transcript, schemas) => {
     localStorage.setItem('transcriptId', this.props.id)
@@ -443,7 +452,7 @@ export default class EditPage extends Component {
       queryTerm,
       tags,
       isMediaAudio,
-      fields,
+      patientInfo,
       schemas,
       schema,
       initialCursor,
@@ -511,7 +520,7 @@ export default class EditPage extends Component {
               <EuiFlexItem grow={1}>
                 <ReadOnlyChapters chapters={this.parseReadOnlyTranscripts(allChapters)} />
                 <EuiSpacer size="xxl" />
-                <Info fields={fields} />
+                <Info fields={patientInfo} />
                 <EuiSpacer size="xxl" />
                 <Tags tags={tags} updateTags={this.onUpdateTags} />
                 <EuiSpacer size="xxl" />
