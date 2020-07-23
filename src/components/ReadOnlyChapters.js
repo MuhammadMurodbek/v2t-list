@@ -4,8 +4,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiText,
-  EuiForm,
-  EuiSpacer
+  EuiForm
 } from '@patronum/eui'
 import '../styles/editor.css'
 import '../styles/tags.css'
@@ -14,7 +13,6 @@ const ReadOnlyChapters = ({ chapters }) => {
   if(!chapters || !chapters.length) return null
   return (
     <EuiForm>
-      <EuiSpacer size="xxl" />
       <EuiFlexGroup direction="column" gutterSize="m">
         {
           chapters.map(({ name, values }, key) => (

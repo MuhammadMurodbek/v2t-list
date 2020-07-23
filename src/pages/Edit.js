@@ -17,10 +17,9 @@ import api from '../api'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
 import Editor from '../components/Editor'
-import Tags from '../components/Tags'
+import Tags, { CODE_NAMESPACES } from '../components/Tags'
 import Player from '../components/Player'
 import Schemas from '../components/Schemas'
-import Info from '../components/Info'
 import Sidenote from '../components/Sidenote'
 import convertToV1API from '../models/convertToV1API'
 import convertToV2API from '../models/convertToV2API'
@@ -50,11 +49,11 @@ export default class EditPage extends Component {
     originalChapters: null,
     currentTime: 0,
     queryTerm: '',
-    tags: [],
+    tags: {},
     chapters: [],
     fields: {},
     isMediaAudio: true,
-    originalTags: [],
+    originalTags: {},
     schemas: [],
     schema: {},
     originalSchemaId: '',
@@ -62,8 +61,7 @@ export default class EditPage extends Component {
     allChapters: [],
     readOnlyHeaders: [],
     hiddenHeaderIds: [],
-    defaultHeaderIds: [],
-    patientInfo: {}
+    defaultHeaderIds: []
   }
 
   componentDidMount() {
@@ -109,43 +107,27 @@ export default class EditPage extends Component {
       api.getSchemas().catch(this.onError),
       api.loadTranscription(id).catch(this.onError)
     ])
-    await this.extractPatientInformation(transcript.fields)
     const legacyTranscript = convertToV1API(transcript)
     this.onNewTranscript(legacyTranscript, schemas)
   }
 
-  extractPatientInformation = async(fields) => {
-    const patientFullName = fields.filter(field => field.id === 'patient_full_name')[0].values[0].value
-    const patientId = fields.filter(field => field.id === 'patient_id')[0].values[0].value
-    this.setState({patientInfo: {
-      patient_full_name: patientFullName,
-      patient_id: patientId
-    }})
-  }
-
-
   onNewTranscript = async (transcript, schemas) => {
     localStorage.setItem('transcriptId', this.props.id)
     const {
-      tags,
       fields,
       media_content_type,
       schemaId,
       transcriptions
     } = transcript
-    const originalTags = (tags || []).map((tag) => ({
-      ...tag,
-      id: tag.id.toUpperCase()
-    }))
     
-    const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
-    await this.extractHeaders(schema)
+    const { data: originalSchema } = await api.getSchema(schemaId).catch(this.onError) || {}
+    let schema = await this.extractHeaders(originalSchema)
+    schema = this.extractTagsAndSchema(schema, transcriptions)
+
     this.setState({
       originalSchemaId: schemaId,
       allChapters: transcriptions,
       originalChapters: this.parseTranscriptions(transcriptions),
-      originalTags,
-      tags: originalTags,
       fields: fields || {},
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
       schemas,
@@ -158,19 +140,50 @@ export default class EditPage extends Component {
       const readOnlyHeaders = schema.fields.filter(f => !f.editable)
       const hiddenHeaderIds = schema.fields.filter(f => !f.visible).map(({ id }) => id)
       const defaultHeaderIds = schema.fields.filter(f => f.default).map(({ id }) => id)
+      schema.fields = schema.fields.filter(f => f.visible && f.editable)
       this.setState({
         readOnlyHeaders,
         hiddenHeaderIds,
         defaultHeaderIds
-      }, resolve)   
+      }, resolve(schema))   
     } else {
       this.setState({
         readOnlyHeaders: [],
         hiddenHeaderIds: [],
         defaultHeaderIds: []
-      }, resolve)
+      }, resolve(schema))
     }
   })
+
+  extractTagsAndSchema = (schema, transcriptions) => {
+    if (schema.fields) {
+      const tagTypes = schema.fields.reduce((store, { id }) => {
+        const tag = Object.entries(CODE_NAMESPACES).find(([type, namespace]) => namespace === id)
+        if (tag) {
+          store.push(tag[0])
+        }
+        return store
+      }, [])
+
+      schema.fields = schema.fields.filter(({ id }) => !Object.values(CODE_NAMESPACES).includes(id))
+  
+      const originalTags = tagTypes.reduce((store, tagType) => {
+        const tagTranscript = transcriptions.find(({ keyword }) => keyword === CODE_NAMESPACES[tagType])
+        if (tagTranscript && tagTranscript.values) {
+          store[tagType] = tagTranscript.values
+        } else {
+          store[tagType] = []
+        }
+        return store
+      }, {})
+
+      this.setState({
+        originalTags,
+        tags: originalTags
+      })
+    }
+    return schema
+  }
 
   parseTranscriptions = (transcriptions) => {
     if (!transcriptions) return EMPTY_TRANSCRIPTIONS
@@ -201,9 +214,10 @@ export default class EditPage extends Component {
       }
     })
     return transcripts
-      .filter(transcript => !excludedKeywords.includes(transcript.keyword))
-      .sort(transcript => {
-        if(defaultHeaderIds.includes(transcript.keyword)) {
+      .filter(({ keyword }) => !Object.values(CODE_NAMESPACES).includes(keyword))
+      .filter(({ keyword }) => !excludedKeywords.includes(keyword))
+      .sort(({ keyword }) => {
+        if(defaultHeaderIds.includes(keyword)) {
           return -1
         }
         return 0
@@ -295,13 +309,16 @@ export default class EditPage extends Component {
   save = async (shouldBeSentToCoworker = false) => {
     const { id } = this.props
     const {
+      allChapters,
+      hiddenHeaderIds,
+      readOnlyHeaders,
       originalChapters,
-      chapters,
       tags,
       originalTags,
       schema,
       originalSchemaId
     } = this.state
+    let { chapters } = this.state
 
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
     if (isThereAnyEmptySection) {
@@ -381,6 +398,12 @@ export default class EditPage extends Component {
       })
     })
 
+    // return back excluded (read only and hidden) transcripts
+    const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
+    chapters = chapters.concat(
+      allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
+    )
+
     try {
       const fields = convertToV2API(schema, chapters, tags)
       await api.updateTranscription(id, schema.id, fields)
@@ -404,6 +427,7 @@ export default class EditPage extends Component {
         }
       )
     } catch(e) {
+      console.error(e)
       addUnexpectedErrorToast(e)
     }
   }
@@ -414,8 +438,9 @@ export default class EditPage extends Component {
 
   updateSchemaId = async (schemaId) => {
     const { allChapters } = this.state
-    const { data: schema } = await api.getSchema(schemaId).catch(this.onError) || {}
-    await this.extractHeaders(schema)
+    const { data: originalSchema } = await api.getSchema(schemaId).catch(this.onError) || {}
+    let schema = await this.extractHeaders(originalSchema)
+    schema = this.extractTagsAndSchema(schema, allChapters)
     this.setState({
       schema,
       originalChapters: this.parseTranscriptions(allChapters)
@@ -452,7 +477,6 @@ export default class EditPage extends Component {
       queryTerm,
       tags,
       isMediaAudio,
-      patientInfo,
       schemas,
       schema,
       initialCursor,
@@ -518,22 +542,27 @@ export default class EditPage extends Component {
               </EuiFlexItem>
 
               <EuiFlexItem grow={1}>
-                <ReadOnlyChapters chapters={this.parseReadOnlyTranscripts(allChapters)} />
-                <EuiSpacer size="xxl" />
-                <Info fields={patientInfo} />
-                <EuiSpacer size="xxl" />
-                <Tags tags={tags} updateTags={this.onUpdateTags} />
-                <EuiSpacer size="xxl" />
-                <Schemas
-                  schemas={schemas}
-                  schemaId={schema.id}
-                  onUpdate={this.updateSchemaId}
-                />
-                <EuiSpacer size="xxl" />
-                <Sidenote
-                  content={sidenoteContent}
-                  updateSidenote={this.updateSidenote}
-                />
+                <EuiFlexGroup direction="column" gutterSize="xl">
+                  <EuiFlexItem grow={false}>
+                    <ReadOnlyChapters chapters={this.parseReadOnlyTranscripts(allChapters)} />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <Tags tags={tags} updateTags={this.onUpdateTags} />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <Schemas
+                      schemas={schemas}
+                      schemaId={schema.id}
+                      onUpdate={this.updateSchemaId}
+                    />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
+                    <Sidenote
+                      content={sidenoteContent}
+                      updateSidenote={this.updateSidenote}
+                    />
+                  </EuiFlexItem>
+                </EuiFlexGroup>
               </EuiFlexItem>
             </EuiFlexGroup>
             <EuiFlexGroup alignItems="baseline">
