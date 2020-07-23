@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint-disable no-restricted-globals */
 import axios from 'axios'
 
 const headers = {
@@ -27,9 +28,32 @@ const setToken = (token) => {
   }
 }
 
-const logout = () => {
+export const getRedirectURL = () => {
+  const searchParams = new URLSearchParams(location.search)
+  const redirectUrl = searchParams.get('redirect')
+
+  return redirectUrl
+}
+
+export const logout = () => {
   axios.defaults.headers.common.Authorization = undefined
   localStorage.setItem('token', '')
+
+  const redirectUrl = getRedirectURL()
+  const encodedUri = encodeURIComponent(location.hash)
+  const isRootHash = location.hash === '#/'
+
+  const nextUrl = redirectUrl ||
+    isRootHash
+    ? location.hash
+    : `?redirect=${encodedUri}#/`
+
+  if (isRootHash) {
+    window.location.reload()
+  }
+  else {
+    window.location = nextUrl
+  }
 }
 
 const getDomains = () => axios.get(URLS.domains)

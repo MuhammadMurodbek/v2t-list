@@ -495,7 +495,9 @@ class App extends Component {
                 </Switch>
               )
                 : (
-                  <LoginPage />
+                  <Route
+                    render={(props) => <LoginPage {...props} />}
+                  />
                 )
             }
             <GlobalToastListContainer />

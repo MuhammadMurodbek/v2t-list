@@ -1,10 +1,12 @@
 import React, { Fragment } from 'react'
 import { EuiSpacer, EuiFormRow, EuiButtonEmpty, EuiI18n } from '@patronum/eui'
+import api from "../api";
+
 
 const Logout = ({ setPreferences }) => {
   const logout = () => {
     setPreferences({ token: '' })
-    window.location.replace('/')
+    api.logout()
   }
 
   return (
