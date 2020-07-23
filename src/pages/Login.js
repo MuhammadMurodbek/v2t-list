@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import React, { useEffect, useState } from 'react'
 import {
   EuiButton,
@@ -15,13 +16,12 @@ import {
 import { usePreferences } from '../components/PreferencesProvider'
 // import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'
-import api from '../api'
+import api, { getRedirectURL } from '../api'
 import {
   addErrorToast,
   addUnexpectedErrorToast
 } from '../components/GlobalToastList'
-
-const LoginPage = () => {
+const LoginPage = ({ history }) => {
   const [domainList, setDomainList] = useState([])
   const [domain, setDomain] = useState()
   const [username, setUsername] = useState('')
@@ -38,7 +38,7 @@ const LoginPage = () => {
   }, [])
 
   const loadDomains = async () => {
-    const { data: {domains} } = await api.getDomains()
+    const { data: { domains } } = await api.getDomains()
     setDomainList(domains)
     setDomain(domains[0])
   }
@@ -54,7 +54,12 @@ const LoginPage = () => {
           setUsername('')
           setPassword('')
           setToken(token)
-          window.location.replace('/')
+
+          const redirectUrl = getRedirectURL()
+          const nextUrl = (!redirectUrl ? '#/' : redirectUrl)
+          history.push(nextUrl.substring(1))
+          window.history.replaceState(null, '', location.pathname + location.hash)
+          window.location.reload()
         })
         .catch((error) => {
           if (error.response.status === 401 || error.response.status === 403) {
@@ -100,7 +105,7 @@ const LoginPage = () => {
               <EuiComboBox
                 singleSelection={{ asPlainText: true }}
                 options={domainList.map(label => ({ label }))}
-                selectedOptions={ domain ? [{ label: domain }] : []}
+                selectedOptions={domain ? [{ label: domain }] : []}
                 onChange={changeDomain}
                 isClearable={false}
               />

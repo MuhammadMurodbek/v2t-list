@@ -152,5 +152,6 @@
   "fileIsMissing": "Fil saknas",
   "missingReuiredHeaders": "Sökord saknas",
   "unableToStartLiveTranscriptSession": "Det gick inte att starta live-dikteringen",
-  "checkNetworkConnectionOrContactSupport": "Kontrollera nätverksanslutningen eller kontakta IT-support"
+  "checkNetworkConnectionOrContactSupport": "Kontrollera nätverksanslutningen eller kontakta IT-support",
+  "departmentId": "Department Id"
 }

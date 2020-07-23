@@ -110,6 +110,10 @@ export default class UploadPage extends Component {
 
   onSubmit = () => {
     const { files, selectedSchema } = this.state
+    // console.log('selected schema')
+    // console.log(selectedSchema)
+    // console.log('selected schema end')
+    
     if (files.length === 0) {
       addWarningToast(
         <EuiI18n token="unableToUpload" default="Unable to upload" />,
@@ -137,6 +141,10 @@ export default class UploadPage extends Component {
       fields
     } = this.state
 
+    // console.log('fields')
+    // console.log(fields)
+    // console.log('fields end')
+    
     const requests = Array.from(files).map((file) =>
       api
         .uploadMedia(

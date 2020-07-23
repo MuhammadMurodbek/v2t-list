@@ -108,6 +108,9 @@ export default class EditPage extends Component {
       api.getSchemas().catch(this.onError),
       api.loadTranscription(id).catch(this.onError)
     ])
+    // console.log('transcript')
+    // console.log(transcript)
+    // console.log('transcript end')
     const legacyTranscript = convertToV1API(transcript)
     this.onNewTranscript(legacyTranscript, schemas)
   }

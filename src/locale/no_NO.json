@@ -153,5 +153,6 @@
   "fileIsMissing": "Filen mangler",
   "missingReuiredHeaders": "Nøkkelord mangler",
   "unableToStartLiveTranscriptSession": "Kan ikke starte direkte transkripsjon",
-  "checkNetworkConnectionOrContactSupport": "Vennligst sjekk nettverkstilkoblingen, eller kontakt IT support."
+  "checkNetworkConnectionOrContactSupport": "Vennligst sjekk nettverkstilkoblingen, eller kontakt IT support.",
+  "departmentId": "Department Id"
 }
