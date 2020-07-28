@@ -17,7 +17,6 @@ import interpolateArray from '../models/interpolateArray'
 import convertToV2API from '../models/convertToV2API'
 import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import PersonalInformation from '../components/PersonalInformation'
-import Tags from '../components/Tags'
 import io from 'socket.io-client'
 import Page from '../components/Page'
 import processChaptersLive from '../models/processChaptersLive'
@@ -37,10 +36,7 @@ export default class LiveDiktering extends Component {
   socketio = null
 
   state = {
-    alreadyRecorded: false,
     recording: false,
-    recordingAction: 'Starta',
-    microphoneBeingPressed: false,
     listOfSchemas: [],
     recordedChapters: [],
     chapters: [{
@@ -52,7 +48,6 @@ export default class LiveDiktering extends Component {
     originalText: '',
     currentText: '',
     currentTime: 0,
-    queryTerm: '',
     sections: {
       'KONTAKTORSAK': [],
       'AT': [],
@@ -60,16 +55,8 @@ export default class LiveDiktering extends Component {
       'BUK': [],
       'DIAGNOS': []
     },
-    isMicrophoneStarted: false,
-    tags: [],
     seconds: 0,
-    duration: 0.0,
-    previousDuration: 0.0,
-    previousCurrentTime: new Date(),
-    initialRecordTime: null,
-    headerUpdatedChapters: null,
     initialCursor: 0,
-    sectionHeaders: [],
     recordedAudioClip: {},
     cursorTime: 0,
     chapterId: -9,
@@ -88,13 +75,6 @@ export default class LiveDiktering extends Component {
     patientsPersonnummer: null,
     departmentId: null,
     transcriptionId: null,
-    files: [],
-    selectedJob: 'KS Lungs',
-    selectedSchema: undefined,
-    selectedOptions: [],
-    metaData: 'default',
-    selectedJournalSystem: 'WEBDOC',
-    avdelning: 'Live',
     schema: {}
   }
 
@@ -147,18 +127,8 @@ export default class LiveDiktering extends Component {
     }
 
     try {
-      const { data } = await api.getSchemas()
       const { data: schema } = await api.getSchema(SCHEMA_ID)
-      const schemaOptions = data.schemas.map((schema) => {
-        return {
-          value: schema.id,
-          label: schema.name
-        }
-      })
-      const defaultSchema = schemaOptions && schemaOptions.find(({ label }) => label === 'Allergi')
-      const selectedSchema = defaultSchema && defaultSchema.value
-      const selectedOptions = defaultSchema ? [defaultSchema] : []
-      this.setState({ schemaOptions, selectedSchema, selectedOptions, schema })
+      this.setState({ schema })
     } catch {
       addUnexpectedErrorToast()
     }
@@ -167,10 +137,14 @@ export default class LiveDiktering extends Component {
   schemas = async () => {
     try {
       const schemaList = await api.getSchemas()
-      this.setState({ listOfSchemas: schemaList.data.schemas })
-      if (this.state.listOfSchemas) {
-        this.localize()
-      }
+      this.setState({
+        listOfSchemas: schemaList.data.schemas
+      },
+      () => {
+        if (this.state.listOfSchemas) {
+          this.localize()
+        }
+      })
     } catch(e) {
       addUnexpectedErrorToast(e)
     }
@@ -263,21 +237,12 @@ export default class LiveDiktering extends Component {
 
   }
 
-  onSelectText = () => {
-    const selctedText = window.getSelection().toString()
-    this.setState({ queryTerm: selctedText })
-  }
-
   onTimeUpdate = (currentTime) => {
     this.setState({ currentTime })
   }
 
   getCurrentTime = () => {
     this.playerRef.current.updateTime()
-  }
-
-  onUpdateTags = (tags) => {
-    this.setState({ tags })
   }
 
   onUpdateTranscript = (chapters) => {
@@ -364,7 +329,7 @@ export default class LiveDiktering extends Component {
     })
   }
 
-  onCursorTimeChange = (cursorTime, chapterId, segmentId, timestampStart, timestampEnd) => {
+  onCursorTimeChange = (cursorTime, chapterId, segmentId) => {
     this.setState({ cursorTime, chapterId, segmentId })
   }
 
@@ -396,9 +361,6 @@ export default class LiveDiktering extends Component {
       recorder.stop(this.addClipHandler, cursorTime)
 
       this.setState({
-        // recordedChapters: this.state.chapters,
-        // recordedChapters: this.joinRecordedChapters(this.state.recordedChapters, this.state.chapters),
-        alreadyRecorded: true,
         recording: false,
         originalText: `${originalText} ${currentText}`
       })
@@ -438,7 +400,7 @@ export default class LiveDiktering extends Component {
   updatePatientsNamn = (patientsNamn) => { this.setState({ patientsNamn }) }
 
   updatePatientsPersonnummer = (patientsPersonnummer) => { this.setState({ patientsPersonnummer}) }
- 
+
   updateDepartmentId = (departmentId) => { this.setState({ departmentId}) }
 
   sparaDiktering = async() => {
@@ -532,7 +494,6 @@ export default class LiveDiktering extends Component {
       chapters,
       listOfSchemas,
       currentTime,
-      tags,
       seconds,
       initialCursor,
       recordedAudioClip,
@@ -579,7 +540,6 @@ export default class LiveDiktering extends Component {
                   chapters={chapters}
                   currentTime={currentTime}
                   onCursorTimeChange={this.onCursorTimeChange}
-                  onSelect={this.onSelectText}
                   updateTranscript={this.onUpdateTranscript}
                   isDiffVisible
                   schema={schema}
@@ -587,10 +547,6 @@ export default class LiveDiktering extends Component {
                 />
               </EuiFlexItem>
               <EuiFlexItem grow={1}>
-                <Tags
-                  tags={tags}
-                  updateTags={this.onUpdateTags}
-                />
                 <LiveSchemaEngine
                   listOfSchemas={listOfSchemas}
                   usedSections={usedSections}
@@ -625,7 +581,7 @@ export default class LiveDiktering extends Component {
                   size="s"
                   color="secondary"
                   fill
-                   onClick={this.sendToReview}>
+                  onClick={this.sendToReview}>
                   <EuiI18n
                     token="submitForReview"
                     default="Submit for review"

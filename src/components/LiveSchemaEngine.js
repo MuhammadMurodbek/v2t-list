@@ -1,5 +1,6 @@
 // Used react synthetic event
 import React, { Fragment, useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import {
   EuiSpacer,
   EuiForm,
@@ -19,26 +20,14 @@ const LiveSchemaEngine = ({
   onUpdatedSchema,
   defaultSectionHeaders
 }) => {
-  const [selectedSchema, setSelectedSchema] = useState(defaultSchema)
+  const [selectedSchema, setSelectedSchema] = useState(null)
   const [sectionHeaders, setSectionHeaders] = useState(defaultSectionHeaders)
-  const [defaultTemplateLoadStatus, setDefaultTemplateLoadStatus] = useState(
-    false
-  )
 
   useEffect(() => {
-    if (selectedSchema) updateSectionHeader()
-    else
-      if (defaultTemplateLoadStatus === false) {
-      setDefaultTemplateLoadStatus(true)
-      setSelectedSchema(defaultSchema)
-        // console.log('🎮🎮🎮🎮')
-        // console.log('🎮🎮🎮🎮')
-        // console.log(defaultSchema)
-        // console.log('🎮🎮🎮🎮')
-        // console.log('🎮🎮🎮🎮')
-      }
+    if (!selectedSchema && defaultSchema) {
       updateSectionHeader()
-  })
+    }
+  }, [ defaultSchema ])
 
   const getHeaderWithSynonyms = (sectionHeadersInfo) => {
     const headersWithSynonyms = {}
@@ -59,13 +48,6 @@ const LiveSchemaEngine = ({
     if (JSON.stringify(updatedSectionHeaders) !== JSON.stringify(sectionHeaders)) {
       setSectionHeaders(updatedSectionHeaders)
       // Send the name of the synonyms too
-      // console.log('......................................................................................................................................................................................')
-      // console.log('......................................................................................................................................................................................')
-      // console.log('getHeaderWithSynonyms(updatedSectionHeaders)')
-      // console.log(getHeaderWithSynonyms(updatedSectionHeaders))
-      // console.log('getHeaderWithSynonyms(updatedSectionHeaders) end')
-      // console.log('......................................................................................................................................................................................')
-      // console.log('......................................................................................................................................................................................')
       updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
     }
   }
@@ -115,6 +97,15 @@ const LiveSchemaEngine = ({
       <ListOfHeaders headers={sectionHeaders} />
     </Fragment>
   )
+}
+
+LiveSchemaEngine.propTypes = {
+  defaultSchema: PropTypes.string,
+  listOfSchemas: PropTypes.array.isRequired,
+  usedSections: PropTypes.array.isRequired,
+  updatedSections: PropTypes.func.isRequired,
+  onUpdatedSchema: PropTypes.func.isRequired,
+  defaultSectionHeaders: PropTypes.array.isRequired
 }
 
 export default LiveSchemaEngine
