@@ -155,6 +155,7 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
       </EuiFlexGroup>
       <EuiFlexGroup>
         <EuiFlexItem>
+          <EuiSpacer size="m" />
           <EuiText>
             <h6>
               <EuiI18n token="departmentId" default="Department Id" />

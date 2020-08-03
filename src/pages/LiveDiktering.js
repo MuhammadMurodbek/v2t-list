@@ -561,7 +561,7 @@ export default class LiveDiktering extends Component {
               <EuiFlexItem grow={false}>
                 <EuiButtonEmpty
                   size="s"
-                  onClick={() => { }}
+                  onClick={() => { window.location = '/'}}
                 >
                   <EuiI18n token="cancel" default="Cancel" />
                 </EuiButtonEmpty>
