@@ -1,3 +1,5 @@
+@import '~@patronum/eui/dist/eui_theme_light.css';
+
 body, #root {
   height: 100%;
 }

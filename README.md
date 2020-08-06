@@ -7,7 +7,7 @@ In the project directory, you can run:
 ### `yarn start`
 
 # To build the docker image
-### `docker build -t v2t-ui .`
+### `docker build -t v2t-ui -f nginx/Dockerfile .`
 
 # To run it using Docker
 
