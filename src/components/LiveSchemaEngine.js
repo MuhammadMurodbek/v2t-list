@@ -24,8 +24,12 @@ const LiveSchemaEngine = ({
   const [sectionHeaders, setSectionHeaders] = useState(defaultSectionHeaders)
 
   useEffect(() => {
+    updateSectionHeader()
+  })
+
+  useEffect(() => {
     if (!selectedSchema && defaultSchema) {
-      updateSectionHeader()
+      onSchemaChange([ defaultSchema ])
     }
   }, [ defaultSchema ])
 
@@ -40,26 +44,27 @@ const LiveSchemaEngine = ({
   }
 
   const updateSectionHeader = async () => {
-    const { data: schema } = await api.getSchema(selectedSchema || defaultSchema)
-    const updatedSectionHeaders = schema.fields.map(field => {
-      const done = usedSections.includes(field.name)
-      return { name: field.name, synonyms: field.headerPatterns || [], done }
-    })
-    if (JSON.stringify(updatedSectionHeaders) !== JSON.stringify(sectionHeaders)) {
-      setSectionHeaders(updatedSectionHeaders)
-      // Send the name of the synonyms too
-      updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
+    if (selectedSchema && selectedSchema.fields) {
+      const updatedSectionHeaders = selectedSchema.fields.map(field => {
+        const done = usedSections.includes(field.name)
+        return { name: field.name, synonyms: field.headerPatterns || [], done }
+      })
+      if (JSON.stringify(updatedSectionHeaders) !== JSON.stringify(sectionHeaders)) {
+        setSectionHeaders(updatedSectionHeaders)
+        // Send the name of the synonyms too
+        updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
+      }
     }
   }
 
-  const onSchemaChange = async (e) => {
-    const selectedSchema = e[0].id
-    const { data: schema } = await api.getSchema(selectedSchema)
+  const onSchemaChange = async (selectedOptions) => {
+    const selectedSchemaId = selectedOptions[0].id
+    const { data: schema } = await api.getSchema(selectedSchemaId)
     const updatedSectionHeaders = schema.fields.map(field => {
       const done = usedSections.includes(field.name)
       return { name: field.name, synonyms: field.headerPatterns || [], done }
     })
-    setSelectedSchema(selectedSchema)
+    setSelectedSchema(schema)
     setSectionHeaders(updatedSectionHeaders)
     // Send the name of the synonyms too
     updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
@@ -68,9 +73,9 @@ const LiveSchemaEngine = ({
 
   const schemaOptions = listOfSchemas
     .map((schema) => ({ ...schema, value: schema.id, label: schema.name }))
-  const schema = selectedSchema || defaultSchema
-  const selectedOptions = listOfSchemas.length && schema ?
-    [{ label: listOfSchemas.find(({id}) => id === schema).name }] : []
+  const schemaId = selectedSchema ? selectedSchema.id : null
+  const selectedOptions = listOfSchemas.length && schemaId ?
+    [{ label: listOfSchemas.find(({id}) => id === schemaId).name }] : []
 
   return (
     <Fragment>
@@ -100,7 +105,7 @@ const LiveSchemaEngine = ({
 }
 
 LiveSchemaEngine.propTypes = {
-  defaultSchema: PropTypes.string,
+  defaultSchema: PropTypes.object,
   listOfSchemas: PropTypes.array.isRequired,
   usedSections: PropTypes.array.isRequired,
   updatedSections: PropTypes.func.isRequired,

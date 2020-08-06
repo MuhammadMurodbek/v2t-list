@@ -123,6 +123,7 @@
   "theTranscriptNotAvailableDescription": "Transkriptet er allerede eksportert eller ikke tilgjengelig",
   "back": "Tilbake",
   "startDictation": "Start diktering",
+  "resumeDictation": "Fortsett Diktering",
   "chooseTheJournalSystemForTheTranscription": "Motta journalsystem",
   "error": "Feil",
   "authError": "Ugyldig brukernavn eller passord",

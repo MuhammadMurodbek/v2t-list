@@ -5,7 +5,6 @@ import {
   EuiFlexItem,
   EuiFieldText,
   EuiText,
-  EuiSpacer,
   EuiI18n
 } from '@patronum/eui'
 import validatePersonnummer from '../models/live/validatePersonnummer'
@@ -94,7 +93,7 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
               <EuiI18n token="doctor" default="Doctor" />
             </h6>
           </EuiText>
-          <EuiSpacer size="m" />
+          
           <EuiI18n token="doctorsName" default="Doctor's Name">
             {(translation) => (
               <EuiFieldText
@@ -106,7 +105,7 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
           </EuiI18n>
         </EuiFlexItem>
       </EuiFlexGroup>
-      <EuiSpacer size="l" />
+      
       <EuiFlexGroup style={{ width: 500 }}>
         <EuiFlexItem>
           <EuiText>
@@ -114,7 +113,7 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
               <EuiI18n token="patient" default="Patient" />
             </h6>
           </EuiText>
-          <EuiSpacer size="m" />
+          
           <EuiI18n token="patientsName" default="Patient's Name">
             {(translation) => (
               <EuiFieldText
@@ -131,7 +130,7 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
               <EuiI18n token="personalNumber" default="Personal number" />
             </h6>
           </EuiText>
-          <EuiSpacer size="m" />
+          
           <EuiI18n
             token="patientsPersonalNumber"
             default="Patient's personal number"
@@ -155,13 +154,13 @@ const PersonalInformation = ({ info, updateDoktorsNamn, updatePatientsNamn, upda
       </EuiFlexGroup>
       <EuiFlexGroup>
         <EuiFlexItem>
-          <EuiSpacer size="m" />
+          
           <EuiText>
             <h6>
               <EuiI18n token="departmentId" default="Department Id" />
             </h6>
           </EuiText>
-          <EuiSpacer size="m" />
+          
           <EuiI18n
             token="departmentId"
             default="Department Id"

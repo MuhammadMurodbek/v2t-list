@@ -170,7 +170,8 @@ const updateTranscriptionV2 = (
   patientsNamn,
   patientsPersonnummer,
   departmentId,
-  convertedTranscript
+  convertedTranscript,
+  schemaId
 ) => {
   const fields = [
     {
@@ -200,7 +201,7 @@ const updateTranscriptionV2 = (
   convertedTranscript.forEach(chapter => fields.push(chapter))
 
   axios.put(`/api/transcription/v2/${transcriptionId}`, {
-    schemaId: '1dfd8f4d-245d-4e6c-bc6e-cc343ca2d0c2',
+    schemaId,
     fields
   })
 }
@@ -236,11 +237,11 @@ const completeLiveTranscript = async (transcriptionId) => {
   await axios.post(`/api/transcription/v2/live/session/${transcriptionId}/complete`)
 }
 
-const createLiveSession = async (metadata) => {
+const createLiveSession = async (userId, schemaId, fields = []) => {
   const outcome = await axios.post('/api/transcription/v2/live/session', {
-    schemaId: '1dfd8f4d-245d-4e6c-bc6e-cc343ca2d0c2',
-    userId: 'rezaur.rahman@inovia',
-    fields: []
+    schemaId,
+    userId,
+    fields
   })
   return outcome.data.id
 }

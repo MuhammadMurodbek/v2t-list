@@ -122,6 +122,7 @@
   "theTranscriptNotAvailableDescription": "Transkriptet är redan exporterat eller inte tillgängligt",
   "back": "Tillbaka",
   "startDictation": "Starta Diktering",
+  "resumeDictation": "Fortsätt Diktering",
   "chooseTheJournalSystemForTheTranscription": "Mottagande journalsystem",
   "error": "Fel",
   "authError": "Ogiltigt användarnamn eller lösenord",

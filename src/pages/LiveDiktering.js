@@ -9,6 +9,7 @@ import {
   EuiButton,
   EuiI18n
 } from '@patronum/eui'
+import jwtDecode from 'jwt-decode'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
@@ -27,7 +28,8 @@ import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 import getParameterByName from '../utils/url'
 import { addWarningToast, addSuccessToast } from '../components/GlobalToastList'
 
-const SCHEMA_ID = '1dfd8f4d-245d-4e6c-bc6e-cc343ca2d0c2'
+// MedSpeeech: live dictation
+const DEFAULT_SCHEMA_ID = 'f156cdf4-5248-4681-9250-78d747d8eca1'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
@@ -61,40 +63,19 @@ export default class LiveDiktering extends Component {
     cursorTime: 0,
     chapterId: -9,
     segmentId: 0,
-    defaultSectionHeaders: [
-      { name: 'KONTAKTORSAK', done: true },
-      { name: 'AT', done: false },
-      { name: 'LUNGOR', done: false },
-      { name: 'BUK', done: false },
-      { name: 'BEDÖMNING & ÅTGÄRD', done: false },
-      { name: 'DIAGNOS', done: false }
-    ],
+    defaultSectionHeaders: [],
     defaultSchema: null,
     doktorsNamn: null,
     patientsNamn: null,
     patientsPersonnummer: null,
     departmentId: null,
     transcriptionId: null,
-    schema: {}
+    schema: {},
+    isSaving: false,
+    isSessionStarted: false
   }
 
   componentDidMount = async () => {
-    const transcriptionId = await api.createLiveSession()
-    if (!transcriptionId) {
-      addWarningToast(
-        <EuiI18n
-          token="unableToStartLiveTranscriptSession"
-          default="Unable to start live trancript session."
-        />,
-        <EuiI18n
-          token="checkNetworkConnectionOrContactSupport"
-          default="Please check network connection, or contact support."
-        />
-      )
-    } else {
-      this.setState({ transcriptionId })
-    }
-
     this.schemas()
     document.title = 'Inovia AI :: Live Diktering 🎤'
     if (navigator.mediaDevices === undefined) {
@@ -125,13 +106,6 @@ export default class LiveDiktering extends Component {
         })
       }
     }
-
-    try {
-      const { data: schema } = await api.getSchema(SCHEMA_ID)
-      this.setState({ schema })
-    } catch {
-      addUnexpectedErrorToast()
-    }
   }
 
   schemas = async () => {
@@ -152,6 +126,7 @@ export default class LiveDiktering extends Component {
 
   localize = () => {
     let language = getParameterByName('language')
+    let defaultSchema
     if (language === null) {
       language = 'sv'
     }
@@ -197,11 +172,9 @@ export default class LiveDiktering extends Component {
           { name: 'Ører:', done: false },
           { name: 'Collum:', done: false },
           { name: 'Cor:', done: false }
-        ],
-        defaultSchema:
-        this.state.listOfSchemas
-        && this.state.listOfSchemas.find(({ name }) => name === 'norwegian')
+        ]
       })
+      defaultSchema = this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'norwegian')
     } else if (language === 'en') {
       // eslint-disable-next-line max-len
       this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { path: '/english', transports: ['websocket'] })
@@ -224,17 +197,17 @@ export default class LiveDiktering extends Component {
           { name: 'Clinical details', done: false },
           { name: 'Findings', done: false },
           { name: 'Comment', done: false }
-        ],
-        defaultSchema: this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'English2')
+        ]
       })
+      defaultSchema = this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'English2')
     } else {
       this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'] })
-      this.setState({
-        defaultSchema: this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'Allergi')
-      })
+      defaultSchema = this.state.listOfSchemas && this.state.listOfSchemas.find(({ id }) => id === DEFAULT_SCHEMA_ID)
     }
-
-
+    if (!defaultSchema && this.state.listOfSchemas.length) {
+      defaultSchema = this.state.listOfSchemas[0]
+    }
+    this.setState({ defaultSchema })
   }
 
   onTimeUpdate = (currentTime) => {
@@ -351,6 +324,44 @@ export default class LiveDiktering extends Component {
     })
   }
 
+  startLiveSession = async () => {
+    const { schema } = this.state
+    const token = jwtDecode(localStorage.getItem('token'))
+    const userId = token.sub
+
+    try {
+      let transcriptionId
+      if (userId && schema && schema.id) {
+        transcriptionId = await api.createLiveSession(userId, schema.id)
+      }
+
+      if (!transcriptionId) {
+        throw Error()
+      } else {
+        await new Promise(resolve =>
+          this.setState({
+            transcriptionId,
+            isSessionStarted: true
+          }, resolve)
+        )
+        return true
+      }
+    } catch(e) {
+      console.error(e)
+      addWarningToast(
+        <EuiI18n
+          token="unableToStartLiveTranscriptSession"
+          default="Unable to start live trancript session."
+        />,
+        <EuiI18n
+          token="checkNetworkConnectionOrContactSupport"
+          default="Please check network connection, or contact support."
+        />
+      )
+      return false
+    }
+  }
+
   toggleRecord = () => {
     const { cursorTime, originalText, currentText } = this.state
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
@@ -374,6 +385,8 @@ export default class LiveDiktering extends Component {
           })
           this.audioContext.resume()
         } else {
+          // generates transcriptionId
+          this.startLiveSession()
           await this.initAudio()
           this.socketio.emit('start-recording', {
             numChannels: 1,
@@ -403,46 +416,74 @@ export default class LiveDiktering extends Component {
 
   updateDepartmentId = (departmentId) => { this.setState({ departmentId}) }
 
-  sparaDiktering = async() => {
-    const {
-      patientsNamn,
-      patientsPersonnummer,
-      doktorsNamn,
-      transcriptionId,
-      departmentId,
-      chapters
-    } = this.state
-    const { data: schema } = await api.getSchema(SCHEMA_ID)
-    const convertedTranscript = convertToV2API(schema, chapters)
-    await this.mediaUpload()
-    await api.updateTranscriptionV2(
-      transcriptionId,
-      doktorsNamn,
-      patientsNamn,
-      patientsPersonnummer,
-      departmentId,
-      convertedTranscript
-    )
+  isLiveSessionStarted = () => {
+    const { transcriptionId } = this.state
+    if (!transcriptionId) {
+      addWarningToast(
+        <EuiI18n
+          token="theDictationIsNotRecorded"
+          default="No dictation was found"
+        />
+      )
+      return false
+    }
+    return true
+  }
 
-    addSuccessToast(
-      <EuiI18n
-        token="dictationUpdated"
-        default="The dictation has been updated"
-      />
-    )
+  saveDictation = async() => {
+    if (this.isLiveSessionStarted()) {
+      const {
+        patientsNamn,
+        patientsPersonnummer,
+        doktorsNamn,
+        transcriptionId,
+        departmentId,
+        chapters,
+        schema
+      } = this.state
+      this.setState({ isSaving: true })
+      const convertedTranscript = convertToV2API(schema, chapters)
+      try {
+        await this.mediaUpload()
+        await api.updateTranscriptionV2(
+          transcriptionId,
+          doktorsNamn,
+          patientsNamn,
+          patientsPersonnummer,
+          departmentId,
+          convertedTranscript,
+          schema.id
+        )
+
+        this.setState({ isSaving: false })
+        addSuccessToast(
+          <EuiI18n
+            token="dictationUpdated"
+            default="The dictation has been updated"
+          />
+        )
+      } catch(e) {
+        this.setState({ isSaving: false })
+        addUnexpectedErrorToast(e)
+      }
+    }
   }
 
   sendToReview = async () => {
-    const {transcriptionId} = this.state
-    await api.completeLiveTranscript(transcriptionId)
-    window.location = '/'
+    if (this.isLiveSessionStarted()) {
+      const {transcriptionId} = this.state
+      await api.completeLiveTranscript(transcriptionId)
+      window.location = '/'
+    }
   }
 
   sendToCoworker = async () => {
-    const {transcriptionId} = this.state
-    await api.completeLiveTranscript(transcriptionId)
-    await api.approveTranscription(transcriptionId)
-    window.location = '/'
+    if (this.isLiveSessionStarted()) {
+      const {transcriptionId} = this.state
+      await api.completeLiveTranscript(transcriptionId)
+      await api.approveTranscription(transcriptionId)
+      window.location = '/'
+    }
   }
 
   mediaUpload = async() => {
@@ -452,7 +493,8 @@ export default class LiveDiktering extends Component {
       recordedAudioClip,
       patientsNamn,
       patientsPersonnummer,
-      doktorsNamn
+      doktorsNamn,
+      schema
     } = this.state
     const file = await api.getBlobFile(recordedAudioClip)
     const fields = [
@@ -475,18 +517,12 @@ export default class LiveDiktering extends Component {
         }]
       }]
 
-    api
-      .uploadMediaLive(
-        transcriptionId,
-        file,
-        SCHEMA_ID,
-        fields
-      )
-      .catch((error) => {
-        console.log(error)
-        addUnexpectedErrorToast()
-      })
-
+    await api.uploadMediaLive(
+      transcriptionId,
+      file,
+      schema.id,
+      fields
+    )
   }
 
   render() {
@@ -498,10 +534,12 @@ export default class LiveDiktering extends Component {
       initialCursor,
       recordedAudioClip,
       recording,
-      schema
+      schema,
+      defaultSchema,
+      isSaving,
+      isSessionStarted
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
-    const defaultSchema = this.state.defaultSchema
     return (
       <EuiI18n token="live" default="Live Dictation">{ title => {
         // set translated document title
@@ -530,6 +568,7 @@ export default class LiveDiktering extends Component {
                       microphoneBeingPressed={recording}
                       toggleRecord={this.toggleRecord}
                       seconds={seconds}
+                      isSessionStarted={isSessionStarted}
                     />
                   </EuiFlexItem>
                 </EuiFlexGroup>
@@ -550,7 +589,7 @@ export default class LiveDiktering extends Component {
                 <LiveSchemaEngine
                   listOfSchemas={listOfSchemas}
                   usedSections={usedSections}
-                  defaultSchema={defaultSchema && defaultSchema.id}
+                  defaultSchema={defaultSchema}
                   updatedSections={this.updatedSections}
                   onUpdatedSchema={this.onUpdatedSchema}
                   defaultSectionHeaders={this.state.defaultSectionHeaders}
@@ -569,7 +608,9 @@ export default class LiveDiktering extends Component {
               <EuiFlexItem grow={false}>
                 <EuiButton
                   size="s"
-                  onClick={this.sparaDiktering}>
+                  isLoading={ isSaving }
+                  isDisabled={ !isSessionStarted }
+                  onClick={this.saveDictation}>
                   <EuiI18n
                     token="saveChanges"
                     default="Save Changes"
@@ -581,6 +622,7 @@ export default class LiveDiktering extends Component {
                   size="s"
                   color="secondary"
                   fill
+                  isDisabled={ !isSessionStarted || isSaving }
                   onClick={this.sendToReview}>
                   <EuiI18n
                     token="submitForReview"
@@ -588,17 +630,18 @@ export default class LiveDiktering extends Component {
                   />
                 </EuiButton>
               </EuiFlexItem>
-              <EuiFlexItem grow={false}>
+              {/* <EuiFlexItem grow={false}>
                 <EuiButton
                   size="s"
                   fill
+                  isDisabled={ !isSessionStarted || isSaving }
                   onClick={this.sendToCoworker}>
                   <EuiI18n
                     token="sendToWebdoc"
                     default="Send to Webdoc"
                   />
                 </EuiButton>
-              </EuiFlexItem>
+              </EuiFlexItem> */}
             </EuiFlexGroup>
             <EuiFlexGroup>
               <EuiFlexItem>

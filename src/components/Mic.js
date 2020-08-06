@@ -8,7 +8,7 @@ import micRecording from '../img/voice-recording-red.png'
 import '../styles/mic.css'
 import formattedTime from '../models/live/formattedTime'
 
-const Mic = ({ microphoneBeingPressed, toggleRecord, seconds }) => (
+const Mic = ({ microphoneBeingPressed, toggleRecord, seconds, isSessionStarted }) => (
   <EuiTextAlign textAlign="center" style={{ zIndex: 10 }}>
     <img
       src={mic}
@@ -48,7 +48,12 @@ const Mic = ({ microphoneBeingPressed, toggleRecord, seconds }) => (
         fontSize: 20
       }}
     >
-      <EuiI18n toke="startDictation" default="Start Dictation" />
+      {
+        isSessionStarted ?
+          <EuiI18n toke="resumeDictation" default="Resume Dictation" />
+          :
+          <EuiI18n toke="startDictation" default="Start Dictation" />
+      }
     </span>
   </EuiTextAlign>
 )
