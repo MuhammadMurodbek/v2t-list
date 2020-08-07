@@ -17,11 +17,10 @@ const LiveSchemaEngine = ({
   usedSections,
   defaultSchema,
   updatedSections,
-  onUpdatedSchema,
-  defaultSectionHeaders
+  onUpdatedSchema
 }) => {
   const [selectedSchema, setSelectedSchema] = useState(null)
-  const [sectionHeaders, setSectionHeaders] = useState(defaultSectionHeaders)
+  const [sectionHeaders, setSectionHeaders] = useState([])
 
   useEffect(() => {
     updateSectionHeader()
@@ -45,10 +44,12 @@ const LiveSchemaEngine = ({
 
   const updateSectionHeader = async () => {
     if (selectedSchema && selectedSchema.fields) {
-      const updatedSectionHeaders = selectedSchema.fields.map(field => {
-        const done = usedSections.includes(field.name)
-        return { name: field.name, synonyms: field.headerPatterns || [], done }
-      })
+      const updatedSectionHeaders = selectedSchema.fields
+        .filter(({ visible }) => visible)
+        .map(field => {
+          const done = usedSections.includes(field.name)
+          return { name: field.name, synonyms: field.headerPatterns || [], done }
+        })
       if (JSON.stringify(updatedSectionHeaders) !== JSON.stringify(sectionHeaders)) {
         setSectionHeaders(updatedSectionHeaders)
         // Send the name of the synonyms too
@@ -60,14 +61,7 @@ const LiveSchemaEngine = ({
   const onSchemaChange = async (selectedOptions) => {
     const selectedSchemaId = selectedOptions[0].id
     const { data: schema } = await api.getSchema(selectedSchemaId)
-    const updatedSectionHeaders = schema.fields.map(field => {
-      const done = usedSections.includes(field.name)
-      return { name: field.name, synonyms: field.headerPatterns || [], done }
-    })
     setSelectedSchema(schema)
-    setSectionHeaders(updatedSectionHeaders)
-    // Send the name of the synonyms too
-    updatedSections(getHeaderWithSynonyms(updatedSectionHeaders))
     onUpdatedSchema(schema)
   }
 
@@ -109,8 +103,7 @@ LiveSchemaEngine.propTypes = {
   listOfSchemas: PropTypes.array.isRequired,
   usedSections: PropTypes.array.isRequired,
   updatedSections: PropTypes.func.isRequired,
-  onUpdatedSchema: PropTypes.func.isRequired,
-  defaultSectionHeaders: PropTypes.array.isRequired
+  onUpdatedSchema: PropTypes.func.isRequired
 }
 
 export default LiveSchemaEngine

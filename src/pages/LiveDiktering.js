@@ -64,7 +64,6 @@ export default class LiveDiktering extends Component {
     cursorTime: 0,
     chapterId: -9,
     segmentId: 0,
-    defaultSectionHeaders: [],
     defaultSchema: null,
     doktorsNamn: null,
     patientsNamn: null,
@@ -162,24 +161,7 @@ export default class LiveDiktering extends Component {
           'Ører:': [],
           'Collum:': [],
           'Cor:': []
-        },
-        defaultSectionHeaders: [
-          { name: 'Pupiller:', done: true },
-          { name: 'Blodtrykk:', done: false },
-          { name: 'Stimulantia:', done: false },
-          { name: 'Temperatur:', done: false },
-          { name: 'Puls:', done: false },
-          { name: 'Vurdering', done: false },
-          { name: 'Cavum oris:', done: false },
-          { name: 'Pulm:', done: false },
-          { name: 'Abdomen:', done: false },
-          { name: 'Underekstremiteter:', done: false },
-          { name: 'Hud:', done: false },
-          { name: 'Respirasjonsfrekvens', done: false },
-          { name: 'Ører:', done: false },
-          { name: 'Collum:', done: false },
-          { name: 'Cor:', done: false }
-        ]
+        }
       })
       defaultSchema = this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'norwegian')
     } else if (language === 'en') {
@@ -198,13 +180,7 @@ export default class LiveDiktering extends Component {
           'Clinical details': [],
           'Findings': [],
           'Comment': []
-        },
-        defaultSectionHeaders: [
-          { name: 'Examination', done: true },
-          { name: 'Clinical details', done: false },
-          { name: 'Findings', done: false },
-          { name: 'Comment', done: false }
-        ]
+        }
       })
       defaultSchema = this.state.listOfSchemas && this.state.listOfSchemas.find(({ name }) => name === 'English2')
     } else {
@@ -600,7 +576,6 @@ export default class LiveDiktering extends Component {
                   defaultSchema={defaultSchema}
                   updatedSections={this.updatedSections}
                   onUpdatedSchema={this.onUpdatedSchema}
-                  defaultSectionHeaders={this.state.defaultSectionHeaders}
                 />
               </EuiFlexItem>
             </EuiFlexGroup>
