@@ -35,7 +35,7 @@ export async function init(stream) {
     let buffer = []
     for (let channel = 0; channel < config.numChannels; channel++) {
       let input = e.inputBuffer.getChannelData(channel)
-      input = interpolateArray(input, 44100, 44100)
+      input = interpolateArray(input, sampleRate, sampleRate)
       buffer.push(input)
     }
     record(buffer)
