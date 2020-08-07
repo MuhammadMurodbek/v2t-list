@@ -273,6 +273,7 @@ export default class LiveDiktering extends Component {
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, prevState.audioContext.sampleRate)
+        console.log(`sample rate :: ${prevState.audioContext.sampleRate}`)        
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer)
