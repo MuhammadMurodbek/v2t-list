@@ -27,6 +27,7 @@ import RecordList from '../components/RecordList'
 import { addUnexpectedErrorToast } from '../components/GlobalToastList'
 import getParameterByName from '../utils/url'
 import { addWarningToast, addSuccessToast } from '../components/GlobalToastList'
+import getQueryStringValue from '../models/getQueryStringValue'
 
 // MedSpeeech: live dictation
 const DEFAULT_SCHEMA_ID = 'f156cdf4-5248-4681-9250-78d747d8eca1'
@@ -78,6 +79,12 @@ export default class LiveDiktering extends Component {
   componentDidMount = async () => {
     this.schemas()
     document.title = 'Inovia AI :: Live Diktering 🎤'
+    
+    const queryToken = getQueryStringValue('token')
+    if (queryToken) {
+      localStorage.setItem('token', queryToken)
+    }
+
     if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {}
     }

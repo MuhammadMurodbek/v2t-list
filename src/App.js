@@ -36,6 +36,7 @@ import {
 import { addUnexpectedErrorToast } from './components/GlobalToastList/GlobalToastList'
 import { EuiFlexGroup } from '@patronum/eui'
 import { EuiFlexItem } from '@patronum/eui'
+import getQueryStringValue from './models/getQueryStringValue'
 
 class App extends Component {
   state = {
@@ -506,21 +507,6 @@ class App extends Component {
       </HashRouter>
     )
   }
-}
-
-const getQueryStringValue = (key) => {
-  return decodeURIComponent(
-    window.location.href.replace(
-      new RegExp(
-        `^(?:.*[&\\?]${encodeURIComponent(key).replace(
-          /[.+*]/g,
-          '\\$&'
-        )}(?:\\=([^&]*))?)?.*$`,
-        'i'
-      ),
-      '$1'
-    )
-  )
 }
 
 const queryToken = getQueryStringValue('token')
