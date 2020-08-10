@@ -45,7 +45,7 @@ const LiveSchemaEngine = ({
   const updateSectionHeader = async () => {
     if (selectedSchema && selectedSchema.fields) {
       const updatedSectionHeaders = selectedSchema.fields
-        .filter(({ visible }) => visible)
+        .filter(({ editable }) => editable)
         .map(field => {
           const done = usedSections.includes(field.name)
           return { name: field.name, synonyms: field.headerPatterns || [], done }
