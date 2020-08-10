@@ -6,7 +6,7 @@ import {
   EuiButtonIcon,
   EuiComboBox,
   EuiFlexItem,
-  EuiText,
+  EuiFormRow,
   EuiDragDropContext,
   EuiDraggable,
   EuiDroppable,
@@ -197,21 +197,18 @@ export default class Tags extends Component {
                 >
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
-                      <EuiText>
-                        <h6>{`${CODE_NAMESPACES[tagType]} ${codes}`}</h6>
-                      </EuiText>
-                    </EuiFlexItem>
-                    <EuiFlexItem grow={false}>
-                      <EuiComboBox
-                        placeholder={`${lookFor} ${CODE_NAMESPACES[tagType].toUpperCase()} ${codes}`}
-                        async
-                        options={options[tagType] || []}
-                        selectedOptions={selectedOption}
-                        singleSelection
-                        isLoading={isLoading}
-                        onChange={selectedOptions => this.onChange(tagType, selectedOptions)}
-                        onSearchChange={searchValue => this.onSearchChange(tagType, searchValue)}
-                      />                  
+                      <EuiFormRow label={`${CODE_NAMESPACES[tagType].toUpperCase()} ${codes}`}>
+                        <EuiComboBox
+                          placeholder={`${lookFor} ${CODE_NAMESPACES[tagType].toUpperCase()} ${codes}`}
+                          async
+                          options={options[tagType] || []}
+                          selectedOptions={selectedOption}
+                          singleSelection
+                          isLoading={isLoading}
+                          onChange={selectedOptions => this.onChange(tagType, selectedOptions)}
+                          onSearchChange={searchValue => this.onSearchChange(tagType, searchValue)}
+                        />
+                      </EuiFormRow>
                     </EuiFlexItem>
                     <EuiFlexItem
                       grow={false}

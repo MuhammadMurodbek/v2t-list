@@ -525,9 +525,7 @@ export default class EditPage extends Component {
                   onPause={this.onPause}
                   token={token}
                 />
-                <EuiSpacer size="l" />
-                <EuiSpacer size="l" />
-
+                <EuiSpacer size="xl" />
                 <Editor
                   originalChapters={originalChapters}
                   chapters={chapters}

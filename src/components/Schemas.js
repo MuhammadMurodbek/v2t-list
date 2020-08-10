@@ -2,8 +2,6 @@
 // Used react synthetic event
 import React, { Fragment } from 'react'
 import {
-  EuiSpacer,
-  EuiText,
   EuiForm,
   EuiFormRow,
   EuiComboBox,
@@ -24,12 +22,6 @@ const Schemas = ({ schemas, schemaId, onUpdate }) => {
 
   return (
     <Fragment>
-      <EuiText size="xs">
-        <h2>
-          <EuiI18n token="schema" default="Schema" />
-        </h2>
-      </EuiText>
-      <EuiSpacer size="m" />
       <EuiForm>
         <EuiFormRow
           label={

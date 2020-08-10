@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { useState, useEffect } from 'react'
-import { EuiFormRow, EuiComboBox, EuiI18n } from '@patronum/eui'
+import { EuiComboBox, EuiI18n } from '@patronum/eui'
 
 const SectionHeader = ({
   keywords,
@@ -18,34 +18,36 @@ const SectionHeader = ({
   })
 
   const onKeywordChange = (k) => {
-    const keyword = k[0] ? k[0].label : ''
-    setSelectedKeyword(keyword)
-    updateKey(keyword, chapterId)
+    if (k.length) {
+      const keyword = k[0] ? k[0].label : ''
+      setSelectedKeyword(keyword)
+      updateKey(keyword, chapterId)
+    }
   }
 
   const keywordsOptions = keywords.map((keyword) => ({ label: keyword }))
 
+  if (keywords.length === 0) {
+    return null
+  }
+
   return (
-    <EuiFormRow
-      label={<EuiI18n token="keyword" default="Keyword" />}
-      style={{ display: keywords.length > 0 ? 'flex' : 'none' }}
+    < EuiI18n
+      token="selectAKeyword"
+      default="Select A Keyword"
     >
-      < EuiI18n
-        token="selectAKeyword"
-        default="Select A Keyword"
-      >
-        {(translation) => (
-          <EuiComboBox
-            placeholder={translation}
-            options={keywordsOptions}
-            selectedOptions={selectedKeyword ? [{ label: selectedKeyword }] : []}
-            singleSelection={{ asPlainText: true }}
-            onChange={onKeywordChange}
-            isClearable={false}
-          />
-        )}
-      </EuiI18n>
-    </EuiFormRow>
+      {(translation) => (
+        <EuiComboBox
+          className="sectionHeader"
+          placeholder={translation}
+          options={keywordsOptions}
+          selectedOptions={selectedKeyword ? [{ label: selectedKeyword }] : []}
+          singleSelection={{ asPlainText: true }}
+          onChange={onKeywordChange}
+          isClearable={false}
+        />
+      )}
+    </EuiI18n>
   )
 }
 

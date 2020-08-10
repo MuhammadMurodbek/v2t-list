@@ -302,17 +302,7 @@ input[type=range]:focus::-ms-fill-upper {
 
 
 .searchBox {
-  width: 400px;
-  padding: 5px;
-  font-size: 20px;
-  margin-top:20px;
-  outline: none;
-  box-shadow: none;
-  border-bottom: 1px solid grey;
-  border-top: none;
-  border-left:  none;
-  border-right:  none;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .alternativeTrack {

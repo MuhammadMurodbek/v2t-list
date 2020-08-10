@@ -4,7 +4,8 @@ import {
   EuiGlobalToastList,
   EuiText,
   EuiSpacer,
-  EuiToolTip
+  EuiToolTip,
+  EuiFieldSearch
 } from '@patronum/eui'
 import '../styles/player.css'
 import Seek from './Seek'
@@ -334,12 +335,11 @@ class Player extends Component {
     return (
       <Fragment>
         <span style={{ display: searchBoxVisible ? 'flex' : 'none' }}>
-          <EuiI18n token="findWords" default="Find words">
+          <EuiI18n token="search" default="Search">
             {(translation) => (
-              <input
-                type="text"
+              <EuiFieldSearch
                 className="searchBox"
-                placeholder={`${translation} ...`}
+                placeholder={`${translation}...`}
                 onChange={this.searchKeyword}
               />
             )}

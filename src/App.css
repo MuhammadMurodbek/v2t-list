@@ -66,9 +66,42 @@ p {
   cursor: pointer;
 }
 
-.euiText pre {
-  background: #dde3ed;
-  border-radius: 12px;
+.sectionHeader {
+  max-width: 400px !important;
+}
+
+.sectionHeader + * {
+  margin-top: 10px;
+}
+
+.fullDiffArea {
+  padding-left: 12px;
+}
+
+.editorTextArea {
+  min-height: 100px;
+  width: 100%;
+  padding: 12px;
+  resize: vertical;
+  background-color: #F7F7F7;
+  box-shadow: none;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: box-shadow 150ms ease-in, background-image 150ms ease-in, background-size 150ms ease-in, background-color 150ms ease-in;
+}
+
+.editorTextArea:hover {
+  background-color: #EAEAEA;
+}
+
+.editorTextArea:focus, .editorTextArea:focus-within, .editorTextArea:active {
+  background-color: #FFF;
+  border: 1px solid #FAFAFA;
+  border-bottom: none;
+  background-size: 100% 100%;
+  background-image: linear-gradient(to top, #076EFF, #076EFF 1px, transparent 2px, transparent 100%)
 }
 
 .pageBody {
@@ -89,11 +122,6 @@ p {
 .pageBody::-webkit-scrollbar-thumb {
   border-radius: 3px;
   background-color: #C2C2C2;
-}
-
-.transcriptEdit .euiFormRow,
-.transcriptEdit .euiTextArea {
-  max-width: 100% !important;
 }
 
 .sidebarBottomButtons {
