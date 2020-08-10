@@ -72,7 +72,8 @@ export default class LiveDiktering extends Component {
     transcriptionId: null,
     schema: {},
     isSaving: false,
-    isSessionStarted: false
+    isSessionStarted: false,
+    isSessionSaved: false
   }
 
   componentDidMount = async () => {
@@ -423,12 +424,15 @@ export default class LiveDiktering extends Component {
         transcriptionId,
         departmentId,
         chapters,
-        schema
+        schema,
+        isSessionSaved
       } = this.state
       this.setState({ isSaving: true })
       const convertedTranscript = convertToV2API(schema, chapters)
       try {
-        await this.mediaUpload()
+        if (!isSessionSaved) {
+          await this.mediaUpload()
+        }
         await api.updateTranscriptionV2(
           transcriptionId,
           doktorsNamn,
@@ -439,7 +443,10 @@ export default class LiveDiktering extends Component {
           schema.id
         )
 
-        this.setState({ isSaving: false })
+        this.setState({ 
+          isSaving: false,
+          isSessionSaved: true 
+        })
         addSuccessToast(
           <EuiI18n
             token="dictationUpdated"
@@ -521,7 +528,8 @@ export default class LiveDiktering extends Component {
       schema,
       defaultSchema,
       isSaving,
-      isSessionStarted
+      isSessionStarted,
+      isSessionSaved
     } = this.state
     const usedSections = chapters.map(chapter => chapter.keyword)
     return (
@@ -605,7 +613,7 @@ export default class LiveDiktering extends Component {
                   size="s"
                   color="secondary"
                   fill
-                  isDisabled={ !isSessionStarted || isSaving }
+                  isDisabled={!isSessionSaved }
                   onClick={this.sendToReview}>
                   <EuiI18n
                     token="submitForReview"
