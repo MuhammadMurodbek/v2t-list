@@ -497,7 +497,9 @@ class App extends Component {
                   />
                   <Route
                     path="/live-diktering/"
-                    render={() => <NewLiveTranscription />}
+                    render={(params) => (
+                      <NewLiveTranscription search={params.location.search} />
+                    )}
                   />
                   <Route
                     render={() => <Invalid />}
@@ -518,13 +520,13 @@ class App extends Component {
   }
 }
 
-const NewLiveTranscription = () => {
+const NewLiveTranscription = ({ search }) => {
   const [ redirect, setRedirect ] = useState(null)
   useEffect(() => {
     const token = jwtDecode(localStorage.getItem('token'))
     const userId = token.sub
     api.createLiveSession(userId, DEFAULT_SCHEMA_ID)
-      .then(id => setRedirect(<Redirect to={`/live-diktering/${id}`} />))
+      .then(id => setRedirect(<Redirect to={`/live-diktering/${id}${search}`} />))
       .catch((e) => {
         console.error(e)
         addWarningToast(
