@@ -164,7 +164,7 @@ const updateTranscription = (transcriptionId, schemaId, fields) =>
     fields
   })
 
-const updateTranscriptionV2 = (
+const updateTranscriptionV2 = async (
   transcriptionId,
   doktorsNamn,
   patientsNamn,
