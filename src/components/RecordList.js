@@ -10,7 +10,6 @@ const  RecordList = ({audioClip}) => {
       <h5>Recorded clip</h5>
     </EuiTitle>
     <div className="container">
-      <h6 className="title">{audioClip.name}</h6>
       <audio controls src={audioClip.src} className="audio-box" controlsList="nodownload"/>
     </div>
   </section>)

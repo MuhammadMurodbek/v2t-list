@@ -613,6 +613,7 @@ export default class LiveDiktering extends Component {
             </EuiFlexGroup>
             <EuiFlexGroup>
               <EuiFlexItem>
+                <EuiSpacer size="l" />
                 <RecordList audioClip={recordedAudioClip} />
               </EuiFlexItem>
             </EuiFlexGroup>
