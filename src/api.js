@@ -164,7 +164,7 @@ const updateTranscription = (transcriptionId, schemaId, fields) =>
     fields
   })
 
-const updateTranscriptionV2 = async (
+const updateTranscriptionV2 = (
   transcriptionId,
   doktorsNamn,
   patientsNamn,
@@ -200,7 +200,7 @@ const updateTranscriptionV2 = async (
     }]
   convertedTranscript.forEach(chapter => fields.push(chapter))
 
-  axios.put(`/api/transcription/v2/${transcriptionId}`, {
+  return axios.put(`/api/transcription/v2/${transcriptionId}`, {
     schemaId,
     fields
   })
