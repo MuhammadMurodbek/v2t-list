@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 // eslint-disable-next-line no-console
-import React, { Component } from 'react'
-import { HashRouter, Route, Switch } from 'react-router-dom'
+import React, { Component, useState, useEffect } from 'react'
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom'
+import jwtDecode from 'jwt-decode'
 import {
   EuiImage,
   EuiPage,
@@ -18,7 +19,7 @@ import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
 import TrainingPage from './pages/Training'
-import LiveDikteringPage from './pages/LiveDiktering'
+import LiveDikteringPage, { DEFAULT_SCHEMA_ID } from './pages/LiveDiktering'
 import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
@@ -30,6 +31,7 @@ import { LanguageProvider } from './context'
 import { withProvider } from './hoc'
 import {
   GlobalToastListContainer,
+  addWarningToast,
   addErrorToast,
   clearGlobalToastList
 } from './components/GlobalToastList'
@@ -487,8 +489,15 @@ class App extends Component {
                     render={() => <LiveDikteringPage />}
                   />
                   <Route
+                    path="/live-diktering/:id"
+                    render={(props) => {
+                      const { id } = props.match.params
+                      return <LiveDikteringPage transcriptionId={id} />
+                    }}
+                  />
+                  <Route
                     path="/live-diktering/"
-                    render={() => <LiveDikteringPage />}
+                    render={() => <NewLiveTranscription />}
                   />
                   <Route
                     render={() => <Invalid />}
@@ -507,6 +516,32 @@ class App extends Component {
       </HashRouter>
     )
   }
+}
+
+const NewLiveTranscription = () => {
+  const [ redirect, setRedirect ] = useState(null)
+  useEffect(() => {
+    const token = jwtDecode(localStorage.getItem('token'))
+    const userId = token.sub
+    api.createLiveSession(userId, DEFAULT_SCHEMA_ID)
+      .then(id => setRedirect(<Redirect to={`/live-diktering/${id}`} />))
+      .catch((e) => {
+        console.error(e)
+        addWarningToast(
+          <EuiI18n
+            token="unableToStartLiveTranscriptSession"
+            default="Unable to start live trancript session."
+          />,
+          <EuiI18n
+            token="checkNetworkConnectionOrContactSupport"
+            default="Please check network connection, or contact support."
+          />
+        )
+        return null
+      })
+  }, [])
+
+  return redirect
 }
 
 const queryToken = getQueryStringValue('token')

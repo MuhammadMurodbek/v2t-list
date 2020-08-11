@@ -9,7 +9,6 @@ import {
   EuiButton,
   EuiI18n
 } from '@patronum/eui'
-import jwtDecode from 'jwt-decode'
 import api from '../api'
 import Editor from '../components/Editor'
 import Mic from '../components/Mic'
@@ -30,13 +29,17 @@ import { addWarningToast, addSuccessToast } from '../components/GlobalToastList'
 import getQueryStringValue from '../models/getQueryStringValue'
 
 // MedSpeeech: live dictation
-const DEFAULT_SCHEMA_ID = 'f156cdf4-5248-4681-9250-78d747d8eca1'
+export const DEFAULT_SCHEMA_ID = 'f156cdf4-5248-4681-9250-78d747d8eca1'
 
 export default class LiveDiktering extends Component {
   AudioContext = window.AudioContext || window.webkitAudioContext
   audioContext = null
   // eslint-disable-next-line max-len
   socketio = null
+
+  static defaultProps = {
+    transcriptionId: null
+  }
 
   state = {
     recording: false,
@@ -69,7 +72,6 @@ export default class LiveDiktering extends Component {
     patientsNamn: null,
     patientsPersonnummer: null,
     departmentId: null,
-    transcriptionId: null,
     schema: {},
     isSaving: false,
     isSessionStarted: false,
@@ -77,9 +79,10 @@ export default class LiveDiktering extends Component {
   }
 
   componentDidMount = async () => {
+    this.loadTranscripton()
     this.schemas()
     document.title = 'Inovia AI :: Live Diktering 🎤'
-    
+
     const queryToken = getQueryStringValue('token')
     if (queryToken) {
       localStorage.setItem('token', queryToken)
@@ -113,6 +116,19 @@ export default class LiveDiktering extends Component {
         })
       }
     }
+  }
+
+  loadTranscripton = async () => {
+    const { transcriptionId } = this.props
+    const { data: transcript } = await api.loadTranscription(transcriptionId)
+    const { data: schema } = await api.getSchema(transcript.schemaId)
+    this.setState({
+      doktorsNamn: transcript.fields.find(({id}) => id === 'doctor_full_name'),
+      patientsNamn: transcript.fields.find(({id}) => id === 'patient_full_name'),
+      patientsPersonnummer: transcript.fields.find(({id}) => id === 'patient_id'),
+      departmentId:  transcript.fields.find(({id}) => id === 'department_id'),
+      schema
+    })
   }
 
   schemas = async () => {
@@ -250,7 +266,7 @@ export default class LiveDiktering extends Component {
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, prevState.audioContext.sampleRate)
-        console.log(`sample rate :: ${prevState.audioContext.sampleRate}`)        
+        console.log(`sample rate :: ${prevState.audioContext.sampleRate}`)
         // convert float audio data to 16-bit PCM
         var buffer = new ArrayBuffer(input.length * 2)
         var output = new DataView(buffer)
@@ -309,44 +325,6 @@ export default class LiveDiktering extends Component {
     })
   }
 
-  startLiveSession = async () => {
-    const { schema } = this.state
-    const token = jwtDecode(localStorage.getItem('token'))
-    const userId = token.sub
-
-    try {
-      let transcriptionId
-      if (userId && schema && schema.id) {
-        transcriptionId = await api.createLiveSession(userId, schema.id)
-      }
-
-      if (!transcriptionId) {
-        throw Error()
-      } else {
-        await new Promise(resolve =>
-          this.setState({
-            transcriptionId,
-            isSessionStarted: true
-          }, resolve)
-        )
-        return true
-      }
-    } catch(e) {
-      console.error(e)
-      addWarningToast(
-        <EuiI18n
-          token="unableToStartLiveTranscriptSession"
-          default="Unable to start live trancript session."
-        />,
-        <EuiI18n
-          token="checkNetworkConnectionOrContactSupport"
-          default="Please check network connection, or contact support."
-        />
-      )
-      return false
-    }
-  }
-
   toggleRecord = () => {
     const { cursorTime, originalText, currentText } = this.state
     if (this.audioContext === null) this.audioContext = new this.AudioContext()
@@ -370,8 +348,7 @@ export default class LiveDiktering extends Component {
           })
           this.audioContext.resume()
         } else {
-          // generates transcriptionId
-          this.startLiveSession()
+          this.setState({ isSessionStarted: true })
           await this.initAudio()
           this.socketio.emit('start-recording', {
             numChannels: 1,
@@ -402,7 +379,7 @@ export default class LiveDiktering extends Component {
   updateDepartmentId = (departmentId) => { this.setState({ departmentId}) }
 
   isLiveSessionStarted = () => {
-    const { transcriptionId } = this.state
+    const { transcriptionId } = this.props
     if (!transcriptionId) {
       addWarningToast(
         <EuiI18n
@@ -417,11 +394,11 @@ export default class LiveDiktering extends Component {
 
   saveDictation = async() => {
     if (this.isLiveSessionStarted()) {
+      const { transcriptionId } = this.props
       const {
         patientsNamn,
         patientsPersonnummer,
         doktorsNamn,
-        transcriptionId,
         departmentId,
         chapters,
         schema,
@@ -443,9 +420,9 @@ export default class LiveDiktering extends Component {
           schema.id
         )
 
-        this.setState({ 
+        this.setState({
           isSaving: false,
-          isSessionSaved: true 
+          isSessionSaved: true
         })
         addSuccessToast(
           <EuiI18n
@@ -462,7 +439,7 @@ export default class LiveDiktering extends Component {
 
   sendToReview = async () => {
     if (this.isLiveSessionStarted()) {
-      const {transcriptionId} = this.state
+      const {transcriptionId} = this.props
       await api.completeLiveTranscript(transcriptionId)
       window.location = '/'
     }
@@ -470,7 +447,7 @@ export default class LiveDiktering extends Component {
 
   sendToCoworker = async () => {
     if (this.isLiveSessionStarted()) {
-      const {transcriptionId} = this.state
+      const {transcriptionId} = this.props
       await api.completeLiveTranscript(transcriptionId)
       await api.approveTranscription(transcriptionId)
       window.location = '/'
@@ -479,8 +456,8 @@ export default class LiveDiktering extends Component {
 
   mediaUpload = async() => {
     // Start uploading the transcript
+    const { transcriptionId } = this.props
     const {
-      transcriptionId,
       recordedAudioClip,
       patientsNamn,
       patientsPersonnummer,
