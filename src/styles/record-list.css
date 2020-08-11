@@ -1,16 +1,11 @@
 
-.container {
-    border: 1px solid silver;
-    width: 650px;
-    margin-bottom: 5px;
-}
 
 .title {
     padding: 10px
 }
 
 .audio-box {
-    width: 500px;
+    width: 650px;
     padding: 5px
 }
 

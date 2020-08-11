@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import '../styles/record-list.css'
 
-import { EuiTitle, EuiButton } from '@patronum/eui'
+import { EuiTitle } from '@patronum/eui'
 
 const  RecordList = ({audioClip}) => {
   return ( audioClip && <section>
@@ -11,10 +11,7 @@ const  RecordList = ({audioClip}) => {
     </EuiTitle>
     <div className="container">
       <h6 className="title">{audioClip.name}</h6>
-      <audio controls src={audioClip.src} className="audio-box"/>
-      <EuiButton className="download-button">
-        <a href={audioClip.src} download={audioClip.name}>Download</a>
-      </EuiButton>
+      <audio controls src={audioClip.src} className="audio-box" controlsList="nodownload"/>
     </div>
   </section>)
 }
