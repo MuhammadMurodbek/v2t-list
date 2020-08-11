@@ -132,3 +132,7 @@ p {
 .sidebarBottomButtons .euiButtonEmpty {
   font-size: 1.2em !important;
 }
+
+.euiText pre {
+  padding: 0 !important;
+}

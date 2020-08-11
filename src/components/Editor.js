@@ -215,7 +215,9 @@ export default class Editor extends Component {
     const selectedLength = range.endOffset - range.startOffset
     const segments = chapters[chapterId].segments
     const charArray = segments[segmentId].words.split('')
-    charArray.splice(range.startOffset, selectedLength, '\n')
+    const isLastSegmentChar = segments.length - 1 === segmentId && charArray.length === range.startOffset
+
+    charArray.splice(range.startOffset, selectedLength, `\n${isLastSegmentChar ? ' ' : ''}`)
     segments[segmentId].words = charArray.join('')
     chapters[chapterId].segments = segments
     updateTranscript(chapters)
@@ -435,21 +437,23 @@ const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps
 const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, onKeyDown, onSelect, onCursorChange }) => {
   const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
-    <code
-      className="editorTextArea"
-      key={JSON.stringify(segments)}
-      onInput={e => onChange(e, chapterId)}
-      onPaste={e => onPaste(e, chapterId)}
-      onKeyDown={e => onKeyDown(e, chapterId)}
-      onKeyUp={onCursorChange}
-      onClick={onCursorChange}
-      onSelect={onSelect}
-      contentEditable
-      suppressContentEditableWarning
-      data-chapter={chapterId}
-    >
-      {chunks.length ? chunks : <FallbackChunk chapterId={chapterId} />}
-    </code>
+    <pre>
+      <code
+        className="editorTextArea"
+        key={JSON.stringify(segments)}
+        onInput={e => onChange(e, chapterId)}
+        onPaste={e => onPaste(e, chapterId)}
+        onKeyDown={e => onKeyDown(e, chapterId)}
+        onKeyUp={onCursorChange}
+        onClick={onCursorChange}
+        onSelect={onSelect}
+        contentEditable
+        suppressContentEditableWarning
+        data-chapter={chapterId}
+        >
+        {chunks.length ? chunks : <FallbackChunk chapterId={chapterId} />}
+      </code>
+    </pre>
   )
 }
 
