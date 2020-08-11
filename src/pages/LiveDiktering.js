@@ -122,12 +122,17 @@ export default class LiveDiktering extends Component {
     const { transcriptionId } = this.props
     const { data: transcript } = await api.loadTranscription(transcriptionId)
     const { data: schema } = await api.getSchema(transcript.schemaId)
+    this.setState({schema})
+    if (!transcript.fields) return
+    const doktorsNamn = transcript.fields.find(({id}) => id === 'doctor_full_name')
+    const patientsNamn = transcript.fields.find(({id}) => id === 'patient_full_name')
+    const patientsPersonnummer = transcript.fields.find(({id}) => id === 'patient_id')
+    const departmentId =  transcript.fields.find(({id}) => id === 'department_id')
     this.setState({
-      doktorsNamn: transcript.fields.find(({id}) => id === 'doctor_full_name'),
-      patientsNamn: transcript.fields.find(({id}) => id === 'patient_full_name'),
-      patientsPersonnummer: transcript.fields.find(({id}) => id === 'patient_id'),
-      departmentId:  transcript.fields.find(({id}) => id === 'department_id'),
-      schema
+      doktorsNamn: doktorsNamn ? doktorsNamn.values[0].value : '',
+      patientsNamn: patientsNamn ? patientsNamn.values[0].value : '',
+      patientsPersonnummer: patientsPersonnummer ? patientsPersonnummer.values[0].value : '',
+      departmentId: departmentId ? departmentId.values[0].value : ''
     })
   }
 
@@ -504,6 +509,10 @@ export default class LiveDiktering extends Component {
       recording,
       schema,
       defaultSchema,
+      doktorsNamn,
+      patientsNamn,
+      patientsPersonnummer,
+      departmentId,
       isSaving,
       isSessionStarted,
       isSessionSaved
@@ -521,10 +530,10 @@ export default class LiveDiktering extends Component {
                   <EuiFlexItem grow={false}>
                     <PersonalInformation
                       info={{
-                        doktor: '',
-                        patient: '',
-                        personnummer: '',
-                        departmentId: ''
+                        doktor: doktorsNamn || '',
+                        patient: patientsNamn || '',
+                        personnummer: patientsPersonnummer || '',
+                        departmentId: departmentId || ''
                       }}
                       updateDoktorsNamn = {this.updateDoktorsNamn}
                       updatePatientsNamn={this.updatePatientsNamn}
