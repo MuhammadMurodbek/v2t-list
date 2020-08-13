@@ -133,12 +133,11 @@ const uploadMedia = (
 const uploadMediaLive = (
   transcriptionId,
   file,
-  schemaId,
-  fields
+  schemaId
 ) => {
   const body = new FormData()
   body.append('media', file)
-  const metadataPart = { schemaId, fields }
+  const metadataPart = { schemaId }
   // @ts-ignore
   body.set('data', metadataPart)
   return axios.post(`/api/transcription/v2/${transcriptionId}/media`, body)

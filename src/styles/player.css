@@ -46,12 +46,20 @@
   display: flex;
 }
 
+.controls.micS {
+  width: 810px;
+}
+
 .controlsWithStopButtonEnabled {
   width: 800px;
   bottom: 20px;
   background-color: #b9bac1;
   transition: 1s all;
   display: flex;
+}
+
+.controlsWithStopButtonEnabled.micS {
+  width: 850px;
 }
 
 .virtualControl {
@@ -298,11 +306,6 @@ input[type=range]::-ms-fill-upper {
 
 input[type=range]:focus::-ms-fill-upper {
   background-color: rgba(165, 172, 233, 0.5);
-}
-
-
-.searchBox {
-  margin: 20px 0;
 }
 
 .alternativeTrack {

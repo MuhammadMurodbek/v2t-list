@@ -19,8 +19,6 @@ import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import UploadPage from './pages/Upload'
 import TrainingPage from './pages/Training'
-import LiveDikteringPage, { DEFAULT_SCHEMA_ID } from './pages/LiveDiktering'
-import GuidedLivePage from './pages/GuidedLive'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
 import Preference from './models/Preference'
@@ -481,18 +479,10 @@ class App extends Component {
                     render={() => <TrainingPage />}
                   />
                   <Route
-                    path="/guided-live/"
-                    render={() => <GuidedLivePage />}
-                  />
-                  <Route
-                    path="/livediktering/"
-                    render={() => <LiveDikteringPage />}
-                  />
-                  <Route
                     path="/live-diktering/:id"
                     render={(props) => {
                       const { id } = props.match.params
-                      return <LiveDikteringPage transcriptionId={id} />
+                      return <EditPage mic {...{ ...props, id, token }} />
                     }}
                   />
                   <Route
@@ -523,24 +513,28 @@ class App extends Component {
 const NewLiveTranscription = ({ search }) => {
   const [ redirect, setRedirect ] = useState(null)
   useEffect(() => {
-    const token = jwtDecode(localStorage.getItem('token'))
-    const userId = token.sub
-    api.createLiveSession(userId, DEFAULT_SCHEMA_ID)
-      .then(id => setRedirect(<Redirect to={`/live-diktering/${id}${search}`} />))
-      .catch((e) => {
-        console.error(e)
-        addWarningToast(
-          <EuiI18n
-            token="unableToStartLiveTranscriptSession"
-            default="Unable to start live trancript session."
-          />,
-          <EuiI18n
-            token="checkNetworkConnectionOrContactSupport"
-            default="Please check network connection, or contact support."
-          />
-        )
-        return null
-      })
+    const startSession = async () => {
+      const token = jwtDecode(localStorage.getItem('token'))
+      const userId = token.sub
+      const schemaId = localStorage.getItem('lastUsedSchema')
+        || (await api.getSchemas()).data.schemas[0].id
+      const id = await api.createLiveSession(userId, schemaId)
+      setRedirect(<Redirect to={`/live-diktering/${id}${search}`} />)
+    }
+    startSession().catch((e) => {
+      console.error(e)
+      addWarningToast(
+        <EuiI18n
+          token="unableToStartLiveTranscriptSession"
+          default="Unable to start live trancript session."
+        />,
+        <EuiI18n
+          token="checkNetworkConnectionOrContactSupport"
+          default="Please check network connection, or contact support."
+        />
+      )
+      return null
+    })
   }, [])
 
   return redirect

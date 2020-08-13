@@ -2,8 +2,6 @@
 import React, { Component, Fragment } from 'react'
 import {
   EuiGlobalToastList,
-  EuiText,
-  EuiSpacer,
   EuiToolTip,
   EuiFieldSearch
 } from '@patronum/eui'
@@ -12,6 +10,7 @@ import Seek from './Seek'
 
 import { PreferenceContext } from './PreferencesProvider'
 import { EuiI18n } from '@patronum/eui'
+import Mic from '../components/Mic'
 
 const KEYCODE = {
   J: 'KeyJ',
@@ -70,7 +69,9 @@ class Player extends Component {
   playMusic = () => {
     if (this.myRef && this.myRef.current) {
       if (this.myRef.current.paused) {
-        this.myRef.current.play()
+        this.myRef.current.play().catch(e => {
+          console.log(e);
+        })
         this.setState({ isPlaying: true })
       }
     }
@@ -319,11 +320,16 @@ class Player extends Component {
     } = this.state
     const {
       audioTranscript,
+      audioClip,
       trackId,
       getCurrentTime,
       isContentAudio,
       searchBoxVisible,
-      token
+      token,
+      mic,
+      recording,
+      recordedTime,
+      toggleRecord
     } = this.props
 
     const [preferences] = this.context
@@ -338,7 +344,6 @@ class Player extends Component {
           <EuiI18n token="search" default="Search">
             {(translation) => (
               <EuiFieldSearch
-                className="searchBox"
                 placeholder={`${translation}...`}
                 onChange={this.searchKeyword}
               />
@@ -348,13 +353,7 @@ class Player extends Component {
 
         <audio
           ref={this.myRef}
-          src={trackUrl}
-          style={{
-            display:
-              (preferences.showVideo && isContentAudio) === false
-                ? 'block'
-                : 'none'
-          }}
+          src={audioClip ? audioClip.src : trackUrl}
           onTimeUpdate={getCurrentTime}
           onLoadedData={this.getAudioData}
         >
@@ -367,7 +366,7 @@ class Player extends Component {
           width="500"
           height="500"
           ref={this.myRef}
-          src={trackUrl}
+          src={audioClip ? audioClip.src : trackUrl}
           style={{
             display: preferences.showVideo && !isContentAudio ? 'block' : 'none'
           }}
@@ -383,9 +382,8 @@ class Player extends Component {
         <div className="sticky-controls">
           <div
             className={
-              preferences.stopButtonVisibilityStatus === false
-                ? 'controls'
-                : 'controlsWithStopButtonEnabled'
+              `${preferences.stopButtonVisibilityStatus === false
+                ? 'controls' : 'controlsWithStopButtonEnabled'} ${mic ? 'micS' : ''}`
             }
           >
             <EuiI18n
@@ -515,6 +513,12 @@ class Player extends Component {
                 </EuiToolTip>
               )}
             </EuiI18n>
+            <Mic
+              visible={mic}
+              microphoneBeingPressed={recording}
+              toggleRecord={toggleRecord}
+              seconds={recordedTime}
+            />
           </div>
           <VirtualControl
             transcript={audioTranscript}
@@ -528,31 +532,6 @@ class Player extends Component {
           dismissToast={this.removeToast}
           toastLifeTimeMs={2000}
         />
-        <EuiSpacer size="l" />
-        <EuiI18n
-          tokens={['press', 'toPlay', 'toPause']}
-          defaults={['Press', 'to play', 'to pause']}
-        >
-          {([press, toPlay, toPause]) => (
-            <EuiText textAlign="left" className="tips">
-              <span>{press} 'alt+p' </span>
-              <span
-                style={{
-                  display: isPlaying === true ? 'inline-block' : 'none'
-                }}
-              >
-                {toPause}
-              </span>
-              <span
-                style={{
-                  display: isPlaying === false ? 'inline-block' : 'none'
-                }}
-              >
-                {toPlay}
-              </span>
-            </EuiText>
-          )}
-        </EuiI18n>
       </Fragment>
     )
   }

@@ -5,38 +5,29 @@ body {
 .mic {
   outline: none;
   cursor: pointer;
-  height: 100px; 
+  height: 30px;
   border-radius: 50%;
-  margin: 10px;
-  padding: 10px;
+  padding: 3px;
+  margin-top: 1px;
+  margin-left: 5px;
   /* background-image: linear-gradient(to right top, #f7204b, #f72843, #f7303a, #f63831, #f43f27);  */
-  box-shadow: 
+  box-shadow:
     0 0 40px rgb(83, 201, 248),
     0 0 800px rgb(164, 226, 178);
   transition: 300ms;
   background: rgb(2,99,255);
 }
 
-
-.micRecording {
-  outline: none;
-  cursor: pointer;
-  height: 100px; 
-  color: white;
-  border-radius: 50%;
-  margin: 10px;
-  padding: 10px;
-  /* background-image: linear-gradient(to right top, #f7204b, #f72843, #f7303a, #f63831, #f43f27);  */
-  box-shadow: 
+.mic.recording {
+  box-shadow:
     0 0 20px rgb(234, 72, 7),
     0 0 40px  rgb(255, 0, 0),
     0 0 800px rgb(164, 226, 178);
-  transition: 300ms;
   background: rgb(234,72,7);
 }
 
 .mic:hover {
-  box-shadow: 
+  box-shadow:
     0 0 20px rgb(164, 226, 178),
     0 0 40px  rgb(83, 201, 248),
     0 0 800px  rgb(164, 226, 178);

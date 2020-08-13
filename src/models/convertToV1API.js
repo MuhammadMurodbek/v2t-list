@@ -2,7 +2,7 @@ const convertToV1API = ({ id, schemaId, fields }) => {
   const transcriptions = fields ? fields.map(field => {
     const keyword = field.id
     let charIndex = 0
-    const segments = field.values.reduce((store, {value}) => {
+    const segments = (field.values || []).reduce((store, {value}) => {
       return [...store, ...value.replace('\n ', '\n\u200c').split(' ').map(words => {
         const offset = field.offsets ? field.offsets.find(({textStart, textEnd}) =>
           textStart <= charIndex && textEnd > charIndex

@@ -4,36 +4,45 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiText,
+  EuiFieldText,
   EuiForm
 } from '@patronum/eui'
 import '../styles/editor.css'
 import '../styles/tags.css'
 
-const ReadOnlyChapters = ({ chapters }) => {
+const ReadOnlyChapters = ({ chapters, onCreate }) => {
   if(!chapters || !chapters.length) return null
   return (
     <EuiForm>
       <EuiFlexGroup direction="column" gutterSize="m">
         {
-          chapters.map(({ name, values }, key) => (
+          chapters.map(({ keyword, name, values }, key) => (
             <EuiFlexItem key={key}>
-              <EuiText>
-                <h4>{ name }</h4>
-                {
-                  values.map(({ value, description }, key) => (
-                    <div key={ key }>
-                      {
-                        description ?
-                          <Fragment>
-                            <strong>{ value }</strong> - { description }
-                          </Fragment>
-                          :
-                          value
-                      }
-                    </div>
-                  ))
-                }
-              </EuiText>
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <EuiText>
+                    <h4>{ name }</h4>
+                  </EuiText>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  {
+                    values.length ?
+                      values.map(({ value, description }, key) => (
+                        <div key={ key }>
+                          {
+                            description ?
+                              <Fragment>
+                                <strong>{ value }</strong> - { description }
+                              </Fragment>
+                              :
+                              value
+                          }
+                        </div>
+                      )) :
+                      <EuiFieldText onBlur={e => onCreate(keyword, e)} />
+                  }
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiFlexItem>
           ))
         }

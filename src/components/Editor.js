@@ -28,7 +28,8 @@ export default class Editor extends Component {
     originalChapters: null,
     chapters: null,
     currentTime: 0,
-    initialCursor: 0
+    initialCursor: 0,
+    noDiff: false
   }
 
   state = {
@@ -356,7 +357,7 @@ export default class Editor extends Component {
   }
 
   render() {
-    const { currentTime, chapters, onSelect, isDiffVisible, schema } = this.props
+    const { currentTime, chapters, onSelect, noDiff, schema } = this.props
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
@@ -384,8 +385,7 @@ export default class Editor extends Component {
           />
         </EuiFormRow>
         {
-          isDiffVisible &&
-          <FullDiff diff={diff} />
+          !noDiff && <FullDiff diff={diff} />
         }
       </EuiText>
     )
