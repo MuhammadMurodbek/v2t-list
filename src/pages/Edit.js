@@ -329,7 +329,7 @@ export default class EditPage extends Component {
     const { readOnlyHeaders, hiddenHeaderIds, defaultHeaderIds } = this.state
     const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
 
-    const transcripts = transcriptions.map((transcript) => {
+    const transcripts = transcriptions.map((transcript, id) => {
       const keyword = transcript.keyword.length
         ? transcript.keyword
         : 'Kontaktorsak'
@@ -347,6 +347,7 @@ export default class EditPage extends Component {
         }
       })
       return {
+        id,
         ...transcript,
         keyword,
         segments

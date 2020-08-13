@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Diff from 'text-diff'
-
+import PropTypes from 'prop-types'
 import {
   EuiFormRow,
   EuiTitle,
@@ -19,6 +19,8 @@ const KEYCODE_ENTER = 13
 const KEYCODE_BACKSPACE = 8
 const KEYCODE_DELETE = 46
 
+const HEADER_TYPE = 72
+
 const ILLEGAL_CHARS_REGEX = /˜/g
 
 export default class Editor extends Component {
@@ -31,6 +33,19 @@ export default class Editor extends Component {
     currentTime: 0,
     initialCursor: 0,
     noDiff: false
+  }
+
+  static propTypes = {
+    diffInstance: PropTypes.instanceOf(Diff),
+    originalChapters: PropTypes.array,
+    chapters: PropTypes.array,
+    currentTime: PropTypes.number.isRequired,
+    initialCursor: PropTypes.number.isRequired,
+    schema: PropTypes.object.isRequired,
+    updateTranscript: PropTypes.instanceOf(Promise).isRequired,
+    onCursorTimeChange: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired,
+    isDiffVisible: PropTypes.bool
   }
 
   state = {
@@ -65,8 +80,7 @@ export default class Editor extends Component {
         const segments = chapter.segments.reduce(this.reduceSegment, [])
         return { ...chapter, segments }
       })
-      updateTranscript(chapters)
-        .then(this.refreshDiff)
+      updateTranscript(chapters).then(this.refreshDiff)
     }
   }
 
@@ -176,18 +190,18 @@ export default class Editor extends Component {
     this.cursor = cursor
   }
 
-  onChange = async (e, chapterId) => {
+  onChange = (e, chapterId) => {
     const { updateTranscript } = this.props
     const illegalCharacters = e.target.innerText.match(ILLEGAL_CHARS_REGEX) || []
     this.stashCursor(- illegalCharacters.length)
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (e.target.nodeName === 'H2') return this.updateKeyword(chapterId, e.target.innerText)
     chapters[chapterId] = this.parseChapter(e.target, chapterId)
-    await updateTranscript(chapters)
-    this.refreshDiff()
+    updateTranscript(chapters).then(this.refreshDiff)
   }
 
   /** Make sure only text is pasted and override browsers default replacment of new lines */
+  // eslint-disable-next-line no-unused-vars
   onPaste = (e, chapterId) => {
     e.preventDefault()
     const text = (e.originalEvent || e).clipboardData.getData('text/plain') || ''
@@ -221,14 +235,14 @@ export default class Editor extends Component {
     charArray.splice(range.startOffset, selectedLength, `\n${isLastSegmentChar ? ' ' : ''}`)
     segments[segmentId].words = charArray.join('')
     chapters[chapterId].segments = segments
-    updateTranscript(chapters)
+    updateTranscript(chapters).then(this.refreshDiff)
   }
 
   updateKeyword = (id, value) => {
     const { updateTranscript } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     chapters[id].keyword = value.replace(/\r?\n|\r/g, '')
-    updateTranscript(chapters)
+    updateTranscript(chapters).then(this.refreshDiff)
   }
 
   splitChapter = (e, chapterId, segmentId) => {
@@ -253,7 +267,7 @@ export default class Editor extends Component {
     chapters[chapterId].segments = [...chapter.segments.slice(0, segmentId), prevSegment]
       .filter(segment => segment.words.length)
     chapters.splice(chapterId + 1, 0, nextChapter)
-    updateTranscript(chapters)
+    updateTranscript(chapters).then(this.refreshDiff)
   }
 
   handleChapterChange = (e, chapterId, segmentId) => {
@@ -277,13 +291,9 @@ export default class Editor extends Component {
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
     this.stashCursor(cursorOffset)
-    const toSegments = chapters[toChapterId].segments
-    const lastToSegment = toSegments[toSegments.length - 1]
-    if (lastToSegment)
-      chapters[toChapterId].segments[toSegments.length - 1].words = `${lastToSegment.words.trimEnd()} `
     chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
     chapters.splice(fromChapterId, 1)
-    updateTranscript(chapters)
+    updateTranscript(chapters).then(this.refreshDiff)
   }
 
   parseChapter = (target, chapterId) => {
@@ -332,18 +342,99 @@ export default class Editor extends Component {
   }
 
   getDiff = (chapters) => {
-    const { diffInstance, originalChapters } = this.props
+    const { originalChapters } = this.props
     if (!this.inputRef || !this.inputRef.current) return null
-    const content = chapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    const originalText = originalChapters.map(transcript => transcript.segments.map(segment => segment.words).join('')).join('')
-    const diff = diffInstance.main(originalText, content)
-    diffInstance.cleanupSemantic(diff)
+
+    const mapContentFunction = ({ id, keyword, segments }) => ({
+      id,
+      keyword,
+      text: segments.map(segment => segment.words).join('')
+    })
+    const content = chapters.map(mapContentFunction)
+    const originalContent = originalChapters.map(mapContentFunction)
+
+    let deletedContentDiff = []
+    originalContent.forEach(({
+      id: originalId,
+      keyword: originalKeyword,
+      text: originalText
+    }) => {
+      let isContentDeleted = true
+      content.forEach(({ id }) => {
+        if (id === originalId) {
+          isContentDeleted = false
+        }
+      })
+      if (isContentDeleted) {
+        deletedContentDiff = deletedContentDiff.concat([
+          // [0]: 0 - hide header, 1 - show header
+          [1, HEADER_TYPE, originalKeyword, null],
+          [-1, originalText]
+        ])
+      }
+    })
+
+    const diff = content.reduce(
+      (store, chapter) => this.reduceDiff(store, chapter, originalContent), []
+    ).concat(deletedContentDiff)
+
     return diff.map((d, i) => this.parseDiff(i, d, diff)).filter(d => d)
   }
 
+  /**
+   * Used as callback function of Array.prototype.reduce() 
+   */
+  reduceDiff = (store, { id, keyword, text }, originalContent) => {
+    const { diffInstance } = this.props
+    let currentDiff
+    originalContent.forEach(originalChapter => {
+      if (originalChapter.id === id) {
+        // generate difference arrays
+        const textDiffs = diffInstance.main(originalChapter.text, text)
+
+        diffInstance.cleanupSemantic(textDiffs)
+
+        let keywordDiff
+        if (
+          textDiffs.length === 1 && textDiffs[0][0] === 0 &&
+          originalChapter.keyword === keyword
+        ) {
+          // [0]: 0 - hide header, 1 - show header
+          keywordDiff = [0, HEADER_TYPE, originalChapter.keyword, keyword]
+        } else {
+          // add keyword/s if there is any change in text or in keyword
+          keywordDiff = [1, HEADER_TYPE, originalChapter.keyword, keyword]
+        }
+          
+        currentDiff = [
+          keywordDiff,
+          ...textDiffs
+        ]
+      }
+    })
+
+    if (currentDiff) {
+      return [
+        ...store,
+        ...currentDiff
+      ]
+    }
+    // otherwise all this chapter is newly added
+    return [
+      ...store,
+      [1, HEADER_TYPE, null, keyword], // add header type
+      [1, text]
+    ]
+  }
+
   parseDiff = (i, thisDiff, diff) => {
-    const prevDiff = diff.slice(0, i).reverse().find(d => d[0] === 0) || [1, ' ']
-    const nextDiff = diff.slice(i).find(d => d[0] === 0) || [1, ' ']
+    const prevDiff = this.getRelativeDiffText(diff.slice(0, i).reverse())
+    const nextDiff = this.getRelativeDiffText(diff.slice(i))
+    
+    // [0]: 0 - hide header, 1 - show header
+    if (thisDiff[0] === 1 && thisDiff[1] === HEADER_TYPE) { // header type
+      return <HeaderLine key={i} header={thisDiff[2]} updatedHeader={thisDiff[3]} />
+    }
     if (thisDiff[0] === -1) {
       return <RemovedLine key={i} diff={thisDiff} prevDiff={prevDiff} nextDiff={nextDiff} />
     }
@@ -351,6 +442,18 @@ export default class Editor extends Component {
       return <AddedLine key={i} diff={thisDiff} prevDiff={prevDiff} nextDiff={nextDiff} />
     }
     return null
+  }
+
+  getRelativeDiffText = (diffArray) => {
+    const defaultReturnValue = [1, ' ']
+    for(const diff of diffArray){
+      if (diff[1] === HEADER_TYPE) {
+        return defaultReturnValue
+      } else if(diff[0] === 0) {
+        return diff
+      }
+    }
+    return defaultReturnValue
   }
 
   setKeyword = (keywordValue, chapterId) => {
@@ -411,6 +514,11 @@ const EditableChapters = ({ chapters, inputRef, ...editableChapterProps }) => {
   )
 }
 
+EditableChapters.propTypes = {
+  chapters: PropTypes.array.isRequired,
+  inputRef: PropTypes.any
+}
+
 const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps }) => {
   const sectionHeaders = schema.fields ? schema.fields.map(({name}) => name) : []
   const field = schema.fields ? schema.fields.find(({id}) => id === keyword) : null
@@ -432,6 +540,13 @@ const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps
       </>
     </EuiFormRow>
   )
+}
+
+EditableChapter.propTypes = {
+  chapterId: PropTypes.number,
+  keyword: PropTypes.string,
+  schema: PropTypes.object.isRequired,
+  setKeyword: PropTypes.func.isRequired
 }
 
 const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, onKeyDown, onSelect, onCursorChange }) => {
@@ -459,6 +574,18 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, 
   )
 }
 
+Chunks.propTypes = {
+  segments: PropTypes.array,
+  currentTime: PropTypes.number,
+  context: PropTypes.object,
+  chapterId: PropTypes.number,
+  onChange: PropTypes.func,
+  onPaste: PropTypes.func,
+  onKeyDown: PropTypes.func,
+  onSelect: PropTypes.func,
+  onCursorChange: PropTypes.func
+}
+
 const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }) => {
   let style
   const current = currentTime > startTime && currentTime <= endTime
@@ -478,9 +605,23 @@ const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }
   )
 }
 
+Chunk.propTypes = {
+  words: PropTypes.any,
+  startTime: PropTypes.number,
+  endTime: PropTypes.number,
+  chapterId: PropTypes.number,
+  i: PropTypes.number,
+  currentTime: PropTypes.number,
+  context: PropTypes.object
+}
+
 const FallbackChunk = ({ chapterId }) => (
-  <Chunk words='' startTime={0} endTime={0} chapterId={chapterId} i={0} currentTime={0} />
+  <Chunk words="" startTime={0} endTime={0} chapterId={chapterId} i={0} currentTime={0} />
 )
+
+FallbackChunk.propTypes = {
+  chapterId: PropTypes.number
+}
 
 const FullDiff = ({ diff }) => {
   if (diff === null || diff.length === 0) return null
@@ -492,6 +633,10 @@ const FullDiff = ({ diff }) => {
   )
 }
 
+FullDiff.propTypes = {
+  diff: PropTypes.array
+}
+
 const RemovedLine = ({ diff, prevDiff, nextDiff }) => (
   <div>
     <EuiTextColor color="danger">- </EuiTextColor>
@@ -501,6 +646,12 @@ const RemovedLine = ({ diff, prevDiff, nextDiff }) => (
   </div>
 )
 
+RemovedLine.propTypes = {
+  diff: PropTypes.array,
+  prevDiff: PropTypes.array,
+  nextDiff: PropTypes.array
+}
+
 const AddedLine = ({ diff, prevDiff, nextDiff }) => (
   <div>
     <EuiTextColor color="secondary">+ </EuiTextColor>
@@ -509,3 +660,39 @@ const AddedLine = ({ diff, prevDiff, nextDiff }) => (
     {nextDiff[1].split(' ').slice(0, 3).join(' ')}
   </div>
 )
+
+AddedLine.propTypes = {
+  diff: PropTypes.array,
+  prevDiff: PropTypes.array,
+  nextDiff: PropTypes.array
+}
+
+const HeaderLine = ({ header, updatedHeader }) => {
+  if (header === updatedHeader) {
+    return (
+      <EuiText size="m"><b>{ header }</b></EuiText>
+    )
+  } else {
+    return (
+      <EuiText size="m">
+        {
+          header &&
+          <b><EuiTextColor color="danger" style={{ background: '#BD271E30' }}>
+            { header }
+          </EuiTextColor> </b>
+        }
+        {
+          updatedHeader &&
+          <b><EuiTextColor color="secondary" style={{ background: '#017D7330' }}>
+            { updatedHeader }
+          </EuiTextColor></b>
+        }
+      </EuiText>
+    )
+  }
+}
+
+HeaderLine.propTypes = {
+  header: PropTypes.string,
+  updatedHeader: PropTypes.string
+}
