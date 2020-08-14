@@ -6,6 +6,7 @@ const processTagsLive = (text, existingTags, onUpdateTags) => {
   // Check regex letter and three numbers
   const machedPatterns = text.match(/\b([a-zA-Z] *\d *\d *\d)\b/g)
   if (machedPatterns) { 
+    
     // if matched patters is not duplicate
     const matchedPatternsTrimmed = machedPatterns.map(matchedPattern => matchedPattern.replace(/\s+/g, '').trim().toLowerCase())
     const previousIcdCodes = []
@@ -18,14 +19,14 @@ const processTagsLive = (text, existingTags, onUpdateTags) => {
     matchedPatternsTrimmed.forEach(async(pattern)=>{
       const code = await loadICD10Codes(pattern)
       if(code) {
-        if (code[0].value) {
-          const currentTagValues = currentTags.icd10Codes.map(v => v.value)
-          if (!currentTagValues.includes(code[0].value))
-            currentTags.icd10Codes.push({ value: code[0].value, description: code[0].description })
-        }
+        if (code.length > 0)
+          if (code[0].value) {
+            const currentTagValues = currentTags.icd10Codes.map(v => v.value)
+            if (!currentTagValues.includes(code[0].value))
+              currentTags.icd10Codes.push({ value: code[0].value, description: code[0].description })
+          }
       }
     })
-
     onUpdateTags(currentTags)
   }
 }

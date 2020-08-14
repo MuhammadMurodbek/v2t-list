@@ -181,10 +181,9 @@ export default class Tags extends Component {
     const {
       options,
       isLoading,
-      selectedOption,
-      tags
+      selectedOption
     } = this.state
-
+    const {tags} = this.props
     return (
       <EuiI18n tokens={['codes', 'lookFor']} defaults={['Codes', 'Look for']}>
         {([codes, lookFor]) =>
