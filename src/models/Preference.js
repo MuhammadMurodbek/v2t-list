@@ -87,23 +87,8 @@ export default class Preference {
   }
 
   set autoPlayStatus(v) {
-    if (this._autoPlayStatus === true) {
-      this._autoPlayStatus = false
-      localStorage.setItem('autoPlayStatus', this._autoPlayStatus)
-    } else if (this._autoPlayStatus === false) {
-      this._autoPlayStatus = true
-      localStorage.setItem('autoPlayStatus', this._autoPlayStatus)
-    } else {
-      const autoPlayStatusFromStorage = localStorage.getItem('autoPlayStatus')
-      if (autoPlayStatusFromStorage === 'true') {
-        this._autoPlayStatus = true
-      } else if (autoPlayStatusFromStorage === 'false') {
-        this._autoPlayStatus = false
-      } else {
-        this._autoPlayStatus = true
-      }
-      localStorage.setItem('autoPlayStatus', this._autoPlayStatus)
-    }
+    this._autoPlayStatus = v
+    localStorage.setItem('autoPlayStatus', v)
   }
 
   get stopButtonVisibilityStatus() {
@@ -264,7 +249,7 @@ export default class Preference {
   static defaultState = {
     words: '3',
     showVideo: true,
-    autoPlayStatus: true,
+    autoPlayStatus: localStorage.getItem('autoPlayStatus') === "true",
     stopButtonVisibilityStatus: false,
     columns: COLUMN_OPTIONS,
     columnsForCombo: COLUMN_OPTIONS.map(({ render, ...items }) => items).filter(
