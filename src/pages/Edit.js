@@ -74,8 +74,7 @@ export default class EditPage extends Component {
     recording: false,
     recordedTime: 0,
     recordedAudio: null,
-    chaptersBeforeRecording: [],
-    probableTags: []
+    chaptersBeforeRecording: []
   }
 
   componentDidMount() {
@@ -128,48 +127,16 @@ export default class EditPage extends Component {
     recorder.start()
   }
 
-  loadICD10Codes = async () => {
-    const { probableTags, tags } = this.state
-    const codes = []
-    if (probableTags) {
-      probableTags.forEach(async (tag)=>{
-        const codeData = await api.keywordsSearch(tag.replace(/\s+/g, ''), CODE_NAMESPACES['icd10Codes'])
-        if (codeData)
-          if (codeData.data && codeData.data.length>0)
-          {
-            const finalTag = codeData.data.filter(tagValue => tagValue.value.trim().toLowerCase() === tag.replace(/\s+/g, '').toLowerCase())
-            if (finalTag){
-              if (finalTag[0].value && finalTag[0].description)
-                codes.push({ value: finalTag[0].value, description: finalTag[0].description })
-            }
-            else
-              codes.push({ value: codeData.data[0].value, description: codeData.data[0].description })
-          }
-            
-        const currentTags = tags
-        currentTags.icd10Codes.push(...codes)
-        this.setState({ tags: currentTags })
-      })
-    }
-  }
-
 
   stopRecording = () => {
     return new Promise(resolve => {
-      const { cursorTime, probableTags } = this.state
+      const { cursorTime } = this.state
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
-      if (probableTags.length > 0) {
-        this.loadICD10Codes()
-      }
       return recorder.stop((recordedAudio) => {
         this.setState({ recordedAudio, recording: false }, resolve)
       }, cursorTime)
     })
-  }
-
-  updateProbableTags = (probableTags) => {
-    this.setState({ probableTags })
   }
 
   setupSocketIO = () => {
@@ -185,7 +152,7 @@ export default class EditPage extends Component {
       }, {})
       const restructuredChapter = processChaptersLive(text, sections, null, cursorTime)
       const diagnosString = restructuredChapter.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
-      processTagsLive(diagnosString, tags, this.updateProbableTags)
+      processTagsLive(diagnosString, tags, this.onUpdateTags)
       const finalChapters = joinRecordedChapters(
         chaptersBeforeRecording,
         restructuredChapter,
