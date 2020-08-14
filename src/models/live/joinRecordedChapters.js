@@ -31,7 +31,7 @@ const appendChapters = (previousChapters, latestChapters) => {
   return intermediateChapters
 }
 
-const joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, chapterId = -9, segmentId) => {
+const joinRecordedChapters = (previousChapters, latestChapters, recordedTime, chapterId = -9, segmentId) => {
   if (previousChapters.length === 0) return latestChapters
   if (previousChapters[0].segments)
     if (previousChapters[0].segments.length===0) {
@@ -69,11 +69,19 @@ const joinRecordedChapters = (previousChapters, latestChapters, timeStamp = 2, c
         tempRemainingPortion.keyword = ch.keyword
         ch.segments.forEach((seg, k) => {
           if (k > segmentId)
-            tempRemainingPortion.segments.push(seg)
+            tempRemainingPortion.segments.push({
+              ...seg,
+              startTime: recordedTime + seg.startTime,
+              endTime: recordedTime + seg.endTime
+            })
         })
       } else if (i > chapterId) {
         tempRemainingPortion.keyword = ch.keyword
-        tempRemainingPortion.segments = ch.segments
+        tempRemainingPortion.segments = ch.segments.map(segment => ({
+          ...segment,
+          startTime: recordedTime + segment.startTime,
+          endTime: recordedTime + segment.endTime
+        }))
       }
       if (tempRemainingPortion.segments.length > 0) {
         remainingPortion.push(tempRemainingPortion)

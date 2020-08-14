@@ -130,12 +130,12 @@ export default class EditPage extends Component {
 
   stopRecording = () => {
     return new Promise(resolve => {
-      const { cursorTime } = this.state
+      const { recordedTime } = this.state
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
       return recorder.stop((recordedAudio) => {
         this.setState({ recordedAudio, recording: false }, resolve)
-      }, cursorTime)
+      }, recordedTime) // Use cursorTime to inser audio at cursor
     })
   }
 
@@ -144,21 +144,20 @@ export default class EditPage extends Component {
     const path = language ? `/${language}` : ''
     this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'], path })
     this.socketio.on('add-transcript', (text) => {
-      const { schema, chaptersBeforeRecording, cursorTime, tags } = this.state
+      const { schema, chaptersBeforeRecording, cursorTime, tags, recordedTime } = this.state
       const sections = schema.fields.reduce((store, field) => {
         if (field.editable)
           store[field.id] = [field.name, ...(field.headerPatterns || [])]
         return store
       }, {})
+
       const restructuredChapter = processChaptersLive(text, sections, null, cursorTime)
       const diagnosString = restructuredChapter.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
       processTagsLive(diagnosString, tags, this.onUpdateTags)
       const finalChapters = joinRecordedChapters(
         chaptersBeforeRecording,
         restructuredChapter,
-        0,
-        this.state.chapterId,
-        this.state.segmentId
+        recordedTime
       )
       this.setState({ chapters: finalChapters })
     })

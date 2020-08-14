@@ -2,15 +2,15 @@
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
 import parserUtils from '../models/live/parserUtils'
-const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime=2) => {
+const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime) => {
   const extractedFinalText = parserUtils.extractedText(finalText)
   // console.log('updatedSections')
   // console.log(updatedSections)
   // console.log('updatedSections end')
-  const sectionHeaderOriginals = Object.keys(updatedSections).map(m => m.trim().toLowerCase()) 
+  const sectionHeaderOriginals = Object.keys(updatedSections).map(m => m.trim().toLowerCase())
   const sectionHeaderSynonyms = Object.values(updatedSections).flat().map(m => m.trim().toLowerCase())
   const sectionHeadersInLowerCase = [sectionHeaderOriginals, sectionHeaderSynonyms].flat()
-  
+
   // console.log('sectionHeadersInLowerCase')
   // console.log(sectionHeadersInLowerCase)
   // console.log('sectionHeadersInLowerCase end')
@@ -20,7 +20,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // console.log('wordsOfTheChapter end')
   const usedSectionHeaders = []
   let newlyOrientedWords = []
-  
+
   let latestKeyword = Object.keys(updatedSections)[0]
   wordsOfTheChapter.forEach((segment, i) => {
     if (
@@ -35,12 +35,12 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       } else {
         latestKeyword = segment.words.trim()
       }
-      
-      // if (latestKeyword[latestKeyword.length-1]===':') 
+
+      // if (latestKeyword[latestKeyword.length-1]===':')
       //   latestKeyword = latestKeyword.slice(0, -1)
 
       usedSectionHeaders.push(segment.words.trim().toLowerCase())
-    } 
+    }
     // Search for multiple word keywords
     else if (!usedSectionHeaders.includes(segment.words.trim().toLowerCase())
       && i !== 0
@@ -48,7 +48,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
         .isTheSegmentASectionHeader(
           sectionHeadersInLowerCase,
           usedSectionHeaders,
-          segment.words.trim().toLowerCase(), 
+          segment.words.trim().toLowerCase(),
           wordsOfTheChapter[i-1].words.trim().toLowerCase()
         )
     ){
@@ -75,14 +75,14 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
 
 
       // latestKeyword = newKeyword
-      // if (latestKeyword[latestKeyword.length - 1] === ':') 
+      // if (latestKeyword[latestKeyword.length - 1] === ':')
       //   latestKeyword = latestKeyword.slice(0, -1)
 
       usedSectionHeaders.push(newKeyword)
       // remove last segment newlyOrientedKeyword
-      
-      newlyOrientedWords 
-        = newlyOrientedWords.filter(p => !(p.keyword.trim().toLowerCase() === previousKeyword.trim().toLowerCase() && p.words.trim().toLowerCase() === wordsOfTheChapter[i - 1].words.trim().toLowerCase())) 
+
+      newlyOrientedWords
+        = newlyOrientedWords.filter(p => !(p.keyword.trim().toLowerCase() === previousKeyword.trim().toLowerCase() && p.words.trim().toLowerCase() === wordsOfTheChapter[i - 1].words.trim().toLowerCase()))
     }
     else if (!usedSectionHeaders.includes(segment.words.trim().toLowerCase())
       && i !== 0 && i !== 1
@@ -93,7 +93,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
           segment.words.trim().toLowerCase(),
           wordsOfTheChapter[i - 1].words.trim().toLowerCase(),
           wordsOfTheChapter[i - 2].words.trim().toLowerCase(),
-          
+
         )
     ) {
       const newKeyword = `${wordsOfTheChapter[i - 2].words.trim().toLocaleLowerCase()} ${wordsOfTheChapter[i - 1].words.trim().toLocaleLowerCase()} ${segment.words.trim().toLocaleLowerCase()}`
@@ -109,16 +109,16 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       usedSectionHeaders.push(newKeyword)
       // remove last segment newlyOrientedKeyword
       newlyOrientedWords
-        = newlyOrientedWords.filter(p => !(p.keyword.trim().toLowerCase() === previousKeyword.trim().toLowerCase() &&  
+        = newlyOrientedWords.filter(p => !(p.keyword.trim().toLowerCase() === previousKeyword.trim().toLowerCase() &&
         (p.words.trim().toLowerCase() === wordsOfTheChapter[i - 1].words.trim().toLowerCase()
         || p.words.trim().toLowerCase() === wordsOfTheChapter[i - 2].words.trim().toLowerCase()
-        ))) 
+        )))
     } else {
       newlyOrientedWords.push({
         keyword: latestKeyword,
         words: segment.words,
-        startTime: segment.startTime,
-        endTime: segment.endTime
+        startTime: segment.startTime + cursorTime,
+        endTime: segment.endTime + cursorTime
       })
     }
   })
@@ -127,28 +127,23 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   // console.log(newlyOrientedWords)
   // console.log('newlyOrientedWords end')
   const finalChapters = []
-  
+
   let tempObject = { segments: [] }
   newlyOrientedWords.forEach((word, i) => {
     if (tempObject.keyword) {
-      if (tempObject.keyword === word.keyword) {
-        tempObject.segments.push({
-          words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
-        })
-      } else {
+      if (tempObject.keyword !== word.keyword) {
         finalChapters.push(tempObject)
         tempObject = { segments: [] }
         tempObject.keyword = word.keyword
-        tempObject.segments.push({
-          words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
-        })
       }
     } else {
       tempObject.keyword = word.keyword
-      tempObject.segments.push({
-        words: `${word.words} `, startTime: word.startTime, endTime: word.endTime
-      }) 
     }
+    tempObject.segments.push({
+      words: `${word.words} `,
+      startTime: word.startTime + cursorTime,
+      endTime: word.endTime + cursorTime
+    })
     if (i === newlyOrientedWords.length - 1)
       finalChapters.push(tempObject)
   })

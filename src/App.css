@@ -107,6 +107,7 @@ p {
 .pageBody {
   height: 100vh;
   overflow-y: auto;
+  scroll-padding-bottom: 150px;
 }
 
 .pageBody::-webkit-scrollbar-track {
