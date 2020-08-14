@@ -487,7 +487,8 @@ export default class EditPage extends Component {
       return
     }
 
-    const missingSections = schema.fields.reduce((store, {id, name, required}) => {
+    const { data: fullSchema } = await api.getSchema(schema.id).catch(this.onError) || {}
+    const missingSections = fullSchema.fields.reduce((store, {id, name, required}) => {
       if (required && !chapters.map(chapter => chapter.keyword).includes(id))
         store.push(name)
       return store
