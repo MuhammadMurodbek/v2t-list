@@ -156,7 +156,7 @@ export default class EditPage extends Component {
 
   stopRecording = () => {
     return new Promise(resolve => {
-      const { cursorTime } = this.state
+      const { cursorTime, probableTags } = this.state
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
       if (probableTags.length > 0) {
