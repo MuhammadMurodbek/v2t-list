@@ -75,7 +75,6 @@ export default class EditPage extends Component {
     recordedTime: 0,
     recordedAudio: null,
     chaptersBeforeRecording: [],
-    audioUploaded: false,
     probableTags: []
   }
 
@@ -102,7 +101,6 @@ export default class EditPage extends Component {
 
   toggleRecord = () => {
     const { recording } = this.state
-    this.setState({ recording: !recording })
     if (recording) {
       this.stopRecording()
     } else {
@@ -155,16 +153,19 @@ export default class EditPage extends Component {
     }
   }
 
+
   stopRecording = () => {
-    const { cursorTime, probableTags } = this.state
-    this.audioContext.suspend()
-    this.socketio.emit('end-recording')
-    recorder.stop((recordedAudio) => {
-      this.setState({ recordedAudio })
-    }, cursorTime)
-    if (probableTags.length>0) {
-      this.loadICD10Codes()
-    }
+    return new Promise(resolve => {
+      const { cursorTime } = this.state
+      this.audioContext.suspend()
+      this.socketio.emit('end-recording')
+      if (probableTags.length > 0) {
+        this.loadICD10Codes()
+      }
+      return recorder.stop((recordedAudio) => {
+        this.setState({ recordedAudio, recording: false }, resolve)
+      }, cursorTime)
+    })
   }
 
   updateProbableTags = (probableTags) => {
@@ -501,8 +502,8 @@ export default class EditPage extends Component {
       originalTags,
       schema,
       originalSchemaId,
-      recordedAudio,
-      audioUploaded
+      recording,
+      recordedAudio
     } = this.state
     let { chapters } = this.state
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
@@ -590,9 +591,10 @@ export default class EditPage extends Component {
     )
 
     try {
-      if (recordedAudio && !audioUploaded) {
+      if (recording)
+        await this.stopRecording()
+      if (recording || recordedAudio) {
         await this.mediaUpload()
-        this.setState({ audioUploaded: true })
       }
       const fields = convertToV2API(schema, chapters, tags)
       await api.updateTranscription(id, schema.id, fields)
