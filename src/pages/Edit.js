@@ -34,6 +34,7 @@ import ReadOnlyChapters from '../components/ReadOnlyChapters'
 import * as recorder from '../utils/recorder'
 import interpolateArray from '../models/interpolateArray'
 import processChaptersLive from '../models/processChaptersLive'
+import processTagsLive from '../models/processTagsLive'
 import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import ListOfHeaders from '../components/ListOfHeaders'
 
@@ -74,7 +75,8 @@ export default class EditPage extends Component {
     recordedTime: 0,
     recordedAudio: null,
     chaptersBeforeRecording: [],
-    audioUploaded: false
+    audioUploaded: false,
+    probableTags: []
   }
 
   componentDidMount() {
@@ -128,13 +130,45 @@ export default class EditPage extends Component {
     recorder.start()
   }
 
+  loadICD10Codes = async () => {
+    const { probableTags, tags } = this.state
+    const codes = []
+    if (probableTags) {
+      probableTags.forEach(async (tag)=>{
+        const codeData = await api.keywordsSearch(tag.replace(/\s+/g, ''), CODE_NAMESPACES['icd10Codes'])
+        if (codeData)
+          if (codeData.data && codeData.data.length>0)
+          {
+            const finalTag = codeData.data.filter(tagValue => tagValue.value.trim().toLowerCase() === tag.replace(/\s+/g, '').toLowerCase())
+            if (finalTag){
+              if (finalTag[0].value && finalTag[0].description)
+                codes.push({ value: finalTag[0].value, description: finalTag[0].description })
+            }
+            else
+              codes.push({ value: codeData.data[0].value, description: codeData.data[0].description })
+          }
+            
+        const currentTags = tags
+        currentTags.icd10Codes.push(...codes)
+        this.setState({ tags: currentTags })
+      })
+    }
+  }
+
   stopRecording = () => {
-    const { cursorTime } = this.state
+    const { cursorTime, probableTags } = this.state
     this.audioContext.suspend()
     this.socketio.emit('end-recording')
     recorder.stop((recordedAudio) => {
       this.setState({ recordedAudio })
     }, cursorTime)
+    if (probableTags.length>0) {
+      this.loadICD10Codes()
+    }
+  }
+
+  updateProbableTags = (probableTags) => {
+    this.setState({ probableTags })
   }
 
   setupSocketIO = () => {
@@ -142,13 +176,15 @@ export default class EditPage extends Component {
     const path = language ? `/${language}` : ''
     this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'], path })
     this.socketio.on('add-transcript', (text) => {
-      const { schema, chaptersBeforeRecording, cursorTime } = this.state
+      const { schema, chaptersBeforeRecording, cursorTime, tags } = this.state
       const sections = schema.fields.reduce((store, field) => {
         if (field.editable)
           store[field.id] = [field.name, ...(field.headerPatterns || [])]
         return store
       }, {})
       const restructuredChapter = processChaptersLive(text, sections, null, cursorTime)
+      const diagnosString = restructuredChapter.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
+      processTagsLive(diagnosString, tags, this.updateProbableTags)
       const finalChapters = joinRecordedChapters(
         chaptersBeforeRecording,
         restructuredChapter,
@@ -469,7 +505,6 @@ export default class EditPage extends Component {
       audioUploaded
     } = this.state
     let { chapters } = this.state
-
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
     if (isThereAnyEmptySection) {
       addWarningToast(
