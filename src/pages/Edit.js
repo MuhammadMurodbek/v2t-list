@@ -73,8 +73,7 @@ export default class EditPage extends Component {
     recording: false,
     recordedTime: 0,
     recordedAudio: null,
-    chaptersBeforeRecording: [],
-    audioUploaded: false
+    chaptersBeforeRecording: []
   }
 
   componentDidMount() {
@@ -100,7 +99,6 @@ export default class EditPage extends Component {
 
   toggleRecord = () => {
     const { recording } = this.state
-    this.setState({ recording: !recording })
     if (recording) {
       this.stopRecording()
     } else {
@@ -129,12 +127,14 @@ export default class EditPage extends Component {
   }
 
   stopRecording = () => {
-    const { cursorTime } = this.state
-    this.audioContext.suspend()
-    this.socketio.emit('end-recording')
-    recorder.stop((recordedAudio) => {
-      this.setState({ recordedAudio })
-    }, cursorTime)
+    return new Promise(resolve => {
+      const { cursorTime } = this.state
+      this.audioContext.suspend()
+      this.socketio.emit('end-recording')
+      return recorder.stop((recordedAudio) => {
+        this.setState({ recordedAudio, recording: false }, resolve)
+      }, cursorTime)
+    })
   }
 
   setupSocketIO = () => {
@@ -465,8 +465,8 @@ export default class EditPage extends Component {
       originalTags,
       schema,
       originalSchemaId,
-      recordedAudio,
-      audioUploaded
+      recording,
+      recordedAudio
     } = this.state
     let { chapters } = this.state
 
@@ -555,9 +555,10 @@ export default class EditPage extends Component {
     )
 
     try {
-      if (recordedAudio && !audioUploaded) {
+      if (recording)
+        await this.stopRecording()
+      if (recording || recordedAudio) {
         await this.mediaUpload()
-        this.setState({ audioUploaded: true })
       }
       const fields = convertToV2API(schema, chapters, tags)
       await api.updateTranscription(id, schema.id, fields)
