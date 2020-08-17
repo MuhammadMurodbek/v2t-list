@@ -4,7 +4,7 @@ import { CODE_NAMESPACES } from '../components/Tags'
 
 const processTagsLive = (text, existingTags, onUpdateTags) => {
   // Check regex letter and three numbers
-  const machedPatterns = text.match(/\b([a-zA-Z] *[a-zA-Z]{0,1} *\d *(\.|\,)? *\d *(\.|\,)?\d)\b/g)
+  const machedPatterns = text.match(/\b([a-zA-Z] *[a-zA-Z]{0,1} *\d *(\.|,)? *\d *(\.|,)?\d)\b/g)
   if (machedPatterns) { 
     
     // if matched patters is not duplicate
