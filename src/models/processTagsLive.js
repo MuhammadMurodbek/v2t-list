@@ -37,10 +37,11 @@ const loadICD10Codes = async (pattern) => {
   if (codeData)
     if (codeData.data && codeData.data.length > 0) {
       const finalTag = codeData.data.filter(tagValue => tagValue.value.trim().toLowerCase() === pattern.replace(/\s+/g, '').toLowerCase())
-      if (finalTag) {
-        if (finalTag[0].value && finalTag[0].description)
-          codes.push({ value: finalTag[0].value, description: finalTag[0].description })
-      } 
+      if (finalTag) 
+        if (finalTag[0])
+          if (finalTag[0].value)
+            if (finalTag[0].description)
+              codes.push({ value: finalTag[0].value, description: finalTag[0].description })
     }
   return codes
 }
