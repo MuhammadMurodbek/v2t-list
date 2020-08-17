@@ -429,7 +429,6 @@ const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps
         chapterId={chapterId}
         {...{ ...chunkProps }}
       />
-      <EuiSpacer size="xxl" />
     </Fragment>
   )
 }
