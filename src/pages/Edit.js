@@ -731,7 +731,7 @@ export default class EditPage extends Component {
                       onUpdate={this.updateSchemaId}
                     />
                   </EuiFlexItem>
-                  <EuiFlexItem>
+                  <EuiFlexItem grow={false} style={{position: 'sticky', top: 20}}>
                     {mic && <ListOfHeaders headers={this.sectionHeaders()} />}
                   </EuiFlexItem>
                 </EuiFlexGroup>
