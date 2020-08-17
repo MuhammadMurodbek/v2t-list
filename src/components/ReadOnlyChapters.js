@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 import {
   EuiFlexGroup,
   EuiFlexItem,
-  EuiText,
   EuiFieldText,
-  EuiForm
+  EuiForm,
+  EuiFormRow
 } from '@patronum/eui'
 import '../styles/editor.css'
 import '../styles/tags.css'
@@ -20,9 +20,9 @@ const ReadOnlyChapters = ({ chapters, onCreate }) => {
             <EuiFlexItem key={key}>
               <EuiFlexGroup>
                 <EuiFlexItem>
-                  <EuiText>
-                    <h4>{ name }</h4>
-                  </EuiText>
+                  <EuiFormRow style={{ paddingBottom: 0 }} label={name}>
+                    <span></span>
+                  </EuiFormRow>
                 </EuiFlexItem>
                 <EuiFlexItem>
                   {
