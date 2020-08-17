@@ -79,7 +79,6 @@ p {
 }
 
 .editorTextArea {
-  min-height: 100px;
   width: 100%;
   padding: 12px;
   resize: vertical;
