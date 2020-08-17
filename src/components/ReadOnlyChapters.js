@@ -7,8 +7,13 @@ import {
   EuiFieldText,
   EuiForm
 } from '@patronum/eui'
+import moment from 'moment'
 import '../styles/editor.css'
 import '../styles/tags.css'
+
+const formattedDate = (str) => {
+  return moment(str).isValid() ? moment(str).format('YYYY MMM DD HH:mm') : str
+}
 
 const ReadOnlyChapters = ({ chapters, onCreate }) => {
   if(!chapters || !chapters.length) return null
@@ -35,7 +40,7 @@ const ReadOnlyChapters = ({ chapters, onCreate }) => {
                                 <strong>{ value }</strong> - { description }
                               </Fragment>
                               :
-                              value
+                              formattedDate(value)
                           }
                         </div>
                       )) :
