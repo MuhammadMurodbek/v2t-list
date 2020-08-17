@@ -36,12 +36,10 @@ const loadICD10Codes = async (pattern) => {
   const codeData = await api.keywordsSearch(pattern, CODE_NAMESPACES['icd10Codes'])
   if (codeData)
     if (codeData.data && codeData.data.length > 0) {
-      const finalTag = codeData.data.filter(tagValue => tagValue.value.trim().toLowerCase() === pattern.replace(/\s+/g, '').toLowerCase())
+      const finalTag = codeData.data.filter(tagValue => tagValue.value.trim().toLowerCase() === pattern.replace(/\s+/g, '').toLowerCase())[0]
       if (finalTag) 
-        if (finalTag[0])
-          if (finalTag[0].value)
-            if (finalTag[0].description)
-              codes.push({ value: finalTag[0].value, description: finalTag[0].description })
+        if (finalTag.value)
+          codes.push({ value: finalTag.value, description: finalTag.description||'' })
     }
   return codes
 }
