@@ -487,29 +487,6 @@ export default class EditPage extends Component {
       return
     }
 
-    const { data: fullSchema } = await api.getSchema(schema.id).catch(this.onError) || {}
-    const missingSections = fullSchema.fields.reduce((store, {id, name, required}) => {
-      if (required && !chapters.map(chapter => chapter.keyword).includes(id))
-        store.push(name)
-      return store
-    }, [])
-
-    if (missingSections.length) {
-      addWarningToast(
-        <EuiI18n
-          token="unableToSaveDictation"
-          default="Unable to save the dictation"
-        />,
-        <>
-          <EuiI18n
-            token="missingReuiredHeaders"
-            default="Required keyword is missing"
-          />:: <strong>{missingSections.join(', ')}</strong>
-        </>
-      )
-      return
-    }
-
     if (
       JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
       JSON.stringify(tags) === JSON.stringify(originalTags) &&
@@ -556,6 +533,29 @@ export default class EditPage extends Component {
     chapters = chapters.concat(
       allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
     )
+
+    const { data: fullSchema } = await api.getSchema(schema.id).catch(this.onError) || {}
+    const missingSections = fullSchema.fields.reduce((store, {id, name, required}) => {
+      if (required && !chapters.map(chapter => chapter.keyword).includes(id))
+        store.push(name)
+      return store
+    }, [])
+
+    if (missingSections.length) {
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <>
+          <EuiI18n
+            token="missingReuiredHeaders"
+            default="Required keyword is missing"
+          />:: <strong>{missingSections.join(', ')}</strong>
+        </>
+      )
+      return
+    }
 
     try {
       if (recording)
