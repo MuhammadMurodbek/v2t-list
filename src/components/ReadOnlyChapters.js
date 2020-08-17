@@ -12,7 +12,8 @@ import '../styles/editor.css'
 import '../styles/tags.css'
 
 const formattedDate = (str) => {
-  return moment(str).isValid() ? moment(str).format('YYYY MMM DD HH:mm') : str
+  return moment(str, 'YYYY-MM-DDTHH:mm:ssSSSZ').isValid() ? 
+    moment(str).format('YYYY-MM-DD HH:mm:ss') : str
 }
 
 const ReadOnlyChapters = ({ chapters, onCreate }) => {
