@@ -1,8 +1,9 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import Diff from 'text-diff'
 
 import {
   EuiFormRow,
+  EuiTitle,
   EuiText,
   EuiTextColor,
   EuiSpacer,
@@ -364,32 +365,30 @@ export default class Editor extends Component {
     const [preferences] = this.context
     if (!chapters) return null
     return (
-      <EuiText size="s">
-        <EuiFormRow
-          label={
+      <>
+        <EuiTitle size="s">
+          <h2>
             <EuiI18n token="transcription" default="Transcription" />
-          }
-          style={{ maxWidth: '100%' }}
-        >
-          <EditableChapters
-            chapters={chapters}
-            inputRef={this.inputRef}
-            currentTime={currentTime}
-            onChange={this.onChange}
-            onPaste={this.onPaste}
-            onKeyDown={this.onKeyDown}
-            onSelect={onSelect}
-            onCursorChange={this.onCursorChange}
-            error={error}
-            context={preferences}
-            schema={schema}
-            setKeyword={this.setKeyword}
-          />
-        </EuiFormRow>
+          </h2>
+        </EuiTitle>
+        <EditableChapters
+          chapters={chapters}
+          inputRef={this.inputRef}
+          currentTime={currentTime}
+          onChange={this.onChange}
+          onPaste={this.onPaste}
+          onKeyDown={this.onKeyDown}
+          onSelect={onSelect}
+          onCursorChange={this.onCursorChange}
+          error={error}
+          context={preferences}
+          schema={schema}
+          setKeyword={this.setKeyword}
+        />
         {
           !noDiff && <FullDiff diff={diff} />
         }
-      </EuiText>
+      </>
     )
   }
 }
@@ -417,42 +416,46 @@ const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps
   const field = schema.fields ? schema.fields.find(({id}) => id === keyword) : null
   const sectionHeader = field ? field.name : ''
   return (
-    <Fragment>
-      <SectionHeader
-        isVisible
-        keywords={sectionHeaders}
-        selectedHeader={sectionHeader}
-        updateKey={setKeyword}
-        chapterId={chapterId}
-      />
-      <Chunks
-        chapterId={chapterId}
-        {...{ ...chunkProps }}
-      />
-    </Fragment>
+    <EuiFormRow style={{ maxWidth: '100%' }}>
+      <>
+        <SectionHeader
+          isVisible
+          keywords={sectionHeaders}
+          selectedHeader={sectionHeader}
+          updateKey={setKeyword}
+          chapterId={chapterId}
+        />
+        <Chunks
+          chapterId={chapterId}
+          {...{ ...chunkProps }}
+        />
+      </>
+    </EuiFormRow>
   )
 }
 
 const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, onKeyDown, onSelect, onCursorChange }) => {
   const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
-    <pre>
-      <code
-        className="editorTextArea"
-        key={JSON.stringify(segments)}
-        onInput={e => onChange(e, chapterId)}
-        onPaste={e => onPaste(e, chapterId)}
-        onKeyDown={e => onKeyDown(e, chapterId)}
-        onKeyUp={onCursorChange}
-        onClick={onCursorChange}
-        onSelect={onSelect}
-        contentEditable
-        suppressContentEditableWarning
-        data-chapter={chapterId}
-        >
-        {chunks.length ? chunks : <FallbackChunk chapterId={chapterId} />}
-      </code>
-    </pre>
+    <EuiText>
+      <pre>
+        <code
+          className="editorTextArea"
+          key={JSON.stringify(segments)}
+          onInput={e => onChange(e, chapterId)}
+          onPaste={e => onPaste(e, chapterId)}
+          onKeyDown={e => onKeyDown(e, chapterId)}
+          onKeyUp={onCursorChange}
+          onClick={onCursorChange}
+          onSelect={onSelect}
+          contentEditable
+          suppressContentEditableWarning
+          data-chapter={chapterId}
+          >
+          {chunks.length ? chunks : <FallbackChunk chapterId={chapterId} />}
+        </code>
+      </pre>
+    </EuiText>
   )
 }
 
@@ -482,10 +485,10 @@ const FallbackChunk = ({ chapterId }) => (
 const FullDiff = ({ diff }) => {
   if (diff === null || diff.length === 0) return null
   return (
-    <Fragment>
+    <>
       <code className="fullDiffArea">{diff}</code>
       <EuiSpacer size="xl" />
-    </Fragment>
+    </>
   )
 }
 

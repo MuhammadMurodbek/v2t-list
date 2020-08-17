@@ -74,6 +74,12 @@ p {
   margin-top: 10px;
 }
 
+.sectionHeader span {
+  font-size: 0.75rem;
+  color: #2a292c;
+  font-weight: 600;
+}
+
 .fullDiffArea {
   padding-left: 12px;
 }
