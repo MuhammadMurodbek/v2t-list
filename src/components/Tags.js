@@ -82,14 +82,7 @@ export default class Tags extends Component {
   deleteRow = (tagType, value) => {
     const { tags } = this.props
     const remainingCodes = tags[tagType].filter((el) => el.value !== value)
-    this.setState(prevState => ({
-      tags: {
-        ...prevState.tags,
-        [tagType]: remainingCodes
-      }
-    }), () => {
-      this.props.updateTags({ ...tags, [tagType]: remainingCodes})
-    })
+    this.props.updateTags({ ...tags, [tagType]: remainingCodes})
   }
 
   addCode = (tagType) => {
@@ -115,15 +108,8 @@ export default class Tags extends Component {
             description
           }
         ]
-        this.setState(prevState => ({
-          tags: {
-            ...prevState.tags,
-            [tagType]: updatedCodes
-          }
-        }), () => {
-          this.emptySelectedOption()
-          this.props.updateTags({ ...tags, [tagType]: updatedCodes })
-        })
+        this.emptySelectedOption()
+        this.props.updateTags({ ...tags, [tagType]: updatedCodes })
       }
     
     }
