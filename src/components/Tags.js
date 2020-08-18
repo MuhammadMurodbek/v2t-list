@@ -28,7 +28,8 @@ export const CODE_NAMESPACES = {
 export default class Tags extends Component {
   static propTypes = {
     tags: PropTypes.object.isRequired,
-    updateTags: PropTypes.func.isRequired
+    updateTags: PropTypes.func.isRequired,
+    updateSwapStatus: PropTypes.func.isRequired
   }
 
   state = {
@@ -151,16 +152,9 @@ export default class Tags extends Component {
     const { tags } = this.props
     if (source && destination) {
       const tagType = source.droppableId
-      this.setState((prevState) => ({
-        tags: {
-          ...prevState.tags,
-          [tagType]: this.swap(tags[tagType], source.index, destination.index)
-        }
-      }),
-      () => {
-        this.props.updateTags({ ...tags })
-      }
-      )
+      this.swap(tags[tagType], source.index, destination.index)
+      this.props.updateTags({ ...tags })      
+      this.props.updateSwapStatus(true)      
     }
   }
 
