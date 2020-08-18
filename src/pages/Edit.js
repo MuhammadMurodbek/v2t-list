@@ -74,8 +74,7 @@ export default class EditPage extends Component {
     recording: false,
     recordedTime: 0,
     recordedAudio: null,
-    chaptersBeforeRecording: [],
-    swapStatus: false
+    chaptersBeforeRecording: []
   }
 
   componentDidMount() {
@@ -471,8 +470,7 @@ export default class EditPage extends Component {
       schema,
       originalSchemaId,
       recording,
-      recordedAudio,
-      swapStatus
+      recordedAudio
     } = this.state
     let { chapters } = this.state
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
@@ -493,7 +491,6 @@ export default class EditPage extends Component {
     if (
       JSON.stringify(originalChapters) === JSON.stringify(chapters) 
       && JSON.stringify(tags) === JSON.stringify(originalTags) 
-      && swapStatus === false 
       && originalSchemaId === schema.id
     ) {
       addGlobalToast(
@@ -573,8 +570,7 @@ export default class EditPage extends Component {
         {
           allChapters: chapters,
           originalChapters: this.parseTranscriptions(chapters),
-          originalTags: tags,
-          swapStatus: false
+          originalTags: {...tags}
         },
         () => {
           addSuccessToast(
@@ -599,10 +595,6 @@ export default class EditPage extends Component {
 
   onUpdateTags = (tags) => {
     this.setState({ tags })
-  }
-
-  onUpdateSwapStatus = (swapStatus) => {
-    this.setState({ swapStatus })
   }
 
   updateSchemaId = async (schemaId) => {
@@ -731,7 +723,7 @@ export default class EditPage extends Component {
                     />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
-                    <Tags tags={tags} updateTags={this.onUpdateTags} updateSwapStatus={this.onUpdateSwapStatus}/>
+                    <Tags tags={tags} updateTags={this.onUpdateTags} />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <Schemas

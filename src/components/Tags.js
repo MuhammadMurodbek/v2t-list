@@ -148,12 +148,11 @@ export default class Tags extends Component {
   }
 
   onDragEnd = ({ source, destination }) => {
-    const { tags } = this.props
+    const tags = JSON.parse(JSON.stringify(this.props.tags))
     if (source && destination) {
       const tagType = source.droppableId
-      this.swap(tags[tagType], source.index, destination.index)
-      this.props.updateTags({ ...tags })      
-      this.props.updateSwapStatus(true)      
+      const updatedTags = this.swap(tags[tagType], source.index, destination.index)
+      this.props.updateTags({ ...tags, [tagType]: updatedTags })      
     }
   }
 

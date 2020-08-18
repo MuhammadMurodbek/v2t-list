@@ -3,11 +3,9 @@ import Diff from 'text-diff'
 import PropTypes from 'prop-types'
 import {
   EuiFormRow,
-  EuiTitle,
   EuiText,
   EuiTextColor,
-  EuiSpacer,
-  EuiI18n
+  EuiSpacer
 } from '@patronum/eui'
 
 import { PreferenceContext } from './PreferencesProvider'
