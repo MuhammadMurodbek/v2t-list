@@ -28,8 +28,7 @@ export const CODE_NAMESPACES = {
 export default class Tags extends Component {
   static propTypes = {
     tags: PropTypes.object.isRequired,
-    updateTags: PropTypes.func.isRequired,
-    updateSwapStatus: PropTypes.func.isRequired
+    updateTags: PropTypes.func.isRequired
   }
 
   state = {
