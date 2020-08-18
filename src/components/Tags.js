@@ -80,7 +80,7 @@ export default class Tags extends Component {
   }
 
   deleteRow = (tagType, value) => {
-    const { tags } = this.state
+    const { tags } = this.props
     const remainingCodes = tags[tagType].filter((el) => el.value !== value)
     this.setState(prevState => ({
       tags: {
@@ -93,7 +93,8 @@ export default class Tags extends Component {
   }
 
   addCode = (tagType) => {
-    const { selectedOption, tags } = this.state
+    const { tags } = this.props
+    const { selectedOption } = this.state
     if (selectedOption.length > 0) {
       const data = selectedOption[0]
       const [value, description] = data.label.split(': ')
@@ -161,7 +162,7 @@ export default class Tags extends Component {
   }
 
   onDragEnd = ({ source, destination }) => {
-    const { tags } = this.state
+    const { tags } = this.props
     if (source && destination) {
       const tagType = source.droppableId
       this.setState((prevState) => ({
