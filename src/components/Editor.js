@@ -469,11 +469,6 @@ export default class Editor extends Component {
     if (!chapters) return null
     return (
       <>
-        <EuiTitle size="s">
-          <h2>
-            <EuiI18n token="transcription" default="Transcription" />
-          </h2>
-        </EuiTitle>
         <EditableChapters
           chapters={chapters}
           inputRef={this.inputRef}
