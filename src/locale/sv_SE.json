@@ -144,7 +144,7 @@
   "dictationRemoveSucces": "Diktatet har tagits bort!",
   "info": "Info",
   "unableToSendToCoWorker": "Det är inte möjligt att skicka till co-worker",
-  "nothingToUpdate": "Inte möjligt att uppdatera diktatet!",
+  "nothingToUpdate": "Det finns inga ändringar att spara!",
   "unableToSaveDictation": "Inte möjligt att spara diktatet",
   "keywordsError": "Sökord måste vara satt och får endast förekomma 1 gång",
   "emptySectionError": "Rubrik utan efterföljande text är ej tillåten",
