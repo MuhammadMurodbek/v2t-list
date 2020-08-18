@@ -48,7 +48,6 @@ export default class Tags extends Component {
 
   loadTagsFromTranscript = () => {
     const { tags } = this.props
-    this.setState({ tags })
 
     Object.keys(tags).forEach(tagType => {
       this.loadIcdCodes('', tagType)
