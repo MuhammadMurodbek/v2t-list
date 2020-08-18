@@ -570,7 +570,7 @@ export default class EditPage extends Component {
         {
           allChapters: chapters,
           originalChapters: this.parseTranscriptions(chapters),
-          originalTags: {...tags}
+          originalTags: tags
         },
         () => {
           addSuccessToast(
