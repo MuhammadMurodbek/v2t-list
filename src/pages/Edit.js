@@ -159,7 +159,7 @@ export default class EditPage extends Component {
         restructuredChapter,
         recordedTime
       )
-      this.setState({ chapters: finalChapters })
+      this.setState({ chapters: finalChapters, initialCursor: recordedTime })
     })
   }
 
@@ -182,10 +182,8 @@ export default class EditPage extends Component {
     scriptNode.connect(this.audioContext.destination)
     scriptNode.onaudioprocess = (audioEvent) => {
       const { recording } = this.state
-      const recordedTime = Math.ceil(this.audioContext.currentTime)
-      if (recordedTime !== this.state.recordedTime) {
-        this.setState({ recordedTime })
-      }
+      const recordedTime = this.audioContext.currentTime
+      this.setState({ recordedTime })
       if (recording === true) {
         let input = audioEvent.inputBuffer.getChannelData(0)
         input = interpolateArray(input, 16000, this.audioContext.sampleRate)
@@ -489,8 +487,8 @@ export default class EditPage extends Component {
     }
 
     if (
-      JSON.stringify(originalChapters) === JSON.stringify(chapters) 
-      && JSON.stringify(tags) === JSON.stringify(originalTags) 
+      JSON.stringify(originalChapters) === JSON.stringify(chapters)
+      && JSON.stringify(tags) === JSON.stringify(originalTags)
       && originalSchemaId === schema.id
     ) {
       addGlobalToast(

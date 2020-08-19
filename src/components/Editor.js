@@ -40,7 +40,7 @@ export default class Editor extends Component {
     currentTime: PropTypes.number.isRequired,
     initialCursor: PropTypes.number.isRequired,
     schema: PropTypes.object.isRequired,
-    updateTranscript: PropTypes.instanceOf(Promise).isRequired,
+    updateTranscript: PropTypes.func.isRequired,
     onCursorTimeChange: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
     isDiffVisible: PropTypes.bool
@@ -59,7 +59,7 @@ export default class Editor extends Component {
   componentDidUpdate(prevProps) {
     const { initialCursor, schema, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
-      this.setCursor(initialCursor, true)
+      this.setCursor(initialCursor, false)
     else
       this.updateCursor()
 
@@ -85,14 +85,20 @@ export default class Editor extends Component {
   setCursor = (timestamp, select) => {
     const { chapters } = this.props
     const cursor = chapters.reduce((store, { segments }, chapter) => {
-      const segment = segments.findIndex(({ startTime, endTime }) => {
-        //find segment within timestamp or find closest to startTime
-        return (startTime <= timestamp && endTime >= timestamp)
-          || (startTime > timestamp && startTime < store.startTime)
-      })
-      return segment >= 0 ? { chapter, segment, offset: 0, startTime: segments[segment].startTime, select } : store
-    }, { chapter: 0, segment: 0, offset: 0, startTime: Number.MAX_SAFE_INTEGER, select })
-    this.cursor = cursor
+      const segment = segments.findIndex(({ startTime }, i) =>
+        startTime > timestamp || (i === segments.length - 1 && chapter === chapters.length -1)
+      )
+      return !store && segment >= 0 ? {
+        chapter,
+        segment,
+        offset: segments[segment].words.length - 1,
+        select
+      } : store
+    }, null) || { chapter: 0, segment: 0, offset: 0, select }
+    this.stashCursorAt(cursor)
+    const container = this.getSelectedElement()
+    const element = container.firstChild || container
+    element.parentElement.scrollIntoView(false)
     this.updateCursor()
   }
 
@@ -115,14 +121,18 @@ export default class Editor extends Component {
     const siblingOffset = node.previousSibling && node.previousSibling.data ?
       node.previousSibling.data.length : 0
     const dataset = this.getClosestDataset(node)
-    this.cursor = {
+    this.stashCursorAt({
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
       segment: Number(dataset.segment || 0),
       offset: range.startOffset + siblingOffset + offset
-    }
+    })
     if (isNaN(this.cursor.keyword) && this.cursor.offset < 0)
       this.alignCursorToPreviousSegment()
+  }
+
+  stashCursorAt = cursor => {
+    this.cursor = cursor
   }
 
   popCursor = () => {
@@ -138,7 +148,7 @@ export default class Editor extends Component {
     range.setStart(element, startOffset)
     range.setEnd(element, endOffset)
     selection.addRange(range)
-    this.cursor = null
+    this.stashCursorAt(null)
   }
 
   onCursorChange = () => {
@@ -185,7 +195,7 @@ export default class Editor extends Component {
     const newSegment = chapters[cursor.chapter].segments[cursor.segment]
     cursor.offset = newSegment ? newSegment.words.length : 0
     cursor.segment = newSegment ? cursor.segment : 0
-    this.cursor = cursor
+    this.stashCursorAt(cursor)
   }
 
   onChange = (e, chapterId) => {
@@ -230,7 +240,7 @@ export default class Editor extends Component {
     const charArray = segments[segmentId].words.split('')
     const isLastSegmentChar = segments.length - 1 === segmentId && charArray.length === range.startOffset
 
-    charArray.splice(range.startOffset, selectedLength, `\n${isLastSegmentChar ? ' ' : ''}`)
+    charArray.splice(range.startOffset, selectedLength, `\n${isLastSegmentChar ? '\u200c' : ''}`)
     segments[segmentId].words = charArray.join('')
     chapters[chapterId].segments = segments
     updateTranscript(chapters).then(this.refreshDiff)
@@ -265,6 +275,7 @@ export default class Editor extends Component {
     chapters[chapterId].segments = [...chapter.segments.slice(0, segmentId), prevSegment]
       .filter(segment => segment.words.length)
     chapters.splice(chapterId + 1, 0, nextChapter)
+    this.stashCursorAt({ chapter: chapterId + 1 })
     updateTranscript(chapters).then(this.refreshDiff)
   }
 
@@ -380,7 +391,7 @@ export default class Editor extends Component {
   }
 
   /**
-   * Used as callback function of Array.prototype.reduce() 
+   * Used as callback function of Array.prototype.reduce()
    */
   reduceDiff = (store, { id, keyword, text }, originalContent) => {
     const { diffInstance } = this.props
@@ -403,7 +414,7 @@ export default class Editor extends Component {
           // add keyword/s if there is any change in text or in keyword
           keywordDiff = [1, HEADER_TYPE, originalChapter.keyword, keyword]
         }
-          
+
         currentDiff = [
           keywordDiff,
           ...textDiffs
@@ -428,7 +439,7 @@ export default class Editor extends Component {
   parseDiff = (i, thisDiff, diff) => {
     const prevDiff = this.getRelativeDiffText(diff.slice(0, i).reverse())
     const nextDiff = this.getRelativeDiffText(diff.slice(i))
-    
+
     // [0]: 0 - hide header, 1 - show header
     if (thisDiff[0] === 1 && thisDiff[1] === HEADER_TYPE) { // header type
       return <HeaderLine key={i} header={thisDiff[2]} updatedHeader={thisDiff[3]} />
@@ -549,7 +560,7 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, 
       <pre>
         <code
           className="editorTextArea"
-          key={JSON.stringify(segments)}
+          key={segments.length ? `code-${chapterId}` : `code-reset`}
           onInput={e => onChange(e, chapterId)}
           onPaste={e => onPaste(e, chapterId)}
           onKeyDown={e => onKeyDown(e, chapterId)}
