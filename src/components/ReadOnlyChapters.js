@@ -12,7 +12,7 @@ import '../styles/editor.css'
 import '../styles/tags.css'
 
 const formattedDate = (str) => {
-  return moment(str, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).isValid() ? 
+  return moment(str, 'YYYY-MM-DDTHH:mm:ss.SSSSZ', true).isValid() ?
     moment(str).format('YYYY-MM-DD HH:mm:ss') : str
 }
 
