@@ -1,46 +1,44 @@
 /* eslint-disable no-console */
 import api from '../api'
-import { CODE_NAMESPACES } from '../components/Tags'
 
-const processTagsLive = (text, existingTags, onUpdateTags) => {
-  // Check regex letter and three numbers
-  const machedPatterns = text.match(/\b([a-zA-Z] *[a-zA-Z]{0,1} *\d *(\.|,)? *\d *(\.|,)?\d)\b/g)
-  if (machedPatterns) { 
-    
-    // if matched patters is not duplicate
-    const matchedPatternsTrimmed = machedPatterns.map(matchedPattern => matchedPattern.replace(/\s+/g, '').trim().toLowerCase())
-    const previousIcdCodes = []
-    existingTags.icd10Codes.forEach(tg => {
-      previousIcdCodes.push(tg)
-    })
+/**
+  Word boundry with 4 or 5 chars with possible separators (eg. whitespace or dots).
+  Only the second to last char is always a digit.
+**/
+const REGEX = /\b([a-zA-Z] *[a-zA-Z\d]{0,1} *[a-zA-Z\d] *(\.|,)? *\d *(\.|,)?[a-zA-Z\d])\b/g
 
-    const currentTags = { icd10Codes: previousIcdCodes }
-
-    matchedPatternsTrimmed.forEach(async(pattern)=>{
-      const code = await loadICD10Codes(pattern)
-      if(code) {
-        if (code.length > 0)
-          if (code[0].value) {
-            const currentTagValues = currentTags.icd10Codes.map(v => v.value)
-            if (!currentTagValues.includes(code[0].value))
-              currentTags.icd10Codes.push({ value: code[0].value, description: code[0].description })
-          }
-      }
-    })
-    onUpdateTags(currentTags)
+const processTagsLive = async (text, existingTags, onUpdateTags, tagRequestCache, onUpdateTagRequestCache) => {
+  let needUpdate = false
+  const tags = await Object.entries(existingTags).reduce(async (store, [namespace, value]) => {
+    const accumulator = await store
+    const newTags = await processTagType(text, namespace, value, tagRequestCache, onUpdateTagRequestCache)
+    if (newTags.length)
+      needUpdate = true
+    accumulator[namespace] = [...value, ...newTags]
+    return Promise.resolve(accumulator)
+  }, Promise.resolve({}))
+  if (needUpdate) {
+    onUpdateTags(tags)
   }
 }
 
-const loadICD10Codes = async (pattern) => {
-  const codes = []
-  const codeData = await api.keywordsSearch(pattern, CODE_NAMESPACES['icd10Codes'])
-  if (codeData)
-    if (codeData.data && codeData.data.length > 0) {
-      const finalTag = codeData.data.filter(tagValue => tagValue.value.trim().toLowerCase() === pattern.replace(/\s+/g, '').toLowerCase())[0]
-      if (finalTag && finalTag.value)
-        codes.push({ value: finalTag.value, description: finalTag.description||'' })
-    }
-  return codes
+const processTagType = async (text, namespace, existingTags, tagRequestCache, onUpdateTagRequestCache) => {
+  const match = text.match(REGEX) || []
+  const filteredMatch = match.map(hit => hit.replace(/[\W_]+/g, '').toLowerCase())
+    .filter(match => !existingTags.some(({value}) => value.toLowerCase() === match))
+  const tags = await Promise.all(filteredMatch.map(async (pattern) =>
+    await loadTag(namespace, pattern, tagRequestCache, onUpdateTagRequestCache)
+  ))
+  return tags.filter(tag => tag)
+}
+
+const loadTag = async (namespace, pattern, tagRequestCache, onUpdateTagRequestCache) => {
+  const cacheKey = `${namespace}-${pattern}`
+  const codeData = tagRequestCache[cacheKey] || await api.keywordsSearch(pattern, namespace)
+  if (!tagRequestCache[cacheKey])
+    onUpdateTagRequestCache(cacheKey, codeData)
+  if (codeData && codeData.data && codeData.data.length > 0)
+    return codeData.data.filter(tagValue => tagValue.value.trim().toLowerCase() === pattern.replace(/\s+/g, '').toLowerCase())[0]
 }
 
 export default processTagsLive

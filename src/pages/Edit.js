@@ -18,7 +18,7 @@ import api from '../api'
 import Page from '../components/Page'
 import { PreferenceContext } from '../components/PreferencesProvider'
 import Editor from '../components/Editor'
-import Tags, { CODE_NAMESPACES } from '../components/Tags'
+import Tags, { TAG_NAMESPACES } from '../components/Tags'
 import Player from '../components/Player'
 import Schemas from '../components/Schemas'
 import convertToV1API from '../models/convertToV1API'
@@ -74,7 +74,8 @@ export default class EditPage extends Component {
     recording: false,
     recordedTime: 0,
     recordedAudio: null,
-    chaptersBeforeRecording: []
+    chaptersBeforeRecording: [],
+    tagRequestCache: {}
   }
 
   componentDidMount() {
@@ -144,7 +145,7 @@ export default class EditPage extends Component {
     const path = language ? `/${language}` : ''
     this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'], path })
     this.socketio.on('add-transcript', (text) => {
-      const { schema, chaptersBeforeRecording, cursorTime, tags, recordedTime } = this.state
+      const { schema, chaptersBeforeRecording, cursorTime, tags, recordedTime, tagRequestCache } = this.state
       const sections = schema.fields.reduce((store, field) => {
         if (field.editable)
           store[field.id] = [field.name, ...(field.headerPatterns || [])]
@@ -153,7 +154,7 @@ export default class EditPage extends Component {
 
       const restructuredChapter = processChaptersLive(text, sections, null, cursorTime)
       const diagnosString = restructuredChapter.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
-      processTagsLive(diagnosString, tags, this.onUpdateTags)
+      processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
       const finalChapters = joinRecordedChapters(
         chaptersBeforeRecording,
         restructuredChapter,
@@ -294,22 +295,16 @@ export default class EditPage extends Component {
 
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
-      const tagTypes = schema.fields.reduce((store, { id }) => {
-        const tag = Object.entries(CODE_NAMESPACES).find(([type, namespace]) => namespace === id)
-        if (tag) {
-          store.push(tag[0])
-        }
-        return store
-      }, [])
+      const namespaces = TAG_NAMESPACES.filter(namespace => schema.fields.some(({id}) => id === namespace))
 
-      schema.fields = schema.fields.filter(({ id }) => !Object.values(CODE_NAMESPACES).includes(id))
+      schema.fields = schema.fields.filter(({ id }) => !TAG_NAMESPACES.includes(id))
 
-      const originalTags = tagTypes.reduce((store, tagType) => {
-        const tagTranscript = transcriptions.find(({ keyword }) => keyword === CODE_NAMESPACES[tagType])
+      const originalTags = namespaces.reduce((store, namespace) => {
+        const tagTranscript = transcriptions.find(({ keyword }) => keyword === namespace)
         if (tagTranscript && tagTranscript.values) {
-          store[tagType] = tagTranscript.values
+          store[namespace] = tagTranscript.values
         } else {
-          store[tagType] = []
+          store[namespace] = []
         }
         return store
       }, {})
@@ -352,7 +347,7 @@ export default class EditPage extends Component {
       }
     })
     return transcripts
-      .filter(({ keyword }) => !Object.values(CODE_NAMESPACES).includes(keyword))
+      .filter(({ keyword }) => !TAG_NAMESPACES.includes(keyword))
       .filter(({ keyword }) => !excludedKeywords.includes(keyword))
       .sort(({ keyword }) => {
         if(defaultHeaderIds.includes(keyword)) {
@@ -595,6 +590,11 @@ export default class EditPage extends Component {
     this.setState({ tags })
   }
 
+  onUpdateTagRequestCache = (key, response) => {
+    const tagRequestCache = { ...this.state.tagRequestCache, [key]: response }
+    this.setState({ tagRequestCache })
+  }
+
   updateSchemaId = async (schemaId) => {
     const { allChapters } = this.state
     const { data: originalSchema } = await api.getSchema(schemaId).catch(this.onError) || {}
@@ -721,7 +721,11 @@ export default class EditPage extends Component {
                     />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
-                    <Tags tags={tags} updateTags={this.onUpdateTags} />
+                    <Tags
+                      tags={tags}
+                      schemaId={schema.id}
+                      updateTags={this.onUpdateTags}
+                    />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <Schemas

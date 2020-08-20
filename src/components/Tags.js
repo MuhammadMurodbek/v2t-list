@@ -18,58 +18,74 @@ import {
 import api from '../api'
 import '../styles/tags.css'
 import { EuiI18n } from '@patronum/eui'
-import { addUnexpectedErrorToast, addWarningToast } from './GlobalToastList'
+import { addUnexpectedErrorToast } from './GlobalToastList'
 
-export const CODE_NAMESPACES = {
-  icd10Codes: 'icd-10',
-  kvaCodes: 'kva'
-}
+export const TAG_NAMESPACES = ['icd-10', 'kva']
 
 export default class Tags extends Component {
   static propTypes = {
     tags: PropTypes.object.isRequired,
-    updateTags: PropTypes.func.isRequired
+    updateTags: PropTypes.func.isRequired,
+    schemaId: PropTypes.string
   }
 
   state = {
     isLoading: false,
     selectedOption: [],
     options: {},
-    tags: {}
+    tags: {},
+    schema: null
   }
- 
+
+  componentDidMount() {
+    this.loadSchema()
+  }
+
   componentDidUpdate(prevProps) {
-    const { tags } = this.props
+    const { tags, schemaId } = this.props
     if (JSON.stringify(prevProps.tags) !== JSON.stringify(tags)) {
       this.loadTagsFromTranscript()
     }
+    if (prevProps.schemaId !== schemaId) {
+      this.loadSchema()
+    }
+  }
+
+  loadSchema = async () => {
+    const { schemaId } = this.props
+    if (!schemaId) return
+    const { data: schema } = await api.getSchema(schemaId).catch(()=>({}))
+    this.setState({schema})
   }
 
   loadTagsFromTranscript = () => {
     const { tags } = this.props
 
-    Object.keys(tags).forEach(tagType => {
-      this.loadIcdCodes('', tagType)
+    Object.keys(tags).forEach(namespace => {
+      this.loadTags('', namespace)
     })
   }
 
-  loadIcdCodes = async (searchTerm, tagType) => {
+  loadTags = async (searchTerm, namespace) => {
+    const { tags } = this.props
     try {
-      const codeData = await api.keywordsSearch(searchTerm, CODE_NAMESPACES[tagType])
+      const codeData = await api.keywordsSearch(searchTerm, namespace)
 
       // Purpose of doing this is to use free text search
       if (codeData.data) {
-        const options = codeData.data.map((code) => {
-          const label = `${code.value.toUpperCase()}: ${code.description}`
-          return {
-            ...code,
-            label
-          }
-        })
+        const options = codeData.data
+          .filter(option => !tags[namespace].some(tag =>tag.value === option.value.toUpperCase()))
+          .map((code) => {
+            const label = `${code.value.toUpperCase()}: ${code.description}`
+            return {
+              ...code,
+              label
+            }
+          })
         this.setState(prevState => ({
           options: {
             ...prevState.options,
-            [tagType]: options
+            [namespace]: options
           }
         }))
       }
@@ -78,39 +94,27 @@ export default class Tags extends Component {
     }
   }
 
-  deleteRow = (tagType, value) => {
+  deleteRow = (namespace, value) => {
     const { tags } = this.props
-    const remainingCodes = tags[tagType].filter((el) => el.value !== value)
-    this.props.updateTags({ ...tags, [tagType]: remainingCodes})
+    const remainingCodes = tags[namespace].filter((el) => el.value !== value)
+    this.props.updateTags({ ...tags, [namespace]: remainingCodes})
   }
 
-  addCode = (tagType) => {
+  addCode = (namespace) => {
     const { tags } = this.props
     const { selectedOption } = this.state
     if (selectedOption.length > 0) {
       const data = selectedOption[0]
       const [value, description] = data.label.split(': ')
-
-      if (tags[tagType].some((e) => e.value === value)) {
-        addWarningToast(
-          <EuiI18n
-            token="ICDCodeError"
-            default={`The ${CODE_NAMESPACES[tagType]} code may only occur once`}
-          />
-        )
-        this.emptySelectedOption()
-      } else {
-        const updatedCodes = [
-          ...tags[tagType],
-          {
-            value,
-            description
-          }
-        ]
-        this.emptySelectedOption()
-        this.props.updateTags({ ...tags, [tagType]: updatedCodes })
-      }
-    
+      const updatedCodes = [
+        ...tags[namespace],
+        {
+          value,
+          description
+        }
+      ]
+      this.emptySelectedOption()
+      this.props.updateTags({ ...tags, [namespace]: updatedCodes })
     }
   }
 
@@ -118,22 +122,22 @@ export default class Tags extends Component {
     this.setState({ selectedOption: [] })
   }
 
-  onChange = (tagType, selectedOption) => {
+  onChange = (namespace, selectedOption) => {
     this.setState(
       {
         selectedOption
       },
-      () => this.addCode(tagType)
+      () => this.addCode(namespace)
     )
   }
 
-  onSearchChange = async (tagType, searchValue) => {
+  onSearchChange = async (namespace, searchValue) => {
     this.setState({
       isLoading: true
     })
 
 
-    await this.loadIcdCodes(searchValue, tagType)
+    await this.loadTags(searchValue, namespace)
     this.setState({
       isLoading: false
     })
@@ -149,51 +153,60 @@ export default class Tags extends Component {
   onDragEnd = ({ source, destination }) => {
     const tags = JSON.parse(JSON.stringify(this.props.tags))
     if (source && destination) {
-      const tagType = source.droppableId
-      const updatedTags = this.swap(tags[tagType], source.index, destination.index)
-      this.props.updateTags({ ...tags, [tagType]: updatedTags })      
+      const namespace = source.droppableId
+      const updatedTags = this.swap(tags[namespace], source.index, destination.index)
+      this.props.updateTags({ ...tags, [namespace]: updatedTags })
     }
+  }
+
+  getLabel = (namespace) => {
+    const { schema } = this.state
+    const field = schema ? schema.fields.find(({id}) => id === namespace) : null
+    return field ? field.name : ''
   }
 
   render() {
     const {
       options,
       isLoading,
-      selectedOption
+      selectedOption,
+      schema
     } = this.state
     const {tags} = this.props
+    if (!schema || !schema.fields) return null
+    const fieldFilter = namespace => schema.fields.some(({id}) => id === namespace)
     return (
       <EuiI18n tokens={['codes', 'lookFor']} defaults={['Codes', 'Look for']}>
         {([codes, lookFor]) =>
           <EuiFlexGroup direction="column">
             {
-              Object.keys(tags).map((tagType) => (
+              TAG_NAMESPACES.filter(fieldFilter).map(namespace => (
                 <EuiFlexItem
-                  key={tagType}
+                  key={namespace}
                   grow={false}
                 >
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
-                      <EuiFormRow label={`${CODE_NAMESPACES[tagType].toUpperCase()} ${codes}`}>
+                      <EuiFormRow label={this.getLabel(namespace)}>
                         <EuiComboBox
-                          placeholder={`${lookFor} ${CODE_NAMESPACES[tagType].toUpperCase()} ${codes}`}
+                          placeholder={`${lookFor} ${this.getLabel(namespace)}`}
                           async
-                          options={options[tagType] || []}
+                          options={options[namespace] || []}
                           selectedOptions={selectedOption}
                           singleSelection
                           isLoading={isLoading}
-                          onChange={selectedOptions => this.onChange(tagType, selectedOptions)}
-                          onSearchChange={searchValue => this.onSearchChange(tagType, searchValue)}
+                          onChange={selectedOptions => this.onChange(namespace, selectedOptions)}
+                          onSearchChange={searchValue => this.onSearchChange(namespace, searchValue)}
                         />
                       </EuiFormRow>
                     </EuiFlexItem>
                     <EuiFlexItem
                       grow={false}
-                      style={ tags[tagType].length ? {} : { display: 'none' }}
+                      style={ tags[namespace].length ? {} : { display: 'none' }}
                     >
                       <EuiDragDropContext onDragEnd={this.onDragEnd}>
-                        <EuiDroppable droppableId={tagType} spacing="m" withPanel>
-                          {tags[tagType].map(({ description, value }, idx) => (
+                        <EuiDroppable droppableId={namespace} spacing="m" withPanel>
+                          {tags[namespace].map(({ description, value }, idx) => (
                             <EuiDraggable
                               spacing="m"
                               key={value}
@@ -225,7 +238,7 @@ export default class Tags extends Component {
                                         iconSize="l"
                                         color="danger"
                                         onClick={() =>
-                                          this.deleteRow(tagType, value)
+                                          this.deleteRow(namespace, value)
                                         }
                                         iconType="trash"
                                         aria-label="Next"

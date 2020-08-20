@@ -1,8 +1,8 @@
-import { CODE_NAMESPACES } from '../components/Tags'
+import { TAG_NAMESPACES } from '../components/Tags'
 
 const convertToV2API = (schema, chapters, tags = {}) => {
-  const tagFields = Object.entries(tags).reduce((store, [tagType, tags]) => {
-    const id = CODE_NAMESPACES[tagType]
+  const tagFields = Object.entries(tags).reduce((store, [namespace, tags]) => {
+    const id = namespace
     return store.concat({
       id,
       namespace: id,
@@ -11,7 +11,7 @@ const convertToV2API = (schema, chapters, tags = {}) => {
   }, [])
   const updatedChapters = []
   chapters.forEach((chapter) => {
-    if (Object.values(CODE_NAMESPACES).includes(chapter.keyword)) {
+    if (TAG_NAMESPACES.includes(chapter.keyword)) {
       const field = schema.fields.find(field => field.name === chapter.keyword)
       const id = field ? field.id : chapter.keyword
       updatedChapters.push({
