@@ -117,8 +117,8 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
       newlyOrientedWords.push({
         keyword: latestKeyword,
         words: segment.words,
-        startTime: segment.startTime + cursorTime,
-        endTime: segment.endTime + cursorTime
+        startTime: segment.startTime,
+        endTime: segment.endTime
       })
     }
   })

@@ -73,6 +73,7 @@ export default class EditPage extends Component {
     defaultHeaderIds: [],
     recording: false,
     recordedTime: 0,
+    previusRecordedTime: 0,
     recordedAudio: null,
     chaptersBeforeRecording: [],
     tagRequestCache: {}
@@ -135,7 +136,8 @@ export default class EditPage extends Component {
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
       return recorder.stop((recordedAudio) => {
-        this.setState({ recordedAudio, recording: false }, resolve)
+        const previusRecordedTime = recordedTime
+        this.setState({ recordedAudio, recording: false, previusRecordedTime }, resolve)
       }, recordedTime) // Use cursorTime to inser audio at cursor
     })
   }
@@ -145,14 +147,15 @@ export default class EditPage extends Component {
     const path = language ? `/${language}` : ''
     this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'], path })
     this.socketio.on('add-transcript', (text) => {
-      const { schema, chaptersBeforeRecording, cursorTime, tags, recordedTime, tagRequestCache } = this.state
+      const { recording, schema, chaptersBeforeRecording, tags, recordedTime, previusRecordedTime, tagRequestCache } = this.state
+      if (!recording) return // throw away changes that comes after stoped
       const sections = schema.fields.reduce((store, field) => {
         if (field.editable)
           store[field.id] = [field.name, ...(field.headerPatterns || [])]
         return store
       }, {})
 
-      const restructuredChapter = processChaptersLive(text, sections, null, cursorTime)
+      const restructuredChapter = processChaptersLive(text, sections, null, previusRecordedTime)
       const diagnosString = restructuredChapter.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
       processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
       const finalChapters = joinRecordedChapters(
@@ -382,7 +385,7 @@ export default class EditPage extends Component {
   }
 
   onCursorTimeChange = (cursorTime) => {
-    this.setState({ cursorTime })
+    this.setState({ cursorTime, currentTime: cursorTime })
   }
 
   getCurrentTime = () => {

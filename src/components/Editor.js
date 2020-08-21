@@ -560,7 +560,7 @@ const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, 
       <pre>
         <code
           className="editorTextArea"
-          key={segments.length ? `code-${chapterId}` : `code-reset`}
+          key={JSON.stringify(segments)}
           onInput={e => onChange(e, chapterId)}
           onPaste={e => onPaste(e, chapterId)}
           onKeyDown={e => onKeyDown(e, chapterId)}
