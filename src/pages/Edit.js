@@ -619,6 +619,9 @@ export default class EditPage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
+    const { tags, tagRequestCache } = this.state
+    const diagnosString = chapters.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
+    processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
     return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 

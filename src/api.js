@@ -228,9 +228,6 @@ const getSchema = (id) => axios.get(`${URLS.schemaById}/${id}`)
 
 export { URLS }
 
-const getActiveLiveSession = () => {
-
-}
 
 const completeLiveTranscript = async (transcriptionId) => {
   await axios.post(`/api/transcription/v2/live/session/${transcriptionId}/complete`)
@@ -279,7 +276,6 @@ export default {
   getSchema,
   createLiveSession,
   updateTranscriptionV2,
-  getActiveLiveSession,
   getBlobFile,
   completeLiveTranscript,
   getDepartments,
