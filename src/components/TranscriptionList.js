@@ -4,7 +4,6 @@ import { EuiBasicTable, EuiButtonIcon, EuiButtonEmpty } from '@patronum/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import api from '../api'
 
-import '@patronum/eui/dist/eui_theme_light.css'
 import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@patronum/eui'
 import { addUnexpectedErrorToast, addSuccessToast } from './GlobalToastList'
 
@@ -94,7 +93,7 @@ export default class TranscriptionList extends Component {
   }
 
   getTranscriptHref = (schemaId) => {
-    const [ preferences ] = this.context
+    const [preferences] = this.context
     const token = localStorage.getItem('token')
 
     if (preferences.externalMode) {
