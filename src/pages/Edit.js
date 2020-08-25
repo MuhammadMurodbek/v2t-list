@@ -10,7 +10,13 @@ import {
   EuiSpacer,
   EuiButton,
   EuiButtonEmpty,
-  EuiI18n
+  EuiI18n,
+  EuiOverlayMask,
+  EuiModal,
+  EuiModalHeader,
+  EuiModalHeaderTitle,
+  EuiModalBody,
+  EuiModalFooter
 } from '@patronum/eui'
 import io from 'socket.io-client'
 import Invalid from './Invalid'
@@ -47,7 +53,8 @@ export default class EditPage extends Component {
   static defaultProps = {
     id: -1,
     preloadedTranscript: null,
-    mic: false
+    mic: false,
+    redirectOnSave: false
   }
 
   audioContext = null
@@ -76,7 +83,8 @@ export default class EditPage extends Component {
     previusRecordedTime: 0,
     recordedAudio: null,
     chaptersBeforeRecording: [],
-    tagRequestCache: {}
+    tagRequestCache: {},
+    modalMissingFields: []
   }
 
   componentDidMount() {
@@ -400,35 +408,28 @@ export default class EditPage extends Component {
   }
 
   finalize = async () => {
-    const {
-      originalChapters,
-      chapters,
-      tags,
-      originalTags,
-      schema,
-      originalSchemaId
-    } = this.state
-    if (
-      JSON.stringify(originalChapters) === JSON.stringify(chapters) &&
-      JSON.stringify(tags) === JSON.stringify(originalTags) &&
-      originalSchemaId === schema.id
-    ) {
-      this.sendToCoworker()
-    } else {
-      this.save(true)
-    }
-  }
-
-  sendToReview = async () => {
-    if (this.isLiveSessionStarted()) {
-      const {id} = this.props
-      await api.completeLiveTranscript(id)
-      window.location = '/'
-    }
+    await this.save(true)
+    this.sendToCoworker()
   }
 
   sendToCoworker = async () => {
     const { id } = this.props
+    const missingSections = await this.getMissingSections()
+    if (missingSections.length) {
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to send the dictation"
+        />,
+        <>
+          <EuiI18n
+            token="missingReuiredHeaders"
+            default="Required field is missing"
+          />:: <strong>{missingSections.join(', ')}</strong>
+        </>
+      )
+      return
+    }
     try {
       const sendingToCoworker = await api.approveTranscription(id)
       if (sendingToCoworker) {
@@ -451,20 +452,16 @@ export default class EditPage extends Component {
     const { recordedAudio, schema } = this.state
     const file = await api.getBlobFile(recordedAudio)
     await api.uploadMediaLive(id, file, schema.id)
-    await api.completeLiveTranscript(id)
   }
 
-  save = async (shouldBeSentToCoworker = false) => {
-    const { id, mic } = this.props
+  save = async (force = false) => {
+    const { id, mic, redirectOnSave } = this.props
     const {
-      allChapters,
-      hiddenHeaderIds,
       readOnlyHeaders,
-      originalChapters,
+      hiddenHeaderIds,
+      allChapters,
       tags,
-      originalTags,
       schema,
-      originalSchemaId,
       recording,
       recordedAudio
     } = this.state
@@ -480,22 +477,6 @@ export default class EditPage extends Component {
           token="emptySectionError"
           default="Section must not be empty"
         />
-      )
-      return
-    }
-
-    if (
-      JSON.stringify(originalChapters) === JSON.stringify(chapters)
-      && JSON.stringify(tags) === JSON.stringify(originalTags)
-      && originalSchemaId === schema.id
-    ) {
-      addGlobalToast(
-        <EuiI18n token="info" default="Info" />,
-        <EuiI18n
-          token="nothingToUpdate"
-          default="There is nothing to update!"
-        />,
-        'info'
       )
       return
     }
@@ -525,41 +506,24 @@ export default class EditPage extends Component {
       })
     })
 
-    // return back excluded (read only and hidden) transcripts
     const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
     chapters = chapters.concat(
       allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
     )
 
-    const { data: fullSchema } = await api.getSchema(schema.id).catch(this.onError) || {}
-    const missingSections = fullSchema.fields.reduce((store, {id, name, required}) => {
-      if (required && !chapters.map(chapter => chapter.keyword).includes(id))
-        store.push(name)
-      return store
-    }, [])
-
-    if (missingSections.length) {
-      addWarningToast(
-        <EuiI18n
-          token="unableToSaveDictation"
-          default="Unable to save the dictation"
-        />,
-        <>
-          <EuiI18n
-            token="missingReuiredHeaders"
-            default="Required keyword is missing"
-          />:: <strong>{missingSections.join(', ')}</strong>
-        </>
-      )
-      return
+    if (redirectOnSave && !force) {
+      const needConfirmation = await this.askToRedirect()
+      if (needConfirmation) return
     }
 
     try {
       if (recording)
         await this.stopRecording()
-      if (recording || recordedAudio) {
+      if (recording || recordedAudio)
         await this.mediaUpload()
-      }
+      if (mic)
+        await api.completeLiveTranscript(id)
+
       const fields = convertToV2API(schema, chapters, tags)
       await api.updateTranscription(id, schema.id, fields)
       this.setState(
@@ -575,18 +539,41 @@ export default class EditPage extends Component {
               default="The dictation has been updated"
             />
           )
-          if (shouldBeSentToCoworker === true) {
-            this.sendToCoworker()
-          }
-          return true
         }
       )
-      if (mic)
-        window.location = '/' // this triggers medspeech to finish live dictation
+      if (redirectOnSave)
+        window.location = '/'
     } catch(e) {
       console.error(e)
       addUnexpectedErrorToast(e)
     }
+  }
+
+  getMissingSections = async () => {
+    const { readOnlyHeaders, hiddenHeaderIds, chapters, allChapters, schema } = this.state
+    const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
+    const concatinatedChapters = chapters.concat(
+      allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
+    )
+
+    const { data: fullSchema } = await api.getSchema(schema.id).catch(this.onError) || {}
+    return fullSchema.fields.reduce((store, {id, name, required}) => {
+      if (required && !concatinatedChapters.map(chapter => chapter.keyword).includes(id))
+        store.push(name)
+      return store
+    }, [])
+  }
+
+  askToRedirect = async () => {
+    const modalMissingFields = await this.getMissingSections()
+    this.setState({ modalMissingFields })
+    return modalMissingFields.length
+  }
+
+  onCloseMissingFieldsModal = (save) => {
+    if (save)
+      this.save(true)
+    this.setState({ modalMissingFields: [] })
   }
 
   onUpdateTags = (tags) => {
@@ -657,7 +644,8 @@ export default class EditPage extends Component {
       allChapters,
       recording,
       recordedTime,
-      recordedAudio
+      recordedAudio,
+      modalMissingFields
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -755,7 +743,7 @@ export default class EditPage extends Component {
               <EuiFlexItem grow={false}>
                 <EuiButton
                   size="s"
-                  onClick={this.save}
+                  onClick={() => this.save()}
                 >
                   <EuiI18n
                     token="saveChanges"
@@ -777,9 +765,46 @@ export default class EditPage extends Component {
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
+            <MissingFieldModal
+              fields={modalMissingFields}
+              onClose={this.onCloseMissingFieldsModal}
+            />
           </Page>
         )}
       </EuiI18n>
     )
   }
+}
+
+const MissingFieldModal = ({ fields, onClose }) => {
+  if (!fields.length) return null
+  return (
+    <EuiI18n
+      tokens={["missingReuiredHeaders", "save", "cancel", "missingFieldMessage"]}
+      defaults={["Required field is missing", "Save", "Cancel", "is missing. Do you want to save anyways?"]}
+    >
+      {([title, save, cancel, message]) =>
+        <EuiOverlayMask>
+          <EuiModal onClose={() => onClose(false)}>
+            <EuiModalHeader>
+              <EuiModalHeaderTitle>{title}</EuiModalHeaderTitle>
+            </EuiModalHeader>
+
+            <EuiModalBody>
+              <p>{fields.join(', ')} {message}</p>
+            </EuiModalBody>
+
+            <EuiModalFooter>
+              <EuiButtonEmpty size="s" onClick={() => onClose(false)}>
+                {cancel}
+              </EuiButtonEmpty>
+              <EuiButton size="s" onClick={() => onClose(true)}>
+                {save}
+              </EuiButton>
+            </EuiModalFooter>
+          </EuiModal>
+        </EuiOverlayMask>
+      }
+    </EuiI18n>
+  )
 }

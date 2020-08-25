@@ -482,7 +482,7 @@ class App extends Component {
                     path="/live-diktering/:id"
                     render={(props) => {
                       const { id } = props.match.params
-                      return <EditPage mic {...{ ...props, id, token }} />
+                      return <EditPage mic redirectOnSave {...{ ...props, id, token }} />
                     }}
                   />
                   <Route
