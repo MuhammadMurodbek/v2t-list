@@ -20,7 +20,7 @@ module.exports = {
   entry: join(__dirname, 'src', 'index.js'),
   devtool: "source-map",
   output: {
-    path: join(__dirname, 'build', 'static'),
+    path: join(__dirname, 'build'),
     filename: '[name].js',
     chunkFilename: '[name].chunk.js',
     publicPath: "/"

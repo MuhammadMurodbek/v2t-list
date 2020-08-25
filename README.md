@@ -11,7 +11,7 @@ In the project directory, you can run:
 `docker build -t v2t-ui -f nginx/Dockerfile .`
 
 ## To run it using Docker on port :8000
-`docker run -it -v ${PWD}:/usr/src/app -v /usr/src/app/node_modules -p 8000:80 --rm v2t-ui`
+`docker run -p 8000:80 -it --rm v2t-ui`
 
 ## Release
 To create release:
