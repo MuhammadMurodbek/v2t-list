@@ -736,14 +736,17 @@ export default class EditPage extends Component {
             </EuiFlexGroup>
             <EuiFlexGroup alignItems="baseline">
               <EuiFlexItem grow={false}>
-                <EuiButtonEmpty size="s" onClick={this.cancel}>
+                {/* id is used by Conscriptor */}
+                <EuiButtonEmpty size="s" onClick={this.cancel} id='cancel_button'>
                   <EuiI18n token="cancel" default="Cancel" />
                 </EuiButtonEmpty>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
+                {/* id is used by Conscriptor */}
                 <EuiButton
                   size="s"
                   onClick={() => this.save()}
+                  id='save_changes'
                 >
                   <EuiI18n
                     token="saveChanges"
@@ -752,11 +755,13 @@ export default class EditPage extends Component {
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
+                {/* id is used by Conscriptor */}
                 <EuiButton
                   size="s"
                   fill
                   isDisabled={mic}
                   onClick={this.finalize}
+                  id='send_to_coworker'
                 >
                   <EuiI18n
                     token="sendToCoWorker"
@@ -795,10 +800,10 @@ const MissingFieldModal = ({ fields, onClose }) => {
             </EuiModalBody>
 
             <EuiModalFooter>
-              <EuiButtonEmpty size="s" onClick={() => onClose(false)}>
+              <EuiButtonEmpty size="s" onClick={() => onClose(false)} id='popup_cancel_button'>
                 {cancel}
               </EuiButtonEmpty>
-              <EuiButton size="s" onClick={() => onClose(true)}>
+              <EuiButton size="s" onClick={() => onClose(true)} id='popup_save_button'>
                 {save}
               </EuiButton>
             </EuiModalFooter>
