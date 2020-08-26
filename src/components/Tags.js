@@ -180,7 +180,7 @@ export default class Tags extends Component {
         {([codes, lookFor]) =>
           <EuiFlexGroup direction="column">
             {
-              TAG_NAMESPACES.filter(fieldFilter).map(namespace => (
+              TAG_NAMESPACES.filter(fieldFilter).map(namespace => tags[namespace] ? (
                 <EuiFlexItem
                   key={namespace}
                   grow={false}
@@ -255,7 +255,7 @@ export default class Tags extends Component {
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
-              ))
+              ) : null)
             }
           </EuiFlexGroup>
         }
