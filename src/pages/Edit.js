@@ -10,6 +10,8 @@ import {
   EuiSpacer,
   EuiButton,
   EuiButtonEmpty,
+  EuiSwitch,
+  EuiHorizontalRule,
   EuiI18n,
   EuiOverlayMask,
   EuiModal,
@@ -85,7 +87,8 @@ export default class EditPage extends Component {
     chaptersBeforeRecording: [],
     initialKeyword: null,
     tagRequestCache: {},
-    modalMissingFields: []
+    modalMissingFields: [],
+    approved: false
   }
 
   async componentDidMount() {
@@ -722,6 +725,11 @@ export default class EditPage extends Component {
     this.setState({ initialCursor })
   }
 
+  onApprovedChange = (e) => {
+    const approved = e.target.checked
+    this.setState({approved})
+  }
+
   cancel = () => {
     window.location = '/'
   }
@@ -749,7 +757,8 @@ export default class EditPage extends Component {
       recording,
       recordedTime,
       recordedAudio,
-      modalMissingFields
+      modalMissingFields,
+      approved
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -832,30 +841,39 @@ export default class EditPage extends Component {
                       onUpdate={this.updateSchemaId}
                     />
                   </EuiFlexItem>
-                  <EuiFlexItem grow={false} style={{position: 'sticky', top: 20}}>
-                    {mic && <ListOfHeaders headers={this.sectionHeaders()} />}
-                  </EuiFlexItem>
+                  {mic &&
+                    <EuiFlexItem grow={false} style={{position: 'sticky', top: 20}}>
+                      <ListOfHeaders headers={this.sectionHeaders()} />
+                    </EuiFlexItem>
+                  }
                 </EuiFlexGroup>
               </EuiFlexItem>
             </EuiFlexGroup>
-            <EuiFlexGroup alignItems="baseline">
+            <EuiHorizontalRule />
+            <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
                 {/* id is used by Conscriptor */}
-                <EuiButtonEmpty size="s" onClick={this.cancel} id='cancel_button'>
-                  <EuiI18n token="cancel" default="Cancel" />
-                </EuiButtonEmpty>
+                <EuiSwitch label={
+                    <EuiI18n
+                      token="sendToCoWorker"
+                      default="Approved, ready to send to Co-worker."
+                    />
+                  }
+                  checked={approved}
+                  onChange={this.onApprovedChange}
+                  disabled={mic}
+                  id='approved_checkbox'
+                />
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 {/* id is used by Conscriptor */}
                 <EuiButton
                   size="s"
-                  onClick={() => this.save()}
-                  id='save_changes'
+                  color="text"
+                  onClick={this.cancel}
+                  id='cancel_button'
                 >
-                  <EuiI18n
-                    token="saveChanges"
-                    default="Save Changes"
-                  />
+                  <EuiI18n token="cancel" default="Cancel" />
                 </EuiButton>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
@@ -863,13 +881,17 @@ export default class EditPage extends Component {
                 <EuiButton
                   size="s"
                   fill
-                  isDisabled={mic}
-                  onClick={this.finalize}
-                  id='send_to_coworker'
+                  onClick={() => {
+                    if (approved)
+                      this.finalize()
+                    else
+                      this.save()
+                  }}
+                  id='save_changes'
                 >
                   <EuiI18n
-                    token="sendToCoWorker"
-                    default="Send to Co-worker"
+                    token="save"
+                    default="Save"
                   />
                 </EuiButton>
               </EuiFlexItem>
