@@ -361,6 +361,8 @@ export default class Editor extends Component {
     })
     const content = chapters.map(mapContentFunction)
     const originalContent = originalChapters.map(mapContentFunction)
+    const noContent = [...content, ...originalContent].map(({text}) => text).join('') === ''
+    if (noContent) return null
 
     let deletedContentDiff = []
     originalContent.forEach(({
@@ -414,7 +416,6 @@ export default class Editor extends Component {
           // add keyword/s if there is any change in text or in keyword
           keywordDiff = [1, HEADER_TYPE, originalChapter.keyword, keyword]
         }
-
         currentDiff = [
           keywordDiff,
           ...textDiffs

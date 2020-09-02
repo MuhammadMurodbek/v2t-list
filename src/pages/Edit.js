@@ -273,6 +273,9 @@ export default class EditPage extends Component {
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, transcriptions)
 
+    const defaultField = originalSchema && originalSchema.fields.find(field => field.default)
+    const defaultFields = [{ keyword: defaultField.name || '', segments: [], values: [] }]
+
     this.setState({
       originalSchemaId: schemaId,
       allChapters: transcriptions,
@@ -281,6 +284,9 @@ export default class EditPage extends Component {
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
       schemas,
       schema
+    }, () => {
+      if (!this.state.originalChapters.length)
+        this.setState({chapters: defaultFields})
     })
   }
 
@@ -336,7 +342,7 @@ export default class EditPage extends Component {
     const transcripts = transcriptions.map((transcript, id) => {
       const keyword = transcript.keyword.length
         ? transcript.keyword
-        : 'Kontaktorsak'
+        : ''
       const segments = transcript.segments.map((chunk, i) => {
         const sentenceCase =
           i > 0
