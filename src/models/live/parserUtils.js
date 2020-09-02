@@ -19,20 +19,7 @@ const fixedCaseSections = (tempChapters, updatedSectionNames) => {
 }
 
 const extractedText = (finalText) => {
-  if (finalText.trim() !== '1 1 1') {
-    var outcome = restructureChapter(JSON.parse(finalText))
-    return outcome
-  } else {
-    return [
-      { words: 'KONTAKTORSAK', startTime: 0.0, endTime: 0.0 },
-      { words: '.', startTime: 0.0, endTime: 0.0 },
-      { words: '.', startTime: 0.0, endTime: 0.0 },
-      { words: '.', startTime: 0.0, endTime: 0.0 }
-    ]
-  }
-}
-
-const restructureChapter = (data) => {
+  const data = JSON.parse(finalText)
   if (data) {
     if (data.length > 0)
       return data.map(chapter => {
@@ -74,7 +61,7 @@ const isTheSegmentASectionHeader = (
   const newKeyword = previousWordSecond ?
     `${previousWordSecond} ${previousWord} ${word}`.trim().toLocaleLowerCase()
     : `${previousWord} ${word}`.trim().toLocaleLowerCase()
-  
+
   if (sectionHeadersInLowerCase.includes(newKeyword)) return true
   return false
 }
@@ -96,6 +83,6 @@ const getTheKeywordFromSynonym = (word, updatedSections) => {
 
 
 export default {
-  fixedCaseSections, extractedText, capitalizeSections, isTheSegmentASectionHeader, 
-  isKeywordSynonym, getTheKeywordFromSynonym  
+  fixedCaseSections, extractedText, capitalizeSections, isTheSegmentASectionHeader,
+  isKeywordSynonym, getTheKeywordFromSynonym
 }

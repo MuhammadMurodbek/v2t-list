@@ -7,8 +7,7 @@ const appendChapters = (previousChapters, latestChapters) => {
   latestChapters.forEach((chapter, i) => {
     if (i === 0) {
       if (
-        latestChapters[i].keyword === 'KONTAKTORSAK'
-        || latestChapters[i].keyword === finalKeyword
+        latestChapters[i].keyword === finalKeyword
       ) {
         latestChapters[i].segments.forEach(seg => {
           intermediateChapters[intermediateChapters.length - 1].segments.push(seg)

@@ -163,7 +163,8 @@ export default class EditPage extends Component {
         return store
       }, {})
 
-      const restructuredChapter = processChaptersLive(text, sections, null, previusRecordedTime)
+      const initialKeyword = chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
+      const restructuredChapter = processChaptersLive(text, sections, initialKeyword, previusRecordedTime)
       const diagnosString = restructuredChapter.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
       processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
       const finalChapters = joinRecordedChapters(

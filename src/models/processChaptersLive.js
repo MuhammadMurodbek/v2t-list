@@ -2,7 +2,7 @@
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
 import parserUtils from '../models/live/parserUtils'
-const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTime) => {
+const processChaptersLive = (finalText, updatedSections, initialKeyword, cursorTime) => {
   const extractedFinalText = parserUtils.extractedText(finalText)
   // console.log('updatedSections')
   // console.log(updatedSections)
@@ -21,7 +21,7 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
   const usedSectionHeaders = []
   let newlyOrientedWords = []
 
-  let latestKeyword = Object.keys(updatedSections)[0]
+  let latestKeyword = initialKeyword
   wordsOfTheChapter.forEach((segment, i) => {
     if (
       sectionHeadersInLowerCase.includes(segment.words.trim().toLowerCase())
@@ -147,20 +147,6 @@ const processChaptersLive = (finalText, updatedSections, firstKeyword, cursorTim
     if (i === newlyOrientedWords.length - 1)
       finalChapters.push(tempObject)
   })
-
-  // console.log('finalChapters')
-  // console.log(finalChapters)
-  // console.log('finalChapters end')
-
-  // Fix it
-  if (finalChapters.length===0) {
-    finalChapters.push({
-      keyword: 'KONTAKTORSAK',
-      segments: [
-        {words: '', startTime: 0.0, endTime: 0.0}
-      ]
-    })
-  }
 
   // Fix the case of a section header as per backend data
   const fixedCase = parserUtils.fixedCaseSections(finalChapters, updatedSections)
