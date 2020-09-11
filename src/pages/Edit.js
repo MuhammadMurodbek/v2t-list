@@ -88,21 +88,21 @@ export default class EditPage extends Component {
     modalMissingFields: []
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { mic } = this.props
     document.title = 'Inovia AI :: V2t Editor 🎤'
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
     this.tagsRef = React.createRef()
-    this.checkTranscriptStateAndLoad()
+    await this.checkTranscriptStateAndLoad()
     if (mic)
       this.setupSocketIO()
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     const { id, mic } = this.props
     if (id !== prevProps.id) {
-      this.checkTranscriptStateAndLoad()
+      await this.checkTranscriptStateAndLoad()
     }
     if (mic && !prevProps.mic) {
       this.setupSocketIO()
@@ -293,11 +293,11 @@ export default class EditPage extends Component {
   checkTranscriptStateAndLoad = async () => {
     const { id, mic } = this.props
     let isTranscriptAvailable = true
-    if (mic) return this.initiate() //if user can create the audio it doesn't need to exist yet
+    if (mic) return await this.initiate() //if user can create the audio it doesn't need to exist yet
     try {
       const { data: transcriptState } = await api.transcriptState(id)
       if (transcriptState.id && VALID_TRANSCRIPT_STATES.includes(transcriptState.state)) {
-        this.initiate()
+        await this.initiate()
       } else {
         throw new ReferenceError()
       }
