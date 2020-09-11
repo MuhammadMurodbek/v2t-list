@@ -13,8 +13,7 @@ let recLength = 0,
   sampleRate = undefined,
   numChannels = undefined,
   clipName = null,
-  // previousAudioLength = 0,
-  previousBuffers = []
+  previousBuffersLength = 0
 
 export async function init(stream) {
   let audioContext = new AudioContext()
@@ -23,7 +22,7 @@ export async function init(stream) {
   sampleRate = context.sampleRate
   numChannels = config.numChannels
 
-  initBuffers() 
+  initBuffers()
   const { createScriptProcessor, createJavaScriptNode } = audioContext
   const node = (createScriptProcessor || createJavaScriptNode)
     .call(audioContext, 1024, 1, 1)
@@ -53,8 +52,9 @@ export function start() {
   recording = true
 }
 
-export function stop(addClip, timeStamp) {
+export function stop(addClip, timestamp, offset) {
   recording = false
+  const previousLength = previousBuffersLength / 46.6
 
   if(!clipName) {
     const currentTime = new Date()
@@ -66,25 +66,22 @@ export function stop(addClip, timeStamp) {
     const sec = currentTime.getSeconds()
     clipName = `Clip ${year}/${month}/${day} ${hour}:${min}:${sec}`
   }
-  
-  const blob = exportWAV('audio/wav; codecs=opus', timeStamp)
+
+  const blob = exportWAV('audio/wav; codecs=opus', timestamp, offset)
   const audioURL = window.URL.createObjectURL(blob)
+  const length = previousBuffersLength / 46.6
+
   addClip({
     src: audioURL,
     name: clipName
-  })
-  
+  }, previousLength === 0 ? 0 : length - previousLength)
+
 }
 
-function exportWAV(type, timeStamp) {
+function exportWAV(type, timestamp, offset) {
   const buffers = []
-  for (let channel = 0; channel < numChannels; channel++) {
-    if (timeStamp!==0)
-      buffers.push(mergeBuffers(recBuffers[channel], recLength, timeStamp))
-    else
-      buffers.push(mergeBuffers(recBuffers[channel], recLength))
-
-  }
+  for (let channel = 0; channel < numChannels; channel++)
+    buffers.push(mergeBuffers(channel, recBuffers[channel], recLength, timestamp, offset))
   let interleaved = undefined
   if (numChannels === 2) {
     interleaved = interleave(buffers[0], buffers[1])
@@ -107,41 +104,18 @@ function initBuffers() {
   }
 }
 
-function mergeBuffers(recBuffers, recLength, timeStamp = Math.ceil(previousBuffers.length/46.6)) {
-  const previousDuration = previousBuffers.length / 46.6
-  const result = new Float32Array(recLength)
-  let offset = 0
-  
-  for (let i = 0, j = 0,k=0; i < recBuffers.length; i++) {
-    if (previousDuration!==0) {
-      if (Math.ceil(i / 46.6) < timeStamp) {
-        result.set(recBuffers[i], offset)
-        offset += recBuffers[i].length
-        j=i
-      }  else {
+function mergeBuffers(channel, buffer, recLength, timestamp, offset) {
+  const insertFromByte = Math.floor(timestamp * 46.6)
+  const offsetBytes = Math.floor(offset * 46.6)
+  const result = []
+  result.push(...buffer.slice(0, insertFromByte))
+  result.push(...buffer.slice(previousBuffersLength + offsetBytes))
+  result.push(...buffer.slice(insertFromByte, previousBuffersLength + offsetBytes))
 
-        // Now is the magic, append the latest audio after timestamp
-        if (recBuffers[previousBuffers.length + k]){          
-          result.set(recBuffers[previousBuffers.length+k], offset)
-          offset += recBuffers[previousBuffers.length + k].length
-          k+=1
-        } else {
-          result.set(recBuffers[j], offset)
-          offset += recBuffers[j].length
-          j += 1
-        }
-      }
-    }
-    else {
-      result.set(recBuffers[i], offset)
-      offset += recBuffers[i].length
-    }
-    
-  }
-  previousBuffers = recBuffers.slice() // Copy array by value
+  previousBuffersLength = result.length
+  recBuffers[channel] = [...result]
 
-
-  return result
+  return result.flat()
 }
 
 function interleave(inputL, inputR) {

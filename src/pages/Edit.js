@@ -39,9 +39,7 @@ import {
 import ReadOnlyChapters from '../components/ReadOnlyChapters'
 import * as recorder from '../utils/recorder'
 import interpolateArray from '../models/interpolateArray'
-import processChaptersLive from '../models/processChaptersLive'
 import processTagsLive from '../models/processTagsLive'
-import joinRecordedChapters from '../models/live/joinRecordedChapters'
 import ListOfHeaders from '../components/ListOfHeaders'
 
 const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [], values: [] }]
@@ -58,6 +56,8 @@ export default class EditPage extends Component {
   }
 
   audioContext = null
+  ignoreMessagesTo = 0 // Avoid getting late replies, solve this better in mqtt
+  offsetNextStop = 0 // Include keyword when merging audio
 
   state = {
     isTranscriptAvailable: true,
@@ -80,9 +80,10 @@ export default class EditPage extends Component {
     defaultHeaderIds: [],
     recording: false,
     recordedTime: 0,
-    previusRecordedTime: 0,
     recordedAudio: null,
+    timeStartRecording: 0,
     chaptersBeforeRecording: [],
+    initialKeyword: null,
     tagRequestCache: {},
     modalMissingFields: []
   }
@@ -131,23 +132,50 @@ export default class EditPage extends Component {
     } else {
       await this.connectAudioInput()
     }
-    this.setState({ chaptersBeforeRecording: [
-      ...JSON.parse(JSON.stringify(this.state.chapters))
-    ] })
+    this.setState({
+      chaptersBeforeRecording: [
+        ...JSON.parse(JSON.stringify(this.state.chapters))
+      ] })
     recorder.start()
   }
 
-
   stopRecording = () => {
+    const offset = this.offsetNextStop
+    this.offsetNextStop = 0
     return new Promise(resolve => {
-      const { recordedTime } = this.state
+      const { chapters, initialKeyword, timeStartRecording, currentTime, recordedTime } = this.state
       this.audioContext.suspend()
       this.socketio.emit('end-recording')
-      return recorder.stop((recordedAudio) => {
-        const previusRecordedTime = recordedTime
-        this.setState({ recordedAudio, recording: false, previusRecordedTime }, resolve)
-      }, recordedTime) // Use cursorTime to inser audio at cursor
+      const chapterIndex = chapters.findIndex(chapter => chapter.keyword === initialKeyword)
+      const chapterId = chapterIndex > 0 ? chapterIndex : 0
+      return recorder.stop((recordedAudio, appendedTime) => {
+        const timeAdjustedChapters = chapters.map((chapter, i) => {
+          if (i > chapterId)
+            return { ...chapter, segments: chapter.segments.map(segment => ({
+              ...segment,
+              startTime: segment.startTime + appendedTime - offset,
+              endTime: segment.endTime + appendedTime - offset
+            })) }
+          return chapter
+        })
+        this.setState({
+          chapters: timeAdjustedChapters,
+          recordedAudio,
+          recording: false,
+          timeStartRecording: this.getChapterEndTimeAdjusted(chapters.length -1),
+          initialKeyword: chapters[chapters.length -1].keyword
+        }, resolve)
+      }, timeStartRecording, offset)
     })
+  }
+
+  updateRecordingChapter = async (keyword, offset) => {
+    const { chapters } = this.state
+    await this.stopRecording()
+    this.offsetNextStop = offset
+    const chapterId = chapters.findIndex(chapter => chapter.keyword === keyword)
+    const timeStartRecording = this.getChapterEndTimeAdjusted(chapterId)
+    this.setState({ timeStartRecording, initialKeyword: keyword }, this.startRecording)
   }
 
   setupSocketIO = () => {
@@ -155,25 +183,61 @@ export default class EditPage extends Component {
     const path = language ? `/${language}` : ''
     this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'], path })
     this.socketio.on('add-transcript', (text) => {
-      const { recording, schema, chaptersBeforeRecording, tags, recordedTime, previusRecordedTime, tagRequestCache } = this.state
-      if (!recording) return // throw away changes that comes after stoped
+      const { recording, schema, chaptersBeforeRecording, tags, recordedTime, timeStartRecording, initialKeyword, tagRequestCache } = this.state
+      if (!recording || Date.now() < this.ignoreMessagesTo) return // throw away changes that comes after stoped
       const sections = schema.fields.reduce((store, field) => {
         if (field.editable)
           store[field.id] = [field.name, ...(field.headerPatterns || [])]
         return store
       }, {})
-
-      const initialKeyword = chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
-      const restructuredChapter = processChaptersLive(text, sections, initialKeyword, previusRecordedTime)
-      const diagnosString = restructuredChapter.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
+      const keyword = initialKeyword || chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
+      const chapters = this.parseAudioResponse(JSON.parse(text), keyword, timeStartRecording)
+      const diagnosString = JSON.parse(text).map(segment => segment.word).join(' ')
+      if (!this.state.recording) return
       processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
-      const finalChapters = joinRecordedChapters(
-        chaptersBeforeRecording,
-        restructuredChapter,
-        recordedTime
-      )
-      this.setState({ chapters: finalChapters, initialCursor: recordedTime })
+      if (!this.state.recording) return
+      if (chapters)
+        this.setState({ chapters, initialCursor: recordedTime })
+      else
+        this.setState({ initialCursor: recordedTime })
     })
+  }
+
+  parseAudioResponse = (chunks, keyword, initialTime) => {
+    const { chaptersBeforeRecording } = this.state
+    return [...chunks].reduce((store, chunk, i, arr) => {
+      const currentKeyword = this.getKeyword(chunk.word)
+      const existingNewKeyword = currentKeyword !== keyword && i === arr.length -1
+        && chaptersBeforeRecording.some(chapter => chapter.keyword === currentKeyword)
+      if (currentKeyword) {
+        keyword = currentKeyword
+      }
+      if (existingNewKeyword) {
+        this.ignoreMessagesTo = Date.now() + 1000
+        const offset = chunk.start - chunks[chunks.length -1].end// - .2 // move slightly more
+        this.updateRecordingChapter(keyword, offset)
+        arr.slice(-1)
+        return null
+      }
+      const startTime = chunk.start + initialTime
+      const endTime = chunk.end + initialTime
+      const segment = { words: `${chunk.word} `, startTime, endTime }
+      const chapter = store.find(chapter => chapter.keyword === keyword)
+        || { keyword, segments: [] }
+      chapter.segments = [...chapter.segments, segment]
+      return store.includes(chapter) ? store : [...store, chapter]
+    }, JSON.parse(JSON.stringify(chaptersBeforeRecording)))
+  }
+
+  getKeyword = (text) => {
+    const { schema } = this.state
+    const comparable = text.toUpperCase()
+    if (!schema) return
+    const field = schema.fields.find(field => {
+      const patterns = (field.headerPatterns || []).map(p => p.toUpperCase())
+      return field.name.toUpperCase() === comparable || patterns.includes(comparable)
+    })
+    return field ? field.id : undefined
   }
 
   connectAudioInput = async () => {
@@ -194,22 +258,20 @@ export default class EditPage extends Component {
     realAudioInput.connect(scriptNode)
     scriptNode.connect(this.audioContext.destination)
     scriptNode.onaudioprocess = (audioEvent) => {
-      const { recording } = this.state
+      if (!this.state.recording) return
       const recordedTime = this.audioContext.currentTime
       this.setState({ recordedTime })
-      if (recording === true) {
-        let input = audioEvent.inputBuffer.getChannelData(0)
-        input = interpolateArray(input, 16000, this.audioContext.sampleRate)
-        console.log(`sample rate :: ${this.audioContext.sampleRate}`)
-        // convert float audio data to 16-bit PCM
-        var buffer = new ArrayBuffer(input.length * 2)
-        var output = new DataView(buffer)
-        for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
-          var s = Math.max(-1, Math.min(1, input[i]))
-          output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
-        }
-        this.socketio.emit('write-audio', buffer)
+      let input = audioEvent.inputBuffer.getChannelData(0)
+      input = interpolateArray(input, 16000, this.audioContext.sampleRate)
+      // console.log(`sample rate :: ${this.audioContext.sampleRate}`)
+      // convert float audio data to 16-bit PCM
+      var buffer = new ArrayBuffer(input.length * 2)
+      var output = new DataView(buffer)
+      for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
+        var s = Math.max(-1, Math.min(1, input[i]))
+        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
       }
+      this.socketio.emit('write-audio', buffer)
     }
     inputPoint.connect(scriptNode)
     scriptNode.connect(this.audioContext.destination)
@@ -399,8 +461,43 @@ export default class EditPage extends Component {
     this.setState({ currentTime })
   }
 
-  onCursorTimeChange = (cursorTime) => {
-    this.setState({ cursorTime, currentTime: cursorTime })
+  onCursorTimeChange = (cursorTime, chapterId, segmentId, timestampStart, timestampEnd) => {
+    const { chapters } = this.state
+    const initialKeyword = chapters[chapterId].keyword
+    const timeStartRecording = this.getChapterEndTimeAdjusted(chapterId)
+    this.setState({ cursorTime, initialKeyword, timeStartRecording, currentTime: cursorTime })
+  }
+
+  getChapterEndTimeAdjusted = (chapterId) => {
+    const { recordedTime } = this.state
+    const max = this.getChapterStartTime(chapterId + 1)
+    if (max === null) return recordedTime
+    const min = this.getChapterEndTime(chapterId)
+    const silence = max - min
+    return min + silence / 2
+  }
+
+  getChapterStartTime = (chapterId) => {
+    const { chapters } = this.state
+    while (chapterId < chapters.length) {
+      const firstSegment = chapters[chapterId].segments[0]
+      if (firstSegment)
+        return firstSegment.startTime
+      chapterId++
+    }
+    return null
+  }
+
+  getChapterEndTime = (chapterId) => {
+    const { chapters } = this.state
+    while (chapterId >= 0) {
+      const segments = chapters[chapterId].segments
+      const lastSegment = segments[segments.length -1]
+      if (lastSegment)
+        return lastSegment.endTime
+      chapterId--
+    }
+    return 0
   }
 
   getCurrentTime = () => {
