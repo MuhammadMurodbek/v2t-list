@@ -227,7 +227,39 @@ export default class Editor extends Component {
     if (e.keyCode === KEYCODE_ENTER && e.shiftKey) {
       this.insertNewline(e, chapterId, segmentId)
     }
+    if (e.keyCode === KEYCODE_BACKSPACE && selection.toString()) {
+      this.removeSelection(e, chapterId, selection)
+    }
     this.handleChapterChange(e, chapterId, segmentId)
+  }
+
+  removeSelection = (e, chapterId, selection) => {
+    const { chapters, updateTranscript } = this.props
+    const firstSegmentId = Number(selection.anchorNode.parentNode.dataset.segment || 0)
+    const lastSegmentId = Number(selection.focusNode.parentNode.dataset.segment || 0)
+    const { segments } = chapters[chapterId]
+    // Workaround when browser adds <br> element (https://gitlab.inoviagroup.se/patronum/v2t/ui/v2t-list/-/issues/248)
+    if (
+      lastSegmentId === firstSegmentId &&
+      lastSegmentId === segments.length - 1 &&
+      segments[lastSegmentId].words.includes('\n')
+    ) {
+      e.preventDefault()
+      const { startOffset, endOffset } = window.getSelection().getRangeAt(0)
+
+      const charArray = segments[lastSegmentId].words.split('')
+      if (charArray[startOffset - 1] === '\n') {
+        charArray[startOffset - 1] = ''
+        this.stashCursor(-1)
+      } else {
+        this.stashCursor(0)
+      }
+      charArray.splice(startOffset, endOffset - startOffset)
+
+      segments[lastSegmentId].words = charArray.join('')
+      chapters[chapterId].segments = segments
+      updateTranscript(chapters).then(this.refreshDiff)
+    }
   }
 
   insertNewline = (e, chapterId, segmentId) => {
