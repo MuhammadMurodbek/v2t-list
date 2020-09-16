@@ -720,9 +720,9 @@ export default class EditPage extends Component {
     return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 
-  onPause = () => {
+  onPause = (playerCurrentTime) => {
     const { currentTime } = this.state
-    const initialCursor = currentTime
+    const initialCursor = playerCurrentTime || currentTime
     this.setState({ initialCursor })
   }
 

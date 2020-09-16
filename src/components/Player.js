@@ -84,7 +84,7 @@ class Player extends Component {
         this.setState({ isPlaying: false })
       }
     }
-    this.props.onPause()
+    this.props.onPause(this.myRef && this.myRef.current && this.myRef.current.currentTime)
   }
 
   stopMusic = () => {
