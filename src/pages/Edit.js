@@ -521,23 +521,23 @@ export default class EditPage extends Component {
 
   sendToCoworker = async () => {
     const { id } = this.props
-    const missingSections = await this.getMissingSections()
-    if (missingSections.length) {
-      addWarningToast(
-        <EuiI18n
-          token="unableToSaveDictation"
-          default="Unable to send the dictation"
-        />,
-        <>
-          <EuiI18n
-            token="missingReuiredHeaders"
-            default="Required field is missing"
-          />:: <strong>{missingSections.join(', ')}</strong>
-        </>
-      )
-      return
-    }
     try {
+      const missingSections = await this.getMissingSections()
+      if (missingSections.length) {
+        addWarningToast(
+          <EuiI18n
+            token="unableToSaveDictation"
+            default="Unable to send the dictation"
+          />,
+          <>
+            <EuiI18n
+              token="missingReuiredHeaders"
+              default="Required field is missing"
+            />:: <strong>{missingSections.join(', ')}</strong>
+          </>
+        )
+        return
+      }
       const sendingToCoworker = await api.approveTranscription(id)
       if (sendingToCoworker) {
         window.location = '/'
@@ -618,12 +618,12 @@ export default class EditPage extends Component {
       allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
     )
 
-    if (redirectOnSave && !force) {
-      const needConfirmation = await this.askToRedirect()
-      if (needConfirmation) return
-    }
-
     try {
+      if (redirectOnSave && !force) {
+        const needConfirmation = await this.askToRedirect()
+        if (needConfirmation) return
+      }
+
       if (recording)
         await this.stopRecording()
       if (recording || recordedAudio)
@@ -663,7 +663,7 @@ export default class EditPage extends Component {
       allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
     )
 
-    const { data: fullSchema } = await api.getSchema(schema.id).catch(this.onError) || {}
+    const { data: fullSchema } = await api.getSchema(schema.id)
     return fullSchema.fields.reduce((store, {id, name, required}) => {
       if (required && !concatinatedChapters.map(chapter => chapter.keyword).includes(id))
         store.push(name)
@@ -695,6 +695,7 @@ export default class EditPage extends Component {
   updateSchemaId = async (schemaId) => {
     const { allChapters } = this.state
     const { data: originalSchema } = await api.getSchema(schemaId).catch(this.onError) || {}
+    if (!originalSchema) return
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, allChapters)
     this.setState({
