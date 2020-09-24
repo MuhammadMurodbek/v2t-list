@@ -515,8 +515,10 @@ export default class EditPage extends Component {
   }
 
   finalize = async () => {
-    await this.save(true)
-    this.sendToCoworker()
+    const canBeSaved = await this.save(true)
+    if (canBeSaved) {
+      this.sendToCoworker()
+    }
   }
 
   unsupportedSchemaHeaders = () => {
@@ -530,10 +532,6 @@ export default class EditPage extends Component {
     const { id } = this.props
     try {
       const missingSections = await this.getMissingSections()
-      const unsupportedHeqaderExists = this.unsupportedSchemaHeaders().length > 0
-      if(unsupportedHeqaderExists) {
-        return
-      }
       if (missingSections.length) {
         addWarningToast(
           <EuiI18n
@@ -597,7 +595,7 @@ export default class EditPage extends Component {
           default="Section must not be empty"
         />
       )
-      return
+      return false
     }
 
     const headers = chapters.map((chapter) => chapter.keyword)
@@ -614,7 +612,7 @@ export default class EditPage extends Component {
           default="All keywords must be set and may only appear once"
         />
       )
-      return
+      return false
     }
 
     chapters.forEach((chapter) => {
@@ -633,7 +631,7 @@ export default class EditPage extends Component {
     try {
       if (redirectOnSave && !force) {
         const needConfirmation = await this.askToRedirect()
-        if (needConfirmation) return
+        if (needConfirmation) return true
       }
 
       if (recording)
@@ -660,8 +658,10 @@ export default class EditPage extends Component {
           )
         }
       )
-      if (redirectOnSave)
+      if (redirectOnSave) {
         window.location = '/'
+      }
+      return true
     } catch(e) {
       console.error(e)
       addUnexpectedErrorToast(e)
