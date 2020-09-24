@@ -531,7 +531,10 @@ export default class EditPage extends Component {
     try {
       const missingSections = await this.getMissingSections()
       const unsupportedHeqaderExists = this.unsupportedSchemaHeaders().length > 0
-      if (missingSections.length || unsupportedHeqaderExists) {
+      if(unsupportedHeqaderExists) {
+        return
+      }
+      if (missingSections.length) {
         addWarningToast(
           <EuiI18n
             token="unableToSaveDictation"
@@ -583,7 +586,7 @@ export default class EditPage extends Component {
     let { chapters } = this.state
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
     const unsupportedHeqaderExists = this.unsupportedSchemaHeaders().length>0
-    if (isThereAnyEmptySection || unsupportedHeqaderExists) {
+    if (isThereAnyEmptySection) {
       addWarningToast(
         <EuiI18n
           token="unableToSaveDictation"
@@ -600,7 +603,7 @@ export default class EditPage extends Component {
     const headers = chapters.map((chapter) => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
     const hasEmptyHeader = headers.some(header => !header)
-    if (hasEmptyHeader || headers.length !== uniqueHeaders.length) {
+    if (hasEmptyHeader || headers.length !== uniqueHeaders.length || unsupportedHeqaderExists) {
       addWarningToast(
         <EuiI18n
           token="unableToSaveDictation"
