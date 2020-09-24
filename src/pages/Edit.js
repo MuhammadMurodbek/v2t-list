@@ -519,11 +519,19 @@ export default class EditPage extends Component {
     this.sendToCoworker()
   }
 
+  hasUnsupportedSchemaHeaders = () => {
+    const { schema, chapters } = this.state
+    const headers = chapters.map((chapter) => chapter.keyword)
+    const headersForSchema = schema.fields.map(field => field.name)
+    return headers.filter(header => !headersForSchema.includes(header))
+  }
+
   sendToCoworker = async () => {
     const { id } = this.props
     try {
       const missingSections = await this.getMissingSections()
-      if (missingSections.length) {
+      const unsupportedHeqaderExists = this.hasUnsupportedSchemaHeaders().length > 0
+      if (missingSections.length || unsupportedHeqaderExists) {
         addWarningToast(
           <EuiI18n
             token="unableToSaveDictation"
@@ -533,7 +541,7 @@ export default class EditPage extends Component {
             <EuiI18n
               token="missingReuiredHeaders"
               default="Required field is missing"
-            />:: <strong>{missingSections.join(', ')}</strong>
+            /> <strong>{missingSections.join(', ')}</strong>
           </>
         )
         return
@@ -574,7 +582,8 @@ export default class EditPage extends Component {
     } = this.state
     let { chapters } = this.state
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
-    if (isThereAnyEmptySection) {
+    const unsupportedHeqaderExists = this.hasUnsupportedSchemaHeaders().length>0
+    if (isThereAnyEmptySection || unsupportedHeqaderExists) {
       addWarningToast(
         <EuiI18n
           token="unableToSaveDictation"
