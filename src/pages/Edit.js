@@ -361,7 +361,8 @@ export default class EditPage extends Component {
       const readOnlyHeaders = schema.fields.filter(f => f.visible && !f.editable)
       const hiddenHeaderIds = schema.fields.filter(f => !f.visible).map(({ id }) => id)
       const defaultHeaderIds = schema.fields.filter(f => f.default).map(({ id }) => id)
-      schema.fields = schema.fields.filter(f => f.visible && f.editable)
+      schema.originalFields = schema.fields
+      schema.fields = schema.fields.filter(f => f.editable)
       this.setState({
         readOnlyHeaders,
         hiddenHeaderIds,
@@ -378,16 +379,19 @@ export default class EditPage extends Component {
 
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
-      const namespaces = TAG_NAMESPACES.filter(namespace => schema.fields.some(({id}) => id === namespace))
+      const namespaces = schema.fields.filter(({ id }) => TAG_NAMESPACES.includes(id))
 
       schema.fields = schema.fields.filter(({ id }) => !TAG_NAMESPACES.includes(id))
 
-      const originalTags = namespaces.reduce((store, namespace) => {
+      const originalTags = namespaces.reduce((store, { id: namespace, visible }) => {
         const tagTranscript = transcriptions.find(({ keyword }) => keyword === namespace)
         if (tagTranscript && tagTranscript.values) {
-          store[namespace] = tagTranscript.values
+          store[namespace] = {
+            ...tagTranscript,
+            visible
+          }
         } else {
-          store[namespace] = []
+          store[namespace] = { values: [], visible }
         }
         return store
       }, {})
@@ -452,12 +456,14 @@ export default class EditPage extends Component {
 
   sectionHeaders = () => {
     const { schema, chapters } = this.state
-    return schema.fields ? schema.fields.reduce((store, {id, name, editable}) => {
-      const done = chapters.map(chapter => chapter.keyword).includes(id)
-      if (editable)
-        store.push({name, done})
-      return store
-    }, []) : []
+    return schema.fields
+      ? schema.fields.filter(({visible}) => visible).reduce((store, {id, name, editable}) => {
+          const done = chapters.map(chapter => chapter.keyword).includes(id)
+          if (editable)
+            store.push({name, done})
+          return store
+        }, [])
+      : []
   }
 
   onTimeUpdate = (currentTime) => {
@@ -843,7 +849,7 @@ export default class EditPage extends Component {
                   <EuiFlexItem grow={false}>
                     <Tags
                       tags={tags}
-                      schemaId={schema.id}
+                      schema={schema}
                       updateTags={this.onUpdateTags}
                     />
                   </EuiFlexItem>

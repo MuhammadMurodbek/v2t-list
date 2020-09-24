@@ -9,12 +9,13 @@ const REGEX = /\b([a-zA-Z] *[a-zA-Z\d]{0,1} *[a-zA-Z\d] *(\.|,)? *\d *(\.|,)?[a-
 
 const processTagsLive = async (text, existingTags, onUpdateTags, tagRequestCache, onUpdateTagRequestCache) => {
   let needUpdate = false
-  const tags = await Object.entries(existingTags).reduce(async (store, [namespace, value]) => {
+  const tags = await Object.entries(existingTags).reduce(async (store, [namespace, { values }]) => {
+    values = values || []
     const accumulator = await store
-    const newTags = await processTagType(text, namespace, value, tagRequestCache, onUpdateTagRequestCache)
+    const newTags = await processTagType(text, namespace, values, tagRequestCache, onUpdateTagRequestCache)
     if (newTags.length)
       needUpdate = true
-    accumulator[namespace] = [...value, ...newTags]
+    accumulator[namespace] = [...values, ...newTags]
     return Promise.resolve(accumulator)
   }, Promise.resolve({}))
   if (needUpdate) {

@@ -6,7 +6,7 @@ const convertToV2API = (schema, chapters, tags = {}) => {
     return store.concat({
       id,
       namespace: id,
-      values: tags
+      values: tags.values
     })
   }, [])
   const updatedChapters = []

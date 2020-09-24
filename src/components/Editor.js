@@ -296,7 +296,9 @@ export default class Editor extends Component {
     const nextSegment = { ...segment }
     nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
     const usedKeywords = chapters.map(({keyword}) => keyword)
-    const nextField = schema.fields.find(({id}) => !usedKeywords.includes(id))
+    const nextField =
+      schema.fields.filter(({ visible }) => visible)
+        .find(({id}) => !usedKeywords.includes(id))
     const nextChapter = {
       keyword: nextField ? nextField.id : '',
       segments: [nextSegment, ...chapters[chapterId].segments.slice(segmentId + 1)]
@@ -559,12 +561,15 @@ EditableChapters.propTypes = {
 const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps }) => {
   const sectionHeaders = schema.fields ? schema.fields.map(({name}) => name) : []
   const field = schema.fields ? schema.fields.find(({id}) => id === keyword) : null
+  const isVisible = field ? field.visible : true
   const sectionHeader = field ? field.name : ''
   return (
-    <EuiFormRow style={{ maxWidth: '100%' }}>
+    <EuiFormRow style={{
+      maxWidth: '100%',
+      display: isVisible ? 'default' : 'none'
+    }}>
       <>
         <SectionHeader
-          isVisible
           keywords={sectionHeaders}
           selectedHeader={sectionHeader}
           updateKey={setKeyword}

@@ -26,36 +26,21 @@ export default class Tags extends Component {
   static propTypes = {
     tags: PropTypes.object.isRequired,
     updateTags: PropTypes.func.isRequired,
-    schemaId: PropTypes.string
+    schema: PropTypes.object
   }
 
   state = {
     isLoading: false,
     selectedOption: [],
     options: {},
-    tags: {},
-    schema: null
-  }
-
-  componentDidMount() {
-    this.loadSchema()
+    tags: {}
   }
 
   componentDidUpdate(prevProps) {
-    const { tags, schemaId } = this.props
+    const { tags } = this.props
     if (JSON.stringify(prevProps.tags) !== JSON.stringify(tags)) {
       this.loadTagsFromTranscript()
     }
-    if (prevProps.schemaId !== schemaId) {
-      this.loadSchema()
-    }
-  }
-
-  loadSchema = async () => {
-    const { schemaId } = this.props
-    if (!schemaId) return
-    const { data: schema } = await api.getSchema(schemaId).catch(()=>({}))
-    this.setState({schema})
   }
 
   loadTagsFromTranscript = () => {
@@ -74,7 +59,7 @@ export default class Tags extends Component {
       // Purpose of doing this is to use free text search
       if (codeData.data) {
         const options = codeData.data
-          .filter(option => !tags[namespace].some(tag =>tag.value === option.value.toUpperCase()))
+          .filter(option => !tags[namespace].values.some(tag =>tag.value === option.value.toUpperCase()))
           .map((code) => {
             const label = `${code.value.toUpperCase()}: ${code.description}`
             return {
@@ -96,8 +81,11 @@ export default class Tags extends Component {
 
   deleteRow = (namespace, value) => {
     const { tags } = this.props
-    const remainingCodes = tags[namespace].filter((el) => el.value !== value)
-    this.props.updateTags({ ...tags, [namespace]: remainingCodes})
+    const values = tags[namespace].values.filter((el) => el.value !== value)
+    this.props.updateTags({ ...tags, [namespace]: {
+      ...tags[namespace],
+      values
+    }})
   }
 
   addCode = (namespace) => {
@@ -106,15 +94,26 @@ export default class Tags extends Component {
     if (selectedOption.length > 0) {
       const data = selectedOption[0]
       const [value, description] = data.label.split(': ')
-      const updatedCodes = [
-        ...tags[namespace],
-        {
+      let values
+      if (tags[namespace].values) {
+        values = [
+          ...tags[namespace].values,
+          {
+            value,
+            description
+          }
+        ]
+      } else {
+        values = [{
           value,
           description
-        }
-      ]
+        }]
+      }
       this.emptySelectedOption()
-      this.props.updateTags({ ...tags, [namespace]: updatedCodes })
+      this.props.updateTags({ ...tags, [namespace]: {
+        ...tags[namespace],
+        values
+      }})
     }
   }
 
@@ -154,14 +153,14 @@ export default class Tags extends Component {
     const tags = JSON.parse(JSON.stringify(this.props.tags))
     if (source && destination) {
       const namespace = source.droppableId
-      const updatedTags = this.swap(tags[namespace], source.index, destination.index)
-      this.props.updateTags({ ...tags, [namespace]: updatedTags })
+      const values = this.swap(tags[namespace].values, source.index, destination.index)
+      this.props.updateTags({ ...tags, [namespace]: { ...tags[namespace], values } })
     }
   }
 
   getLabel = (namespace) => {
-    const { schema } = this.state
-    const field = schema ? schema.fields.find(({id}) => id === namespace) : null
+    const { schema } = this.props
+    const field = schema ? schema.originalFields.find(({id}) => id === namespace) : null
     return field ? field.name : ''
   }
 
@@ -169,21 +168,25 @@ export default class Tags extends Component {
     const {
       options,
       isLoading,
-      selectedOption,
-      schema
+      selectedOption
     } = this.state
-    const {tags} = this.props
-    if (!schema || !schema.fields) return null
-    const fieldFilter = namespace => schema.fields.some(({id}) => id === namespace)
+    const {
+      tags,
+      schema
+    } = this.props
+    if (!schema || !schema.originalFields) return null
     return (
       <EuiI18n tokens={['codes', 'lookFor']} defaults={['Codes', 'Look for']}>
         {([codes, lookFor]) =>
           <EuiFlexGroup direction="column">
             {
-              TAG_NAMESPACES.filter(fieldFilter).map(namespace => tags[namespace] ? (
+              Object.entries(tags).map(([namespace, { values, visible }]) => values ? (
                 <EuiFlexItem
                   key={namespace}
                   grow={false}
+                  style={ !visible ? {
+                    display: 'none'
+                  } : {}}
                 >
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
@@ -202,11 +205,11 @@ export default class Tags extends Component {
                     </EuiFlexItem>
                     <EuiFlexItem
                       grow={false}
-                      style={ tags[namespace].length ? {} : { display: 'none' }}
+                      style={ values.length ? {} : { display: 'none' }}
                     >
                       <EuiDragDropContext onDragEnd={this.onDragEnd}>
                         <EuiDroppable droppableId={namespace} spacing="m" withPanel>
-                          {tags[namespace].map(({ description, value }, idx) => (
+                          {values.map(({ description, value }, idx) => (
                             <EuiDraggable
                               spacing="m"
                               key={value}
