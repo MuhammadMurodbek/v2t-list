@@ -519,7 +519,7 @@ export default class EditPage extends Component {
     this.sendToCoworker()
   }
 
-  hasUnsupportedSchemaHeaders = () => {
+  unsupportedSchemaHeaders = () => {
     const { schema, chapters } = this.state
     const headers = chapters.map((chapter) => chapter.keyword)
     const headersForSchema = schema.fields.map(field => field.name)
@@ -530,7 +530,7 @@ export default class EditPage extends Component {
     const { id } = this.props
     try {
       const missingSections = await this.getMissingSections()
-      const unsupportedHeqaderExists = this.hasUnsupportedSchemaHeaders().length > 0
+      const unsupportedHeqaderExists = this.unsupportedSchemaHeaders().length > 0
       if (missingSections.length || unsupportedHeqaderExists) {
         addWarningToast(
           <EuiI18n
@@ -582,7 +582,7 @@ export default class EditPage extends Component {
     } = this.state
     let { chapters } = this.state
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
-    const unsupportedHeqaderExists = this.hasUnsupportedSchemaHeaders().length>0
+    const unsupportedHeqaderExists = this.unsupportedSchemaHeaders().length>0
     if (isThereAnyEmptySection || unsupportedHeqaderExists) {
       addWarningToast(
         <EuiI18n
