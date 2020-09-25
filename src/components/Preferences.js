@@ -61,6 +61,8 @@ const Flyout = ({ visible, onClose }) => {
     setPreferences({ autoPlayStatus })
   const setExternalMode = ({ target: { checked: externalMode }}) =>
     setPreferences({ externalMode })
+  const setEditReadOnly = ({ target: { checked: editReadOnly }}) =>
+    setPreferences({ editReadOnly })
   const setStopButtonVisibilityStatus = ({ target: { checked: stopButtonVisibilityStatus }}) =>
     setPreferences({ stopButtonVisibilityStatus })
   const setShowVideo = ({ target: { checked: showVideo }}) => setPreferences({ showVideo })
@@ -136,6 +138,15 @@ const Flyout = ({ visible, onClose }) => {
               }
               checked={preferences.externalMode}
               onChange={setExternalMode}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="" fullWidth={true}>
+            <EuiSwitch
+              label={
+                <EuiI18n token="editReadOnlyFields" default="Edit read-only fields" />
+              }
+              checked={preferences.editReadOnly}
+              onChange={setEditReadOnly}
             />
           </EuiFormRow>
           <EuiSpacer size="l" />

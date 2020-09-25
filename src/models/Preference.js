@@ -179,23 +179,17 @@ export default class Preference {
   }
 
   set externalMode(mode) {
-    if (this._externalMode === true) {
-      this._externalMode = false
-      localStorage.setItem('externalMode', this._externalMode)
-    } else if (this._externalMode === false) {
-      this._externalMode = true
-      localStorage.setItem('externalMode', this._externalMode)
-    } else {
-      const externalModeFromStorage = localStorage.getItem('externalMode')
-      if (externalModeFromStorage === 'true') {
-        this._externalMode = true
-      } else if (externalModeFromStorage === 'false') {
-        this._externalMode = false
-      } else {
-        this._externalMode = false
-      }
-      localStorage.setItem('externalMode', this._externalMode)
-    }
+    this._externalMode = mode
+    localStorage.setItem('externalMode', mode)
+  }
+
+  get editReadOnly() {
+    return this._editReadOnly
+  }
+
+  set editReadOnly(value) {
+    this._editReadOnly = value
+    localStorage.setItem('editReadOnly', value)
   }
 
   get fontSizeIteration() {
@@ -276,7 +270,8 @@ export default class Preference {
       }
     ],
     currentFontSize: '18px',
-    externalMode: false,
+    externalMode: localStorage.getItem('externalMode') === 'true',
+    editReadOnly: localStorage.getItem('editReadOnly') === 'true',
     fontSizeIteration: 0,
     keywordInit: true
   }

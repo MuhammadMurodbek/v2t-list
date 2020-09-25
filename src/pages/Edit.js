@@ -758,6 +758,17 @@ export default class EditPage extends Component {
     this.setState({ allChapters })
   }
 
+  onUpdateReadOnly = (keyword, values) => {
+    const { allChapters } = this.state
+    var index = allChapters.findIndex(c => c.keyword === keyword)
+    if (index > -1) {
+      allChapters[index].values = values
+    } else {
+      allChapters.push({ keyword, segments: [], values })
+    }
+    this.setState({ allChapters })
+  }
+
   onUpdateTranscript = (chapters) => {
     const { tags, tagRequestCache } = this.state
     const diagnosString = chapters.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
@@ -919,6 +930,7 @@ export default class EditPage extends Component {
                     <ReadOnlyChapters
                       chapters={this.parseReadOnlyTranscripts(allChapters)}
                       onCreate={this.onCreateReadOnly}
+                      onUpdate={this.onUpdateReadOnly}
                     />
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
