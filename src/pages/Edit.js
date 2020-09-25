@@ -18,7 +18,9 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiModalBody,
-  EuiModalFooter
+  EuiModalFooter,
+  EuiFormRow,
+  EuiTextArea
 } from '@patronum/eui'
 import io from 'socket.io-client'
 import Invalid from './Invalid'
@@ -88,7 +90,8 @@ export default class EditPage extends Component {
     initialKeyword: null,
     tagRequestCache: {},
     modalMissingFields: [],
-    approved: false
+    approved: false,
+    noMappingFields: []
   }
 
   async componentDidMount() {
@@ -342,14 +345,18 @@ export default class EditPage extends Component {
     const defaultField = originalSchema && originalSchema.fields.find(field => field.default)
     const defaultFields = [{ keyword: defaultField.name || '', segments: [], values: [] }]
 
+    const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...transcriptions])
+
     this.setState({
       originalSchemaId: schemaId,
       allChapters: transcriptions,
-      originalChapters: this.parseTranscriptions(transcriptions),
+      originalChapters: this.parseTranscriptions(filteredTranscriptions),
       fields: fields || {},
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
       schemas,
-      schema
+      schema: schemaWithMappings,
+      noMappingFields,
+      transcriptions: filteredTranscriptions
     }, () => {
       if (!this.state.originalChapters.length)
         this.setState({chapters: defaultFields})
@@ -585,7 +592,8 @@ export default class EditPage extends Component {
       tags,
       schema,
       recording,
-      recordedAudio
+      recordedAudio,
+      noMappingFields
     } = this.state
     let { chapters } = this.state
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
@@ -647,8 +655,23 @@ export default class EditPage extends Component {
       if (mic)
         await api.completeLiveTranscript(id)
 
-      const fields = convertToV2API(schema, chapters, tags)
-      await api.updateTranscription(id, schema.id, fields)
+      const unfiltredSchema = {
+        ...schema,
+        fields: [
+          ...schema.fields,
+          ...noMappingFields
+        ]
+      }
+
+      const fields = convertToV2API(unfiltredSchema, chapters, tags)
+
+      const filtredFields = fields.filter(
+        (field) => !~noMappingFields.findIndex(({ id }) => id === field.id)
+      )
+
+      filtredFields.push(...noMappingFields)
+
+      await api.updateTranscription(id, unfiltredSchema.id, filtredFields)
       this.setState(
         {
           allChapters: chapters,
@@ -716,9 +739,13 @@ export default class EditPage extends Component {
     if (!originalSchema) return
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, allChapters)
+    const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...allChapters])
+
     this.setState({
-      schema,
-      originalChapters: this.parseTranscriptions(allChapters)
+      schema: schemaWithMappings,
+      originalChapters: this.parseTranscriptions(filteredTranscriptions),
+      noMappingFields,
+      transcriptions: filteredTranscriptions
     })
     localStorage.setItem('lastUsedSchema', schema.id)
   }
@@ -757,6 +784,49 @@ export default class EditPage extends Component {
     this.setState({ error })
   }
 
+  filterSchema = (schema, fields) => {
+    let noMappingFields = []
+    const mappingFields = schema.fields
+      ? schema.fields.reduce((prev, curr) => {
+          if (curr.mappings) prev.push(curr)
+          else if (!curr.mappings && curr.visible && curr.editable) {
+            const foundField = fields.find((field, idx) => {
+              if (field.keyword === curr.id) {
+                fields.splice(idx, 1)
+                return true
+              } else {
+                return false
+              }
+            })
+            const values = foundField !== undefined ? foundField.values || [{value: ''}] : [{value: ''}]
+            noMappingFields.push({
+              ...curr,
+              values
+            })
+          }
+          return prev
+        }, [])
+      : []
+
+    const schemaWithMappings = { ...schema, fields: mappingFields }
+
+    return { schemaWithMappings, noMappingFields, transcriptions: fields }
+  }
+
+  onNoMappingFieldValueChange = (value, id) => {
+    const { noMappingFields } = JSON.parse(JSON.stringify(this.state))
+
+    noMappingFields.forEach((field) => {
+      if (field.id === id) {
+        field.values[0].value = value
+      }
+    })
+
+    this.setState({
+      noMappingFields
+    })
+  }
+
   render() {
     const { id, mic, token } = this.props
     const {
@@ -777,7 +847,8 @@ export default class EditPage extends Component {
       recordedTime,
       recordedAudio,
       modalMissingFields,
-      approved
+      approved,
+      noMappingFields
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -798,8 +869,12 @@ export default class EditPage extends Component {
         />
       )
     }
+
     return (
-      <EuiI18n token={mic ? 'live' : 'editor'} default={mic ? 'Live Dictation' : 'Editor'}>
+      <EuiI18n
+        token={mic ? 'live' : 'editor'}
+        default={mic ? 'Live Dictation' : 'Editor'}
+      >
         {(pageTitle) => (
           <Page preferences title={pageTitle}>
             <EuiFlexGroup className="transcriptEdit" wrap>
@@ -853,6 +928,21 @@ export default class EditPage extends Component {
                       updateTags={this.onUpdateTags}
                     />
                   </EuiFlexItem>
+                  {noMappingFields.map((field, key) => (
+                    <EuiFlexItem grow={false} key={key}>
+                      <EuiFormRow label={field.name}>
+                        <EuiTextArea
+                          value={field.values[0].value}
+                          onChange={({ target: { value } }) =>
+                            this.onNoMappingFieldValueChange(
+                              value,
+                              field.id
+                            )
+                          }
+                        />
+                      </EuiFormRow>
+                    </EuiFlexItem>
+                  ))}
                   <EuiFlexItem grow={false}>
                     <Schemas
                       schemas={schemas}
