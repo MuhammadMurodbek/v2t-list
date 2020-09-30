@@ -30,6 +30,9 @@ module.exports = {
     aggregateTimeout: 300,
     poll: 300
   },
+  resolve: {
+    extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js']
+  },
   module: {
     rules: [
       {
@@ -37,6 +40,13 @@ module.exports = {
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader'
+        }
+      },
+      {
+        test: /\.(ts|tsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'ts-loader'
         }
       },
       {
