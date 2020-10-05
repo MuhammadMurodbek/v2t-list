@@ -134,7 +134,7 @@ class App extends Component {
             // Count number of active tags
             const sideBar = []
             if(!tag && activeTags.length) {
-              tag = activeTags[0].value
+              tag = activeTags[0].id
               this.selectItem(tag)
             }
             api
@@ -157,17 +157,17 @@ class App extends Component {
 
             activeTags.forEach((tag) => {
               const temp = {
-                id: tag.value,
-                name: `${tag.value} (${tag.count})`,
+                id: tag.id,
+                name: `${tag.name} (${tag.count})`,
                 onClick: () => {
                   const { selectedItem } = this.state
-                  if (selectedItem !== tag.value) {
+                  if (selectedItem !== tag.id) {
                     this.setState({
                       transcripts: [],
-                      selectedItem: tag.value
+                      selectedItem: tag.id
                     })
                     api
-                      .loadTickets(tag.value, pageIndex, pageSize, orderBy)
+                      .loadTickets(tag.id, pageIndex, pageSize, orderBy)
                       .then(({ data }) => {
                         const {
                           items: transcripts,
@@ -177,7 +177,7 @@ class App extends Component {
                         // Check which one are audio and which are video
                         this.setState({
                           transcripts,
-                          job: tag.value,
+                          job: tag.name,
                           contentLength,
                           pageIndex: 0
                         })

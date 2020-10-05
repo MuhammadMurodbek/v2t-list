@@ -9,7 +9,7 @@ const headers = {
 const URLS = {
   login: '/api/login/v1',
   domains: '/api/login/v1/domains',
-  activeTags: '/api/tickets/v1/tags/active',
+  activeTags: '/api/transcription/search/v2/departments',
   searchTranscriptions: '/api/transcription/search/v2',
   keywordsV1: '/api/keywords/v1/',
   transcriptionsV1: '/api/transcriptions/v1',
