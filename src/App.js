@@ -74,7 +74,7 @@ class App extends Component {
       }
     )
 
-    const queryToken = getQueryStringValue('token')
+    const queryToken = getQueryStringValue.prototype.decodeToken('token')
     if (queryToken) {
       this.setState({ isTokenFromUrl: true })
     }

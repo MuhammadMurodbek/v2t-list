@@ -7,9 +7,6 @@
     "preserveConstEnums": true,
     "sourceMap": true
   },
-  "files": [
-    "src/models/WebAudio.ts"
-  ],
   "exclude": [
     "node_modules"
   ]
