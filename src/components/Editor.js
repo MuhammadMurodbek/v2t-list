@@ -30,6 +30,7 @@ export default class Editor extends Component {
     chapters: null,
     currentTime: 0,
     initialCursor: 0,
+    recordingChapter: null,
     noDiff: false
   }
 
@@ -39,6 +40,7 @@ export default class Editor extends Component {
     chapters: PropTypes.array,
     currentTime: PropTypes.number.isRequired,
     initialCursor: PropTypes.number.isRequired,
+    recordingChapter: PropTypes.number,
     schema: PropTypes.object.isRequired,
     updateTranscript: PropTypes.func.isRequired,
     onCursorTimeChange: PropTypes.func.isRequired,
@@ -59,7 +61,7 @@ export default class Editor extends Component {
   componentDidUpdate(prevProps) {
     const { initialCursor, schema, originalChapters } = this.props
     if (initialCursor && prevProps.initialCursor !== initialCursor)
-      this.setCursor(initialCursor, false)
+      this.setCursor(false)
     else
       this.updateCursor()
 
@@ -82,11 +84,21 @@ export default class Editor extends Component {
     }
   }
 
-  setCursor = (timestamp, select) => {
-    const { chapters } = this.props
-    const cursor = chapters.reduce((store, { segments }, chapter) => {
+  setCursor = (select) => {
+    const { recordingChapter } = this.props
+    const cursor = recordingChapter === null ? this.timestampCursor(select) : this.recordingCursorLast()
+    this.stashCursorAt(cursor)
+    const container = this.getSelectedElement()
+    const element = container.firstChild || container
+    element.parentElement.scrollIntoView(false)
+    this.updateCursor()
+  }
+
+  timestampCursor = (select) => {
+    const { initialCursor, chapters } = this.props
+    return chapters.reduce((store, { segments }, chapter) => {
       const segment = segments.findIndex(({ startTime }, i) =>
-        startTime > timestamp || (i === segments.length - 1 && chapter === chapters.length -1)
+        startTime > initialCursor || (i === segments.length - 1 && chapter === chapters.length -1)
       )
       return !store && segment >= 0 ? {
         chapter,
@@ -95,11 +107,19 @@ export default class Editor extends Component {
         select
       } : store
     }, null) || { chapter: 0, segment: 0, offset: 0, select }
-    this.stashCursorAt(cursor)
-    const container = this.getSelectedElement()
-    const element = container.firstChild || container
-    element.parentElement.scrollIntoView(false)
-    this.updateCursor()
+  }
+
+  recordingCursorLast = () => {
+    const { recordingChapter, chapters } = this.props
+    const chapter = chapters[recordingChapter] || chapters[recordingChapter - 1]
+    const { segments } = chapter
+    const segment = segments[segments.length -1]
+    return segment ? {
+      chapter: recordingChapter,
+      segment: segments.length -1,
+      offset: segment.words.length - 1,
+      select: false
+    } : { chapter: recordingChapter, segment: 0, offset: 0, select: false }
   }
 
   updateCursor = () => {
@@ -114,7 +134,7 @@ export default class Editor extends Component {
     }
   }
 
-  stashCursor = (offset = 0) => {
+  stashCursor = (offset = 0, overrideSegment = null) => {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
     // firefox paste #text into a sibling before it is merged into one #text element
@@ -124,7 +144,7 @@ export default class Editor extends Component {
     this.stashCursorAt({
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
-      segment: Number(dataset.segment || 0),
+      segment: overrideSegment === null ? Number(dataset.segment || 0) : overrideSegment,
       offset: range.startOffset + siblingOffset + offset
     })
     if (isNaN(this.cursor.keyword) && this.cursor.offset < 0)
@@ -317,23 +337,30 @@ export default class Editor extends Component {
     const lastSegmentId = this.props.chapters[chapterId].segments.length - 1
     const textContent = e.target.childNodes[segmentId].textContent
     const range = window.getSelection().getRangeAt(0)
-    const isBeginningSelected = segmentId === 0 && range.endOffset === 0
+    const isBeginningSelected = this.spaceInfront(e, segmentId) === 0 && range.endOffset === 0
     const isEndingSelected = segmentId === lastSegmentId && range.startOffset === textContent.length
     if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
       this.splitChapter(e, chapterId, segmentId)
     } else if (isBeginningSelected && e.keyCode === KEYCODE_BACKSPACE) {
-      this.mergeChapter(e, chapterId, chapterId - 1, -1)
+      this.mergeChapter(e, chapterId, chapterId - 1, - 1, 0)
     } else if (isEndingSelected && e.keyCode === KEYCODE_DELETE) {
       this.mergeChapter(e, chapterId + 1, chapterId)
     }
   }
 
-  mergeChapter = (e, fromChapterId, toChapterId, cursorOffset) => {
+  spaceInfront = (e, segmentId) => {
+    let space = 0
+    for (let i=0; i<segmentId; i++)
+      space += e.target.childNodes[i].textContent.replace(/[\u200C]/g, '').length
+    return space
+  }
+
+  mergeChapter = (e, fromChapterId, toChapterId, cursorOffset, overrideSegment = null) => {
     const { updateTranscript } = this.props
     e.preventDefault()
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     if (!chapters[fromChapterId] || !chapters[toChapterId]) return null
-    this.stashCursor(cursorOffset)
+    this.stashCursor(cursorOffset, overrideSegment)
     chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
     chapters.splice(fromChapterId, 1)
     updateTranscript(chapters).then(this.refreshDiff)
@@ -342,19 +369,21 @@ export default class Editor extends Component {
   parseChapter = (target, chapterId) => {
     const { chapters } = this.props
     const segments = Array.from(target.childNodes)
-      .reduce((store, child) => {
-        const segment = this.parseSegment(child, chapterId)
+      .reduce((store, child, i) => {
+        const segment = this.parseSegment(child, chapterId, i)
         return this.reduceSegment(store, segment)
       }, [])
     return { ...chapters[chapterId], segments }
   }
 
-  parseSegment = (child, chapterId) => {
+  parseSegment = (child, chapterId, i) => {
     this.removeInvalidChars(child)
     const { chapters } = this.props
     const segmentId = child.dataset ? Number(child.dataset.segment || 0) : 0
     const segments = chapters[chapterId].segments
     const words = child.textContent
+    if (i === 0 && /^[\u200c]+$/.test(words))
+      return this.props.chapters[chapterId].segments[0]
     if (segmentId)
       return { ...segments[segmentId], words }
     return { startTime: 0, endTime: 0, words }
@@ -362,7 +391,8 @@ export default class Editor extends Component {
 
   reduceSegment = (store, segment) => {
     const lastSegment = store[store.length - 1]
-    if (lastSegment && lastSegment.words.slice(-1) !== ' ') {
+    const hasLastSegment = lastSegment && !/[\u200C]/g.test(lastSegment.words)
+    if (hasLastSegment && lastSegment.words.slice(-1) !== ' ') {
       store[store.length - 1] = {
         ...lastSegment,
         endTime: segment.endTime,
@@ -558,11 +588,16 @@ EditableChapters.propTypes = {
   inputRef: PropTypes.any
 }
 
-const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps }) => {
+const EditableChapter = ({ chapterId, keyword, schema, setKeyword, segments, ...chunkProps }) => {
   const sectionHeaders = schema.fields ? schema.fields.map(({name}) => name) : []
   const field = schema.fields ? schema.fields.find(({id}) => id === keyword) : null
   const isVisible = field ? field.visible : true
   const sectionHeader = field ? field.name : ''
+  const namePatterns = field ? [field.name, ...field.headerPatterns||[]] : []
+  const filteredSegments = segments.map((segment, i) => {
+    const hide = i === 0 && new RegExp(namePatterns.join('|'), 'i').test(segment.words)
+    return { ...segment, words: hide ? segment.words.replace(/./g, '\u200c') : segment.words }
+  })
   return (
     <EuiFormRow style={{
       maxWidth: '100%',
@@ -577,6 +612,7 @@ const EditableChapter = ({ chapterId, keyword, schema, setKeyword, ...chunkProps
         />
         <Chunks
           chapterId={chapterId}
+          segments={filteredSegments}
           {...{ ...chunkProps }}
         />
       </>

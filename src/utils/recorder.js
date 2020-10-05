@@ -52,9 +52,8 @@ export function start() {
   recording = true
 }
 
-export function stop(addClip, timestamp, offset) {
+export function stop(addClip, timestamp, offset, offsetEnd) {
   recording = false
-  const previousLength = previousBuffersLength / 46.6
 
   if(!clipName) {
     const currentTime = new Date()
@@ -67,21 +66,26 @@ export function stop(addClip, timestamp, offset) {
     clipName = `Clip ${year}/${month}/${day} ${hour}:${min}:${sec}`
   }
 
-  const blob = exportWAV('audio/wav; codecs=opus', timestamp, offset)
+  const prevLength = previousBuffersLength / 46.6
+  const blob = exportWAV('audio/wav; codecs=opus', timestamp, offset, offsetEnd)
   const audioURL = window.URL.createObjectURL(blob)
   const length = previousBuffersLength / 46.6
 
-  addClip({
-    src: audioURL,
-    name: clipName
-  }, previousLength === 0 ? 0 : length - previousLength)
+  addClip(
+    {
+      src: audioURL,
+      name: clipName
+    },
+    length - (offset || prevLength || length),
+    prevLength - (offset || prevLength)
+  )
 
 }
 
-function exportWAV(type, timestamp, offset) {
+function exportWAV(type, timestamp, offset, offsetEnd) {
   const buffers = []
   for (let channel = 0; channel < numChannels; channel++)
-    buffers.push(mergeBuffers(channel, recBuffers[channel], recLength, timestamp, offset))
+    buffers.push(mergeBuffers(channel, recBuffers[channel], recLength, timestamp, offset, offsetEnd))
   let interleaved = undefined
   if (numChannels === 2) {
     interleaved = interleave(buffers[0], buffers[1])
@@ -104,13 +108,22 @@ function initBuffers() {
   }
 }
 
-function mergeBuffers(channel, buffer, recLength, timestamp, offset) {
-  const insertFromByte = Math.floor(timestamp * 46.6)
-  const offsetBytes = Math.floor(offset * 46.6)
+function mergeBuffers(channel, buffer, recLength, timestamp, offset, offsetEnd) {
+  let insertFromByte = Math.floor(timestamp * 46.6)
+  let offsetBytes = offset ? Math.floor((offset) * 46.6) : previousBuffersLength
+  let offsetBytesEnd = buffer.length - Math.floor(offsetEnd * 46.6)
+
+  // Make sure we don't miss or repeate any audio, even if timestamps are off
+  if (offsetBytes < insertFromByte)
+    insertFromByte = offsetBytes
+  if (offsetBytesEnd < offsetBytes)
+    offsetBytesEnd = offsetBytes
+
   const result = []
   result.push(...buffer.slice(0, insertFromByte))
-  result.push(...buffer.slice(previousBuffersLength + offsetBytes))
-  result.push(...buffer.slice(insertFromByte, previousBuffersLength + offsetBytes))
+  result.push(...buffer.slice(offsetBytes, offsetBytesEnd))
+  result.push(...buffer.slice(insertFromByte, offsetBytes))
+  result.push(...buffer.slice(offsetBytesEnd))
 
   previousBuffersLength = result.length
   recBuffers[channel] = [...result]

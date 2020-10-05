@@ -61,7 +61,7 @@ export default class EditPage extends Component {
 
   audioContext = null
   ignoreMessagesTo = 0 // Avoid getting late replies, solve this better in mqtt
-  offsetNextStop = 0 // Include keyword when merging audio
+  offsetAudioStop = 0 // Include keyword when merging audio
 
   state = {
     isTranscriptAvailable: true,
@@ -88,6 +88,7 @@ export default class EditPage extends Component {
     timeStartRecording: 0,
     chaptersBeforeRecording: [],
     initialKeyword: null,
+    currentChapter: null,
     tagRequestCache: {},
     modalMissingFields: [],
     approved: false,
@@ -145,22 +146,31 @@ export default class EditPage extends Component {
     recorder.start()
   }
 
-  stopRecording = () => {
-    const offset = this.offsetNextStop
-    this.offsetNextStop = 0
-    return new Promise(resolve => {
-      const { chapters, initialKeyword, timeStartRecording, currentTime, recordedTime } = this.state
-      this.audioContext.suspend()
+  stopRecording = (offsetEnd = 0) => {
+    const offset = this.offsetAudioStop
+    this.offsetAudioStop = 0
+    return new Promise(async resolve => {
+      const { chapters, chaptersBeforeRecording, initialKeyword, timeStartRecording } = this.state
       this.socketio.emit('end-recording')
+      await this.audioContext.suspend()
       const chapterIndex = chapters.findIndex(chapter => chapter.keyword === initialKeyword)
-      const chapterId = chapterIndex > 0 ? chapterIndex : 0
-      return recorder.stop((recordedAudio, appendedTime) => {
+      const chapterIdStart = chapterIndex > 0 ? chapterIndex : 0
+      const chapterIdEnd = chapterIdStart + chapters.length - chaptersBeforeRecording.length
+      return recorder.stop((recordedAudio, appendedTime, appendedTimeCurrent) => {
         const timeAdjustedChapters = chapters.map((chapter, i) => {
-          if (i > chapterId)
+          const fromSegmentId = chapters[chapterIdStart].segments
+            .findIndex(({startTime}) => startTime >= timeStartRecording)
+          if (i === chapterIdStart || (i > chapterIdStart && i <= chapterIdEnd))
+            return { ...chapter, segments: chapter.segments.map((segment, i) => ({
+              ...segment,
+              startTime: segment.startTime + (i >= fromSegmentId ? appendedTimeCurrent : 0),
+              endTime: segment.endTime + (i >= fromSegmentId ? appendedTimeCurrent : 0)
+            })) }
+          if (i > chapterIdEnd)
             return { ...chapter, segments: chapter.segments.map(segment => ({
               ...segment,
-              startTime: segment.startTime + appendedTime - offset,
-              endTime: segment.endTime + appendedTime - offset
+              startTime: segment.startTime + appendedTime,
+              endTime: segment.endTime + appendedTime
             })) }
           return chapter
         })
@@ -171,17 +181,23 @@ export default class EditPage extends Component {
           timeStartRecording: this.getChapterEndTimeAdjusted(chapters.length -1),
           initialKeyword: chapters[chapters.length -1].keyword
         }, resolve)
-      }, timeStartRecording, offset)
+      }, timeStartRecording, offset, offsetEnd)
     })
   }
 
-  updateRecordingChapter = async (keyword, offset) => {
-    const { chapters } = this.state
-    await this.stopRecording()
-    this.offsetNextStop = offset
-    const chapterId = chapters.findIndex(chapter => chapter.keyword === keyword)
+  updateRecordingChapter = async (keyword, clipFrom, offset, chunk) => {
+    await this.stopRecording(chunk.end - offset)
+    this.offsetAudioStop = clipFrom
+    const chapterId = this.state.chapters.findIndex(chapter => chapter.keyword === keyword)
     const timeStartRecording = this.getChapterEndTimeAdjusted(chapterId)
-    this.setState({ timeStartRecording, initialKeyword: keyword }, this.startRecording)
+    const chapters = JSON.parse(JSON.stringify(this.state.chapters))
+    const addition = offset - chunk.start
+    chapters[chapterId].segments.push({
+      words: `${chunk.word} `,
+      startTime: timeStartRecording + addition,
+      endTime: timeStartRecording + chunk.end - chunk.start + addition
+    })
+    this.setState({ chapters, timeStartRecording, initialKeyword: keyword }, this.startRecording)
   }
 
   setupSocketIO = () => {
@@ -191,37 +207,47 @@ export default class EditPage extends Component {
     this.socketio.on('add-transcript', (text) => {
       const { recording, schema, chaptersBeforeRecording, tags, recordedTime, timeStartRecording, initialKeyword, tagRequestCache } = this.state
       if (!recording || Date.now() < this.ignoreMessagesTo) return // throw away changes that comes after stoped
+      const chunks = JSON.parse(text)
       const sections = schema.fields.reduce((store, field) => {
         if (field.editable)
           store[field.id] = [field.name, ...(field.headerPatterns || [])]
         return store
       }, {})
       const keyword = initialKeyword || chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
-      const chapters = this.parseAudioResponse(JSON.parse(text), keyword, timeStartRecording)
-      const diagnosString = JSON.parse(text).map(segment => segment.word).join(' ')
-      if (!this.state.recording) return
-      processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
-      if (!this.state.recording) return
-      if (chapters)
-        this.setState({ chapters, initialCursor: recordedTime })
-      else
-        this.setState({ initialCursor: recordedTime })
+      const chapters = this.parseAudioResponse(chunks, keyword, timeStartRecording)
+      if (chapters) {
+        const diagnosString = chunks.map(chunk => chunk.word).join(' ')
+        processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
+        this.setState({ chapters }, () => {
+          const initialCursor = this.getCursorFromAudioInput(keyword, chunks, this.state.chapters)
+          this.setState({ initialCursor })
+        })
+      }
     })
   }
 
   parseAudioResponse = (chunks, keyword, initialTime) => {
-    const { chaptersBeforeRecording } = this.state
+    const { chaptersBeforeRecording, chapters } = this.state
     return [...chunks].reduce((store, chunk, i, arr) => {
       const currentKeyword = this.getKeyword(chunk.word)
-      const existingNewKeyword = currentKeyword !== keyword && i === arr.length -1
-        && chaptersBeforeRecording.some(chapter => chapter.keyword === currentKeyword)
+      const newKeyword = currentKeyword && currentKeyword !== keyword && i === arr.length -1
+      const existingNewKeyword = newKeyword && chaptersBeforeRecording
+        .some(chapter => chapter.keyword === currentKeyword)
+      const isLastChapter = chapters.findIndex(c => c.keyword === keyword) === chapters.length -1
+      const chapterId = chapters.findIndex(c => c.keyword === keyword)
+      const oldKeyword = keyword
       if (currentKeyword) {
         keyword = currentKeyword
       }
+      const newChapterId = chapters.findIndex(c => c.keyword === keyword)
+      const currentChapter = newChapterId >= 0 ? newChapterId : this.state.currentChapter
+      this.setState({ currentChapter })
       if (existingNewKeyword) {
         this.ignoreMessagesTo = Date.now() + 1000
-        const offset = chunk.start - chunks[chunks.length -1].end// - .2 // move slightly more
-        this.updateRecordingChapter(keyword, offset)
+        const chapterEndTime = chunks.length > 2 ? chunks[chunks.length -2].end : chunk.start
+        const offset = chunk.start - (chunk.start - chapterEndTime) / 2
+        const clipFrom = newChapterId < chapterId ? initialTime + offset : this.state.recordedTime
+        this.updateRecordingChapter(keyword, clipFrom, offset, chunk)
         arr.slice(-1)
         return null
       }
@@ -231,8 +257,15 @@ export default class EditPage extends Component {
       const chapter = store.find(chapter => chapter.keyword === keyword)
         || { keyword, segments: [] }
       chapter.segments = [...chapter.segments, segment]
-      return store.includes(chapter) ? store : [...store, chapter]
+      if (!store.includes(chapter))
+        store.splice(chapterId + 1, 0, chapter)
+      return store
     }, JSON.parse(JSON.stringify(chaptersBeforeRecording)))
+  }
+
+  getLastKeyword = (chunks) => {
+    const chunk = [...chunks].reverse().find(({word}) => this.getKeyword(word))
+    return chunk ? this.getKeyword(chunk.word) : null
   }
 
   getKeyword = (text) => {
@@ -244,6 +277,13 @@ export default class EditPage extends Component {
       return field.name.toUpperCase() === comparable || patterns.includes(comparable)
     })
     return field ? field.id : undefined
+  }
+
+  getCursorFromAudioInput = (keyword, chunks, chapters) => {
+    const currentKeyword = this.getLastKeyword(chunks) || keyword
+    const chapterIndex = chapters.findIndex(({keyword}) => keyword === currentKeyword)
+    const chapterId = chapterIndex > 0 ? chapterIndex : 0
+    return this.getChapterEndTime(chapterId)
   }
 
   connectAudioInput = async () => {
@@ -851,6 +891,7 @@ export default class EditPage extends Component {
       schemas,
       schema,
       initialCursor,
+      currentChapter,
       error,
       isTranscriptAvailable,
       allChapters,
@@ -920,6 +961,7 @@ export default class EditPage extends Component {
                   updateTranscript={this.onUpdateTranscript}
                   schema={schema}
                   initialCursor={initialCursor}
+                  recordingChapter={recording ? currentChapter : null}
                   noDiff={mic}
                 />
               </EuiFlexItem>
