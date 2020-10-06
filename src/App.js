@@ -97,7 +97,7 @@ class App extends Component {
   fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20, sortField, sortDirection) => {
     return new Promise((resolve) => {
       const tokenFromStorage = localStorage.getItem('token')
-      const tokenFromQuery = getQueryStringValue('token')
+      const tokenFromQuery = getQueryStringValue.prototype.decodeToken('token')
       let token
       let orderBy
 
@@ -540,7 +540,7 @@ const NewLiveTranscription = ({ search }) => {
   return redirect
 }
 
-const queryToken = getQueryStringValue('token')
+const queryToken = getQueryStringValue.prototype.decodeToken('token')
 if (queryToken) api.setToken(queryToken)
 
 export default withProvider(App, LanguageProvider)
