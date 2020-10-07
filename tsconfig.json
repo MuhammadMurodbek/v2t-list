@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "src/lib",
+    "outDir": "lib",
     "module": "commonjs",
     "skipLibCheck": true,
     "noImplicitAny": true,
