@@ -6,7 +6,7 @@
 
 # dependencies
 /node_modules
-/lib
+/ts-dist
 /.pnp
 .pnp.js
 

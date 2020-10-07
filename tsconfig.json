@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "lib",
+    "outDir": "ts-dist",
     "module": "commonjs",
     "skipLibCheck": true,
     "noImplicitAny": true,
