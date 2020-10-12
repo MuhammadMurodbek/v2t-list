@@ -92,7 +92,8 @@ export default class EditPage extends Component {
     tagRequestCache: {},
     modalMissingFields: [],
     approved: false,
-    noMappingFields: []
+    noMappingFields: [],
+    isUploadingMedia: false
   }
 
   async componentDidMount() {
@@ -633,8 +634,11 @@ export default class EditPage extends Component {
       schema,
       recording,
       recordedAudio,
-      noMappingFields
+      noMappingFields,
+      isUploadingMedia
     } = this.state
+    if (isUploadingMedia) return;
+    this.setState({ isUploadingMedia: true })
     let { chapters } = this.state
     const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
     const unsupportedHeqaderExists = this.unsupportedSchemaHeaders().length>0
@@ -734,6 +738,8 @@ export default class EditPage extends Component {
     } catch(e) {
       console.error(e)
       addUnexpectedErrorToast(e)
+    } finally {
+      this.setState({ isUploadingMedia: false })
     }
   }
 
@@ -900,7 +906,8 @@ export default class EditPage extends Component {
       recordedAudio,
       modalMissingFields,
       approved,
-      noMappingFields
+      noMappingFields,
+      isUploadingMedia
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -1044,6 +1051,7 @@ export default class EditPage extends Component {
                 <EuiButton
                   size="s"
                   fill
+                  isLoading={isUploadingMedia}
                   onClick={() => {
                     if (approved)
                       this.finalize()
