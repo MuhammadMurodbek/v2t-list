@@ -516,10 +516,25 @@ const NewLiveTranscription = ({ search }) => {
     const startSession = async () => {
       const token = jwtDecode(localStorage.getItem('token'))
       const userId = token.sub
-      const schemaId = localStorage.getItem('lastUsedSchema')
-        || (await api.getSchemas()).data.schemas[0].id
-      const id = await api.createLiveSession(userId, schemaId)
-      setRedirect(<Redirect to={`/live-diktering/${id}${search}`} />)
+      let transcriptId 
+      // Instead of creating a new live session, check for active live session first
+      api
+        .getActiveLiveSession()
+        .then((activeLiveSession)=>{          
+          const { id } = activeLiveSession.data
+          transcriptId = id
+        }).catch(async (error)=>{
+          // There is no active live session
+          if(error.response.data.status===404) {
+            const schemaId = localStorage.getItem('lastUsedSchema')
+              || (await api.getSchemas()).data.schemas[0].id
+            // Create a new live session
+            const id = await api.createLiveSession(userId, schemaId)
+            transcriptId = id
+          }
+        }).finally(()=>{
+          setRedirect(<Redirect to={`/live-diktering/${transcriptId}${search}`} />)
+        })      
     }
     startSession().catch((e) => {
       console.error(e)

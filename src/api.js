@@ -250,8 +250,10 @@ const getBlobFile = async (recordedAudioClip) => {
   })
   return file
 }
+
 const getDepartments = () => axios.get('/api/transcription/search/v2/departments')
 
+const getActiveLiveSession = () => axios.get('/api/transcription/v2/live/session/active')
 
 export default {
   approveTranscription,
@@ -279,5 +281,6 @@ export default {
   getBlobFile,
   completeLiveTranscript,
   getDepartments,
-  transcriptState
+  transcriptState,
+  getActiveLiveSession
 }
