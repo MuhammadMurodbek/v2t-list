@@ -969,6 +969,13 @@ export default class EditPage extends Component {
               <EuiFlexItem grow={1}>
                 <EuiFlexGroup direction="column" gutterSize="xl">
                   <EuiFlexItem grow={false}>
+                    <Schemas
+                      schemas={schemas}
+                      schemaId={schema.id}
+                      onUpdate={this.updateSchemaId}
+                    />
+                  </EuiFlexItem>
+                  <EuiFlexItem grow={false}>
                     <ReadOnlyChapters
                       chapters={this.parseReadOnlyTranscripts(allChapters)}
                       onCreate={this.onCreateReadOnly}
@@ -997,13 +1004,6 @@ export default class EditPage extends Component {
                       </EuiFormRow>
                     </EuiFlexItem>
                   ))}
-                  <EuiFlexItem grow={false}>
-                    <Schemas
-                      schemas={schemas}
-                      schemaId={schema.id}
-                      onUpdate={this.updateSchemaId}
-                    />
-                  </EuiFlexItem>
                   {mic &&
                     <EuiFlexItem grow={false} style={{position: 'sticky', top: 20}}>
                       <ListOfHeaders headers={this.sectionHeaders()} />
