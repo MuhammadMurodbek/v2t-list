@@ -209,6 +209,8 @@ export default class Tags extends Component {
                     >
                       <EuiDragDropContext onDragEnd={this.onDragEnd}>
                         <EuiDroppable droppableId={namespace} spacing="m" withPanel>
+                          {console.log('tags',tags)}
+                          {console.log('values',values)}
                           {values.map(({ description, value }, idx) => (
                             <EuiDraggable
                               spacing="m"

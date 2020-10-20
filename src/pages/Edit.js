@@ -767,6 +767,7 @@ export default class EditPage extends Component {
   }
 
   onUpdateTags = (tags) => {
+    console.log('updating tags', tags)
     this.setState({ tags })
   }
 
