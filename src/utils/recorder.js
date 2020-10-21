@@ -13,7 +13,9 @@ let recLength = 0,
   sampleRate = undefined,
   numChannels = undefined,
   clipName = null,
-  previousBuffersLength = 0
+  previousBuffersLength = 0,
+  bufferUnusedSamples = new Float32Array(),
+  TARGET_SAMPLE_RATE = 16000
 
 export async function init(stream) {
   let audioContext = new AudioContext()
@@ -193,4 +195,80 @@ function encodeWAV(samples) {
   floatTo16BitPCM(view, 44, samples)
 
   return view
+}
+
+export function downsample(sourceSampleRate, bufferNewSamples) {
+  let buffer
+  const newSamples = bufferNewSamples.length
+  const unusedSamples = bufferUnusedSamples.length
+  let i
+  let offset
+
+  if (unusedSamples > 0) {
+    buffer = new Float32Array(unusedSamples + newSamples)
+    for (i = 0; i < unusedSamples; ++i) {
+      buffer[i] = bufferUnusedSamples[i]
+    }
+    for (i = 0; i < newSamples; ++i) {
+      buffer[unusedSamples + i] = bufferNewSamples[i]
+    }
+  } else {
+    buffer = bufferNewSamples
+  }
+
+  // Downsampling and low-pass filter:
+  // Input audio is typically 44.1kHz or 48kHz, this downsamples it to 16kHz.
+  // It uses a FIR (finite impulse response) Filter to remove (or, at least attinuate)
+  // audio frequencies > ~8kHz because sampled audio cannot accurately represent
+  // frequiencies greater than half of the sample rate.
+  // (Human voice tops out at < 4kHz, so nothing important is lost for transcription.)
+  // See http://dsp.stackexchange.com/a/37475/26392 for a good explanation of this code.
+  const filter = [
+    -0.037935,
+    -0.00089024,
+    0.040173,
+    0.019989,
+    0.0047792,
+    -0.058675,
+    -0.056487,
+    -0.0040653,
+    0.14527,
+    0.26927,
+    0.33913,
+    0.26927,
+    0.14527,
+    -0.0040653,
+    -0.056487,
+    -0.058675,
+    0.0047792,
+    0.019989,
+    0.040173,
+    -0.00089024,
+    -0.037935
+  ]
+  const samplingRateRatio = sourceSampleRate / TARGET_SAMPLE_RATE
+  const nOutputSamples = Math.floor((buffer.length - filter.length) / samplingRateRatio) + 1
+  const outputBuffer = new Float32Array(nOutputSamples)
+
+  for (i = 0; i < outputBuffer.length; i++) {
+    offset = Math.round(samplingRateRatio * i)
+    let sample = 0
+    for (let j = 0; j < filter.length; ++j) {
+      sample += buffer[offset + j] * filter[j]
+    }
+    outputBuffer[i] = sample
+  }
+
+  const indexSampleAfterLastUsed = Math.round(samplingRateRatio * i)
+  const remaining = buffer.length - indexSampleAfterLastUsed
+  if (remaining > 0) {
+    bufferUnusedSamples = new Float32Array(remaining)
+    for (i = 0; i < remaining; ++i) {
+      bufferUnusedSamples[i] = buffer[indexSampleAfterLastUsed + i]
+    }
+  } else {
+    bufferUnusedSamples = new Float32Array(0)
+  }
+
+  return outputBuffer
 }

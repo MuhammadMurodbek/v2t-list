@@ -537,7 +537,7 @@ export default class Editor extends Component {
   }
 
   render() {
-    const { currentTime, chapters, onSelect, noDiff, schema } = this.props
+    const { recordingChapter, currentTime, chapters, onSelect, noDiff, schema } = this.props
     const { diff, error } = this.state
     const [preferences] = this.context
     if (!chapters) return null
@@ -556,6 +556,7 @@ export default class Editor extends Component {
           context={preferences}
           schema={schema}
           setKeyword={this.setKeyword}
+          recordingChapter={recordingChapter}
         />
         {
           !noDiff && <FullDiff diff={diff} />
@@ -565,7 +566,7 @@ export default class Editor extends Component {
   }
 }
 
-const EditableChapters = ({ chapters, inputRef, ...editableChapterProps }) => {
+const EditableChapters = ({ recordingChapter, chapters, inputRef, ...editableChapterProps }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => (
     <EditableChapter
@@ -573,6 +574,7 @@ const EditableChapters = ({ chapters, inputRef, ...editableChapterProps }) => {
       chapterId={i}
       keyword={chapter.keyword}
       segments={chapter.segments}
+      recordingChapter={recordingChapter}
       {...{ ...editableChapterProps }}
     />
   ))
@@ -588,7 +590,7 @@ EditableChapters.propTypes = {
   inputRef: PropTypes.any
 }
 
-const EditableChapter = ({ chapterId, keyword, schema, setKeyword, segments, ...chunkProps }) => {
+const EditableChapter = ({ recordingChapter, chapterId, keyword, schema, setKeyword, segments, ...chunkProps }) => {
   const sectionHeaders = schema.fields ? schema.fields.map(({name}) => name) : []
   const field = schema.fields ? schema.fields.find(({id}) => id === keyword) : null
   const isVisible = field ? field.visible : true
@@ -611,6 +613,7 @@ const EditableChapter = ({ chapterId, keyword, schema, setKeyword, segments, ...
           chapterId={chapterId}
         />
         <Chunks
+          recordingChapter={recordingChapter}
           chapterId={chapterId}
           segments={filteredSegments}
           {...{ ...chunkProps }}
@@ -627,7 +630,9 @@ EditableChapter.propTypes = {
   setKeyword: PropTypes.func.isRequired
 }
 
-const Chunks = ({ segments, currentTime, context, chapterId, onChange, onPaste, onKeyDown, onSelect, onCursorChange }) => {
+const Chunks = ({ recordingChapter, segments, currentTime, context, chapterId, onChange, onPaste, onKeyDown, onSelect, onCursorChange }) => {
+  if (recordingChapter !== null)
+    return <ReadOnlyChunks {...{recordingChapter, chapterId, segments, context }} />
   const chunks = segments.map((props, i) => <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />)
   return (
     <EuiText>
@@ -663,6 +668,21 @@ Chunks.propTypes = {
   onSelect: PropTypes.func,
   onCursorChange: PropTypes.func
 }
+
+const ReadOnlyChunks = ({ context, segments, chapterId, recordingChapter }) => (
+  <EuiText>
+    <pre>
+      <code
+        className={`editorTextArea${chapterId === recordingChapter ? ' active' : ''}`}
+        data-chapter={chapterId}
+        >
+        <span style={{ fontSize: context.currentFontSize }} className="editorBody">
+          {segments.map(({words}) => words).join(' ')}
+        </span>
+      </code>
+    </pre>
+  </EuiText>
+)
 
 const Chunk = ({ words, startTime, endTime, chapterId, i, currentTime, context }) => {
   let style
