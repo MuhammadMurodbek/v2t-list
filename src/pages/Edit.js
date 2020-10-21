@@ -506,7 +506,8 @@ export default class EditPage extends Component {
     const { schema, chapters } = this.state
     return schema.fields
       ? schema.fields.filter(({visible}) => visible).reduce((store, {id, name, editable}) => {
-          const done = chapters.map(chapter => chapter.keyword).includes(id)
+          const includedChapter = chapters.find(chapter => chapter.keyword===id)|| false
+          const done = includedChapter && includedChapter.segments.length > 0
           if (editable)
             store.push({name, done})
           return store
@@ -575,13 +576,6 @@ export default class EditPage extends Component {
     }
   }
 
-  unsupportedSchemaHeaders = () => {
-    const { schema, chapters } = this.state
-    const headers = chapters.map((chapter) => chapter.keyword)
-    const headersForSchema = schema.fields.map(field => field.name)
-    return headers.filter(header => !headersForSchema.includes(header))
-  }
-
   sendToCoworker = async () => {
     const { id } = this.props
     try {
@@ -640,9 +634,13 @@ export default class EditPage extends Component {
     if (isUploadingMedia) return;
     this.setState({ isUploadingMedia: true })
     let { chapters } = this.state
-    const isThereAnyEmptySection = chapters.find(chapter => chapter.segments.length === 0) || false
-    const unsupportedHeqaderExists = this.unsupportedSchemaHeaders().length>0
-    if (isThereAnyEmptySection) {
+    const emptyChapters = chapters.filter(chapter => chapter.segments.length === 0)
+    const requiredSections = schema.fields.filter(field => field.required)
+    const isThereAnyRequiredEmptySection =
+      emptyChapters.some(chapter => {
+        return requiredSections.some(section => section.id === chapter.keyword)
+      })
+    if (isThereAnyRequiredEmptySection) {
       addWarningToast(
         <EuiI18n
           token="unableToSaveDictation"
@@ -659,7 +657,8 @@ export default class EditPage extends Component {
     const headers = chapters.map((chapter) => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
     const hasEmptyHeader = headers.some(header => !header)
-    if (hasEmptyHeader || headers.length !== uniqueHeaders.length || unsupportedHeqaderExists) {
+    const invalid = headers.some(header => !schema.fields.find(field => field.id === header))
+    if (hasEmptyHeader || headers.length !== uniqueHeaders.length || invalid) {
       addWarningToast(
         <EuiI18n
           token="unableToSaveDictation"
