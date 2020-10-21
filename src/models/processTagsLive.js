@@ -15,15 +15,12 @@ const processTagsLive = async (text, existingTags, onUpdateTags, tagRequestCache
     const newTags = await processTagType(text, namespace, values, tagRequestCache, onUpdateTagRequestCache)
     if (newTags.length)
       needUpdate = true
-    // accumulator[namespace] = [...values, ...newTags]
-    console.log('existingTags', existingTags)    
     const tagsWithValueAndDescription = newTags.map(newTag=>{
       return {
         value: newTag.value,
         description: newTag.description
       }
     })
-    console.log('tagsWithValueAndDescription', tagsWithValueAndDescription)
     let temp = {}
     temp[namespace]= existingTags[namespace]
     const existingValues = existingTags[namespace].values
@@ -31,7 +28,6 @@ const processTagsLive = async (text, existingTags, onUpdateTags, tagRequestCache
       ...temp[namespace],
       values: [...existingValues, ...tagsWithValueAndDescription]
     }
-    console.log('accumulator', accumulator)
     return Promise.resolve(accumulator)
   }, Promise.resolve({}))
   if (needUpdate) {
