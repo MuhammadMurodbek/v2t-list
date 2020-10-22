@@ -525,7 +525,8 @@ export default class EditPage extends Component {
 
   getChapterEndTimeAdjusted = (chapterId) => {
     const max = this.getChapterStartTime(chapterId + 1)
-    if (max === null) return this.audioContext.currentTime
+    if (max === null) return this.audioContext ?
+      this.audioContext.currentTime : this.getChapterEndTime(chapterId)
     const min = this.getChapterEndTime(chapterId)
     const silence = max - min
     return min + silence / 2
