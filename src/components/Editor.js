@@ -10,6 +10,7 @@ import {
 
 import { PreferenceContext } from './PreferencesProvider'
 import SectionHeader from '../components/SectionHeader'
+import reduceSegment from '../utils/reduceSegment'
 import '../styles/editor.css'
 
 const NEW_KEYWORD = 'New Chapter'
@@ -76,11 +77,7 @@ export default class Editor extends Component {
   initChapters = () => {
     const { originalChapters, updateTranscript } = this.props
     if (originalChapters) {
-      const chapters = originalChapters.map((chapter) => {
-        const segments = chapter.segments.reduce(this.reduceSegment, [])
-        return { ...chapter, segments }
-      })
-      updateTranscript(chapters).then(this.refreshDiff)
+      this.refreshDiff()
     }
   }
 
@@ -371,7 +368,7 @@ export default class Editor extends Component {
     const segments = Array.from(target.childNodes)
       .reduce((store, child, i) => {
         const segment = this.parseSegment(child, chapterId, i)
-        return this.reduceSegment(store, segment)
+        return reduceSegment(store, segment)
       }, [])
     return { ...chapters[chapterId], segments }
   }
@@ -387,21 +384,6 @@ export default class Editor extends Component {
     if (segmentId)
       return { ...segments[segmentId], words }
     return { startTime: 0, endTime: 0, words }
-  }
-
-  reduceSegment = (store, segment) => {
-    const lastSegment = store[store.length - 1]
-    const hasLastSegment = lastSegment && !/[\u200C]/g.test(lastSegment.words)
-    if (hasLastSegment && lastSegment.words.slice(-1) !== ' ') {
-      store[store.length - 1] = {
-        ...lastSegment,
-        endTime: segment.endTime,
-        words: `${lastSegment.words}${segment.words}`
-      }
-    } else if (segment.words.length) {
-      store.push(segment)
-    }
-    return store
   }
 
   removeInvalidChars = (child) => {

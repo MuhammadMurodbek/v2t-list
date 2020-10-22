@@ -42,6 +42,7 @@ import {
 } from '../components/GlobalToastList'
 import ReadOnlyChapters from '../components/ReadOnlyChapters'
 import * as recorder from '../utils/recorder'
+import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
 import processTagsLive from '../models/processTagsLive'
 import ListOfHeaders from '../components/ListOfHeaders'
@@ -93,9 +94,7 @@ export default class EditPage extends Component {
     modalMissingFields: [],
     approved: false,
     noMappingFields: [],
-    isUploadingMedia: false,
-    didUserPressSaveButton: false,
-    componentJustLoaded: true
+    isUploadingMedia: false
   }
 
   async componentDidMount() {
@@ -386,11 +385,13 @@ export default class EditPage extends Component {
     const defaultFields = [{ keyword: defaultField.name || '', segments: [], values: [] }]
 
     const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...transcriptions])
+    const parsedChapters = this.parseTranscriptions(filteredTranscriptions)
 
     this.setState({
       originalSchemaId: schemaId,
       allChapters: transcriptions,
-      originalChapters: this.parseTranscriptions(filteredTranscriptions),
+      originalChapters: parsedChapters,
+      chapters: parsedChapters,
       fields: fields || {},
       isMediaAudio: (media_content_type || '').match(/^video/) === null,
       schemas,
@@ -460,7 +461,7 @@ export default class EditPage extends Component {
       const keyword = transcript.keyword.length
         ? transcript.keyword
         : ''
-      const segments = transcript.segments.map((chunk, i) => {
+      let segments = transcript.segments.map((chunk, i) => {
         const sentenceCase =
           i > 0
             ? chunk.words
@@ -473,6 +474,7 @@ export default class EditPage extends Component {
           words: words.replace(/ +$/, ' ')
         }
       })
+      segments = segments.reduce(reduceSegment, [])
       return {
         id,
         ...transcript,
@@ -712,26 +714,26 @@ export default class EditPage extends Component {
       )
 
       filtredFields.push(...noMappingFields)
-      
-      await api.updateTranscription(id, unfiltredSchema.id, filtredFields)     
-      this.setState({ didUserPressSaveButton: true }, ()=>{
-        this.setState(
-          {
-            allChapters: chapters,
-            originalChapters: this.parseTranscriptions(chapters),
-            originalTags: tags
-          },
-          () => {
-            addSuccessToast(
-              <EuiI18n
-                token="dictationUpdated"
-                default="The dictation has been updated"
-              />
-            )
-          }
-        )
-      })
-      
+
+      await api.updateTranscription(id, unfiltredSchema.id, filtredFields)
+      const parsedChapters = this.parseTranscriptions(chapters)
+      this.setState(
+        {
+          allChapters: chapters,
+          originalChapters: parsedChapters,
+          chapters: parsedChapters,
+          originalTags: tags
+        },
+        () => {
+          addSuccessToast(
+            <EuiI18n
+              token="dictationUpdated"
+              default="The dictation has been updated"
+            />
+          )
+        }
+      )
+
       if (redirectOnSave) {
         window.location = '/'
       }
@@ -787,10 +789,12 @@ export default class EditPage extends Component {
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, allChapters)
     const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...allChapters])
+    const parsedChapters = this.parseTranscriptions(filteredTranscriptions)
 
     this.setState({
       schema: schemaWithMappings,
-      originalChapters: this.parseTranscriptions(filteredTranscriptions),
+      originalChapters: parsedChapters,
+      chapters: parsedChapters,
       noMappingFields,
       transcriptions: filteredTranscriptions
     })
@@ -817,12 +821,9 @@ export default class EditPage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    const { tags, tagRequestCache, didUserPressSaveButton, componentJustLoaded } = this.state
+    const { tags, tagRequestCache } = this.state
     const diagnosString = chapters.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
-    if (didUserPressSaveButton===false && componentJustLoaded === false){
-      processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
-    }
-    this.setState({componentJustLoaded: false })
+    processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
     return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 
