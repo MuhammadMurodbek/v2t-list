@@ -93,7 +93,9 @@ export default class EditPage extends Component {
     modalMissingFields: [],
     approved: false,
     noMappingFields: [],
-    isUploadingMedia: false
+    isUploadingMedia: false,
+    didUserPressSaveButton: false,
+    componentJustLoaded: true
   }
 
   async componentDidMount() {
@@ -710,23 +712,26 @@ export default class EditPage extends Component {
       )
 
       filtredFields.push(...noMappingFields)
-
-      await api.updateTranscription(id, unfiltredSchema.id, filtredFields)
-      this.setState(
-        {
-          allChapters: chapters,
-          originalChapters: this.parseTranscriptions(chapters),
-          originalTags: tags
-        },
-        () => {
-          addSuccessToast(
-            <EuiI18n
-              token="dictationUpdated"
-              default="The dictation has been updated"
-            />
-          )
-        }
-      )
+      
+      await api.updateTranscription(id, unfiltredSchema.id, filtredFields)     
+      this.setState({ didUserPressSaveButton: true }, ()=>{
+        this.setState(
+          {
+            allChapters: chapters,
+            originalChapters: this.parseTranscriptions(chapters),
+            originalTags: tags
+          },
+          () => {
+            addSuccessToast(
+              <EuiI18n
+                token="dictationUpdated"
+                default="The dictation has been updated"
+              />
+            )
+          }
+        )
+      })
+      
       if (redirectOnSave) {
         window.location = '/'
       }
@@ -812,9 +817,12 @@ export default class EditPage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    const { tags, tagRequestCache } = this.state
+    const { tags, tagRequestCache, didUserPressSaveButton, componentJustLoaded } = this.state
     const diagnosString = chapters.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
-    processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
+    if (didUserPressSaveButton===false && componentJustLoaded === false){
+      processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
+    }
+    this.setState({componentJustLoaded: false })
     return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 
