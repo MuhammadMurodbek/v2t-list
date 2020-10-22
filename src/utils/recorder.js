@@ -10,7 +10,6 @@ let recording = false
 
 let recLength = 0,
   recBuffers = [],
-  sampleRate = undefined,
   numChannels = undefined,
   clipName = null,
   previousBuffersLength = 0,
@@ -18,29 +17,9 @@ let recLength = 0,
   TARGET_SAMPLE_RATE = 16000
 
 export async function init(stream) {
-  let audioContext = new AudioContext()
-  let source = await audioContext.createMediaStreamSource(stream)
-  const context = source.context
-  sampleRate = context.sampleRate
   numChannels = config.numChannels
 
   initBuffers()
-  const { createScriptProcessor, createJavaScriptNode } = audioContext
-  const node = (createScriptProcessor || createJavaScriptNode)
-    .call(audioContext, 1024, 1, 1)
-
-  source.connect(node)
-  node.connect(context.destination)
-  node.onaudioprocess = function (e) {
-    if (!recording) return
-    let buffer = []
-    for (let channel = 0; channel < config.numChannels; channel++) {
-      let input = e.inputBuffer.getChannelData(channel)
-      input = interpolateArray(input, sampleRate, sampleRate)
-      buffer.push(input)
-    }
-    record(buffer)
-  }
 }
 
 export function record(inputBuffer) {
@@ -180,9 +159,9 @@ function encodeWAV(samples) {
   /* channel count */
   view.setUint16(22, numChannels, true)
   /* sample rate */
-  view.setUint32(24, sampleRate, true)
+  view.setUint32(24, TARGET_SAMPLE_RATE, true)
   /* byte rate (sample rate * block align) */
-  view.setUint32(28, sampleRate * 4, true)
+  view.setUint32(28, TARGET_SAMPLE_RATE * 4, true)
   /* block align (channel count * bytes per sample) */
   view.setUint16(32, numChannels * 2, true)
   /* bits per sample */

@@ -308,12 +308,13 @@ export default class EditPage extends Component {
       const recordedTime = Math.ceil(this.audioContext.currentTime)
       this.setState({ recordedTime })
       const inputBuffer = audioEvent.inputBuffer.getChannelData(0)
-      const input = recorder.downsample(this.audioContext.sampleRate, inputBuffer)
+      const input = interpolateArray(inputBuffer, 16000,this.audioContext.sampleRate)
       const output = new DataView(new ArrayBuffer(input.length * 2)) // length is in bytes (8-bit), so *2 to get 16-bit length
       for (let i = 0; i < input.length; i++) {
         const multiplier = input[i] < 0 ? 0x8000 : 0x7fff // 16-bit signed range is -32768 to 32767
         output.setInt16(i * 2, (input[i] * multiplier) | 0, true) // index, value ("| 0" = convert to 32-bit int, round towards 0), littleEndian.
       }
+      recorder.record([input])
       this.socketio.emit('write-audio', Buffer.from(output.buffer))
     }
     inputPoint.connect(scriptNode)
