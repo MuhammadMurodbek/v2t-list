@@ -47,7 +47,7 @@ import interpolateArray from '../models/interpolateArray'
 import processTagsLive from '../models/processTagsLive'
 import ListOfHeaders from '../components/ListOfHeaders'
 
-const EMPTY_TRANSCRIPTIONS = [{ keyword: '', segments: [], values: [] }]
+const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: [] }
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
 
 export default class EditPage extends Component {
@@ -385,7 +385,7 @@ export default class EditPage extends Component {
     const defaultFields = [{ keyword: defaultField.name || '', segments: [], values: [] }]
 
     const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...transcriptions])
-    const parsedChapters = this.parseTranscriptions(filteredTranscriptions)
+    const parsedChapters = this.parseTranscriptions(filteredTranscriptions, originalSchema)
 
     this.setState({
       originalSchemaId: schemaId,
@@ -452,8 +452,10 @@ export default class EditPage extends Component {
     return schema
   }
 
-  parseTranscriptions = (transcriptions) => {
-    if (!transcriptions) return EMPTY_TRANSCRIPTIONS
+  parseTranscriptions = (transcriptions, originalSchema) => {
+    const defaultField = originalSchema && originalSchema.fields.find(field => field.default)
+    const defaultKeyword = defaultField ? defaultField.name || '' : ''
+    if (!transcriptions) return [{ ...EMPTY_TRANSCRIPTION, keyword: defaultKeyword }]
     const { readOnlyHeaders, hiddenHeaderIds, defaultHeaderIds } = this.state
     const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
 
@@ -482,7 +484,7 @@ export default class EditPage extends Component {
         segments
       }
     })
-    return transcripts
+    const parsedTranscripts = transcripts
       .filter(({ keyword }) => !TAG_NAMESPACES.includes(keyword))
       .filter(({ keyword }) => !excludedKeywords.includes(keyword))
       .sort(({ keyword }) => {
@@ -491,6 +493,8 @@ export default class EditPage extends Component {
         }
         return 0
       })
+    return parsedTranscripts.length ?
+      parsedTranscripts : [{ ...EMPTY_TRANSCRIPTION, keyword: defaultKeyword }]
   }
 
   parseReadOnlyTranscripts = (transcriptions) => {
@@ -789,7 +793,7 @@ export default class EditPage extends Component {
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, allChapters)
     const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...allChapters])
-    const parsedChapters = this.parseTranscriptions(filteredTranscriptions)
+    const parsedChapters = this.parseTranscriptions(filteredTranscriptions, originalSchema)
 
     this.setState({
       schema: schemaWithMappings,
