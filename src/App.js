@@ -46,7 +46,7 @@ class App extends Component {
     isLoggedIn: false,
     isTokenFromUrl: false,
     token: localStorage.getItem('token'),
-    isCollapsed: false,
+    isCollapsed: localStorage.getItem('isSidebarCollapsed') === 'true',
     job: null,
     contentLength: -1,
     pageIndex: 0
@@ -274,10 +274,10 @@ class App extends Component {
     window.open('https://inoviagroup.se/anvandarhandledning-v2t/', '_blank')
   }
 
-  collapse = () => {
-    this.setState(prevState => ({
-      isCollapsed: !prevState.isCollapsed
-    }))
+  toggleCollapsed = () => {
+    const isCollapsed = !this.state.isCollapsed
+    localStorage.setItem('isSidebarCollapsed', isCollapsed)
+    this.setState({ isCollapsed })
   }
 
   getSideNavItems = () => {
@@ -365,7 +365,7 @@ class App extends Component {
                       }
                     }}
                     color="ghost"
-                    onClick={() => this.collapse()}
+                    onClick={() => this.toggleCollapsed()}
                   >
                     <EuiI18n token="collapse" default="Collapse" />
                   </EuiButtonEmpty>
@@ -417,7 +417,7 @@ class App extends Component {
                 iconType="arrowRight"
                 aria-label="Expand"
                 disabled={false}
-                onClick={() => this.collapse()}
+                onClick={() => this.toggleCollapsed()}
               />
               {/* <EuiButtonEmpty
                 size="l"

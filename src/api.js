@@ -38,7 +38,7 @@ export const getRedirectURL = () => {
 export const logout = () => {
   axios.defaults.headers.common.Authorization = undefined
   localStorage.setItem('token', '')
-
+  localStorage.setItem('isSidebarCollapsed', null)
   const redirectUrl = getRedirectURL()
   const encodedUri = encodeURIComponent(location.hash)
   const isRootHash = location.hash === '#/'
