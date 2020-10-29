@@ -5,6 +5,7 @@ import { LanguagesConfig } from '../config'
 import { EuiContext } from '@patronum/eui'
 import sv_SE from '../locale/sv_SE.json'
 import no_NO from '../locale/no_NO.json'
+import da_DK from '../locale/da_DK.json'
 
 const LanguageContext = createContext()
 
@@ -37,7 +38,8 @@ const LanguageProvider = ({ children }) => {
 
   const mappings = {
     sv_SE,
-    no_NO
+    no_NO,
+    da_DK
   }
 
   const i18n = {
