@@ -9,12 +9,13 @@ import {
   EuiFormRow,
   EuiGlobalToastList,
   EuiProgress,
-  EuiSpacer,
   EuiComboBox,
   EuiFieldText,
   EuiI18n,
   EuiLoadingContent,
-  EuiSuperSelect
+  EuiSuperSelect,
+  EuiHorizontalRule,
+  EuiCallOut
 } from '@patronum/eui'
 import jwtDecode from 'jwt-decode'
 import api from '../api'
@@ -27,19 +28,17 @@ import {
 export default class UploadPage extends Component {
   DEFAULT_STATE = {
     files: [],
-    loading: false,
     toasts: [],
-    departments: [],
-    selectedSchema: undefined,
-    selectedOptions: [],
-    selectedSchemaFields: [],
+    schemaId: null,
+    schemaFields: [],
+    transcriptionFields: {},
     isLoadingSchema: false,
-    fields: {}
+    uploading: false
   }
 
   state = {
     ...this.DEFAULT_STATE,
-    schemaOptions: []
+    schemas: []
   }
 
   constructor(props) {
@@ -49,57 +48,37 @@ export default class UploadPage extends Component {
 
   componentDidMount = async () => {
     localStorage.setItem('transcriptId', '')
-    this.loadDoctorsName()
-    this.loadDepartments()
-    // load the list of schemaOptions
     try {
       const { data } = await api.getSchemas()
-      const schemaOptions = data.schemas.map((schema) => {
-        return {
-          value: schema.id,
-          label: schema.name
-        }
-      })
-      this.setState({
-        schemaOptions
-      }, () => {
-        this.resetSelections()
-      })
+      const schemas = data.schemas.map((schema) =>
+        ({ value: schema.id, label: schema.name }))
+      this.setState({ schemas })
+      if (schemas.length)
+        this.onSchemaChange([schemas[0]])
     } catch(e) {
       addUnexpectedErrorToast(e)
     }
   }
 
-  loadDepartments = async () => {
-    try {
-      const { data } = await api.getDepartments()
-      this.setState({
-        departments: data.map(({id, name}) => ({
-          value: id,
-          inputDisplay: name
-        }))
-      })
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-      addWarningToast(
-        <EuiI18n token="warning" default="Warning" />,
-        <EuiI18n token="unableToGetDepartments" default="Unable to get departments" />
-      )
-    }
+  setDefaultValues = () => {
+    const { schemaFields } = this.state
+    const nameField = schemaFields.find(field =>
+      field.mappings && field.mappings.COWORKER === 'doctor_full_name')
+    const name = this.getName()
+    const transcriptionFields = nameField ? { [nameField.id]: name } : {}
+    this.setState({ transcriptionFields })
   }
 
-  loadDoctorsName = () => {
+  getName = () => {
     try {
       const token = jwtDecode(localStorage.getItem('token'))
-      const doctorsName = token.sub.split('@')[0]
-      this.setState({ doctorsName })
+      return token.sub.split('@')[0]
     } catch(e) {
       // eslint-disable-next-line no-console
       console.error(e)
       addWarningToast(
         <EuiI18n token="warning" default="Warning" />,
-        <EuiI18n token="unableToGetDoctorsName" default="Unable to get doctor's name" />
+        <EuiI18n token="unableToGetDoctorsName" default="Unable to get the name" />
       )
     }
   }
@@ -109,17 +88,14 @@ export default class UploadPage extends Component {
   }
 
   onSubmit = () => {
-    const { files, selectedSchema } = this.state
-    // console.log('selected schema')
-    // console.log(selectedSchema)
-    // console.log('selected schema end')
-    
+    const { files, schemaId } = this.state
+
     if (files.length === 0) {
       addWarningToast(
         <EuiI18n token="unableToUpload" default="Unable to upload" />,
         <EuiI18n token="fileIsMissing" default="File is missing" />
       )
-    } else if(!selectedSchema) {
+    } else if(!schemaId) {
       addWarningToast(
         <EuiI18n token="unableToUpload" default="Unable to upload" />,
         <EuiI18n
@@ -128,33 +104,17 @@ export default class UploadPage extends Component {
         />
       )
     } else {
-      const loading = true
-      this.setState({ loading })
+      const uploading = true
+      this.setState({ uploading })
       this.uploadFiles()
     }
   }
 
   uploadFiles = async () => {
-    const {
-      files,
-      selectedSchema,
-      fields
-    } = this.state
-
-    // console.log('fields')
-    // console.log(fields)
-    // console.log('fields end')
-    
+    const { files, schemaId, transcriptionFields } = this.state
     const requests = Array.from(files).map((file) =>
-      api
-        .uploadMedia(
-          file,
-          selectedSchema,
-          fields
-        )
-        .catch((e) => {
-          addUnexpectedErrorToast(e)
-        })
+      api.uploadMedia(file, schemaId, transcriptionFields)
+        .catch(addUnexpectedErrorToast)
     )
     await Promise.all(requests).catch(this.onUploadFailed)
     return this.onUploaded()
@@ -182,7 +142,7 @@ export default class UploadPage extends Component {
         }
       ]
     }, () => {
-      this.resetSelections()
+      this.resetForm()
     })
   }
 
@@ -195,10 +155,11 @@ export default class UploadPage extends Component {
     this.setState({ toasts: [] })
   }
 
-  resetSelections = () => {
-    const { schemaOptions } = this.state
-    const defaultSchema = schemaOptions && schemaOptions[0]
-    this.onSchemaChange([defaultSchema])
+  resetForm = () => {
+    const { schemas } = this.state
+    const defaultSchema = schemas.length && schemas[0]
+    if (defaultSchema)
+      this.onSchemaChange([defaultSchema])
 
     // clear file input field
     try {
@@ -210,56 +171,24 @@ export default class UploadPage extends Component {
     }
   }
 
-  onSchemaChange = (selectedOptions) => {
-    if (selectedOptions.length) {
-      const selectedSchema = selectedOptions[0].value
-      this.setState({
-        selectedSchema,
-        selectedOptions
-      })
-      this.loadSelectedSchema(selectedSchema)
-    }
+  onSchemaChange = async (selectedOptions) => {
+    if (!selectedOptions.length) return
+    const schemaId = selectedOptions[0].value
+    this.loadSchema(schemaId)
   }
 
-  loadSelectedSchema = async (selectedSchema) => {
-    const { departments, doctorsName } = this.state
-    this.setState({
-      selectedSchemaFields: [],
-      isLoadingSchema: true
-    })
-    const { data: selectedSchemaData } = await api.getSchema(selectedSchema)
-    if (selectedSchemaData.fields) {
-      let isDepartmentFound = false
-      this.setState({
-        selectedSchemaFields: selectedSchemaData.fields.reduce((fields, currentField) => {
-          if (!currentField.visible) {
-            const { id } = currentField
-            if (!isDepartmentFound && departments.length
-               && (id === 'department_id' || id === 'department_name')) {
-              isDepartmentFound = true
-              currentField.isToShow = true
-            }
-            if (id.includes('doctor') && id.includes('name')) {
-              this.onFieldChange(currentField.id, doctorsName)
-            }
-            fields.push(currentField)
-          }
-          return fields
-        }, []),
-        isLoadingSchema: false
-      })
-    } else {
-      this.setState({
-        selectedSchemaFields: [],
-        isLoadingSchema: false
-      })
-    }
+  loadSchema = async (schemaId) => {
+    this.setState({ schemaId, schemaFields: [], isLoadingSchema: true })
+    const { data: schema } = await api.getSchema(schemaId)
+    const schemaFields = schema.fields ?
+      schema.fields.filter((field => !field.editable)) : []
+    this.setState({ schemaFields, isLoadingSchema: false }, this.setDefaultValues)
   }
 
   onFieldChange = (id, value) => {
     this.setState(prevState => ({
-      fields: {
-        ...prevState.fields,
+      transcriptionFields: {
+        ...prevState.transcriptionFields,
         [id]: value
       }
     }))
@@ -267,120 +196,92 @@ export default class UploadPage extends Component {
 
   render() {
     const {
-      loading,
+      uploading,
       toasts,
-      schemaOptions,
-      selectedOptions,
-      selectedSchemaFields,
+      schemas,
+      schemaId,
+      schemaFields,
       isLoadingSchema,
       departments,
-      fields
+      transcriptionFields
     } = this.state
 
     return (
       <EuiI18n token="upload" default="Upload">{ title => {
         // set translated document title
         document.title = `Inovia AI :: ${title}`
+        const selectedSchema = schemas.find(({value}) => value === schemaId)
+        const selectedSchemas = selectedSchema ? [selectedSchema] : []
 
         return (
           <Page preferences title={title}>
-            <EuiForm>
-              <EuiFormRow
-                label={<EuiI18n token="uploadFile" default="Upload File" />}
-              >
-                <EuiFilePicker
-                  ref={this.fileInputRef}
-                  initialPromptText={
-                    <EuiI18n token="uploadFile" default="Upload File" />
-                  }
-                  onChange={this.onFilesChange}
-                />
-              </EuiFormRow>
-              <EuiSpacer size="xs" />
-              <EuiFormRow
-                label={
-                  <EuiI18n
-                    token="selectSchemaForTheTranscription"
-                    default="Select a schema for the transcription"
-                  />
-                }
-              >
-                <EuiComboBox
-                  options={schemaOptions}
-                  onChange={this.onSchemaChange}
-                  selectedOptions={selectedOptions}
-                  singleSelection={{ asPlainText: true }}
-                  isClearable={false}
-                />
-              </EuiFormRow>
-              <EuiSpacer size="l" />
-              {
-                isLoadingSchema &&
-                <div style={{maxWidth: '400px'}}>
-                  <EuiLoadingContent lines={6} />
-                  <EuiSpacer size="l" />
-                </div>
-              }
-              {
-                selectedSchemaFields.map(field => {
-                  const { id, name, isToShow } = field
-                  if (departments.length && (id === 'department_id' || id === 'department_name')) {
-                    // show only one department select for two department properties
-                    if (isToShow) {
-                      return (
-                        <Fragment key={id}>
-                          <EuiI18n token={'department_name'} default={'Department name'}>
-                            {
-                              (translation) => (
-                                <EuiFormRow label={translation}>
-                                  <EuiSuperSelect
-                                    options={departments}
-                                    valueOfSelected={
-                                      fields['department_id']
-                                      || departments[0].value
-                                    }
-                                    onChange={value => {
-                                      this.onFieldChange('department_id', value)
-                                      this.onFieldChange('department_name',
-                                        departments.find(dep => dep.value === value).inputDisplay)
-                                    }}
-                                  />
-                                </EuiFormRow>
-                              )
-                            }
-                          </EuiI18n>
-                          <EuiSpacer size="l" />                    
-                        </Fragment>
-                      )
+            <EuiFlexGroup responsive={false}>
+              <EuiFlexItem>
+                <EuiForm>
+                  <EuiFormRow
+                    label={<EuiI18n token="uploadFile" default="Upload File" />}
+                  >
+                    <EuiFilePicker
+                      ref={this.fileInputRef}
+                      initialPromptText={
+                        <EuiI18n token="uploadFile" default="Upload File" />
+                      }
+                      onChange={this.onFilesChange}
+                    />
+                  </EuiFormRow>
+                  <EuiFormRow
+                    label={
+                      <EuiI18n
+                        token="selectSchemaForTheTranscription"
+                        default="Schema"
+                      />
                     }
-                    return null
-                  }
-                  return (
-                    <Fragment key={id}>
-                      <EuiI18n token={id} default={name}>
-                        {(translation) => (
-                          <EuiFormRow label={translation}>
-                            <EuiFieldText
-                              placeholder={translation}
-                              value={fields[id]}
-                              onChange={e => this.onFieldChange(id, e.target.value)}
-                            />
-                          </EuiFormRow>
-                        )}
-                      </EuiI18n>
-                      <EuiSpacer size="l" />
-                    </Fragment>
-                  )
-                })
-              }
-              <EuiFlexGroup alignItems="center">
-                <EuiFlexItem grow={false}>
-                  <EuiButton fill onClick={this.onSubmit} isLoading={loading}>
-                    <EuiI18n token="upload" default="Upload" />
-                  </EuiButton>
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiForm>
+                  >
+                    <EuiComboBox
+                      options={schemas}
+                      onChange={this.onSchemaChange}
+                      selectedOptions={selectedSchemas}
+                      singleSelection={{ asPlainText: true }}
+                      isClearable={false}
+                    />
+                  </EuiFormRow>
+                  <EuiHorizontalRule />
+                  <SchemaInputs
+                    isLoadingSchema={isLoadingSchema}
+                    schemaFields={schemaFields}
+                    transcriptionFields={transcriptionFields}
+                    onFieldChange={this.onFieldChange}
+                  />
+                  <EuiFlexGroup alignItems="center">
+                    <EuiFlexItem grow={false}>
+                      <EuiButton fill onClick={this.onSubmit} isLoading={uploading}>
+                        <EuiI18n token="upload" default="Upload" />
+                      </EuiButton>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiForm>
+              </EuiFlexItem>
+              <EuiFlexItem>
+                <EuiCallOut
+                  title={<EuiI18n token="uploadDescriptionTitle" default="The schema updates the form" />}
+                  iconType="pin"
+                >
+                  <span style={{whiteSpace: "pre-line"}}>
+                    <EuiI18n
+                      token="uploadDescription"
+                      default={
+                        `A schema can define fields as non editable. These are fields expected \
+                        to come with the audio file and are not up to users to fill in. The form \
+                        to the left contains these non editable fields.
+
+                        If you're missing a field you have to look at the schema configuration \
+                        in the admin panel and remove the editable attribute.`
+                      }
+                    />
+                  </span>
+                </EuiCallOut>
+              </EuiFlexItem>
+            </EuiFlexGroup>
             <EuiGlobalToastList
               toasts={toasts}
               dismissToast={this.removeToast}
@@ -392,4 +293,25 @@ export default class UploadPage extends Component {
       </EuiI18n>
     )
   }
+}
+
+const SchemaInputs = ({ isLoadingSchema, schemaFields, transcriptionFields, onFieldChange }) => {
+  if (isLoadingSchema)
+    return <div style={{maxWidth: '400px'}}><EuiLoadingContent lines={6} /></div>
+
+  return schemaFields.map(({ id, name }) => (
+    <Fragment key={id}>
+      <EuiI18n token={id} default={name}>
+        {(translation) => (
+          <EuiFormRow label={translation}>
+            <EuiFieldText
+              placeholder={translation}
+              value={transcriptionFields[id] || ''}
+              onChange={e => onFieldChange(id, e.target.value)}
+            />
+          </EuiFormRow>
+        )}
+      </EuiI18n>
+    </Fragment>
+  ))
 }

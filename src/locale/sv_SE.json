@@ -18,6 +18,8 @@
   "selectLanguage": "Välj språk",
   "v2TJob": "V2T Jobb",
   "upload": "Ladda Upp",
+  "uploadDescriptionTitle": "Schemat ändrar formuläret",
+  "uploadDescription": "Ett schema kan ha definierat fält som inte är redigerbara från editorn. Det är fält som förväntas komma tillsammans med ljudfilen och är inte ett fält användaren fyller i. Formuläret till vänster innehåller just dessa fält.\n\nOm du saknar något fält behöver du se över schemats konfiguration i admin panelen och markera fältet som icke redigerbart.",
   "live": "Live Diktering",
   "training": "Träning",
   "coWorker": "Co-Worker",

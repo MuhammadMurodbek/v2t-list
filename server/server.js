@@ -2,6 +2,8 @@ const Hapi = require('hapi')
 const h2o2 = require('h2o2')
 const { baseUrl, frontEndDevPort } = require('./config')
 
+const MB = 1048576
+
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 const init = async () => {
@@ -10,6 +12,12 @@ const init = async () => {
   })
 
   await server.register([h2o2])
+
+  const mapApiUri = ({ headers, url }) => {
+    const { pathname, search } = url
+    const uri = `${baseUrl}${pathname}${search}`
+    return { uri, headers: { ...headers, origin: baseUrl } }
+  }
 
   if (isDevelopment) {
     server.route({
@@ -27,14 +35,26 @@ const init = async () => {
     })
     server.route({
       path: '/api/{param*}',
-      method: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+      method: ['GET'],
       handler: {
         proxy: {
-          mapUri: ({ headers, url }) => {
-            const { pathname, search } = url
-            const uri = `${baseUrl}${pathname}${search}`
-            return { uri, headers: { ...headers, origin: baseUrl } }
-          },
+          mapUri: mapApiUri,
+          passThrough: true,
+          xforward: true
+        }
+      }
+    })
+    server.route({
+      path: '/api/{param*}',
+      method: ['POST', 'PUT', 'DELETE', 'PATCH'],
+      config: {
+        payload: {
+          maxBytes: 7 * MB
+        }
+      },
+      handler: {
+        proxy: {
+          mapUri: mapApiUri,
           passThrough: true,
           xforward: true
         }

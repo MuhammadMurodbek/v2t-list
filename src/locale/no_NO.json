@@ -18,6 +18,8 @@
   "selectLanguage": "Velg ditt språk",
   "v2TJob": "V2T Jobb",
   "upload": "Laste opp",
+  "uploadDescriptionTitle": "Skjemaet endrer inntastingsfeltene",
+  "uploadDescription": "Et skjema kan ha definerte felt som ikke kan redigeres av redaktøren. Dette er felt som forventes å komme med lydfilen, og er ikke et felt som brukeren fyller ut. Inntastingsfeltene til venstre inneholder nøyaktig disse feltene.\n\nSavner du et felt, må du gå gjennom konfigurasjonen av skjemaet i adminpanelet og merke feltet som ikke redigerbart.",
   "live": "Levende Diktering",
   "training": "Trening",
   "coWorker": "kollega",
