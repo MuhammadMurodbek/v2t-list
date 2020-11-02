@@ -47,6 +47,7 @@
   "doctor_full_name": "Läkares namn",
   "doctor_first_name": "Läkarens förnamn",
   "doctor_last_name": "Läkarens efternamn",
+  "department": "Avdelning",
   "department_name": "Avdelningsnamn",
   "examination_time": "Tentamen",
   "successfullyUploadedFiles": "Uppladdade filer",

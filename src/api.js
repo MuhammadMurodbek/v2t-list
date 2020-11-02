@@ -219,9 +219,10 @@ const trainingReject = (transcriptionId) =>
     reject: true
   })
 
-const getSchemas = () => axios.post(URLS.schemaSearch, {
+const getSchemas = (payload) => axios.post(URLS.schemaSearch, {
   start: 0,
-  size: 1000
+  size: 1000,
+  ...payload
 })
 
 const getSchema = (id) => axios.get(`${URLS.schemaById}/${id}`)

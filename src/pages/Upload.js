@@ -29,6 +29,7 @@ export default class UploadPage extends Component {
   DEFAULT_STATE = {
     files: [],
     toasts: [],
+    departmentId: null,
     schemaId: null,
     schemaFields: [],
     transcriptionFields: {},
@@ -38,6 +39,7 @@ export default class UploadPage extends Component {
 
   state = {
     ...this.DEFAULT_STATE,
+    departments: [],
     schemas: []
   }
 
@@ -48,17 +50,36 @@ export default class UploadPage extends Component {
 
   componentDidMount = async () => {
     localStorage.setItem('transcriptId', '')
+    this.loadDepartments()
+  }
+
+  loadDepartments = async () => {
     try {
-      const { data } = await api.getSchemas()
-      const schemas = data.schemas.map((schema) =>
-        ({ value: schema.id, label: schema.name }))
-      this.setState({ schemas })
-      if (schemas.length)
-        this.onSchemaChange([schemas[0]])
-    } catch(e) {
+      const { data } = await api.getDepartments()
+      const departments = this.parseList(data)
+      this.setState({ departments })
+      if (departments.length)
+        this.onDepartmentChange([departments[0]])
+    } catch (e) {
       addUnexpectedErrorToast(e)
     }
   }
+
+  loadSchemas = async () => {
+    const { departmentId } = this.state
+    try {
+      const { data } = await api.getSchemas({ departmentId })
+      const schemas = this.parseList(data.schemas)
+      this.setState({ schemas })
+      if (schemas.length)
+        this.onSchemaChange([schemas[0]])
+    } catch (e) {
+      addUnexpectedErrorToast(e)
+    }
+  }
+
+  parseList = (list) =>
+    list.map(({id, name}) => ({ value: id, label: name }))
 
   setDefaultValues = () => {
     const { schemaFields } = this.state
@@ -171,6 +192,12 @@ export default class UploadPage extends Component {
     }
   }
 
+  onDepartmentChange = async (selectedOptions) => {
+    if (!selectedOptions.length) return
+    const departmentId = selectedOptions[0].value
+    this.setState({ departmentId }, this.loadSchemas)
+  }
+
   onSchemaChange = async (selectedOptions) => {
     if (!selectedOptions.length) return
     const schemaId = selectedOptions[0].value
@@ -198,11 +225,12 @@ export default class UploadPage extends Component {
     const {
       uploading,
       toasts,
+      departments,
+      departmentId,
       schemas,
       schemaId,
       schemaFields,
       isLoadingSchema,
-      departments,
       transcriptionFields
     } = this.state
 
@@ -210,6 +238,8 @@ export default class UploadPage extends Component {
       <EuiI18n token="upload" default="Upload">{ title => {
         // set translated document title
         document.title = `Inovia AI :: ${title}`
+        const selectedDepartment = departments.find(({value}) => value === departmentId)
+        const selectedDepartments = selectedDepartment ? [selectedDepartment] : []
         const selectedSchema = schemas.find(({value}) => value === schemaId)
         const selectedSchemas = selectedSchema ? [selectedSchema] : []
 
@@ -232,7 +262,23 @@ export default class UploadPage extends Component {
                   <EuiFormRow
                     label={
                       <EuiI18n
-                        token="selectSchemaForTheTranscription"
+                        token="department"
+                        default="Department"
+                      />
+                    }
+                  >
+                    <EuiComboBox
+                      options={departments}
+                      onChange={this.onDepartmentChange}
+                      selectedOptions={selectedDepartments}
+                      singleSelection={{ asPlainText: true }}
+                      isClearable={false}
+                    />
+                  </EuiFormRow>
+                  <EuiFormRow
+                    label={
+                      <EuiI18n
+                        token="schema"
                         default="Schema"
                       />
                     }

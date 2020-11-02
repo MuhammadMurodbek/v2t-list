@@ -47,6 +47,7 @@
   "doctor_full_name": "Legens navn",
   "doctor_first_name": "Legens fornavn",
   "doctor_last_name": "Legens etternavn",
+  "department": "Avdeling",
   "department_name": "Avdelingsnavn",
   "examination_time": "Eksamenstid",
   "doctorsName": "Legens navn",

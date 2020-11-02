@@ -47,6 +47,7 @@
     "doctor_full_name": "Lægens navn",
     "doctor_first_name": "Lægens fornavn",
     "doctor_last_name": "Lægerens efternavn",
+    "department": "Afdeling",
     "department_name": "Afdeling navn",
     "examination_time": "Undersøgelsestid",
     "successfullyUploadedFiles": "Uploadede filer",
