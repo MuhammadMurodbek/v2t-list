@@ -286,6 +286,8 @@ export default class Editor extends Component {
     const range = window.getSelection().getRangeAt(0)
     const selectedLength = range.endOffset - range.startOffset
     const segments = chapters[chapterId].segments
+    if (!segments[segmentId])
+      segments[segmentId] = { startTime: 0, endTime: 0, words: '' }
     const charArray = segments[segmentId].words.split('')
     const isLastSegmentChar = segments.length - 1 === segmentId && charArray.length === range.startOffset
 
