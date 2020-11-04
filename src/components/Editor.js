@@ -137,7 +137,7 @@ export default class Editor extends Component {
     // firefox paste #text into a sibling before it is merged into one #text element
     const siblingOffset = node.previousSibling && node.previousSibling.data ?
       node.previousSibling.data.length : 0
-    const dataset = this.getClosestDataset(node)
+    const dataset = this.getDatasetRecursive(node)
     this.stashCursorAt({
       keyword: Number(dataset.keyword),
       chapter: Number(dataset.chapter),
@@ -180,11 +180,13 @@ export default class Editor extends Component {
     onCursorTimeChange(timestamp, chapterId, segmentId, timestampStart, timestampEnd)
   }
 
-  getClosestDataset = (node) => {
-    const currentHasDataset = Object.keys(node.dataset || {}).length
-    if (currentHasDataset)
-      return node.dataset
-    return this.getClosestDataset(node.parentNode)
+  getDatasetRecursive = (node) => {
+    const sibling = node.previousSibling || {}
+    const hasDataset = Object.keys(sibling.dataset || node.dataset || {}).length
+    if (!hasDataset) return this.getDatasetRecursive(node.parentNode)
+    // rely on the previous and unchanged segment
+    const segment = Object.keys(sibling).length ? Number(sibling.dataset.segment) + 1 : 0
+    return { ...sibling.dataset, ...node.dataset, segment }
   }
 
   getSelectedElement = () => {
