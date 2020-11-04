@@ -355,17 +355,20 @@ export default class EditPage extends Component {
   initiate = async () => {
     const { id, defaultTranscript } = this.props
     if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
-    const [
-      {
-        data: { schemas }
-      },
-      { data: transcript }
-    ] = await Promise.all([
-      api.getSchemas().catch(this.onError),
-      api.loadTranscription(id).catch(this.onError)
-    ])
-    const legacyTranscript = convertToV1API(transcript)
-    this.onNewTranscript(legacyTranscript, schemas)
+
+    try {
+      const { data: transcript } = await api.loadTranscription(id)
+      const {
+        data: { schemas },
+      } = await api.getSchemas({
+        departmentId: transcript.departmentId,
+      })
+      
+      const legacyTranscript = convertToV1API(transcript)
+      this.onNewTranscript(legacyTranscript, schemas)
+    } catch (error) {
+      this.onError(error)
+    }
   }
 
   onNewTranscript = async (transcript, schemas) => {
