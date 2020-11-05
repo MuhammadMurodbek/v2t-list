@@ -44,7 +44,6 @@ import ReadOnlyChapters from '../components/ReadOnlyChapters'
 import * as recorder from '../utils/recorder'
 import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
-import processTagsLive from '../models/processTagsLive'
 import ListOfHeaders from '../components/ListOfHeaders'
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: [] }
@@ -218,8 +217,6 @@ export default class EditPage extends Component {
       const keyword = initialKeyword || chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
       const chapters = this.parseAudioResponse(chunks, keyword, timeStartRecording)
       if (chapters) {
-        const diagnosString = chunks.map(chunk => chunk.word).join(' ')
-        processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
         this.setState({ chapters })
       }
     })
@@ -828,9 +825,6 @@ export default class EditPage extends Component {
   }
 
   onUpdateTranscript = (chapters) => {
-    const { tags, tagRequestCache } = this.state
-    const diagnosString = chapters.map(chapter => chapter.segments.map(segment => segment.words).join(' ')).join(' ')
-    processTagsLive(diagnosString, tags, this.onUpdateTags, tagRequestCache, this.onUpdateTagRequestCache)
     return new Promise((resolve) => this.setState({ chapters }, resolve))
   }
 
