@@ -582,8 +582,11 @@ const EditableChapter = ({ recordingChapter, chapterId, keyword, schema, setKeyw
   const isVisible = field ? field.visible : true
   const sectionHeader = field ? field.name : ''
   const namePatterns = field ? [field.name, ...field.headerPatterns||[]] : []
-  const filteredSegments = segments.map((segment, i) => {
+  const filteredSegments = segments.map((segment, i, array) => {
     const hide = i === 0 && new RegExp(namePatterns.join('|'), 'i').test(segment.words)
+    if (hide && array.length > 1) {
+      array[1].words = `${array[1].words.charAt(0).toUpperCase()}${array[1].words.slice(1)}`
+    }
     return { ...segment, words: hide ? segment.words.replace(/./g, '\u200c') : segment.words }
   })
   return (
