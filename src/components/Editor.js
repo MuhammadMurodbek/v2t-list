@@ -134,9 +134,9 @@ export default class Editor extends Component {
   stashCursor = (offset = 0, overrideSegment = null) => {
     const range = window.getSelection().getRangeAt(0)
     const node = range.startContainer
-    // firefox paste #text into a sibling before it is merged into one #text element
-    const siblingOffset = node.previousSibling && node.previousSibling.data ?
-      node.previousSibling.data.length : 0
+    const sibling = node.previousSibling
+    const willMerge = sibling && sibling.textContent.slice(-1) !== ' '
+    const siblingOffset = willMerge ? sibling.textContent.length : 0
     const dataset = this.getDatasetRecursive(node)
     this.stashCursorAt({
       keyword: Number(dataset.keyword),
@@ -181,12 +181,16 @@ export default class Editor extends Component {
   }
 
   getDatasetRecursive = (node) => {
-    const sibling = node.previousSibling || {}
-    const hasDataset = Object.keys(sibling.dataset || node.dataset || {}).length
+    const sibling = node.previousSibling
+    const siblingDataset = sibling ? sibling.dataset : null
+    const hasDataset = Object.keys(siblingDataset || node.dataset || {}).length
     if (!hasDataset) return this.getDatasetRecursive(node.parentNode)
     // rely on the previous and unchanged segment
-    const segment = Object.keys(sibling).length ? Number(sibling.dataset.segment) + 1 : 0
-    return { ...sibling.dataset, ...node.dataset, segment }
+    let segment = siblingDataset ? Number(siblingDataset.segment) : 0
+    const willMerge = sibling && sibling.textContent.slice(-1) !== ' '
+    if (!willMerge)
+      segment++
+    return { ...siblingDataset, ...node.dataset, segment }
   }
 
   getSelectedElement = () => {
