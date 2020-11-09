@@ -177,7 +177,7 @@ class App extends Component {
                         // Check which one are audio and which are video
                         this.setState({
                           transcripts,
-                          job: tag.name,
+                          job: tag.id,
                           contentLength,
                           pageIndex: 0
                         })
