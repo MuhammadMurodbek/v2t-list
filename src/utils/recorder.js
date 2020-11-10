@@ -1,5 +1,7 @@
 import interpolateArray from '../models/interpolateArray'
 
+const SECOND_TO_BYTE_RATIO = 46.6 / 16
+
 const config = {
   bufferLen: 1024,
   numChannels: 1,
@@ -47,10 +49,10 @@ export function stop(addClip, timestamp, offset, offsetEnd) {
     clipName = `Clip ${year}/${month}/${day} ${hour}:${min}:${sec}`
   }
 
-  const prevLength = previousBuffersLength / 46.6
+  const prevLength = previousBuffersLength / SECOND_TO_BYTE_RATIO
   const blob = exportWAV('audio/wav; codecs=opus', timestamp, offset, offsetEnd)
   const audioURL = window.URL.createObjectURL(blob)
-  const length = previousBuffersLength / 46.6
+  const length = previousBuffersLength / SECOND_TO_BYTE_RATIO
 
   addClip(
     {
@@ -90,9 +92,9 @@ function initBuffers() {
 }
 
 function mergeBuffers(channel, buffer, recLength, timestamp, offset, offsetEnd) {
-  let insertFromByte = Math.floor(timestamp * 46.6)
-  let offsetBytes = offset ? Math.floor((offset) * 46.6) : previousBuffersLength
-  let offsetBytesEnd = buffer.length - Math.floor(offsetEnd * 46.6)
+  let insertFromByte = Math.floor(timestamp * SECOND_TO_BYTE_RATIO)
+  let offsetBytes = offset ? Math.floor((offset) * SECOND_TO_BYTE_RATIO) : previousBuffersLength
+  let offsetBytesEnd = buffer.length - Math.floor(offsetEnd * SECOND_TO_BYTE_RATIO)
 
   // Make sure we don't miss or repeate any audio, even if timestamps are off
   if (offsetBytes < insertFromByte)
