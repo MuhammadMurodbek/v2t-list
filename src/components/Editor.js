@@ -160,8 +160,11 @@ export default class Editor extends Component {
     const container = this.getSelectedElement()
     const element = container.firstChild || container
     const textLength = element.textContent.length
-    const startOffset = select ? 0 : offset
-    const endOffset = select && textLength ? textLength - 1 : offset
+    const safeOffset = Math.min(offset, textLength)
+    if (safeOffset !== offset)
+      console.error('Offset was too large, fallback to element text length')
+    const startOffset = select ? 0 : safeOffset
+    const endOffset = select && textLength ? textLength - 1 : safeOffset
     range.setStart(element, startOffset)
     range.setEnd(element, endOffset)
     selection.addRange(range)
@@ -188,7 +191,7 @@ export default class Editor extends Component {
     // rely on the previous and unchanged segment
     let segment = siblingDataset ? Number(siblingDataset.segment) : 0
     const willMerge = sibling && sibling.textContent.slice(-1) !== ' '
-    if (!willMerge)
+    if (sibling && !willMerge)
       segment++
     return { ...siblingDataset, ...node.dataset, segment }
   }
@@ -334,7 +337,7 @@ export default class Editor extends Component {
     chapters[chapterId].segments = [...chapter.segments.slice(0, segmentId), prevSegment]
       .filter(segment => segment.words.length)
     chapters.splice(chapterId + 1, 0, nextChapter)
-    this.stashCursorAt({ chapter: chapterId + 1 })
+    this.stashCursorAt({ chapter: chapterId + 1, segment: 0, offset: 0 })
     updateTranscript(chapters).then(this.refreshDiff)
   }
 
@@ -356,7 +359,7 @@ export default class Editor extends Component {
   spaceInfront = (e, segmentId) => {
     let space = 0
     for (let i=0; i<segmentId; i++)
-      space += e.target.childNodes[i].textContent.replace(/[\u200C]/g, '').length
+      space += e.target.childNodes[i].textContent.replace(/[\u200c]/g, '').length
     return space
   }
 
@@ -386,9 +389,10 @@ export default class Editor extends Component {
     const { chapters } = this.props
     const segmentId = child.dataset ? Number(child.dataset.segment || 0) : 0
     const segments = chapters[chapterId].segments
-    const words = child.textContent
-    if (i === 0 && /^[\u200c]+$/.test(words))
-      return this.props.chapters[chapterId].segments[0]
+    const storedWords = segments[i] ? segments[i].words : ''
+    const words = child.textContent.replace(/^[\u200c]+/, match =>
+      storedWords.slice(0, match.length)
+    )
     if (segmentId)
       return { ...segments[segmentId], words }
     return { startTime: 0, endTime: 0, words }
@@ -586,12 +590,13 @@ const EditableChapter = ({ recordingChapter, chapterId, keyword, schema, setKeyw
   const isVisible = field ? field.visible : true
   const sectionHeader = field ? field.name : ''
   const namePatterns = field ? [field.name, ...field.headerPatterns||[]] : []
-  const filteredSegments = segments.map((segment, i, array) => {
-    const hide = i === 0 && new RegExp(namePatterns.join('|'), 'i').test(segment.words)
-    if (hide && array.length > 1) {
-      array[1].words = `${array[1].words.charAt(0).toUpperCase()}${array[1].words.slice(1)}`
-    }
-    return { ...segment, words: hide ? segment.words.replace(/./g, '\u200c') : segment.words }
+  const regex = new RegExp(`^(${namePatterns.join(' |')} )?(.?)`, 'i')
+  const filteredSegments = segments.map((segment, i) => {
+    const words = i === 0 ? segment.words.replace(regex, (...match) => {
+      const hideChars = match[1] ? match[1] : ''
+      return `${'\u200c'.repeat(hideChars.length)}${match[2].toUpperCase()}`
+    }) : segment.words
+    return { ...segment, words }
   })
   return (
     <EuiFormRow style={{
