@@ -81,6 +81,13 @@ class App extends Component {
     this.fetchTranscripts()
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { job } = this.state
+    if (job !== prevState.job) {
+      this.fetchTranscripts(job)
+    }
+  }
+
   setPreferences = (update) => {
     const { preferences } = this.state
     this.setState({
@@ -165,7 +172,7 @@ class App extends Component {
                     this.setState({
                       transcripts: [],
                       selectedItem: tag.id
-                    })
+                    })  
                     api
                       .loadTickets(tag.id, pageIndex, pageSize, orderBy)
                       .then(({ data }) => {
