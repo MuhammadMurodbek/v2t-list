@@ -40,11 +40,13 @@ import {
   addWarningToast,
   addSuccessToast
 } from '../components/GlobalToastList'
+import { EVENTS } from '../components/EventHandler'
 import ReadOnlyChapters from '../components/ReadOnlyChapters'
 import * as recorder from '../utils/recorder'
 import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
+import EventEmitter from "../models/events"
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: [] }
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
@@ -102,9 +104,18 @@ export default class EditPage extends Component {
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
     this.tagsRef = React.createRef()
+    EventEmitter.subscribe(EVENTS.CANCEL, this.cancel)
+    EventEmitter.subscribe(EVENTS.SEND, this.onSave)
+    EventEmitter.subscribe(EVENTS.APPROVE_CHANGE, this.onApprovedChange)
     await this.checkTranscriptStateAndLoad()
     if (mic)
       this.setupSocketIO()
+  }
+
+  componentWillUnmount() {
+    EventEmitter.unsubscribe(EVENTS.CANCEL)
+    EventEmitter.unsubscribe(EVENTS.SEND)
+    EventEmitter.unsubscribe(EVENTS.APPROVE_CHANGE)
   }
 
   async componentDidUpdate(prevProps) {
@@ -574,6 +585,13 @@ export default class EditPage extends Component {
     })
   }
 
+  onSave = () => {
+    if (this.state.approved)
+      this.finalize()
+    else
+      this.save()
+  }
+
   finalize = async () => {
     const canBeSaved = await this.save(true)
     if (canBeSaved) {
@@ -834,9 +852,8 @@ export default class EditPage extends Component {
     this.setState({ initialCursor })
   }
 
-  onApprovedChange = (e) => {
-    const approved = e.target.checked
-    this.setState({approved})
+  onApprovedChange = () => {
+    this.setState({approved: !this.state.approved})
   }
 
   cancel = () => {
@@ -1058,12 +1075,7 @@ export default class EditPage extends Component {
                   size="s"
                   fill
                   isLoading={isUploadingMedia}
-                  onClick={() => {
-                    if (approved)
-                      this.finalize()
-                    else
-                      this.save()
-                  }}
+                  onClick={this.onSave}
                   id='save_changes'
                 >
                   <EuiI18n

@@ -37,6 +37,7 @@ import { addUnexpectedErrorToast } from './components/GlobalToastList/GlobalToas
 import { EuiFlexGroup } from '@patronum/eui'
 import { EuiFlexItem } from '@patronum/eui'
 import getQueryStringValue from './models/getQueryStringValue'
+import { EventHandler } from "./components/EventHandler";
 
 class App extends Component {
   state = {
@@ -510,6 +511,7 @@ class App extends Component {
                 )
             }
             <GlobalToastListContainer />
+            <EventHandler/>
           </EuiPage>
         </PreferencesProvider>
       </HashRouter>
