@@ -371,7 +371,7 @@ export default class EditPage extends Component {
       } = await api.getSchemas({
         departmentId: transcript.departmentId,
       })
-      
+
       const legacyTranscript = convertToV1API(transcript)
       this.onNewTranscript(legacyTranscript, schemas)
     } catch (error) {
@@ -835,6 +835,7 @@ export default class EditPage extends Component {
     const { allChapters } = this.state
     var index = allChapters.findIndex(c => c.keyword === keyword)
     if (index > -1) {
+      allChapters[index].segments = []
       allChapters[index].values = values
     } else {
       allChapters.push({ keyword, segments: [], values })
