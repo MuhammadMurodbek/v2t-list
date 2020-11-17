@@ -305,13 +305,11 @@ export default class EditPage extends Component {
     let audioInput = realAudioInput
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
-
+  
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 16384, 1, 1)
 
-    realAudioInput.connect(scriptNode)
-    scriptNode.connect(this.audioContext.destination)
     scriptNode.onaudioprocess = (audioEvent) => {
       if (!this.state.recording) return
       const recordedTime = Math.ceil(this.audioContext.currentTime)
