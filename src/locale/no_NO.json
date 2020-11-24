@@ -159,5 +159,8 @@
   "missingFieldMessage": "mangler. Vil du spare uansett?",
   "unableToStartLiveTranscriptSession": "Kan ikke starte direkte transkripsjon",
   "checkNetworkConnectionOrContactSupport": "Vennligst sjekk nettverkstilkoblingen, eller kontakt IT support.",
-  "departmentId": "Department Id"
+  "departmentId": "Department Id",
+  "template": "Journalmall",
+  "receivedTime": "Mottatt",
+  "updatedTime": "Oppdatert"
 }

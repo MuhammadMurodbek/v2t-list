@@ -158,5 +158,8 @@
   "missingFieldMessage": "saknas. Vill du spara ändå?",
   "unableToStartLiveTranscriptSession": "Det gick inte att starta live-dikteringen",
   "checkNetworkConnectionOrContactSupport": "Kontrollera nätverksanslutningen eller kontakta IT-support",
-  "departmentId": "Department Id"
+  "departmentId": "Department Id",
+  "template": "Journalmall",
+  "receivedTime": "Mottaget",
+  "updatedTime": "Uppdaterad"
 }

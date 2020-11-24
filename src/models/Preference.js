@@ -28,7 +28,7 @@ export const COLUMN_OPTIONS = [
   {
     label: 'Skapad',
     field: 'createdTime',
-    name: <EuiI18n token="createdTime" default="Created" />,
+    name: <EuiI18n token="created" default="Created" />,
     render: (createdTime) => moment(createdTime).format('YYYY-MM-DD HH:mm:ss'),
     sortable: true
   },
@@ -44,7 +44,7 @@ export const COLUMN_OPTIONS = [
   },
   {
     label: 'Schema Name',
-    name: <EuiI18n token="schemaName" default="Schema Name" />,
+    name: <EuiI18n token="template" default="Journal Template" />,
     field: 'schemaName'
   },
   {

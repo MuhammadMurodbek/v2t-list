@@ -158,5 +158,8 @@
     "missingFieldMessage": "mangler. Vil du gemme alligevel?",
     "unableToStartLiveTranscriptSession": "Start af diktat kunne ikke startes",
     "checkNetworkConnectionOrContactSupport": "Kontroller netværksforbindelsen eller kontakt it-support",
-    "departmentId": "AfdelingId"
+    "departmentId": "AfdelingId",
+    "template": "Journalmall",
+    "receivedTime": "Modtaget",
+    "updatedTime": "Opdateret"
 }
