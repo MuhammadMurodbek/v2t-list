@@ -11,15 +11,8 @@ import Seek from './Seek'
 import { PreferenceContext } from './PreferencesProvider'
 import { EuiI18n } from '@patronum/eui'
 import Mic from '../components/Mic'
-
-const KEYCODE = {
-  J: 'KeyJ',
-  N: 'KeyN',
-  K: 'KeyK',
-  M: 'KeyM'
-}
-const VOLUME_KEYS = [KEYCODE.J, KEYCODE.N]
-const PLAYBACK_RATE_KEYS = [KEYCODE.K, KEYCODE.M]
+import { EVENTS } from '../components/EventHandler'
+import EventEmitter from "../models/events"
 
 class Player extends Component {
   static contextType = PreferenceContext
@@ -42,11 +35,19 @@ class Player extends Component {
   }
 
   componentDidMount = () => {
-    document.addEventListener('keydown', this.handleKeyPress)
+    EventEmitter.subscribe(EVENTS.TOGGLE_PLAY, this.togglePlay)
+    EventEmitter.subscribe(EVENTS.VOLUMEUP, this.volumeUp)
+    EventEmitter.subscribe(EVENTS.VOLUMEDOWN, this.volumeDown)
+    EventEmitter.subscribe(EVENTS.PLAYBACKUP, this.playbackSpeedUp)
+    EventEmitter.subscribe(EVENTS.PLAYBACKDOWN, this.playbackSpeedDown)
   }
 
   componentWillUnmount = () => {
-    document.removeEventListener('keydown', this.handleKeyPress)
+    EventEmitter.unsubscribe(EVENTS.TOGGLE_PLAY, this.togglePlay)
+    EventEmitter.unsubscribe(EVENTS.VOLUMEUP, this.volumeUp)
+    EventEmitter.unsubscribe(EVENTS.VOLUMEDOWN, this.volumeDown)
+    EventEmitter.unsubscribe(EVENTS.PLAYBACKUP, this.playbackSpeedUp)
+    EventEmitter.unsubscribe(EVENTS.PLAYBACKDOWN, this.playbackSpeedDown)
   }
 
   componentDidUpdate = (prevProps) => {
@@ -66,24 +67,26 @@ class Player extends Component {
     })
   }
 
-  playMusic = () => {
-    if (this.myRef && this.myRef.current) {
-      if (this.myRef.current.paused) {
-        this.myRef.current.play().catch(e => {
-          console.log(e);
-        })
-        this.setState({ isPlaying: true })
-      }
-    }
+  togglePlay = () => {
+    const { isPlaying } = this.state
+    if (isPlaying)
+      this.pauseAudio()
+    else
+      this.playAudio()
   }
 
-  pauseMusic = () => {
-    if (this.myRef && this.myRef.current) {
-      if (this.myRef.current.played) {
-        this.myRef.current.pause()
-        this.setState({ isPlaying: false })
-      }
-    }
+  playAudio = () => {
+    if (!this.myRef || !this.myRef.current) return
+    this.myRef.current.play().catch(e => {
+      console.log(e);
+    })
+    this.setState({ isPlaying: true })
+  }
+
+  pauseAudio = () => {
+    if (!this.myRef || !this.myRef.current) return
+    this.myRef.current.pause()
+    this.setState({ isPlaying: false })
     this.props.onPause(this.myRef && this.myRef.current && this.myRef.current.currentTime)
   }
 
@@ -97,7 +100,7 @@ class Player extends Component {
   }
 
   backwardMusic = () => {
-    this.pauseMusic()
+    pauseAudio()
     const { mediaSkipDuration } = this.state
     if (this.myRef && this.myRef.current) {
       this.myRef.current.currentTime -= mediaSkipDuration
@@ -105,7 +108,7 @@ class Player extends Component {
   }
 
   forwardMusic = () => {
-    this.pauseMusic()
+    pauseAudio()
     const { mediaSkipDuration } = this.state
     if (this.myRef && this.myRef.current) {
       this.myRef.current.currentTime += mediaSkipDuration
@@ -270,37 +273,31 @@ class Player extends Component {
     })
   }
 
-  handleKeyPress = (e) => {
-    const { isPlaying, volume, playbackRate } = this.state
-    if (e.altKey && VOLUME_KEYS.includes(e.code)) {
-      e.preventDefault()
-      const change = e.code === VOLUME_KEYS[0] ? 0.2 : -0.2
-      const title = (v) => `Volume ${v ? '📢' : '🔕'}`
-      const text = (v) => (v ? `${v * 100}%` : 'Muted')
-      this.updateMedia('volume', title, text, 0, 1, volume, change)
-    } else if (e.altKey && PLAYBACK_RATE_KEYS.includes(e.code)) {
-      e.preventDefault()
-      const change = e.code === PLAYBACK_RATE_KEYS[0] ? 0.2 : -0.2
-      const title = (v) => 'Uppspelningshastighet'
-      const text = (v) => `${v * 100}%`
-      this.updateMedia(
-        'playbackRate',
-        title,
-        text,
-        0.2,
-        2,
-        playbackRate,
-        change
-      )
-    } else if (e.altKey && e.keyCode === 80) {
-      // keycode for p
-      e.preventDefault()
-      if (isPlaying) {
-        this.pauseMusic()
-      } else {
-        this.playMusic()
-      }
-    }
+  alterVolume = (change) => {
+    const { volume } = this.state
+    const title = (v) => `Volume ${v ? '📢' : '🔕'}`
+    const text = (v) => (v ? `${v * 100}%` : 'Muted')
+    this.updateMedia('volume', title, text, 0, 1, volume, change)
+  }
+
+  volumeUp = () => { this.alterVolume(0.2) }
+
+  volumeDown = () => { this.alterVolume(-0.2) }
+
+  increasePlaybackRate = (shouldIncreasePlaybackRate) => {
+    const change = shouldIncreasePlaybackRate ? 0.2 : -0.2
+    const { playbackRate } = this.state
+    const title = (v) => 'Uppspelningshastighet'
+    const text = (v) => `${v * 100}%`
+    this.updateMedia('playbackRate', title, text, 0.2, 2, playbackRate, change)
+  }
+
+  playbackSpeedUp = () => {
+    this.increasePlaybackRate(true)
+  }
+
+  playbackSpeedDown = () => {
+    this.increasePlaybackRate(false)
   }
 
   removeToast = () => {
@@ -420,7 +417,7 @@ class Player extends Component {
                     id="play"
                     data-icon="P"
                     aria-label="play pause toggle"
-                    onClick={this.playMusic}
+                    onClick={this.togglePlay}
                     type="button"
                   />
 
@@ -431,7 +428,7 @@ class Player extends Component {
                     id="pause"
                     data-icon="u"
                     aria-label="play pause toggle"
-                    onClick={this.pauseMusic}
+                    onClick={this.togglePlay}
                     type="button"
                   />
 
