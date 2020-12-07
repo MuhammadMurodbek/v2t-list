@@ -583,11 +583,11 @@ export default class EditPage extends Component {
     })
   }
 
-  onSave = () => {
+  onSave = async () => {
     if (this.state.approved)
       this.finalize()
     else
-      this.save()
+      await this.save()
   }
 
   finalize = async () => {
@@ -672,6 +672,7 @@ export default class EditPage extends Component {
           default="Section must not be empty"
         />
       )
+      this.setState({ isUploadingMedia: false })
       return false
     }
 
@@ -690,6 +691,7 @@ export default class EditPage extends Component {
           default="All keywords must be set and may only appear once"
         />
       )
+      this.setState({ isUploadingMedia: false })
       return false
     }
 
@@ -787,9 +789,9 @@ export default class EditPage extends Component {
     return modalMissingFields.length
   }
 
-  onCloseMissingFieldsModal = (save) => {
+  onCloseMissingFieldsModal = async (save) => {
     if (save)
-      this.save(true)
+      await this.save(true)
     this.setState({ modalMissingFields: [] })
   }
 
