@@ -47,6 +47,9 @@ import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
 import EventEmitter from "../models/events"
+import getTranscriptInPlainText from '../models/live/parserUtils'
+ 
+
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: [] }
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
@@ -277,15 +280,125 @@ export default class EditPage extends Component {
     return chunk ? this.getKeyword(chunk.word) : null
   }
 
+
+  getTranscriptInPlainText = (chapters) => {
+    let chapterText = chapters
+      .map((chapter) => chapter.segments.map((segment) => segment.words)).flat()
+    chapterText = [...chapterText].join(' ')
+    return chapterText
+  }
+
+
   getKeyword = (text) => {
+    // the param is the latest word from the stream
+    console.log('text---->', text)
+
+    // Check all the keywords and find out the number of words in the longest keyword
     const { schema } = this.state
+    console.log('schema', schema.fields)
+    // Get all the patterns and made them uppercase
+    const keywordsFromSchema = []
+    schema.fields.forEach(field=> { 
+      field.headerPatterns ? 
+        keywordsFromSchema[field.name] = field.headerPatterns : keywordsFromSchema[field.name] = []
+    })
+
+    console.log('keywordsFromSchema',keywordsFromSchema)
+    const keyWordsAndSynonyms = schema.fields.map(field=> {  
+        return [field.name, field.headerPatterns]
+    }).flat(Infinity).filter(definedKeyword=>definedKeyword!==undefined).map(kAndS=>kAndS.toUpperCase())
+    console.log('keyWordsAndSynonyms',keyWordsAndSynonyms)
+    const keywordLengths = keyWordsAndSynonyms.map(keyWordsAndSynonym=>keyWordsAndSynonym.split(' ').length)
+    console.log('keywordLengths',keywordLengths)
+    const multiwordLength = Math.max(...keywordLengths)
+    console.log('multiwordLength',multiwordLength)
+    const {chapters,currentChapter} = this.state
+    console.log('chapters',chapters)
+    // Get the previous word and match with a keyword
+    // Run this matching up to the longest number of words
+    // if there is a match use the keyword and rearrange the whole transcript
+
+
+    // Check for the single word match
     const comparable = text.toUpperCase()
+    const plainText = this.getTranscriptInPlainText(chapters)
+      console.log('plainText',plainText)
     if (!schema) return
     const field = schema.fields.find(field => {
       const patterns = (field.headerPatterns || []).map(p => p.toUpperCase())
       return field.name.toUpperCase() === comparable || patterns.includes(comparable)
     })
-    return field ? field.id : undefined
+    if(field) { return field.id }
+    else {
+// multi-word keyword
+      let newComparableKeyword = ''
+      // check if the word is a member of the list of words
+      // keyWordsAndSynonyms makes a single string and split it to single words
+      const SyllablesOfkeyWords = keyWordsAndSynonyms.join(' ').split(' ').map(syllable=>syllable.toUpperCase())
+      console.log('SyllablesOfkeyWords',SyllablesOfkeyWords)
+
+      if(SyllablesOfkeyWords.includes(text.toUpperCase())){
+        console.log('text.................', text)
+        // search for the previous word
+        // from the end of the plain text do the match 
+        const wordsOfTranscript =   plainText.trim().split('  ')
+        console.log('wordsOfTranscript',wordsOfTranscript)
+        const previousWord = wordsOfTranscript.map((str,i)=> {
+          if(str===text) {return `${wordsOfTranscript[i-1]} ${str}`}
+        }).filter(selectedKeyword=>selectedKeyword!==undefined).toString()
+
+        console.log('previousWord',previousWord)
+        console.log('keyWordsAndSynonyms', keyWordsAndSynonyms)
+        if(keyWordsAndSynonyms.includes(previousWord.toUpperCase())){
+          console.log('yay')
+          console.log('yay')
+          console.log('yay')
+          console.log('yay')
+          console.log('yay')
+          // Check in the names
+          const titles = Object.keys(keywordsFromSchema)
+            .map(title=>title.toUpperCase())
+            .filter(foundHeader=>foundHeader===previousWord.toUpperCase())
+          console.log('titles', titles)
+          if(titles) {
+              const field = schema.fields.find(field => {
+                return field.name.toUpperCase() === previousWord.toUpperCase()
+              })
+              return field.id
+          }
+
+          // Check in the synonyms
+        }
+        // Check with the keywords
+
+
+      }
+
+      // for(let i = multiwordLength-1; i>=0; i = i-1 ) {
+      //     if(i===multiwordLength-1) {
+      //       newComparableKeyword = text
+      //     } else {
+      //       const latestWord = plainText.trim().split(' ').reverse()[0]
+      //       newComparableKeyword = 
+      //         `${latestWord} ${newComparableKeyword}`
+      //     }
+      // }
+    console.log('newComparableKeyword',newComparableKeyword)
+     return undefined
+    
+    }
+
+// const comparable = text.toUpperCase()
+//     if (!schema) return
+//     const field = schema.fields.find(field => {
+//       const patterns = (field.headerPatterns || []).map(p => p.toUpperCase())
+//       return field.name.toUpperCase() === comparable || patterns.includes(comparable)
+//     })
+    
+    
+    
+//     // If it is a valid keyword send the id, otherwise return undefined
+//     return field ? field.id : undefined
   }
 
   getCursorFromAudioInput = (keyword, chunks, chapters) => {
