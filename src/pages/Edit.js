@@ -291,7 +291,7 @@ export default class EditPage extends Component {
 
   getKeyword = (text) => {
     // the param is the latest word from the stream
-    console.log('text---->', text)
+    console.log('text-------------------------------------------->', text)
 
     // Check all the keywords and find out the number of words in the longest keyword
     const { schema } = this.state
@@ -344,7 +344,17 @@ export default class EditPage extends Component {
         const wordsOfTranscript =   plainText.trim().split('  ')
         console.log('wordsOfTranscript',wordsOfTranscript)
         const previousWord = wordsOfTranscript.map((str,i)=> {
-          if(str===text) {return `${wordsOfTranscript[i-1]} ${str}`}
+          if(str===text) {
+            // Apply logic for multiple words
+            let matchedKeyword = str
+            for(let k = 0; k < multiwordLength-1;k += 1) {
+              matchedKeyword = `${wordsOfTranscript[i-1-k]} ${matchedKeyword}`
+            }
+            return matchedKeyword
+
+
+
+        }
         }).filter(selectedKeyword=>selectedKeyword!==undefined).toString()
 
         console.log('previousWord',previousWord)
