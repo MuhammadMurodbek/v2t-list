@@ -189,8 +189,21 @@ export default class EditPage extends Component {
             })) }
           return chapter
         })
+    
+      const updatedChapters = timeAdjustedChapters.map((chapter, chapterIndex) => {
+        if(timeAdjustedChapters[chapterIndex+1]){
+        if(timeAdjustedChapters[chapterIndex+1].keyword.trim().toUpperCase().includes(chapter.segments[chapter.segments.length-1].words.trim().toUpperCase())){
+          chapter.segments.pop()
+          return chapter
+        } }
+        if(chapter.keyword.trim().toUpperCase().includes(chapter.segments[0].words.trim().toUpperCase())){
+          chapter.segments.shift()
+          return chapter
+        } else return chapter
+      })
+
         this.setState({
-          chapters: timeAdjustedChapters,
+          chapters: updatedChapters,
           recordedAudio,
           recording: false,
           timeStartRecording: this.getChapterEndTimeAdjusted(chapters.length -1),
@@ -241,6 +254,9 @@ export default class EditPage extends Component {
     let currentChapter = this.state.currentChapter
     const result = [...chunks].reduce((store, chunk, i, arr) => {
       const currentKeyword = this.getKeyword(chunk.word)
+    
+      
+
       const newKeyword = currentKeyword && currentKeyword !== keyword && i === arr.length -1
       const existingNewKeyword = newKeyword && chaptersBeforeRecording
         .some(chapter => chapter.keyword === currentKeyword)
@@ -290,30 +306,19 @@ export default class EditPage extends Component {
 
 
   getKeyword = (text) => {
-    // the param is the latest word from the stream
-    console.log('text-------------------------------------------->', text)
-
-    // Check all the keywords and find out the number of words in the longest keyword
     const { schema } = this.state
-    console.log('schema', schema.fields)
-    // Get all the patterns and made them uppercase
     const keywordsFromSchema = []
     schema.fields.forEach(field=> { 
       field.headerPatterns ? 
         keywordsFromSchema[field.name] = field.headerPatterns : keywordsFromSchema[field.name] = []
     })
 
-    console.log('keywordsFromSchema',keywordsFromSchema)
     const keyWordsAndSynonyms = schema.fields.map(field=> {  
         return [field.name, field.headerPatterns]
     }).flat(Infinity).filter(definedKeyword=>definedKeyword!==undefined).map(kAndS=>kAndS.toUpperCase())
-    console.log('keyWordsAndSynonyms',keyWordsAndSynonyms)
     const keywordLengths = keyWordsAndSynonyms.map(keyWordsAndSynonym=>keyWordsAndSynonym.split(' ').length)
-    console.log('keywordLengths',keywordLengths)
     const multiwordLength = Math.max(...keywordLengths)
-    console.log('multiwordLength',multiwordLength)
     const {chapters,currentChapter} = this.state
-    console.log('chapters',chapters)
     // Get the previous word and match with a keyword
     // Run this matching up to the longest number of words
     // if there is a match use the keyword and rearrange the whole transcript
@@ -322,7 +327,6 @@ export default class EditPage extends Component {
     // Check for the single word match
     const comparable = text.toUpperCase()
     const plainText = this.getTranscriptInPlainText(chapters)
-      console.log('plainText',plainText)
     if (!schema) return
     const field = schema.fields.find(field => {
       const patterns = (field.headerPatterns || []).map(p => p.toUpperCase())
@@ -330,19 +334,15 @@ export default class EditPage extends Component {
     })
     if(field) { return field.id }
     else {
-// multi-word keyword
+      // multi-word keyword
       let newComparableKeyword = ''
       // check if the word is a member of the list of words
       // keyWordsAndSynonyms makes a single string and split it to single words
       const SyllablesOfkeyWords = keyWordsAndSynonyms.join(' ').split(' ').map(syllable=>syllable.toUpperCase())
-      console.log('SyllablesOfkeyWords',SyllablesOfkeyWords)
-
-      if(SyllablesOfkeyWords.includes(text.toUpperCase())){
-        console.log('text.................', text)
+      if(SyllablesOfkeyWords.includes(text.toUpperCase())) {
         // search for the previous word
         // from the end of the plain text do the match 
         const wordsOfTranscript =   plainText.trim().split('  ')
-        console.log('wordsOfTranscript',wordsOfTranscript)
         const previousWord = wordsOfTranscript.map((str,i)=> {
           if(str===text) {
             // Apply logic for multiple words
@@ -351,20 +351,10 @@ export default class EditPage extends Component {
               matchedKeyword = `${wordsOfTranscript[i-1-k]} ${matchedKeyword}`
             }
             return matchedKeyword
-
-
-
         }
         }).filter(selectedKeyword=>selectedKeyword!==undefined).toString()
 
-        console.log('previousWord',previousWord)
-        console.log('keyWordsAndSynonyms', keyWordsAndSynonyms)
         if(keyWordsAndSynonyms.includes(previousWord.toUpperCase())){
-          console.log('yay')
-          console.log('yay')
-          console.log('yay')
-          console.log('yay')
-          console.log('yay')
           // Check in the names
           const titles = Object.keys(keywordsFromSchema)
             .map(title=>title.toUpperCase())
@@ -374,6 +364,10 @@ export default class EditPage extends Component {
               const field = schema.fields.find(field => {
                 return field.name.toUpperCase() === previousWord.toUpperCase()
               })
+
+
+              // remove the keyword from the chapter as segment
+              
               return field.id
           }
 
@@ -384,17 +378,7 @@ export default class EditPage extends Component {
 
       }
 
-      // for(let i = multiwordLength-1; i>=0; i = i-1 ) {
-      //     if(i===multiwordLength-1) {
-      //       newComparableKeyword = text
-      //     } else {
-      //       const latestWord = plainText.trim().split(' ').reverse()[0]
-      //       newComparableKeyword = 
-      //         `${latestWord} ${newComparableKeyword}`
-      //     }
-      // }
-    console.log('newComparableKeyword',newComparableKeyword)
-     return undefined
+        return undefined
     
     }
 
