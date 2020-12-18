@@ -219,7 +219,7 @@ export default class EditPage extends Component {
       this.socketio = io.connect('wss://v2t-stage-lt.inoviagroup.se/audio', { transports: ['websocket'], path })
     } else if (window.location.hostname.split('.')[0].includes('demo')) {
       this.socketio = io.connect('wss://v2t-demo-lt.inoviagroup.se/audio', { transports: ['websocket'], path })
-    } else if (window.location.hostname.split('.')[0].includes('conscriptor')) {
+    } else if (window.location.hostname.split('.')[0]==='v2t') {
       this.socketio = io.connect('wss://v2t-lt.conscriptor.se/audio', { transports: ['websocket'], path })
     } else {
       this.socketio = io.connect('wss://v2t-dev-lt.inoviagroup.se/audio', { transports: ['websocket'], path })
