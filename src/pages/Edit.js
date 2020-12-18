@@ -194,6 +194,12 @@ export default class EditPage extends Component {
         if(timeAdjustedChapters[chapterIndex+1]){
         if(timeAdjustedChapters[chapterIndex+1].keyword.trim().toUpperCase().includes(chapter.segments[chapter.segments.length-1].words.trim().toUpperCase())){
           chapter.segments.pop()
+          if(chapter.segments[chapter.segments.length-1].words.trim().slice(-1)!=='.') {
+            chapter.segments[chapter.segments.length-1] = {
+              ...chapter.segments[chapter.segments.length-1],
+              words: `${chapter.segments[chapter.segments.length-1].words.trim()}.`
+            }
+          }
           return chapter
         } }
         if(chapter.keyword.trim().toUpperCase().includes(chapter.segments[0].words.trim().toUpperCase())){
@@ -201,7 +207,7 @@ export default class EditPage extends Component {
           return chapter
         } else return chapter
       })
-
+      console.log('updatedChapters',updatedChapters)
         this.setState({
           chapters: updatedChapters,
           recordedAudio,
@@ -359,7 +365,6 @@ export default class EditPage extends Component {
           const titles = Object.keys(keywordsFromSchema)
             .map(title=>title.toUpperCase())
             .filter(foundHeader=>foundHeader===previousWord.toUpperCase())
-          console.log('titles', titles)
           if(titles) {
               const field = schema.fields.find(field => {
                 return field.name.toUpperCase() === previousWord.toUpperCase()
