@@ -318,81 +318,99 @@ export default class EditPage extends Component {
   getKeyword = (text) => {
     const { schema } = this.state
     const keywordsFromSchema = []
-    schema.fields.forEach(field=> { 
-      field.headerPatterns ? 
-        keywordsFromSchema[field.name] = field.headerPatterns : keywordsFromSchema[field.name] = []
+    schema.fields.forEach((field) => {
+      field.headerPatterns
+        ? (keywordsFromSchema[field.name] = field.headerPatterns)
+        : (keywordsFromSchema[field.name] = [])
     })
 
-    const keyWordsAndSynonyms = schema.fields.map(field=> {  
+    const keyWordsAndSynonyms = schema.fields
+      .map((field) => {
         return [field.name, field.headerPatterns]
-    }).flat(Infinity).filter(definedKeyword=>definedKeyword!==undefined).map(kAndS=>kAndS.toUpperCase())
-    const keywordLengths = keyWordsAndSynonyms.map(keyWordsAndSynonym=>keyWordsAndSynonym.split(' ').length)
+      })
+      .flat(Infinity)
+      .filter((definedKeyword) => definedKeyword !== undefined)
+      .map((kAndS) => kAndS.toUpperCase())
+      const keywordLengths = keyWordsAndSynonyms.map(
+        (keyWordsAndSynonym) => keyWordsAndSynonym.split(' ').length
+      )
     const multiwordLength = Math.max(...keywordLengths)
-    const {chapters,currentChapter} = this.state
+    const { chapters } = this.state
     // Get the previous word and match with a keyword
     // Run this matching up to the longest number of words
     // if there is a match use the keyword and rearrange the whole transcript
-
 
     // Check for the single word match
     const comparable = text.toUpperCase()
     const plainText = this.getTranscriptInPlainText(chapters)
     if (!schema) return
-    const field = schema.fields.find(field => {
-      const patterns = (field.headerPatterns || []).map(p => p.toUpperCase())
-      return field.name.toUpperCase() === comparable || patterns.includes(comparable)
+    const field = schema.fields.find((field) => {
+      const patterns = (field.headerPatterns || []).map((p) => p.toUpperCase())
+      return (
+        field.name.toUpperCase() === comparable || patterns.includes(comparable)
+      )
     })
-    
-    if(field) { return field.id }
-    else {
+
+    if (field) {
+      return field.id
+    } else {
       // multi-word keyword
       let newComparableKeyword = ''
       // check if the word is a member of the list of words
       // keyWordsAndSynonyms makes a single string and split it to single words
-      const SyllablesOfkeyWords = keyWordsAndSynonyms.join(' ').split(' ').map(syllable=>syllable.toUpperCase())
-      if(SyllablesOfkeyWords.includes(text.toUpperCase())) {
+      const SyllablesOfkeyWords = keyWordsAndSynonyms
+        .join(' ')
+        .split(' ')
+        .map((syllable) => syllable.toUpperCase())
+      if (SyllablesOfkeyWords.includes(text.toUpperCase())) {
         // search for the previous word
-        // from the end of the plain text do the match 
-        const wordsOfTranscript =   plainText.trim().split('  ')
-        const previousWord = wordsOfTranscript.map((str,i)=> {
-          if(str===text) {
-            // Apply logic for multiple words
-            let matchedKeyword = str
-            for(let k = 0; k < multiwordLength-1;k += 1) {
-              matchedKeyword = `${wordsOfTranscript[i-1-k]} ${matchedKeyword}`
+        // from the end of the plain text do the match
+        const wordsOfTranscript = plainText.trim().split('  ')
+        const previousWord = wordsOfTranscript
+          .map((str, i) => {
+            if (str === text) {
+              // Apply logic for multiple words
+              let matchedKeyword = str
+              for (let k = 0; k < multiwordLength - 1; k += 1) {
+                matchedKeyword = `${
+                  wordsOfTranscript[i - 1 - k]
+                } ${matchedKeyword}`
+              }
+              return matchedKeyword
             }
-            return matchedKeyword
-        }
-        }).filter(selectedKeyword=>selectedKeyword!==undefined)
-        if(previousWord.length>0){
-        const thePreviousWord = previousWord[0].trim()
-        if(keyWordsAndSynonyms.includes(thePreviousWord.toUpperCase())){
-          // Check in the names
-          const titles = Object.keys(keywordsFromSchema)
-            .map(title=>title.toUpperCase())
-            .filter(foundHeader=>foundHeader===thePreviousWord.toUpperCase())
-          if(titles) {
-              const field = schema.fields.find(field => {
+          })
+          .filter((selectedKeyword) => selectedKeyword !== undefined)
+        if (previousWord.length > 0) {
+          const thePreviousWord = previousWord[0].trim()
+          if (keyWordsAndSynonyms.includes(thePreviousWord.toUpperCase())) {
+            // Check in the names
+            const titles = Object.keys(keywordsFromSchema)
+              .map((title) => title.toUpperCase())
+              .filter(
+                (foundHeader) => foundHeader === thePreviousWord.toUpperCase()
+              )
+            if (titles) {
+              const field = schema.fields.find((field) => {
                 return field.name.toUpperCase() === thePreviousWord.toUpperCase()
               })
 
               // remove the keyword from the chapter as segment
-              if(field) {if(field.id) {return field.id}} 
-              else {return undefined}
-              
+              if (field) {
+                if (field.id) {
+                  return field.id
+                }
+              } else {
+                return undefined
+              }
+            }
           }
-
-       
         }
-       
       }
 
-      }
-
-        return undefined
-    
+      return undefined
     }
   }
+
 
   getCursorFromAudioInput = (keyword, chunks, chapters) => {
     const currentKeyword = this.getLastKeyword(chunks) || keyword
