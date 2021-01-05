@@ -376,16 +376,15 @@ export default class EditPage extends Component {
                 return field.name.toUpperCase() === thePreviousWord.toUpperCase()
               })
 
-
               // remove the keyword from the chapter as segment
               if(field) {if(field.id) {return field.id}} 
               else {return undefined}
               
           }
 
-          // Check in the synonyms
+       
         }
-        // Check with the keywords
+       
       }
 
       }
