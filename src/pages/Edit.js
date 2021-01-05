@@ -186,8 +186,27 @@ export default class EditPage extends Component {
             })) }
           return chapter
         })
+    
+      const updatedChapters = timeAdjustedChapters.map((chapter, chapterIndex) => {
+        if(timeAdjustedChapters[chapterIndex+1]){
+        if(timeAdjustedChapters[chapterIndex+1].keyword.trim().toUpperCase().includes(chapter.segments[chapter.segments.length-1].words.trim().toUpperCase())){
+          chapter.segments.pop()
+          if(chapter.segments[chapter.segments.length-1].words.trim().slice(-1)!=='.') {
+            chapter.segments[chapter.segments.length-1] = {
+              ...chapter.segments[chapter.segments.length-1],
+              words: `${chapter.segments[chapter.segments.length-1].words.trim()}.`
+            }
+          }
+          return chapter
+        } }
+        if(chapter.keyword.trim().toUpperCase().includes(chapter.segments[0].words.trim().toUpperCase())){
+          chapter.segments.shift()
+          return chapter
+        } else return chapter
+      })
+
         this.setState({
-          chapters: timeAdjustedChapters,
+          chapters: updatedChapters,
           recordedAudio,
           recording: false,
           timeStartRecording: this.getChapterEndTimeAdjusted(chapters.length -1),
@@ -273,8 +292,9 @@ export default class EditPage extends Component {
       const chapter = store.find(chapter => chapter.keyword === keyword)
         || { keyword, segments: [] }
       chapter.segments = [...chapter.segments, segment]
-      if (!store.includes(chapter))
+      if (!store.includes(chapter)) {
         store.splice(chapterId + 1, 0, chapter)
+      }
       return store
     }, JSON.parse(JSON.stringify(chaptersBeforeRecording)))
     this.setState({ currentChapter })
@@ -286,16 +306,111 @@ export default class EditPage extends Component {
     return chunk ? this.getKeyword(chunk.word) : null
   }
 
+
+  getTranscriptInPlainText = (chapters) => {
+    let chapterText = chapters
+      .map((chapter) => chapter.segments.map((segment) => segment.words)).flat()
+    chapterText = [...chapterText].join(' ')
+    return chapterText
+  }
+
+
   getKeyword = (text) => {
     const { schema } = this.state
-    const comparable = text.toUpperCase()
-    if (!schema) return
-    const field = schema.fields.find(field => {
-      const patterns = (field.headerPatterns || []).map(p => p.toUpperCase())
-      return field.name.toUpperCase() === comparable || patterns.includes(comparable)
+    const keywordsFromSchema = []
+    schema.fields.forEach((field) => {
+      field.headerPatterns
+        ? (keywordsFromSchema[field.name] = field.headerPatterns)
+        : (keywordsFromSchema[field.name] = [])
     })
-    return field ? field.id : undefined
+
+    const keyWordsAndSynonyms = schema.fields
+      .map((field) => {
+        return [field.name, field.headerPatterns]
+      })
+      .flat(Infinity)
+      .filter((definedKeyword) => definedKeyword !== undefined)
+      .map((kAndS) => kAndS.toUpperCase())
+      const keywordLengths = keyWordsAndSynonyms.map(
+        (keyWordsAndSynonym) => keyWordsAndSynonym.split(' ').length
+      )
+    const multiwordLength = Math.max(...keywordLengths)
+    const { chapters } = this.state
+    // Get the previous word and match with a keyword
+    // Run this matching up to the longest number of words
+    // if there is a match use the keyword and rearrange the whole transcript
+
+    // Check for the single word match
+    const comparable = text.toUpperCase()
+    const plainText = this.getTranscriptInPlainText(chapters)
+    if (!schema) return
+    const field = schema.fields.find((field) => {
+      const patterns = (field.headerPatterns || []).map((p) => p.toUpperCase())
+      return (
+        field.name.toUpperCase() === comparable || patterns.includes(comparable)
+      )
+    })
+
+    if (field) {
+      return field.id
+    } else {
+      // multi-word keyword
+      let newComparableKeyword = ''
+      // check if the word is a member of the list of words
+      // keyWordsAndSynonyms makes a single string and split it to single words
+      const SyllablesOfkeyWords = keyWordsAndSynonyms
+        .join(' ')
+        .split(' ')
+        .map((syllable) => syllable.toUpperCase())
+      if (SyllablesOfkeyWords.includes(text.toUpperCase())) {
+        // search for the previous word
+        // from the end of the plain text do the match
+        const wordsOfTranscript = plainText.trim().split('  ')
+        const previousWord = wordsOfTranscript
+          .map((str, i) => {
+            if (str === text) {
+              // Apply logic for multiple words
+              let matchedKeyword = str
+              for (let k = 0; k < multiwordLength - 1; k += 1) {
+                matchedKeyword = `${
+                  wordsOfTranscript[i - 1 - k]
+                } ${matchedKeyword}`
+              }
+              return matchedKeyword
+            }
+          })
+          .filter((selectedKeyword) => selectedKeyword !== undefined)
+        if (previousWord.length > 0) {
+          const thePreviousWord = previousWord[0].trim()
+          if (keyWordsAndSynonyms.includes(thePreviousWord.toUpperCase())) {
+            // Check in the names
+            const titles = Object.keys(keywordsFromSchema)
+              .map((title) => title.toUpperCase())
+              .filter(
+                (foundHeader) => foundHeader === thePreviousWord.toUpperCase()
+              )
+            if (titles) {
+              const field = schema.fields.find((field) => {
+                return field.name.toUpperCase() === thePreviousWord.toUpperCase()
+              })
+
+              // remove the keyword from the chapter as segment
+              if (field) {
+                if (field.id) {
+                  return field.id
+                }
+              } else {
+                return undefined
+              }
+            }
+          }
+        }
+      }
+
+      return undefined
+    }
   }
+
 
   getCursorFromAudioInput = (keyword, chunks, chapters) => {
     const currentKeyword = this.getLastKeyword(chunks) || keyword
