@@ -47,9 +47,6 @@ import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
 import EventEmitter from "../models/events"
-import getTranscriptInPlainText from '../models/live/parserUtils'
- 
-
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: [] }
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
@@ -207,7 +204,7 @@ export default class EditPage extends Component {
           return chapter
         } else return chapter
       })
-      console.log('updatedChapters',updatedChapters)
+
         this.setState({
           chapters: updatedChapters,
           recordedAudio,
@@ -268,24 +265,11 @@ export default class EditPage extends Component {
   parseAudioResponse = (chunks, keyword, initialTime) => {
     const { chaptersBeforeRecording, chapters } = this.state
     let currentChapter = this.state.currentChapter
-    console.log('chunks',chunks)
-    console.log('...chunks',...chunks)
-    console.log('chaptersBeforeRecording', chaptersBeforeRecording)
-
-
-
-
-
     const result = [...chunks].reduce((store, chunk, i, arr) => {
       const currentKeyword = this.getKeyword(chunk.word)
       const newKeyword = currentKeyword && currentKeyword !== keyword && i === arr.length -1
-//       console.log('keyword',keyword)    
-      console.log('currentKeyword', currentKeyword)    
-      console.log('newKeyword', newKeyword) // false if there is a keyword, undefined if the chunk.words is not a keyword         
-      console.log('keyword', keyword) // false if there is a keyword, undefined if the chunk.words is not a keyword         
       const existingNewKeyword = newKeyword && chaptersBeforeRecording
         .some(chapter => chapter.keyword === currentKeyword)
-      console.log('existingNewKeyword',existingNewKeyword)
       const chapterId = chapters.findIndex(c => c.keyword === keyword)
       const isLastChapter = chapterId === chapters.length -1
       const oldKeyword = keyword
@@ -309,25 +293,11 @@ export default class EditPage extends Component {
       const chapter = store.find(chapter => chapter.keyword === keyword)
         || { keyword, segments: [] }
       chapter.segments = [...chapter.segments, segment]
-      // console.log('chapter', chapter)
-      if (!store.includes(chapter)) { 
-        store.splice(chapterId + 1, 0, chapter) // Append the chapter at the end of chapters
-        console.log('-----------')
-        console.log('-----------')
-        console.log('-----------')
-        console.log('appended chapter', chapter)
-        console.log('-----------')
-        console.log('-----------')
-        console.log('-----------')
+      if (!store.includes(chapter)) {
+        store.splice(chapterId + 1, 0, chapter)
       }
-      console.log('chunk', chunk)
-      console.log('store', store)
       return store
     }, JSON.parse(JSON.stringify(chaptersBeforeRecording)))
-
-
-
-    console.log('result', result)
     this.setState({ currentChapter })
     return result
   }
@@ -347,7 +317,6 @@ export default class EditPage extends Component {
 
 
   getKeyword = (text) => {
-    console.log('text', text)
     const { schema } = this.state
     const keywordsFromSchema = []
     schema.fields.forEach(field=> { 
@@ -375,15 +344,13 @@ export default class EditPage extends Component {
       return field.name.toUpperCase() === comparable || patterns.includes(comparable)
     })
     
-    if(field) { console.log('field.id',field.id); return field.id }
+    if(field) { return field.id }
     else {
       // multi-word keyword
-      console.log('multi-word keyword')
       let newComparableKeyword = ''
       // check if the word is a member of the list of words
       // keyWordsAndSynonyms makes a single string and split it to single words
       const SyllablesOfkeyWords = keyWordsAndSynonyms.join(' ').split(' ').map(syllable=>syllable.toUpperCase())
-      console.log('SyllablesOfkeyWords',SyllablesOfkeyWords)
       if(SyllablesOfkeyWords.includes(text.toUpperCase())) {
         // search for the previous word
         // from the end of the plain text do the match 
@@ -398,21 +365,8 @@ export default class EditPage extends Component {
             return matchedKeyword
         }
         }).filter(selectedKeyword=>selectedKeyword!==undefined)
-        // const previousWordWithoutFilter = wordsOfTranscript.map((str,i)=> {
-        //   if(str===text) {
-        //     // Apply logic for multiple words
-        //     let matchedKeyword = str
-        //     for(let k = 0; k < multiwordLength-1;k += 1) {
-        //       matchedKeyword = `${wordsOfTranscript[i-1-k]} ${matchedKeyword}`
-        //     }
-        //     return matchedKeyword
-        // }
-        // })
-        // console.log('previousWordWithoutFilter', previousWordWithoutFilter)
-        console.log('previous word', previousWord)
-        console.log('keyWordsAndSynonyms', keyWordsAndSynonyms)
         if(previousWord.length>0){
-        const thePreviousWord = previousWord[0]
+        const thePreviousWord = previousWord[0].trim()
         if(keyWordsAndSynonyms.includes(thePreviousWord.toUpperCase())){
           // Check in the names
           const titles = Object.keys(keywordsFromSchema)
@@ -425,8 +379,9 @@ export default class EditPage extends Component {
 
 
               // remove the keyword from the chapter as segment
+              if(field) {if(field.id) {return field.id}} 
+              else {return undefined}
               
-              return field.id
           }
 
           // Check in the synonyms
@@ -439,18 +394,6 @@ export default class EditPage extends Component {
         return undefined
     
     }
-
-// const comparable = text.toUpperCase()
-//     if (!schema) return
-//     const field = schema.fields.find(field => {
-//       const patterns = (field.headerPatterns || []).map(p => p.toUpperCase())
-//       return field.name.toUpperCase() === comparable || patterns.includes(comparable)
-//     })
-    
-    
-    
-//     // If it is a valid keyword send the id, otherwise return undefined
-//     return field ? field.id : undefined
   }
 
   getCursorFromAudioInput = (keyword, chunks, chapters) => {
