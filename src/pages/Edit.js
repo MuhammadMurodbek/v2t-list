@@ -244,7 +244,6 @@ export default class EditPage extends Component {
       this.socketio = io.connect('wss://v2t-dev-lt.inoviagroup.se/audio', { transports: ['websocket'], path })
     }
     // this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'], path })
-
     this.socketio.on('add-transcript', (text) => {
       const { recording, schema, chaptersBeforeRecording, tags, timeStartRecording, initialKeyword, tagRequestCache } = this.state
       if (!recording || Date.now() < this.ignoreMessagesTo) return // throw away changes that comes after stoped
