@@ -137,6 +137,46 @@ p {
   position: absolute;
   bottom: 30px;
 }
+.editableTable {
+    table,
+    tbody {
+        height: 1px;
+    }
+
+    td, th {
+        border: .25px solid #BBBBBD;
+    }
+
+    th {
+        border-bottom: none;
+    }
+
+    tr:hover
+    div:hover {
+        background-color: #0000 !important;
+    }
+
+    .euiTableCellContent {
+        padding: 8px;
+    }
+
+    .euiFieldText{
+        padding: 0 !important;
+        height: 100%;
+    }
+
+    .euiTableRow {
+        background-color: #F7F7F7;
+    }
+
+    .euiTable .euiTableRow-isSelected {
+        background-color: #F7F7F7 !important;
+    }
+
+    .custom-compress .euiComboBox__inputWrap {
+        padding-right: 4px;
+    }
+}
 
 .sidebarBottomButtons .euiButtonEmpty {
   font-size: 1.2em !important;

@@ -30,7 +30,7 @@ export const COLUMN_OPTIONS = [
     field: 'createdTime',
     name: <EuiI18n token="created" default="Created" />,
     render: (createdTime) => moment(createdTime).format('YYYY-MM-DD HH:mm:ss'),
-    sortable: true
+    sortable: 'true'
   },
   {
     label: 'Status',
@@ -52,15 +52,30 @@ export const COLUMN_OPTIONS = [
     name: <EuiI18n token="receivedTime" default="Received" />,
     field: 'receivedTime',
     render: (receivedTime) => moment(receivedTime).format('YYYY-MM-DD HH:mm:ss'),
-    sortable: true
+    sortable: 'true'
   },
   {
     label: 'Updated',
     name: <EuiI18n token="updatedTime" default="Updated" />,
     field: 'updatedTime',
     render: (updatedTime) => moment(updatedTime).format('YYYY-MM-DD HH:mm:ss'),
-    sortable: true
+    sortable: 'true'
   }
+]
+
+export const AUTOCORRECT_TABLE = [
+  {
+    shortcut: 'MVH',
+    value: 'Med vanliga hälsningar',
+  },
+  {
+    shortcut: 'bl.a.',
+    value: 'bland annat',
+  },
+  {
+    shortcut: 'd.v.s',
+    value: 'det vill saga',
+  },
 ]
 
 export default class Preference {
@@ -240,6 +255,15 @@ export default class Preference {
     this._columnsForTranscriptList = v
   }
 
+  get autoCorrectTable() {
+    return this._autoCorrectTable
+  }
+
+  set autoCorrectTable(v) {
+    this._autoCorrectTable = v
+    localStorage.setItem('autoCorrect', JSON.stringify(v))
+  }
+
   static defaultState = {
     words: '3',
     showVideo: true,
@@ -269,6 +293,8 @@ export default class Preference {
         inputDisplay: <EuiI18n token="large" default="Large" />
       }
     ],
+    autoCorrectTable: localStorage.getItem('autoCorrect')
+      ? JSON.parse(localStorage.getItem('autoCorrect')) : AUTOCORRECT_TABLE,
     currentFontSize: '18px',
     externalMode: localStorage.getItem('externalMode') === 'true',
     editReadOnly: localStorage.getItem('editReadOnly') === 'true',

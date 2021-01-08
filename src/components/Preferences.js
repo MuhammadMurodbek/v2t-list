@@ -1,6 +1,8 @@
 import React, { Fragment, useState, useContext } from 'react'
 import PropTypes from 'prop-types'
 import {
+  EuiButton,
+  EuiFieldText,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFormRow,
@@ -11,6 +13,7 @@ import {
   EuiText,
   EuiTitle,
   EuiIcon,
+  EuiInMemoryTable,
   EuiSwitch,
   EuiSuperSelect,
   EuiSpacer,
@@ -67,7 +70,9 @@ const Flyout = ({ visible, onClose }) => {
     setPreferences({ stopButtonVisibilityStatus })
   const setShowVideo = ({ target: { checked: showVideo }}) => setPreferences({ showVideo })
   const setFontSize = (currentFontSize) => setPreferences({ currentFontSize })
+  const setAutoCorrectTable = (autoCorrectTable) => setPreferences({ autoCorrectTable });
   const [selectedTabId, setSelectedTabId] = useState('0')
+  const [autoCorrectSelection, setAutoCorrectSelection] = useState([])
   const transcriptId = localStorage.getItem('transcriptId')
   const { language, setLanguage, languagesList } = useContext(LanguageContext)
 
@@ -79,6 +84,40 @@ const Flyout = ({ visible, onClose }) => {
   const onLanguageChange = (e) => {
     setLanguage(e.target.value)
   }
+
+
+  const columns = [
+    {
+      name: <EuiI18n token="Replace" default="REPLACE" />,
+      render: ({ shortcut, index}) => (
+        <EuiFieldText
+          onChange={(e) => {
+            const { value } = e.target
+            const newTable = [...preferences.autoCorrectTable]
+            newTable[index].shortcut = value
+            setAutoCorrectTable(newTable)
+          }}
+          style={{ height: '100%' }}
+          value={shortcut}
+        />
+      )
+    },
+    {
+      name: <EuiI18n token="with" default="WITH" />,
+      render: ({ value, index}) => (
+        <EuiFieldText
+          onChange={(e) => {
+            const { value } = e.target
+            const newTable = [...preferences.autoCorrectTable]
+            newTable[index].value = value
+            setAutoCorrectTable(newTable)
+          }}
+          style={{ height: '100%' }}
+          value={value}
+        />
+      )
+    },
+  ]
 
   const tabs = [
     {
@@ -228,6 +267,65 @@ const Flyout = ({ visible, onClose }) => {
           <EuiSpacer size="l" />
           <TranscriptId id={transcriptId} />
           <Logout setPreferences={setPreferences} />
+        </Fragment>
+      )
+    },
+    {
+      id: '3',
+      name: <EuiI18n token="autoCorrect" default="Autocorrect" />,
+      content: (
+        <Fragment>
+          <EuiSpacer size="l" />
+          <EuiFlexGroup direction="columnReverse">
+            <EuiFlexItem style={{ marginTop: -30 }}>
+              <EuiFormRow label={<EuiI18n token="ReplaceTextAsYouType" default="Replace text as you type" />} fullWidth>
+                <EuiInMemoryTable
+                  className="editableTable"
+                  // this will temporarly fix the problem with selections:
+                  items={preferences.autoCorrectTable.map((v, index)=> ({...v, index}))}
+                  itemId={'index'}
+                  // itemId="id" temporaryly changed to the "position" (i) eg. sorting won't work
+                  // use "position" while id is temporarily editable so the row doesn't loose focus
+                  columns={columns}
+                  isSelectable={true}
+                  selection={{ onSelectionChange: setAutoCorrectSelection }}
+                  sorting={false}
+                  pagination={false}
+                  cellProps={{ className: 'editable' }}
+                />
+              </EuiFormRow>
+              <EuiFormRow style={{ marginTop: 0 }}>
+                <EuiText size="s">
+                <span
+                  onClick={() => setAutoCorrectTable([...preferences.autoCorrectTable, {shortcut: '', value:''}])}
+                  style={{ cursor: 'pointer' }}
+                >
+                  +
+                  <EuiI18n token="createNewField" default="Add a new field" />
+                </span>
+                </EuiText>
+              </EuiFormRow>
+            </EuiFlexItem>
+            <EuiFlexItem>
+              <EuiFlexGroup justifyContent="flexEnd">
+                <EuiFlexItem grow={false}>
+                  <EuiButton
+                    size="s"
+                    disabled={!autoCorrectSelection.length}
+                    onClick={() => {
+                      const currentTable = [...preferences.autoCorrectTable]
+                      setAutoCorrectTable(
+                        currentTable.filter((field, index) => !autoCorrectSelection.some(s => s.index===index))
+                      )
+                      setAutoCorrectSelection([])
+                    }}
+                  >
+                    Delete
+                  </EuiButton>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          </EuiFlexGroup>
         </Fragment>
       )
     }

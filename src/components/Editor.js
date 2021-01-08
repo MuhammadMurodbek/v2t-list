@@ -381,6 +381,48 @@ export default class Editor extends Component {
         const segment = this.parseSegment(child, chapterId, i)
         return reduceSegment(store, segment)
       }, [])
+
+    // Check for autocorrect
+    if (segments[this.cursor.segment]) {
+      if (segments[this.cursor.segment].words) {
+        const currentWords = segments[this.cursor.segment].words;
+        const autoCorrectEntries = JSON.parse(
+          localStorage.getItem('autoCorrect')
+        );
+        const autoCorrectEntriesObj = {};
+        autoCorrectEntries.forEach(
+          (autocorrectEntry) =>
+            (autoCorrectEntriesObj[autocorrectEntry.shortcut] =
+              autocorrectEntry.value)
+        );
+        const autoCorrectAcronyms = autoCorrectEntries.map((aV) =>
+          aV.shortcut.trim()
+        );
+        const currentWordsSplittedBySpace = currentWords.split(' ')
+        const updatedCurrentWords = currentWordsSplittedBySpace.map(
+          (currentWord) => {
+            if (autoCorrectAcronyms.includes(currentWord.trim())) {
+              return autoCorrectEntriesObj[currentWord.trim()]
+            } else {
+              return currentWord
+            }
+          }
+        );
+        
+        const initialSegmentLength = segments[this.cursor.segment].words.length
+        segments[this.cursor.segment].words = updatedCurrentWords.join(' ');
+        const currentSegmentLength = segments[this.cursor.segment].words.length;
+        if(initialSegmentLength !== currentSegmentLength) {
+          // put the cursor at the end
+          const cursor = this.cursor;
+          cursor.offset =
+            segments[this.cursor.segment].words.length -
+            (initialSegmentLength - cursor.offset)
+          this.stashCursorAt(cursor)
+        }
+      }
+    }
+
     return { ...chapters[chapterId], segments }
   }
 
