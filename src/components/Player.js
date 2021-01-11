@@ -100,7 +100,7 @@ class Player extends Component {
   }
 
   backwardMusic = () => {
-    pauseAudio()
+    this.pauseAudio()
     const { mediaSkipDuration } = this.state
     if (this.myRef && this.myRef.current) {
       this.myRef.current.currentTime -= mediaSkipDuration
@@ -108,7 +108,7 @@ class Player extends Component {
   }
 
   forwardMusic = () => {
-    pauseAudio()
+    this.pauseAudio()
     const { mediaSkipDuration } = this.state
     if (this.myRef && this.myRef.current) {
       this.myRef.current.currentTime += mediaSkipDuration
