@@ -16,7 +16,7 @@ const URLS = {
   trainingTranscript: '/api/training/v2/transcript',
   schemaSearch: '/api/schema/v1/search',
   schemaById: '/api/schema/v1/id',
-  searchDepartments: '/api/transcription/search/v2/departments',
+  searchDepartments: '/api/department/v1/search',
   transcriptionV2: '/api/transcription/v2'
 }
 
@@ -252,7 +252,7 @@ const getBlobFile = async (recordedAudioClip) => {
   return file
 }
 
-const getDepartments = () => axios.get('/api/transcription/search/v2/departments')
+const getDepartments = () => axios.post(URLS.searchDepartments, {})
 
 const getActiveLiveSession = () => axios.get('/api/transcription/v2/live/session/active')
 

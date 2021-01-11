@@ -50,13 +50,13 @@ export default class UploadPage extends Component {
 
   componentDidMount = async () => {
     localStorage.setItem('transcriptId', '')
-    this.loadDepartments()
+    await this.loadDepartments()
   }
 
   loadDepartments = async () => {
     try {
       const { data } = await api.getDepartments()
-      const departments = this.parseList(data)
+      const departments = this.parseList(data.departments)
       this.setState({ departments })
       if (departments.length)
         this.onDepartmentChange([departments[0]])
