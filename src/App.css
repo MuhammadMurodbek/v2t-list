@@ -26,6 +26,8 @@ p {
 .euiSideNavItemButton__label {
   font-size: 1.3em;
   color: rgb(255,255,255) !important;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .euiSideNavItemButton.euiSideNavItemButton-isSelected .euiSideNavItemButton__label {
