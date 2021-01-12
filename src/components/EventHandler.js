@@ -9,7 +9,9 @@ const EVENTS = {
   VOLUMEUP: 'volumeUp',
   VOLUMEDOWN: 'volumeDown',
   PLAYBACKUP: 'playbackSpeedUp',
-  PLAYBACKDOWN: 'playbackSpeedDown'
+  PLAYBACKDOWN: 'playbackSpeedDown',
+  PLAY_AUDIO: 'playAudio',
+  PAUSE_AUDIO: 'pauseAudio',
 }
 
 const KEY_CODE = {
@@ -19,6 +21,7 @@ const KEY_CODE = {
   N: 78,
   S: 83,
   P: 80,
+  Q: 81,
   SPACE: 32,
   ESC: 27
 }
@@ -29,8 +32,8 @@ const EventHandler = () => {
       case KEY_CODE.S: {
         if (event.ctrlKey) {
           event.preventDefault()
-          EventEmitter.dispatch(EVENTS.SEND);
-          break;
+          EventEmitter.dispatch(EVENTS.SEND)
+          break
         }
       }
       case KEY_CODE.ESC: {
@@ -43,53 +46,64 @@ const EventHandler = () => {
       case KEY_CODE.SPACE: {
         if (event.altKey && event.shiftKey) {
           event.preventDefault()
-          EventEmitter.dispatch(EVENTS.APPROVE_CHANGE);
-          break;
+          EventEmitter.dispatch(EVENTS.APPROVE_CHANGE)
+          break
         }
       }
       case KEY_CODE.P: {
         if (event.altKey) {
           event.preventDefault()
           EventEmitter.dispatch(EVENTS.TOGGLE_PLAY)
-          break;
+          break
+        }
+      }
+      case KEY_CODE.Q: {
+        if (event.altKey) {
+          event.preventDefault()
+          if(event.shiftKey) {
+            EventEmitter.dispatch(EVENTS.PAUSE_AUDIO)
+            break
+          }
+          EventEmitter.dispatch(EVENTS.PLAY_AUDIO)
+          break
         }
       }
       case KEY_CODE.J: {
         if (event.altKey) {
           event.preventDefault()
           EventEmitter.dispatch(EVENTS.VOLUMEUP)
-          break;
+          break
         }
       }
       case KEY_CODE.N: {
         if (event.altKey) {
           event.preventDefault()
           EventEmitter.dispatch(EVENTS.VOLUMEDOWN)
-          break;
+          break
         }
       }
       case KEY_CODE.K: {
         if (event.altKey) {
           event.preventDefault()
           EventEmitter.dispatch(EVENTS.PLAYBACKUP)
-          break;
+          break
         }
       }
       case KEY_CODE.M: {
         if (event.altKey) {
           event.preventDefault()
           EventEmitter.dispatch(EVENTS.PLAYBACKDOWN)
-          break;
+          break
         }
       }
     }
   }
 
   React.useEffect(() => {
-    window.addEventListener('keydown', handleExternalKeydown);
+    window.addEventListener('keydown', handleExternalKeydown)
 
     return () => {
-      window.removeEventListener('keydown', handleExternalKeydown);
+      window.removeEventListener('keydown', handleExternalKeydown)
     }
   }, [])
 

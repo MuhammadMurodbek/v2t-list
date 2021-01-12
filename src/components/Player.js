@@ -36,6 +36,8 @@ class Player extends Component {
 
   componentDidMount = () => {
     EventEmitter.subscribe(EVENTS.TOGGLE_PLAY, this.togglePlay)
+    EventEmitter.subscribe(EVENTS.PLAY_AUDIO, this.playAudio)
+    EventEmitter.subscribe(EVENTS.PAUSE_AUDIO, this.pauseAudio)
     EventEmitter.subscribe(EVENTS.VOLUMEUP, this.volumeUp)
     EventEmitter.subscribe(EVENTS.VOLUMEDOWN, this.volumeDown)
     EventEmitter.subscribe(EVENTS.PLAYBACKUP, this.playbackSpeedUp)
@@ -44,6 +46,8 @@ class Player extends Component {
 
   componentWillUnmount = () => {
     EventEmitter.unsubscribe(EVENTS.TOGGLE_PLAY, this.togglePlay)
+    EventEmitter.unsubscribe(EVENTS.PLAY_AUDIO, this.playAudio)
+    EventEmitter.unsubscribe(EVENTS.PAUSE_AUDIO, this.pauseAudio)
     EventEmitter.unsubscribe(EVENTS.VOLUMEUP, this.volumeUp)
     EventEmitter.unsubscribe(EVENTS.VOLUMEDOWN, this.volumeDown)
     EventEmitter.unsubscribe(EVENTS.PLAYBACKUP, this.playbackSpeedUp)
@@ -66,7 +70,7 @@ class Player extends Component {
       seekPosition: media.currentTime
     })
   }
-
+ 
   togglePlay = () => {
     const { isPlaying } = this.state
     if (isPlaying)
@@ -390,7 +394,8 @@ class Player extends Component {
                 'toPause',
                 'toQuit',
                 'toJumpAWordForward',
-                'toJumpAWordBackward'
+                'toJumpAWordBackward',
+                'toToggle'
               ]}
               defaults={[
                 'Press',
@@ -398,37 +403,37 @@ class Player extends Component {
                 'to pause',
                 'to quit',
                 'to jump a word forward',
-                'to jump a word backwards'
+                'to jump a word backwards',
+                'to toggle'
               ]}
             >
               {([
                 press,
-                toPlay,
-                toPause,
+                toToggle,
                 toQuit,
                 toJumpAWordForward,
                 toJumpAWordBackward
               ]) => (
                 <>
                   <button
-                    title={`${press} 'alt+p' ${toPlay}`}
+                    title={`${press} 'alt+p' ${toToggle}`}
                     style={{ display: isPlaying === false ? 'block' : 'none' }}
                     className="play"
                     id="play"
                     data-icon="P"
                     aria-label="play pause toggle"
-                    onClick={this.togglePlay}
+                    onClick={this.playAudio}
                     type="button"
                   />
 
                   <button
-                    title={`${press} 'alt+p' ${toPause}`}
+                    title={`${press} 'alt+p' ${toToggle}`}
                     style={{ display: isPlaying === true ? 'block' : 'none' }}
                     className="play"
                     id="pause"
                     data-icon="u"
                     aria-label="play pause toggle"
-                    onClick={this.togglePlay}
+                    onClick={this.pauseAudio}
                     type="button"
                   />
 

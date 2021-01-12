@@ -115,6 +115,7 @@
   "press": "Tryck",
   "toPlay": "för att spela",
   "toPause": "för att pausa",
+  "toToggle": "för att toggla",
   "toQuit": "för att sluta",
   "toJumpAWordForward": "för att hoppa ett ord framåt",
   "toJumpAWordBackward": "för att hoppa ett ord bakåt",
