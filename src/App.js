@@ -208,7 +208,7 @@ class App extends Component {
                     id: 'V2T Jobs',
                     items: sideBar,
                     forceOpen: true,
-                    name: <EuiI18n token="v2TJob" default="V2T Job" />
+                    name: <EuiI18n token="department" default="Department" />
                   },
                   {
                     href: '/#/upload',
