@@ -102,6 +102,8 @@
     "selectAKeyword": "Vælg et nøgleord",
     "searchWord": "Nøgleord",
     "cancel": "Annuller",
+    "toCancel": "at annullere",
+    "toSave": "at gemme",
     "save": "Gem",
     "saveChanges": "Gem ændringer",
     "sendToCoWorker": "Godkendt, klar til at blive sendt til kollegaen.",

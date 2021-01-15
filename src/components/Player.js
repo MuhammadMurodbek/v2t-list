@@ -42,6 +42,9 @@ class Player extends Component {
     EventEmitter.subscribe(EVENTS.VOLUMEDOWN, this.volumeDown)
     EventEmitter.subscribe(EVENTS.PLAYBACKUP, this.playbackSpeedUp)
     EventEmitter.subscribe(EVENTS.PLAYBACKDOWN, this.playbackSpeedDown)
+    EventEmitter.subscribe(EVENTS.STOP_AUDIO, this.stopAudio)
+    EventEmitter.subscribe(EVENTS.BACKWARD_AUDIO, this.backwardAudio)
+    EventEmitter.subscribe(EVENTS.FORWARD_AUDIO, this.forwardAudio)
   }
 
   componentWillUnmount = () => {
@@ -52,6 +55,9 @@ class Player extends Component {
     EventEmitter.unsubscribe(EVENTS.VOLUMEDOWN, this.volumeDown)
     EventEmitter.unsubscribe(EVENTS.PLAYBACKUP, this.playbackSpeedUp)
     EventEmitter.unsubscribe(EVENTS.PLAYBACKDOWN, this.playbackSpeedDown)
+    EventEmitter.unsubscribe(EVENTS.STOP_AUDIO, this.stopAudio)
+    EventEmitter.unsubscribe(EVENTS.BACKWARD_AUDIO, this.backwardAudio)
+    EventEmitter.unsubscribe(EVENTS.FORWARD_AUDIO, this.forwardAudio)
   }
 
   componentDidUpdate = (prevProps) => {
@@ -94,7 +100,7 @@ class Player extends Component {
     this.props.onPause(this.myRef && this.myRef.current && this.myRef.current.currentTime)
   }
 
-  stopMusic = () => {
+  stopAudio = () => {
     if (this.myRef && this.myRef.current) {
       this.myRef.current.pause()
       this.setState({ isPlaying: false }, () => {
@@ -103,7 +109,7 @@ class Player extends Component {
     }
   }
 
-  backwardMusic = () => {
+  backwardAudio = () => {
     this.pauseAudio()
     const { mediaSkipDuration } = this.state
     if (this.myRef && this.myRef.current) {
@@ -111,7 +117,7 @@ class Player extends Component {
     }
   }
 
-  forwardMusic = () => {
+  forwardAudio = () => {
     this.pauseAudio()
     const { mediaSkipDuration } = this.state
     if (this.myRef && this.myRef.current) {
@@ -390,8 +396,6 @@ class Player extends Component {
             <EuiI18n
               tokens={[
                 'press',
-                'toPlay',
-                'toPause',
                 'toQuit',
                 'toJumpAWordForward',
                 'toJumpAWordBackward',
@@ -399,9 +403,7 @@ class Player extends Component {
               ]}
               defaults={[
                 'Press',
-                'to play',
-                'to pause',
-                'to quit',
+                'to stop',
                 'to jump a word forward',
                 'to jump a word backwards',
                 'to toggle'
@@ -409,10 +411,10 @@ class Player extends Component {
             >
               {([
                 press,
-                toToggle,
                 toQuit,
                 toJumpAWordForward,
-                toJumpAWordBackward
+                toJumpAWordBackward,
+                toToggle
               ]) => (
                 <>
                   <button
@@ -438,7 +440,7 @@ class Player extends Component {
                   />
 
                   <button
-                    title={`${press} ${toQuit}`}
+                    title={`${press} 'alt+d' ${toQuit}`}
                     style={{
                       display:
                         preferences.stopButtonVisibilityStatus === true
@@ -449,7 +451,7 @@ class Player extends Component {
                     id="stop"
                     data-icon="S"
                     aria-label="play pause toggle"
-                    onClick={this.stopMusic}
+                    onClick={this.stopAudio}
                     type="button"
                   />
 
@@ -459,7 +461,7 @@ class Player extends Component {
                     id="backward"
                     data-icon="B"
                     aria-label="stop"
-                    onClick={this.backwardMusic}
+                    onClick={this.backwardAudio}
                     type="button"
                   />
 
@@ -469,7 +471,7 @@ class Player extends Component {
                     id="forward"
                     data-icon="F"
                     aria-label="stop"
-                    onClick={this.forwardMusic}
+                    onClick={this.forwardAudio}
                     type="button"
                   />
                 </>
@@ -507,7 +509,7 @@ class Player extends Component {
               {([press, or, toChangeTheSpeed]) => (
                 <EuiToolTip
                   position="top"
-                  content={`${press} 'shift+↑' ${or} 'shift+↓' ${toChangeTheSpeed}`}
+                  content={`${press} 'alt+k' ${or} 'alt+m' ${toChangeTheSpeed}`}
                 >
                   <span aria-label="playbackSpeed" className="playbackSpeed">
                     {(Math.round(playbackRate * 100) / 100).toFixed(2)}x

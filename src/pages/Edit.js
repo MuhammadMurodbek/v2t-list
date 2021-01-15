@@ -20,8 +20,9 @@ import {
   EuiModalBody,
   EuiModalFooter,
   EuiFormRow,
-  EuiTextArea
-} from '@patronum/eui'
+  EuiTextArea,
+  EuiToolTip
+} from '@patronum/eui';
 import io from 'socket.io-client'
 import Invalid from './Invalid'
 import api from '../api'
@@ -1171,43 +1172,76 @@ export default class EditPage extends Component {
             <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
                 {/* id is used by Conscriptor */}
-                <EuiSwitch label={
-                    <EuiI18n
-                      token="sendToCoWorker"
-                      default="Approved, ready to send to Co-worker."
-                    />
-                  }
-                  checked={approved}
-                  onChange={this.onApprovedChange}
-                  disabled={mic}
-                  id='approved_checkbox'
-                />
+                <EuiI18n
+                  tokens={['press']}
+                  defaults={['Press']}
+                >
+                  {([press]) => (
+                    <EuiToolTip
+                      position="top"
+                      content={`${press} 'alt + shift + esc'`}
+                    >
+                      <EuiSwitch label={
+                        <EuiI18n
+                          token="sendToCoWorker"
+                          default="Approved, ready to send to Co-worker."
+                        />
+                      }
+                      checked={approved}
+                      onChange={this.onApprovedChange}
+                      disabled={mic}
+                      id="approved_checkbox"
+                      />
+                    </EuiToolTip>
+                  )}
+                </EuiI18n>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 {/* id is used by Conscriptor */}
-                <EuiButton
-                  size="s"
-                  color="text"
-                  onClick={this.cancel}
-                  id='cancel_button'
+                <EuiI18n
+                  tokens={['press', 'toCancel']}
+                  defaults={['Press', 'to cancel editing']}
                 >
-                  <EuiI18n token="cancel" default="Cancel" />
-                </EuiButton>
+                  {([press, toCancel]) => (
+                    <EuiToolTip
+                      position="top"
+                      content={`${press} 'alt + esc' ${toCancel}`}
+                    >
+                      <EuiButton
+                        size="s"
+                        color="text"
+                        onClick={this.cancel}
+                        id="cancel_button"
+                      >
+                        <EuiI18n token="cancel" default="Cancel" />
+                      </EuiButton>
+                    </EuiToolTip>
+                  )}
+                </EuiI18n>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 {/* id is used by Conscriptor */}
-                <EuiButton
-                  size="s"
-                  fill
-                  isLoading={isUploadingMedia}
-                  onClick={this.onSave}
-                  id='save_changes'
+                <EuiI18n
+                  tokens={['press', 'toSave']}
+                  defaults={['Press', 'to save']}
                 >
-                  <EuiI18n
-                    token="save"
-                    default="Save"
-                  />
-                </EuiButton>
+                  {([press, toSave]) => (
+                    <EuiToolTip
+                      position="top"
+                      content={`${press} 'ctrl + s' ${toSave}`}
+                    >
+                      <EuiButton
+                        size="s"
+                        fill
+                        isLoading={isUploadingMedia}
+                        onClick={this.onSave}
+                        id="save_changes"
+                      >
+                        <EuiI18n token="save" default="Save" />
+                      </EuiButton>
+                    </EuiToolTip>
+                  )}
+                </EuiI18n>
               </EuiFlexItem>
             </EuiFlexGroup>
             <MissingFieldModal

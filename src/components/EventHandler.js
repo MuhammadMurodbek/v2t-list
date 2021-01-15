@@ -12,9 +12,13 @@ const EVENTS = {
   PLAYBACKDOWN: 'playbackSpeedDown',
   PLAY_AUDIO: 'playAudio',
   PAUSE_AUDIO: 'pauseAudio',
+  STOP_AUDIO: 'stopAudio',
+  FORWARD_AUDIO: 'forwardAudio',
+  BACKWARD_AUDIO: 'backwardAudio'
 }
 
 const KEY_CODE = {
+  D: 68,
   J: 74,
   K: 75,
   M: 77,
@@ -23,7 +27,9 @@ const KEY_CODE = {
   P: 80,
   Q: 81,
   SPACE: 32,
-  ESC: 27
+  ESC: 27,
+  LEFT_ARROW: 37,
+  RIGHT_ARROW: 39
 }
 
 const EventHandler = () => {
@@ -50,6 +56,13 @@ const EventHandler = () => {
           break
         }
       }
+      case KEY_CODE.D: {
+        if (event.altKey) {
+          event.preventDefault()
+          EventEmitter.dispatch(EVENTS.STOP_AUDIO)
+          break
+        }
+      }
       case KEY_CODE.P: {
         if (event.altKey) {
           event.preventDefault()
@@ -65,6 +78,20 @@ const EventHandler = () => {
             break
           }
           EventEmitter.dispatch(EVENTS.PLAY_AUDIO)
+          break
+        }
+      }
+      case KEY_CODE.LEFT_ARROW: {
+        if (event.altKey) {
+          event.preventDefault()
+          EventEmitter.dispatch(EVENTS.BACKWARD_AUDIO)
+          break
+        }
+      }
+      case KEY_CODE.RIGHT_ARROW: {
+        if (event.altKey) {
+          event.preventDefault()
+          EventEmitter.dispatch(EVENTS.FORWARD_AUDIO)
           break
         }
       }

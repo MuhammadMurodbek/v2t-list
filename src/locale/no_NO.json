@@ -103,6 +103,8 @@
   "selectAKeyword": "velge et søkeord",
   "searchWord": "Søkeord",
   "cancel": "Avbryte",
+  "toCancel": "å avslutte",
+  "toSave": "å redde",
   "save": "Lagre",
   "saveChanges": "Lagre endringer",
   "sendToCoWorker": "Godkjent, klar til å sendes til Co-worker.",
