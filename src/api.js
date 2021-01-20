@@ -102,8 +102,6 @@ const uploadMedia = (
   fields
 ) => {
   const body = new FormData()
-  body.append('media', file)
-
   const data = new Blob(
     [
       JSON.stringify({
@@ -127,6 +125,7 @@ const uploadMedia = (
     }
   )
   body.set('data', data)
+  body.append('media', file)
 
   return axios.post(URLS.transcriptionV2, body)
 }
