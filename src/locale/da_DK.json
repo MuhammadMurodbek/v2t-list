@@ -164,5 +164,6 @@
     "departmentId": "AfdelingId",
     "template": "Journalmall",
     "receivedTime": "Modtaget",
-    "updatedTime": "Opdateret"
+    "updatedTime": "Uppdaterad",
+    "liveIsNotSupportedBySchema": "Livediktering understøttes ikke af skemaet"
 }

@@ -159,10 +159,11 @@
   "fileIsMissing": "Fil saknas",
   "missingReuiredHeaders": "Information saknas",
   "missingFieldMessage": "saknas. Vill du spara ändå?",
-  "unableToStartLiveTranscriptSession": "Det gick inte att starta live-dikteringen",
+  "unableToStartLiveTranscriptSession": "Det gick inte att starta livedikteringen",
   "checkNetworkConnectionOrContactSupport": "Kontrollera nätverksanslutningen eller kontakta IT-support",
   "departmentId": "Department Id",
   "template": "Journalmall",
   "receivedTime": "Mottaget",
-  "updatedTime": "Uppdaterad"
+  "updatedTime": "Uppdaterad",
+  "liveIsNotSupportedBySchema": "Livediktering stöds inte av schemat"
 }

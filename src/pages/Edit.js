@@ -96,7 +96,8 @@ export default class EditPage extends Component {
     modalMissingFields: [],
     approved: false,
     noMappingFields: [],
-    isUploadingMedia: false
+    isUploadingMedia: false,
+    schemaSupportsLive: false
   }
 
   async componentDidMount() {
@@ -139,7 +140,20 @@ export default class EditPage extends Component {
   }
 
   startRecording = async () => {
-    const { recordedTime } = this.state
+    const { recordedTime, schemaSupportsLive } = this.state
+    if (!schemaSupportsLive) {
+      addWarningToast(
+        <EuiI18n
+          token="unableToStartLiveTranscriptSession"
+          default="Unable to start dictation"
+        />,
+        <EuiI18n
+          token="liveIsNotSupportedBySchema"
+          default="Selected schema doesn't support live dictation"
+        />
+      )
+      return
+    }
     if (this.audioContext === null) this.audioContext = new window.AudioContext()
     await new Promise(resolve => this.setState({ recording: true }, resolve))
     this.socketio.emit('start-recording', {
@@ -531,7 +545,8 @@ export default class EditPage extends Component {
       schemas,
       schema: schemaWithMappings,
       noMappingFields,
-      transcriptions: filteredTranscriptions
+      transcriptions: filteredTranscriptions,
+      schemaSupportsLive: schemaWithMappings.profile.trim().toLowerCase()==='default' ? true : false
     }, () => {
       if (!this.state.originalChapters.length)
         this.setState({chapters: defaultFields})
@@ -937,13 +952,13 @@ export default class EditPage extends Component {
     schema = this.extractTagsAndSchema(schema, allChapters)
     const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...allChapters])
     const parsedChapters = this.parseTranscriptions(filteredTranscriptions, originalSchema)
-
     this.setState({
       schema: schemaWithMappings,
       originalChapters: parsedChapters,
       chapters: parsedChapters,
       noMappingFields,
-      transcriptions: filteredTranscriptions
+      transcriptions: filteredTranscriptions,
+      schemaSupportsLive: schemaWithMappings.profile.trim().toLowerCase() === 'default' ? true : false
     })
     localStorage.setItem('lastUsedSchema', schema.id)
   }

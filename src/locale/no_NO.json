@@ -165,5 +165,6 @@
   "departmentId": "Department Id",
   "template": "Journalmall",
   "receivedTime": "Mottatt",
-  "updatedTime": "Oppdatert"
+  "updatedTime": "Uppdaterad",
+  "liveIsNotSupportedBySchema": "Livediktering støttes ikke av skjema"
 }
