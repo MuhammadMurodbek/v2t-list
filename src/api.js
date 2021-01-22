@@ -251,7 +251,11 @@ const getBlobFile = async (recordedAudioClip) => {
   return file
 }
 
-const getDepartments = () => axios.post(URLS.searchDepartments, {})
+const getDepartments = (payload) => axios.post(URLS.searchDepartments, {
+  start: 0,
+  size: 1000,
+  ...payload
+})
 
 const getActiveLiveSession = () => axios.get('/api/transcription/v2/live/session/active')
 
