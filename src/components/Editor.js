@@ -377,9 +377,9 @@ export default class Editor extends Component {
   parseChapter = (target, chapterId) => {
     const { chapters } = this.props
     const segments = Array.from(target.childNodes)
-      .reduce((store, child, i) => {
+      .reduce((store, child, i, array) => {
         const segment = this.parseSegment(child, chapterId, i)
-        return reduceSegment(store, segment)
+        return reduceSegment(store, segment, i, array)
       }, [])
 
     // Check for autocorrect
@@ -408,7 +408,7 @@ export default class Editor extends Component {
             }
           }
         );
-        
+
         const initialSegmentLength = segments[this.cursor.segment].words.length
         segments[this.cursor.segment].words = updatedCurrentWords.join(' ');
         const currentSegmentLength = segments[this.cursor.segment].words.length;
@@ -429,15 +429,13 @@ export default class Editor extends Component {
   parseSegment = (child, chapterId, i) => {
     this.removeInvalidChars(child)
     const { chapters } = this.props
-    const segmentId = child.dataset ? Number(child.dataset.segment || 0) : 0
+    const segmentId = child.dataset ? Number(child.dataset.segment || 0) : null
     const segments = chapters[chapterId].segments
     const storedWords = segments[i] ? segments[i].words : ''
     const words = child.textContent.replace(/^[\u200c]+/, match =>
       storedWords.slice(0, match.length)
     )
-    if (segmentId)
-      return { ...segments[segmentId], words }
-    return { startTime: 0, endTime: 0, words }
+    return { startTime: 0, endTime: 0, ...segments[segmentId], words }
   }
 
   removeInvalidChars = (child) => {

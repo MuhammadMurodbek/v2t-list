@@ -201,7 +201,7 @@ export default class EditPage extends Component {
             })) }
           return chapter
         })
-    
+
       const updatedChapters = timeAdjustedChapters.map((chapter, chapterIndex) => {
         if(timeAdjustedChapters[chapterIndex+1]){
         if(timeAdjustedChapters[chapterIndex+1].keyword.trim().toUpperCase().includes(chapter.segments[chapter.segments.length-1].words.trim().toUpperCase())){
@@ -444,7 +444,7 @@ export default class EditPage extends Component {
     let audioInput = realAudioInput
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
-  
+
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
     const scriptNode = (createScriptProcessor || createJavaScriptNode)
       .call(this.audioContext, 16384, 1, 1)
