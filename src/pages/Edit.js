@@ -202,26 +202,8 @@ export default class EditPage extends Component {
           return chapter
         })
 
-      const updatedChapters = timeAdjustedChapters.map((chapter, chapterIndex) => {
-        if(timeAdjustedChapters[chapterIndex+1]){
-        if(timeAdjustedChapters[chapterIndex+1].keyword.trim().toUpperCase().includes(chapter.segments[chapter.segments.length-1].words.trim().toUpperCase())){
-          chapter.segments.pop()
-          if(chapter.segments[chapter.segments.length-1].words.trim().slice(-1)!=='.') {
-            chapter.segments[chapter.segments.length-1] = {
-              ...chapter.segments[chapter.segments.length-1],
-              words: `${chapter.segments[chapter.segments.length-1].words.trim()}.`
-            }
-          }
-          return chapter
-        } }
-        if(chapter.keyword.trim().toUpperCase().includes(chapter.segments[0].words.trim().toUpperCase())){
-          chapter.segments.shift()
-          return chapter
-        } else return chapter
-      })
-
         this.setState({
-          chapters: updatedChapters,
+          chapters: timeAdjustedChapters,
           recordedAudio,
           recording: false,
           timeStartRecording: this.getChapterEndTimeAdjusted(chapters.length -1),
