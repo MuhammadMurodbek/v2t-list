@@ -21,8 +21,8 @@ module.exports = {
   devtool: "source-map",
   output: {
     path: join(__dirname, 'build'),
-    filename: '[name].js',
-    chunkFilename: '[name].chunk.js',
+    filename: '[name].[hash].js',
+    chunkFilename: '[name].[hash].chunk.js',
     publicPath: "/"
   },
   watchOptions: {

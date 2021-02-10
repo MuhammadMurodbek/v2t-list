@@ -194,7 +194,7 @@ docker-static:
 deploy-to-dev:
   <<: *not_release_condition
   cache: {}
-  image: dtzar/helm-kubectl:3.0.0
+  image: dtzar/helm-kubectl:3.5.2
   stage: deploy
   before_script:
     - mkdir -p ~/.kube && echo "$KUBE_CONFIG_DEV" > ~/.kube/config
