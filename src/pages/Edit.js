@@ -23,7 +23,8 @@ import {
   EuiTextArea,
   EuiToolTip
 } from '@patronum/eui';
-import io from 'socket.io-client'
+import { connect } from 'mqtt'
+import jwtDecode from 'jwt-decode'
 import Invalid from './Invalid'
 import api from '../api'
 import Page from '../components/Page'
@@ -62,6 +63,10 @@ export default class EditPage extends Component {
     redirectOnSave: false
   }
 
+  client = null
+  sessionId = 0
+  mediaTopic = ''
+  speechTopic = ''
   audioContext = null
   ignoreMessagesTo = 0 // Avoid getting late replies, solve this better in mqtt
   offsetAudioStop = 0 // Include keyword when merging audio
@@ -111,10 +116,14 @@ export default class EditPage extends Component {
     EventEmitter.subscribe(EVENTS.APPROVE_CHANGE, this.onApprovedChange)
     await this.checkTranscriptStateAndLoad()
     if (mic)
-      this.setupSocketIO()
+      this.initiateMQTT()
   }
 
   componentWillUnmount() {
+    if (this.client) {
+      this.client.unsubscribe(this.speechTopic)
+      this.client.end()
+    }
     EventEmitter.unsubscribe(EVENTS.CANCEL)
     EventEmitter.unsubscribe(EVENTS.SEND)
     EventEmitter.unsubscribe(EVENTS.APPROVE_CHANGE)
@@ -126,7 +135,7 @@ export default class EditPage extends Component {
       await this.checkTranscriptStateAndLoad()
     }
     if (mic && !prevProps.mic) {
-      this.setupSocketIO()
+      this.initiateMQTT()
     }
   }
 
@@ -154,13 +163,9 @@ export default class EditPage extends Component {
       )
       return
     }
+    this.sessionId = Date.now()
     if (this.audioContext === null) this.audioContext = new window.AudioContext()
     await new Promise(resolve => this.setState({ recording: true }, resolve))
-    this.socketio.emit('start-recording', {
-      numChannels: 1,
-      bps: 16,
-      fps: parseInt(this.audioContext.sampleRate)
-    })
     if (this.audioContext.state === 'suspended' && recordedTime !== 0) {
       this.audioContext.resume()
     } else {
@@ -178,7 +183,6 @@ export default class EditPage extends Component {
     this.offsetAudioStop = 0
     return new Promise(async resolve => {
       const { chapters, chaptersBeforeRecording, initialKeyword, timeStartRecording } = this.state
-      this.socketio.emit('end-recording')
       await this.audioContext.suspend()
       const chapterIndex = chapters.findIndex(chapter => chapter.keyword === initialKeyword)
       const chapterIdStart = chapterIndex > 0 ? chapterIndex : 0
@@ -228,36 +232,6 @@ export default class EditPage extends Component {
     this.setState({ chapters, timeStartRecording, initialKeyword: keyword }, this.startRecording)
   }
 
-  setupSocketIO = () => {
-    const language = new URLSearchParams(this.props.location.search).get('language')
-    const path = language ? `/${language}` : ''
-    if (window.location.hostname.split('.')[0].includes('stage')) {
-      this.socketio = io.connect('wss://v2t-stage-lt.inoviagroup.se/audio', { transports: ['websocket'], path })
-    } else if (window.location.hostname.split('.')[0].includes('demo')) {
-      this.socketio = io.connect('wss://v2t-demo-lt.inoviagroup.se/audio', { transports: ['websocket'], path })
-    } else if (window.location.hostname.split('.')[0]==='v2t') {
-      this.socketio = io.connect('wss://v2t-lt.conscriptor.se/audio', { transports: ['websocket'], path })
-    } else {
-      this.socketio = io.connect('wss://v2t-dev-lt.inoviagroup.se/audio', { transports: ['websocket'], path })
-    }
-    // this.socketio = io.connect('wss://ilxgpu8000.inoviaai.se/audio', { transports: ['websocket'], path })
-    this.socketio.on('add-transcript', (text) => {
-      const { recording, schema, chaptersBeforeRecording, tags, timeStartRecording, initialKeyword, tagRequestCache } = this.state
-      if (!recording || Date.now() < this.ignoreMessagesTo) return // throw away changes that comes after stoped
-      const chunks = JSON.parse(text)
-      const sections = schema.fields.reduce((store, field) => {
-        if (field.editable)
-          store[field.id] = [field.name, ...(field.headerPatterns || [])]
-        return store
-      }, {})
-      const keyword = initialKeyword || chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
-      const chapters = this.parseAudioResponse(chunks, keyword, timeStartRecording)
-      if (chapters) {
-        this.setState({ chapters })
-      }
-    })
-  }
-
   parseAudioResponse = (chunks, keyword, initialTime) => {
     const { chaptersBeforeRecording, chapters } = this.state
     let currentChapter = this.state.currentChapter
@@ -303,14 +277,12 @@ export default class EditPage extends Component {
     return chunk ? this.getKeyword(chunk.word) : null
   }
 
-
   getTranscriptInPlainText = (chapters) => {
     let chapterText = chapters
       .map((chapter) => chapter.segments.map((segment) => segment.words)).flat()
     chapterText = [...chapterText].join(' ')
     return chapterText
   }
-
 
   getKeyword = (text) => {
     const { schema } = this.state
@@ -408,12 +380,55 @@ export default class EditPage extends Component {
     }
   }
 
-
   getCursorFromAudioInput = (keyword, chunks, chapters) => {
     const currentKeyword = this.getLastKeyword(chunks) || keyword
     const chapterIndex = chapters.findIndex(({keyword}) => keyword === currentKeyword)
     const chapterId = chapterIndex > 0 ? chapterIndex : 0
     return this.getChapterEndTime(chapterId)
+  }
+
+  initiateMQTT = () => {
+    const token = localStorage.getItem('token')
+    const username = jwtDecode(token).sub
+    this.mediaTopic = `audio/${username}`
+    this.speechTopic = `output/${username}`
+    this.client = connect(this.getMQTTUrl(), { username, password: token })
+    this.client.on('connect', this.onMQTTConnect)
+    this.client.on('error', (error) => { throw error })
+    this.client.on('message', this.onMQTTMessage)
+  }
+
+  getMQTTUrl = () => {
+    const host = window.location.host
+    if (host === 'localhost:8080') return 'wss://v2t-dev-mqtt.inoviagroup.se/mqtt'
+    const hostArray =  host.split('.')
+    return `wss://${hostArray.shift()}-mqtt.${hostArray.join('.')}/mqtt`
+  }
+
+  onMQTTConnect = (packet) => {
+    this.client.subscribe(this.speechTopic, { qos: 2 }, (error) => {
+      if (error) throw error
+    })
+  }
+
+  onMQTTMessage = (topic, message) => {
+    const { recording, schema, chaptersBeforeRecording, tags, timeStartRecording, initialKeyword, tagRequestCache } = this.state
+    if (!recording || Date.now() < this.ignoreMessagesTo) return // throw away changes that comes after stoped
+    const chunks = JSON.parse(message.toString('utf-8')).map(json => ({
+      word: json.text,
+      start: json.start / 1000,
+      end: json.end / 1000
+    }))
+    const sections = schema.fields.reduce((store, field) => {
+      if (field.editable)
+        store[field.id] = [field.name, ...(field.headerPatterns || [])]
+      return store
+    }, {})
+    const keyword = initialKeyword || chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
+    const chapters = this.parseAudioResponse(chunks, keyword, timeStartRecording)
+    if (chapters) {
+      this.setState({ chapters })
+    }
   }
 
   connectAudioInput = async () => {
@@ -443,7 +458,12 @@ export default class EditPage extends Component {
         output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
       }
       recorder.record([input])
-      this.socketio.emit('write-audio', Buffer.from(output.buffer))
+
+      const message = {
+        sessionId: this.sessionId,
+        audioBase64: Buffer.from(output.buffer).toString('base64')
+      }
+      this.client.publish(this.mediaTopic, JSON.stringify(message), { qos: 2 });
     }
     inputPoint.connect(scriptNode)
     scriptNode.connect(this.audioContext.destination)
