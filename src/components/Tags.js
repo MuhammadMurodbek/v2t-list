@@ -59,7 +59,12 @@ export default class Tags extends Component {
       // Purpose of doing this is to use free text search
       if (codeData.data) {
         const options = codeData.data
-          .filter(option => !tags[namespace].values.some(tag =>tag.value === option.value.toUpperCase()))
+          .filter(
+            (option) =>
+              !tags[namespace].values.some(
+                (tag) => tag.value === option.value.toUpperCase()
+              )
+          )
           .map((code) => {
             const label = `${code.value.toUpperCase()}: ${code.description}`
             return {
@@ -118,7 +123,7 @@ export default class Tags extends Component {
   }
 
   emptySelectedOption = () => {
-    this.setState({ selectedOption: [] })
+    this.setState({ selectedOption: []})
   }
 
   onChange = (namespace, selectedOption) => {
@@ -153,14 +158,23 @@ export default class Tags extends Component {
     const tags = JSON.parse(JSON.stringify(this.props.tags))
     if (source && destination) {
       const namespace = source.droppableId
-      const values = this.swap(tags[namespace].values, source.index, destination.index)
-      this.props.updateTags({ ...tags, [namespace]: { ...tags[namespace], values } })
+      const values = this.swap(
+        tags[namespace].values,
+        source.index,
+        destination.index
+      )
+      this.props.updateTags({
+        ...tags,
+        [namespace]: { ...tags[namespace], values }
+      })
     }
   }
 
   getLabel = (namespace) => {
     const { schema } = this.props
-    const field = schema ? schema.originalFields.find(({id}) => id === namespace) : null
+    const field = schema
+      ? schema.originalFields.find(({ id }) => id === namespace)
+      : null
     return field ? field.name : ''
   }
 
@@ -176,17 +190,16 @@ export default class Tags extends Component {
     } = this.props
     if (!schema || !schema.originalFields) return null
     return (
-      <EuiI18n tokens={['codes', 'lookFor']} defaults={['Codes', 'Look for']}>
-        {([codes, lookFor]) =>
+      <EuiI18n tokens={['lookFor']} defaults={['Look for']}>
+        {([lookFor]) => (
           <EuiFlexGroup direction="column">
-            {
-              Object.entries(tags).map(([namespace, { values, visible }]) => values ? (
+            {Object.entries(tags).map(([namespace, { values, visible }]) =>
+              values ? (
                 <EuiFlexItem
                   key={namespace}
                   grow={false}
-                  style={ !visible ? {
-                    display: 'none'
-                  } : {}}
+                  style={!visible? { display: 'none' }: {}
+                  }
                 >
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
@@ -198,17 +211,25 @@ export default class Tags extends Component {
                           selectedOptions={selectedOption}
                           singleSelection
                           isLoading={isLoading}
-                          onChange={selectedOptions => this.onChange(namespace, selectedOptions)}
-                          onSearchChange={searchValue => this.onSearchChange(namespace, searchValue)}
+                          onChange={(selectedOptions) =>
+                            this.onChange(namespace, selectedOptions)
+                          }
+                          onSearchChange={(searchValue) =>
+                            this.onSearchChange(namespace, searchValue)
+                          }
                         />
                       </EuiFormRow>
                     </EuiFlexItem>
                     <EuiFlexItem
                       grow={false}
-                      style={ values.length ? {} : { display: 'none' }}
+                      style={values.length ? {} : { display: 'none' }}
                     >
                       <EuiDragDropContext onDragEnd={this.onDragEnd}>
-                        <EuiDroppable droppableId={namespace} spacing="m" withPanel>
+                        <EuiDroppable
+                          droppableId={namespace}
+                          spacing="m"
+                          withPanel
+                        >
                           {values.map(({ description, value }, idx) => (
                             <EuiDraggable
                               spacing="m"
@@ -258,10 +279,10 @@ export default class Tags extends Component {
                     </EuiFlexItem>
                   </EuiFlexGroup>
                 </EuiFlexItem>
-              ) : null)
-            }
+              ) : null
+            )}
           </EuiFlexGroup>
-        }
+        )}
       </EuiI18n>
     )
   }

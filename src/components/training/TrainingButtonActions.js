@@ -23,7 +23,9 @@ const TrainingInstructions = () => {
     },
     {
       button: 'Hoppa över',
-      usage: 'Hoppa över transkriptet. Om Du hoppar över transkriptet så kan det komma upp vid ett senare tillfälle.'
+      usage: 'Hoppa över transkriptet. \
+        Om Du hoppar över transkriptet \
+        så kan det komma upp vid ett senare tillfälle.'
     },
     {
       button: 'Reject',

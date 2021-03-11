@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { EuiFlexGroup, EuiFlexItem, EuiButton, EuiI18n } from '@patronum/eui'
 
-const Invalid = ({title, message}) => {
+const Invalid = ({ title, message }) => {
   return (
     <div
       style={{

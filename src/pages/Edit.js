@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
 // @ts-nocheck
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
@@ -22,7 +24,7 @@ import {
   EuiFormRow,
   EuiTextArea,
   EuiToolTip
-} from '@patronum/eui';
+} from '@patronum/eui'
 import { connect } from 'mqtt'
 import jwtDecode from 'jwt-decode'
 import Invalid from './Invalid'
@@ -38,7 +40,6 @@ import convertToV2API from '../models/convertToV2API'
 import {
   addUnexpectedErrorToast,
   addErrorToast,
-  addGlobalToast,
   addWarningToast,
   addSuccessToast
 } from '../components/GlobalToastList'
@@ -48,9 +49,9 @@ import * as recorder from '../utils/recorder'
 import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
-import EventEmitter from "../models/events"
+import EventEmitter from '../models/events'
 
-const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: [] }
+const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
 
 export default class EditPage extends Component {
@@ -115,8 +116,7 @@ export default class EditPage extends Component {
     EventEmitter.subscribe(EVENTS.SEND, this.onSave)
     EventEmitter.subscribe(EVENTS.APPROVE_CHANGE, this.onApprovedChange)
     await this.checkTranscriptStateAndLoad()
-    if (mic)
-      this.initiateMQTT()
+    if (mic) this.initiateMQTT()
   }
 
   componentWillUnmount() {
@@ -164,8 +164,9 @@ export default class EditPage extends Component {
       return
     }
     this.sessionId = Date.now()
-    if (this.audioContext === null) this.audioContext = new window.AudioContext()
-    await new Promise(resolve => this.setState({ recording: true }, resolve))
+    if (this.audioContext === null)
+      this.audioContext = new window.AudioContext()
+    await new Promise((resolve) => this.setState({ recording: true }, resolve))
     if (this.audioContext.state === 'suspended' && recordedTime !== 0) {
       this.audioContext.resume()
     } else {
@@ -174,53 +175,88 @@ export default class EditPage extends Component {
     this.setState({
       chaptersBeforeRecording: [
         ...JSON.parse(JSON.stringify(this.state.chapters))
-      ] })
+      ]
+    })
     recorder.start()
   }
 
   stopRecording = (offsetEnd = 0) => {
     const offset = this.offsetAudioStop
     this.offsetAudioStop = 0
-    return new Promise(async resolve => {
-      const { chapters, chaptersBeforeRecording, initialKeyword, timeStartRecording } = this.state
+    return new Promise(async (resolve) => {
+      const {
+        chapters,
+        chaptersBeforeRecording,
+        initialKeyword,
+        timeStartRecording
+      } = this.state
       await this.audioContext.suspend()
-      const chapterIndex = chapters.findIndex(chapter => chapter.keyword === initialKeyword)
+      const chapterIndex = chapters.findIndex(
+        (chapter) => chapter.keyword === initialKeyword
+      )
       const chapterIdStart = chapterIndex > 0 ? chapterIndex : 0
-      const chapterIdEnd = chapterIdStart + chapters.length - chaptersBeforeRecording.length
-      return recorder.stop((recordedAudio, appendedTime, appendedTimeCurrent) => {
-        const timeAdjustedChapters = chapters.map((chapter, i) => {
-          const fromSegmentId = chapters[chapterIdStart].segments
-            .findIndex(({startTime}) => startTime >= timeStartRecording)
-          if (i === chapterIdStart || (i > chapterIdStart && i <= chapterIdEnd))
-            return { ...chapter, segments: chapter.segments.map((segment, i) => ({
-              ...segment,
-              startTime: segment.startTime + (i >= fromSegmentId ? appendedTimeCurrent : 0),
-              endTime: segment.endTime + (i >= fromSegmentId ? appendedTimeCurrent : 0)
-            })) }
-          if (i > chapterIdEnd)
-            return { ...chapter, segments: chapter.segments.map(segment => ({
-              ...segment,
-              startTime: segment.startTime + appendedTime,
-              endTime: segment.endTime + appendedTime
-            })) }
-          return chapter
-        })
+      const chapterIdEnd =
+        chapterIdStart + chapters.length - chaptersBeforeRecording.length
+      return recorder.stop(
+        (recordedAudio, appendedTime, appendedTimeCurrent) => {
+          const timeAdjustedChapters = chapters.map((chapter, i) => {
+            const fromSegmentId = chapters[chapterIdStart].segments.findIndex(
+              ({ startTime }) => startTime >= timeStartRecording
+            )
+            if (
+              i === chapterIdStart ||
+              (i > chapterIdStart && i <= chapterIdEnd)
+            )
+              return {
+                ...chapter,
+                segments: chapter.segments.map((segment, i) => ({
+                  ...segment,
+                  startTime:
+                    segment.startTime +
+                    (i >= fromSegmentId ? appendedTimeCurrent : 0),
+                  endTime:
+                    segment.endTime +
+                    (i >= fromSegmentId ? appendedTimeCurrent : 0)
+                }))
+              }
+            if (i > chapterIdEnd)
+              return {
+                ...chapter,
+                segments: chapter.segments.map((segment) => ({
+                  ...segment,
+                  startTime: segment.startTime + appendedTime,
+                  endTime: segment.endTime + appendedTime
+                }))
+              }
+            return chapter
+          })
 
-        this.setState({
-          chapters: timeAdjustedChapters,
-          recordedAudio,
-          recording: false,
-          timeStartRecording: this.getChapterEndTimeAdjusted(chapters.length -1),
-          initialKeyword: chapters[chapters.length -1].keyword
-        }, resolve)
-      }, timeStartRecording, offset, offsetEnd)
+          this.setState(
+            {
+              chapters: timeAdjustedChapters,
+              recordedAudio,
+              recording: false,
+              timeStartRecording: this.getChapterEndTimeAdjusted(
+                chapters.length - 1
+              ),
+              initialKeyword: chapters[chapters.length - 1].keyword
+            },
+            resolve
+          )
+        },
+        timeStartRecording,
+        offset,
+        offsetEnd
+      )
     })
   }
 
   updateRecordingChapter = async (keyword, clipFrom, offset, chunk) => {
     await this.stopRecording(chunk.end - offset)
     this.offsetAudioStop = clipFrom
-    const chapterId = this.state.chapters.findIndex(chapter => chapter.keyword === keyword)
+    const chapterId = this.state.chapters.findIndex(
+      (chapter) => chapter.keyword === keyword
+    )
     const timeStartRecording = this.getChapterEndTimeAdjusted(chapterId)
     const chapters = JSON.parse(JSON.stringify(this.state.chapters))
     const addition = offset - chunk.start
@@ -229,7 +265,14 @@ export default class EditPage extends Component {
       startTime: timeStartRecording + addition,
       endTime: timeStartRecording + chunk.end - chunk.start + addition
     })
-    this.setState({ chapters, timeStartRecording, initialKeyword: keyword }, this.startRecording)
+    this.setState(
+      {
+        chapters,
+        timeStartRecording,
+        initialKeyword: keyword
+      },
+      this.startRecording
+    )
   }
 
   parseAudioResponse = (chunks, keyword, initialTime) => {
@@ -237,22 +280,31 @@ export default class EditPage extends Component {
     let currentChapter = this.state.currentChapter
     const result = [...chunks].reduce((store, chunk, i, arr) => {
       const currentKeyword = this.getKeyword(chunk.word)
-      const newKeyword = currentKeyword && currentKeyword !== keyword && i === arr.length -1
-      const existingNewKeyword = newKeyword && chaptersBeforeRecording
-        .some(chapter => chapter.keyword === currentKeyword)
-      const chapterId = chapters.findIndex(c => c.keyword === keyword)
-      const isLastChapter = chapterId === chapters.length -1
+      const newKeyword =
+        currentKeyword && currentKeyword !== keyword && i === arr.length - 1
+      const existingNewKeyword =
+        newKeyword &&
+        chaptersBeforeRecording.some(
+          (chapter) => chapter.keyword === currentKeyword
+        )
+      const chapterId = chapters.findIndex((c) => c.keyword === keyword)
+      const isLastChapter = chapterId === chapters.length - 1
       const oldKeyword = keyword
       if (currentKeyword) {
         keyword = currentKeyword
       }
-      const newChapterId = chapters.findIndex(c => c.keyword === keyword)
-      currentChapter = newChapterId >= 0 ? newChapterId : this.state.currentChapter
+      const newChapterId = chapters.findIndex((c) => c.keyword === keyword)
+      currentChapter =
+        newChapterId >= 0 ? newChapterId : this.state.currentChapter
       if (existingNewKeyword) {
         this.ignoreMessagesTo = Date.now() + 1000
-        const chapterEndTime = chunks.length > 2 ? chunks[chunks.length -2].end : chunk.start
+        const chapterEndTime =
+          chunks.length > 2 ? chunks[chunks.length - 2].end : chunk.start
         const offset = chunk.start - (chunk.start - chapterEndTime) / 2
-        const clipFrom = newChapterId < chapterId ? initialTime + offset : this.audioContext.currentTime
+        const clipFrom =
+          newChapterId < chapterId
+            ? initialTime + offset
+            : this.audioContext.currentTime
         this.updateRecordingChapter(keyword, clipFrom, offset, chunk)
         arr.slice(-1)
         return null
@@ -260,8 +312,10 @@ export default class EditPage extends Component {
       const startTime = chunk.start + initialTime
       const endTime = chunk.end + initialTime
       const segment = { words: `${chunk.word} `, startTime, endTime }
-      const chapter = store.find(chapter => chapter.keyword === keyword)
-        || { keyword, segments: [] }
+      const chapter = store.find((chapter) => chapter.keyword === keyword) || {
+        keyword,
+        segments: []
+      }
       chapter.segments = [...chapter.segments, segment]
       if (!store.includes(chapter)) {
         store.splice(chapterId + 1, 0, chapter)
@@ -273,13 +327,16 @@ export default class EditPage extends Component {
   }
 
   getLastKeyword = (chunks) => {
-    const chunk = [...chunks].reverse().find(({word}) => this.getKeyword(word))
+    const chunk = [...chunks]
+      .reverse()
+      .find(({ word }) => this.getKeyword(word))
     return chunk ? this.getKeyword(chunk.word) : null
   }
 
   getTranscriptInPlainText = (chapters) => {
     let chapterText = chapters
-      .map((chapter) => chapter.segments.map((segment) => segment.words)).flat()
+      .map((chapter) => chapter.segments.map((segment) => segment.words))
+      .flat()
     chapterText = [...chapterText].join(' ')
     return chapterText
   }
@@ -300,9 +357,9 @@ export default class EditPage extends Component {
       .flat(Infinity)
       .filter((definedKeyword) => definedKeyword !== undefined)
       .map((kAndS) => kAndS.toUpperCase())
-      const keywordLengths = keyWordsAndSynonyms.map(
-        (keyWordsAndSynonym) => keyWordsAndSynonym.split(' ').length
-      )
+    const keywordLengths = keyWordsAndSynonyms.map(
+      (keyWordsAndSynonym) => keyWordsAndSynonym.split(' ').length
+    )
     const multiwordLength = Math.max(...keywordLengths)
     const { chapters } = this.state
     // Get the previous word and match with a keyword
@@ -324,7 +381,7 @@ export default class EditPage extends Component {
       return field.id
     } else {
       // multi-word keyword
-      let newComparableKeyword = ''
+      const newComparableKeyword = ''
       // check if the word is a member of the list of words
       // keyWordsAndSynonyms makes a single string and split it to single words
       const SyllablesOfkeyWords = keyWordsAndSynonyms
@@ -360,7 +417,9 @@ export default class EditPage extends Component {
               )
             if (titles) {
               const field = schema.fields.find((field) => {
-                return field.name.toUpperCase() === thePreviousWord.toUpperCase()
+                return (
+                  field.name.toUpperCase() === thePreviousWord.toUpperCase()
+                )
               })
 
               // remove the keyword from the chapter as segment
@@ -382,7 +441,9 @@ export default class EditPage extends Component {
 
   getCursorFromAudioInput = (keyword, chunks, chapters) => {
     const currentKeyword = this.getLastKeyword(chunks) || keyword
-    const chapterIndex = chapters.findIndex(({keyword}) => keyword === currentKeyword)
+    const chapterIndex = chapters.findIndex(
+      ({ keyword }) => keyword === currentKeyword
+    )
     const chapterId = chapterIndex > 0 ? chapterIndex : 0
     return this.getChapterEndTime(chapterId)
   }
@@ -394,14 +455,17 @@ export default class EditPage extends Component {
     this.speechTopic = `output/${username}`
     this.client = connect(this.getMQTTUrl(), { username, password: token })
     this.client.on('connect', this.onMQTTConnect)
-    this.client.on('error', (error) => { throw error })
+    this.client.on('error', (error) => {
+      throw error
+    })
     this.client.on('message', this.onMQTTMessage)
   }
 
   getMQTTUrl = () => {
     const host = window.location.host
-    if (host === 'localhost:8080') return 'wss://v2t-dev-mqtt.inoviagroup.se/mqtt'
-    const hostArray =  host.split('.')
+    if (host === 'localhost:8080')
+      return 'wss://v2t-dev-mqtt.inoviagroup.se/mqtt'
+    const hostArray = host.split('.')
     return `wss://${hostArray.shift()}-mqtt.${hostArray.join('.')}/mqtt`
   }
 
@@ -412,9 +476,18 @@ export default class EditPage extends Component {
   }
 
   onMQTTMessage = (topic, message) => {
-    const { recording, schema, chaptersBeforeRecording, tags, timeStartRecording, initialKeyword, tagRequestCache } = this.state
-    if (!recording || Date.now() < this.ignoreMessagesTo) return // throw away changes that comes after stoped
-    const chunks = JSON.parse(message.toString('utf-8')).map(json => ({
+    const {
+      recording,
+      schema,
+      chaptersBeforeRecording,
+      tags,
+      timeStartRecording,
+      initialKeyword,
+      tagRequestCache
+    } = this.state
+    if (!recording || Date.now() < this.ignoreMessagesTo) return 
+    // throw away changes that comes after stoped
+    const chunks = JSON.parse(message.toString('utf-8')).map((json) => ({
       word: json.text,
       start: json.start / 1000,
       end: json.end / 1000
@@ -424,8 +497,14 @@ export default class EditPage extends Component {
         store[field.id] = [field.name, ...(field.headerPatterns || [])]
       return store
     }, {})
-    const keyword = initialKeyword || chaptersBeforeRecording[chaptersBeforeRecording.length -1].keyword
-    const chapters = this.parseAudioResponse(chunks, keyword, timeStartRecording)
+    const keyword =
+      initialKeyword ||
+      chaptersBeforeRecording[chaptersBeforeRecording.length - 1].keyword
+    const chapters = this.parseAudioResponse(
+      chunks,
+      keyword,
+      timeStartRecording
+    )
     if (chapters) {
       this.setState({ chapters })
     }
@@ -437,25 +516,36 @@ export default class EditPage extends Component {
 
     const inputPoint = this.audioContext.createGain()
     // Create an AudioNode from the stream.
-    const realAudioInput = await this.audioContext.createMediaStreamSource(stream)
+    const realAudioInput = await this.audioContext.createMediaStreamSource(
+      stream
+    )
     let audioInput = realAudioInput
     audioInput = this.convertToMono(audioInput)
     audioInput.connect(inputPoint)
 
     const { createScriptProcessor, createJavaScriptNode } = this.audioContext
-    const scriptNode = (createScriptProcessor || createJavaScriptNode)
-      .call(this.audioContext, 16384, 1, 1)
+    const scriptNode = (createScriptProcessor || createJavaScriptNode).call(
+      this.audioContext,
+      16384,
+      1,
+      1
+    )
 
     scriptNode.onaudioprocess = (audioEvent) => {
       if (!this.state.recording) return
       const recordedTime = Math.ceil(this.audioContext.currentTime)
       this.setState({ recordedTime })
       const inputBuffer = audioEvent.inputBuffer.getChannelData(0)
-      const input = interpolateArray(inputBuffer, 16000,this.audioContext.sampleRate)
-      const output = new DataView(new ArrayBuffer(input.length * 2)) // length is in bytes (8-bit), so *2 to get 16-bit length
+      const input = interpolateArray(
+        inputBuffer,
+        16000,
+        this.audioContext.sampleRate
+      )
+      const output = new DataView(new ArrayBuffer(input.length * 2))
+      // length is in bytes (8-bit), so *2 to get 16-bit length
       for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
         var s = Math.max(-1, Math.min(1, input[i]))
-        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
+        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
       }
       recorder.record([input])
 
@@ -463,7 +553,7 @@ export default class EditPage extends Component {
         sessionId: this.sessionId,
         audioBase64: Buffer.from(output.buffer).toString('base64')
       }
-      this.client.publish(this.mediaTopic, JSON.stringify(message), { qos: 2 });
+      this.client.publish(this.mediaTopic, JSON.stringify(message), { qos: 2 })
     }
     inputPoint.connect(scriptNode)
     scriptNode.connect(this.audioContext.destination)
@@ -485,15 +575,19 @@ export default class EditPage extends Component {
   checkTranscriptStateAndLoad = async () => {
     const { id, mic } = this.props
     let isTranscriptAvailable = true
-    if (mic) return await this.initiate() //if user can create the audio it doesn't need to exist yet
+    if (mic) return await this.initiate()
+    //if user can create the audio it doesn't need to exist yet
     try {
       const { data: transcriptState } = await api.transcriptState(id)
-      if (transcriptState.id && VALID_TRANSCRIPT_STATES.includes(transcriptState.state)) {
+      if (
+        transcriptState.id &&
+        VALID_TRANSCRIPT_STATES.includes(transcriptState.state)
+      ) {
         await this.initiate()
       } else {
         throw new ReferenceError()
       }
-    } catch(e) {
+    } catch (e) {
       isTranscriptAvailable = false
     }
     this.setState({ isTranscriptAvailable })
@@ -506,9 +600,9 @@ export default class EditPage extends Component {
     try {
       const { data: transcript } = await api.loadTranscription(id)
       const {
-        data: { schemas },
+        data: { schemas }
       } = await api.getSchemas({
-        departmentId: transcript.departmentId,
+        departmentId: transcript.departmentId
       })
 
       const legacyTranscript = convertToV1API(transcript)
@@ -520,80 +614,111 @@ export default class EditPage extends Component {
 
   onNewTranscript = async (transcript, schemas) => {
     localStorage.setItem('transcriptId', this.props.id)
-    const {
-      fields,
-      media_content_type,
-      schemaId,
-      transcriptions
-    } = transcript
+    const { fields, media_content_type, schemaId, transcriptions } = transcript
 
-    const { data: originalSchema } = await api.getSchema(schemaId).catch(this.onError) || {}
+    const { data: originalSchema } =
+      (await api.getSchema(schemaId).catch(this.onError)) || {}
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, transcriptions)
 
-    const defaultField = originalSchema && originalSchema.fields.find(field => field.default)
-    const defaultFields = [{ keyword: defaultField.name || '', segments: [], values: [] }]
-
-    const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...transcriptions])
-    const parsedChapters = this.parseTranscriptions(filteredTranscriptions, originalSchema)
-
-    this.setState({
-      originalSchemaId: schemaId,
-      allChapters: transcriptions,
-      originalChapters: parsedChapters,
-      chapters: parsedChapters,
-      fields: fields || {},
-      isMediaAudio: (media_content_type || '').match(/^video/) === null,
-      schemas,
-      schema: schemaWithMappings,
+    const defaultField =
+      originalSchema && originalSchema.fields.find((field) => field.default)
+    const defaultFields = [
+      { keyword: defaultField.name || '', segments: [], values: []}
+    ]
+    const {
       noMappingFields,
-      transcriptions: filteredTranscriptions,
-      schemaSupportsLive: schemaWithMappings.profile.trim().toLowerCase()==='default' ? true : false
-    }, () => {
-      if (!this.state.originalChapters.length)
-        this.setState({chapters: defaultFields})
-    })
+      schemaWithMappings,
+      transcriptions: filteredTranscriptions
+    } = this.filterSchema(schema, [...transcriptions])
+    const parsedChapters = this.parseTranscriptions(
+      filteredTranscriptions,
+      originalSchema
+    )
+
+    this.setState(
+      {
+        originalSchemaId: schemaId,
+        allChapters: transcriptions,
+        originalChapters: parsedChapters,
+        chapters: parsedChapters,
+        fields: fields || {},
+        isMediaAudio: (media_content_type || '').match(/^video/) === null,
+        schemas,
+        schema: schemaWithMappings,
+        noMappingFields,
+        transcriptions: filteredTranscriptions,
+        schemaSupportsLive:
+          schemaWithMappings.profile.trim().toLowerCase() === 'default'
+            ? true
+            : false
+      },
+      () => {
+        if (!this.state.originalChapters.length)
+          this.setState({ chapters: defaultFields })
+      }
+    )
   }
 
-  extractHeaders = (schema) => new Promise(resolve => {
-    if (schema.fields) {
-      const readOnlyHeaders = schema.fields.filter(f => f.visible && !f.editable)
-      const hiddenHeaderIds = schema.fields.filter(f => !f.visible).map(({ id }) => id)
-      const defaultHeaderIds = schema.fields.filter(f => f.default).map(({ id }) => id)
-      schema.originalFields = schema.fields
-      schema.fields = schema.fields.filter(f => f.editable)
-      this.setState({
-        readOnlyHeaders,
-        hiddenHeaderIds,
-        defaultHeaderIds
-      }, resolve(schema))
-    } else {
-      this.setState({
-        readOnlyHeaders: [],
-        hiddenHeaderIds: [],
-        defaultHeaderIds: []
-      }, resolve(schema))
-    }
-  })
+  extractHeaders = (schema) =>
+    new Promise((resolve) => {
+      if (schema.fields) {
+        const readOnlyHeaders = schema.fields.filter(
+          (f) => f.visible && !f.editable
+        )
+        const hiddenHeaderIds = schema.fields
+          .filter((f) => !f.visible)
+          .map(({ id }) => id)
+        const defaultHeaderIds = schema.fields
+          .filter((f) => f.default)
+          .map(({ id }) => id)
+        schema.originalFields = schema.fields
+        schema.fields = schema.fields.filter((f) => f.editable)
+        this.setState(
+          {
+            readOnlyHeaders,
+            hiddenHeaderIds,
+            defaultHeaderIds
+          },
+          resolve(schema)
+        )
+      } else {
+        this.setState(
+          {
+            readOnlyHeaders: [],
+            hiddenHeaderIds: [],
+            defaultHeaderIds: []
+          },
+          resolve(schema)
+        )
+      }
+    })
 
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
-      const namespaces = schema.fields.filter(({ id }) => TAG_NAMESPACES.includes(id))
-
-      schema.fields = schema.fields.filter(({ id }) => !TAG_NAMESPACES.includes(id))
-
-      const originalTags = namespaces.reduce((store, { id: namespace, visible }) => {
-        const tagTranscript = transcriptions.find(({ keyword }) => keyword === namespace)
-        if (tagTranscript && tagTranscript.values) {
-          store[namespace] = {
-            ...tagTranscript,
-            visible
+      const namespaces = schema.fields.filter(({ id }) =>
+        TAG_NAMESPACES.includes(id)
+      )
+      schema.fields = schema.fields.filter(
+        ({ id }) => !TAG_NAMESPACES.includes(id)
+      )
+      const originalTags = namespaces.reduce(
+        (store, { id: namespace, visible }) => {
+          const tagTranscript = transcriptions.find(
+            ({ keyword }) => keyword === namespace
+          )
+          if (tagTranscript && tagTranscript.values) {
+            store[namespace] = {
+              ...tagTranscript,
+              visible
+            }
+          } else {
+            store[namespace] = { values: [], visible }
           }
-        } else {
-          store[namespace] = { values: [], visible }
-        }
-        return store
-      }, {})
+          return store
+        },
+        {}
+      )
 
       this.setState({
         originalTags,
@@ -604,16 +729,18 @@ export default class EditPage extends Component {
   }
 
   parseTranscriptions = (transcriptions, originalSchema) => {
-    const defaultField = originalSchema && originalSchema.fields.find(field => field.default)
+    const defaultField =
+      originalSchema && originalSchema.fields.find((field) => field.default)
     const defaultKeyword = defaultField ? defaultField.name || '' : ''
-    if (!transcriptions) return [{ ...EMPTY_TRANSCRIPTION, keyword: defaultKeyword }]
+    if (!transcriptions)
+      return [{ ...EMPTY_TRANSCRIPTION, keyword: defaultKeyword }]
     const { readOnlyHeaders, hiddenHeaderIds, defaultHeaderIds } = this.state
-    const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
+    const excludedKeywords = readOnlyHeaders
+      .map(({ id }) => id)
+      .concat(hiddenHeaderIds)
 
     const transcripts = transcriptions.map((transcript, id) => {
-      const keyword = transcript.keyword.length
-        ? transcript.keyword
-        : ''
+      const keyword = transcript.keyword.length ? transcript.keyword : ''
       let segments = transcript.segments.map((chunk, i) => {
         const sentenceCase =
           i > 0
@@ -639,21 +766,23 @@ export default class EditPage extends Component {
       .filter(({ keyword }) => !TAG_NAMESPACES.includes(keyword))
       .filter(({ keyword }) => !excludedKeywords.includes(keyword))
       .sort(({ keyword }) => {
-        if(defaultHeaderIds.includes(keyword)) {
+        if (defaultHeaderIds.includes(keyword)) {
           return -1
         }
         return 0
       })
-    return parsedTranscripts.length ?
-      parsedTranscripts : [{ ...EMPTY_TRANSCRIPTION, keyword: defaultKeyword }]
+    return parsedTranscripts.length
+      ? parsedTranscripts
+      : [{ ...EMPTY_TRANSCRIPTION, keyword: defaultKeyword }]
   }
 
   parseReadOnlyTranscripts = (transcriptions) => {
     const { readOnlyHeaders } = this.state
-    if(!transcriptions) return []
-    return readOnlyHeaders.map(field => {
-      const chapter = transcriptions.find(({keyword}) => keyword === field.id)
-        || { values: [], keyword: field.id }
+    if (!transcriptions) return []
+    return readOnlyHeaders.map((field) => {
+      const chapter = transcriptions.find(
+        ({ keyword }) => keyword === field.id
+      ) || { values: [], keyword: field.id }
       return { ...chapter, name: field.name }
     })
   }
@@ -661,11 +790,13 @@ export default class EditPage extends Component {
   sectionHeaders = () => {
     const { schema, chapters } = this.state
     return schema.fields
-      ? schema.fields.filter(({visible}) => visible).reduce((store, {id, name, editable}) => {
-          const includedChapter = chapters.find(chapter => chapter.keyword===id)|| false
+      ? schema.fields
+        .filter(({ visible }) => visible)
+        .reduce((store, { id, name, editable }) => {
+          const includedChapter =
+            chapters.find((chapter) => chapter.keyword === id) || false
           const done = includedChapter && includedChapter.segments.length > 0
-          if (editable)
-            store.push({name, done})
+          if (editable) store.push({ name, done })
           return store
         }, [])
       : []
@@ -675,17 +806,24 @@ export default class EditPage extends Component {
     this.setState({ currentTime })
   }
 
-  onCursorTimeChange = (cursorTime, chapterId, segmentId, timestampStart, timestampEnd) => {
+  onCursorTimeChange = (cursorTime, chapterId) => {
     const { chapters } = this.state
     const initialKeyword = chapters[chapterId].keyword
     const timeStartRecording = this.getChapterEndTimeAdjusted(chapterId)
-    this.setState({ cursorTime, initialKeyword, timeStartRecording, currentTime: cursorTime })
+    this.setState({
+      cursorTime,
+      initialKeyword,
+      timeStartRecording,
+      currentTime: cursorTime
+    })
   }
 
   getChapterEndTimeAdjusted = (chapterId) => {
     const max = this.getChapterStartTime(chapterId + 1)
-    if (max === null) return this.audioContext ?
-      this.audioContext.currentTime : this.getChapterEndTime(chapterId)
+    if (max === null)
+      return this.audioContext
+        ? this.audioContext.currentTime
+        : this.getChapterEndTime(chapterId)
     const min = this.getChapterEndTime(chapterId)
     const silence = max - min
     return min + silence / 2
@@ -695,8 +833,7 @@ export default class EditPage extends Component {
     const { chapters } = this.state
     while (chapterId < chapters.length) {
       const firstSegment = chapters[chapterId].segments[0]
-      if (firstSegment)
-        return firstSegment.startTime
+      if (firstSegment) return firstSegment.startTime
       chapterId++
     }
     return null
@@ -706,9 +843,8 @@ export default class EditPage extends Component {
     const { chapters } = this.state
     while (chapterId >= 0) {
       const segments = chapters[chapterId].segments
-      const lastSegment = segments[segments.length -1]
-      if (lastSegment)
-        return lastSegment.endTime
+      const lastSegment = segments[segments.length - 1]
+      if (lastSegment) return lastSegment.endTime
       chapterId--
     }
     return 0
@@ -726,10 +862,8 @@ export default class EditPage extends Component {
   }
 
   onSave = async () => {
-    if (this.state.approved)
-      this.finalize()
-    else
-      await this.save()
+    if (this.state.approved) this.finalize()
+    else await this.save()
   }
 
   finalize = async () => {
@@ -753,7 +887,8 @@ export default class EditPage extends Component {
             <EuiI18n
               token="missingReuiredHeaders"
               default="Required field is missing"
-            /> <strong>{missingSections.join(', ')}</strong>
+            />{' '}
+            <strong>{missingSections.join(', ')}</strong>
           </>
         )
         return
@@ -769,12 +904,12 @@ export default class EditPage extends Component {
           />
         )
       }
-    } catch(e) {
+    } catch (e) {
       addUnexpectedErrorToast(e)
     }
   }
 
-  mediaUpload = async() => {
+  mediaUpload = async () => {
     const { id } = this.props
     const { recordedAudio, schema } = this.state
     const file = await api.getBlobFile(recordedAudio)
@@ -794,15 +929,16 @@ export default class EditPage extends Component {
       noMappingFields,
       isUploadingMedia
     } = this.state
-    if (isUploadingMedia) return;
+    if (isUploadingMedia) return
     this.setState({ isUploadingMedia: true })
     let { chapters } = this.state
-    const emptyChapters = chapters.filter(chapter => chapter.segments.length === 0)
-    const requiredSections = schema.fields.filter(field => field.required)
-    const isThereAnyRequiredEmptySection =
-      emptyChapters.some(chapter => {
-        return requiredSections.some(section => section.id === chapter.keyword)
-      })
+    const emptyChapters = chapters.filter(
+      (chapter) => chapter.segments.length === 0
+    )
+    const requiredSections = schema.fields.filter((field) => field.required)
+    const isThereAnyRequiredEmptySection = emptyChapters.some((chapter) => {
+      return requiredSections.some((section) => section.id === chapter.keyword)
+    })
     if (isThereAnyRequiredEmptySection) {
       addWarningToast(
         <EuiI18n
@@ -820,8 +956,10 @@ export default class EditPage extends Component {
 
     const headers = chapters.map((chapter) => chapter.keyword)
     const uniqueHeaders = Array.from(new Set(headers))
-    const hasEmptyHeader = headers.some(header => !header)
-    const invalid = headers.some(header => !schema.fields.find(field => field.id === header))
+    const hasEmptyHeader = headers.some((header) => !header)
+    const invalid = headers.some(
+      (header) => !schema.fields.find((field) => field.id === header)
+    )
     if (hasEmptyHeader || headers.length !== uniqueHeaders.length || invalid) {
       addWarningToast(
         <EuiI18n
@@ -845,7 +983,9 @@ export default class EditPage extends Component {
       })
     })
 
-    const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
+    const excludedKeywords = readOnlyHeaders
+      .map(({ id }) => id)
+      .concat(hiddenHeaderIds)
     chapters = chapters.concat(
       allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
     )
@@ -856,19 +996,13 @@ export default class EditPage extends Component {
         if (needConfirmation) return true
       }
 
-      if (recording)
-        await this.stopRecording()
-      if (recording || recordedAudio)
-        await this.mediaUpload()
-      if (mic)
-        await api.completeLiveTranscript(id)
+      if (recording) await this.stopRecording()
+      if (recording || recordedAudio) await this.mediaUpload()
+      if (mic) await api.completeLiveTranscript(id)
 
       const unfiltredSchema = {
         ...schema,
-        fields: [
-          ...schema.fields,
-          ...noMappingFields
-        ]
+        fields: [...schema.fields, ...noMappingFields]
       }
 
       const fields = convertToV2API(unfiltredSchema, chapters, tags)
@@ -902,7 +1036,7 @@ export default class EditPage extends Component {
         window.location = '/'
       }
       return true
-    } catch(e) {
+    } catch (e) {
       console.error(e)
       addUnexpectedErrorToast(e)
     } finally {
@@ -911,15 +1045,26 @@ export default class EditPage extends Component {
   }
 
   getMissingSections = async () => {
-    const { readOnlyHeaders, hiddenHeaderIds, chapters, allChapters, schema } = this.state
-    const excludedKeywords = readOnlyHeaders.map(({id}) => id).concat(hiddenHeaderIds)
+    const {
+      readOnlyHeaders,
+      hiddenHeaderIds,
+      chapters,
+      allChapters,
+      schema
+    } = this.state
+    const excludedKeywords = readOnlyHeaders
+      .map(({ id }) => id)
+      .concat(hiddenHeaderIds)
     const concatinatedChapters = chapters.concat(
       allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
     )
 
     const { data: fullSchema } = await api.getSchema(schema.id)
-    return fullSchema.fields.reduce((store, {id, name, required}) => {
-      if (required && !concatinatedChapters.map(chapter => chapter.keyword).includes(id))
+    return fullSchema.fields.reduce((store, { id, name, required }) => {
+      if (
+        required &&
+        !concatinatedChapters.map((chapter) => chapter.keyword).includes(id)
+      )
         store.push(name)
       return store
     }, [])
@@ -932,9 +1077,8 @@ export default class EditPage extends Component {
   }
 
   onCloseMissingFieldsModal = async (save) => {
-    if (save)
-      await this.save(true)
-    this.setState({ modalMissingFields: [] })
+    if (save) await this.save(true)
+    this.setState({ modalMissingFields: []})
   }
 
   onUpdateTags = (tags) => {
@@ -948,19 +1092,30 @@ export default class EditPage extends Component {
 
   updateSchemaId = async (schemaId) => {
     const { allChapters } = this.state
-    const { data: originalSchema } = await api.getSchema(schemaId).catch(this.onError) || {}
+    const { data: originalSchema } =
+      (await api.getSchema(schemaId).catch(this.onError)) || {}
     if (!originalSchema) return
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, allChapters)
-    const { noMappingFields, schemaWithMappings, transcriptions: filteredTranscriptions } = this.filterSchema(schema, [...allChapters])
-    const parsedChapters = this.parseTranscriptions(filteredTranscriptions, originalSchema)
+    const {
+      noMappingFields,
+      schemaWithMappings,
+      transcriptions: filteredTranscriptions
+    } = this.filterSchema(schema, [...allChapters])
+    const parsedChapters = this.parseTranscriptions(
+      filteredTranscriptions,
+      originalSchema
+    )
     this.setState({
       schema: schemaWithMappings,
       originalChapters: parsedChapters,
       chapters: parsedChapters,
       noMappingFields,
       transcriptions: filteredTranscriptions,
-      schemaSupportsLive: schemaWithMappings.profile.trim().toLowerCase() === 'default' ? true : false
+      schemaSupportsLive:
+        schemaWithMappings.profile.trim().toLowerCase() === 'default'
+          ? true
+          : false
     })
     localStorage.setItem('lastUsedSchema', schema.id)
   }
@@ -968,14 +1123,14 @@ export default class EditPage extends Component {
   onCreateReadOnly = (keyword, e) => {
     const { value } = e.target
     if (!value) return
-    const chapter = { keyword, segments: [], values: [{value}] }
+    const chapter = { keyword, segments: [], values: [{ value }]}
     const allChapters = [...this.state.allChapters, chapter]
     this.setState({ allChapters })
   }
 
   onUpdateReadOnly = (keyword, values) => {
     const { allChapters } = this.state
-    var index = allChapters.findIndex(c => c.keyword === keyword)
+    var index = allChapters.findIndex((c) => c.keyword === keyword)
     if (index > -1) {
       allChapters[index].segments = []
       allChapters[index].values = values
@@ -996,7 +1151,7 @@ export default class EditPage extends Component {
   }
 
   onApprovedChange = () => {
-    this.setState({approved: !this.state.approved})
+    this.setState({ approved: !this.state.approved })
   }
 
   cancel = () => {
@@ -1008,27 +1163,31 @@ export default class EditPage extends Component {
   }
 
   filterSchema = (schema, fields) => {
-    let noMappingFields = []
+    const noMappingFields = []
     const mappingFields = schema.fields
       ? schema.fields.reduce((prev, curr) => {
-          if (curr.mappings) prev.push(curr)
-          else if (!curr.mappings && curr.visible && curr.editable) {
-            const foundField = fields.find((field, idx) => {
-              if (field.keyword === curr.id) {
-                fields.splice(idx, 1)
-                return true
-              } else {
-                return false
-              }
-            })
-            const values = foundField !== undefined ? foundField.values || [{value: ''}] : [{value: ''}]
-            noMappingFields.push({
-              ...curr,
-              values
-            })
-          }
-          return prev
-        }, [])
+        if (curr.mappings) prev.push(curr)
+        else if (!curr.mappings && curr.visible && curr.editable) {
+          const foundField = fields.find((field, idx) => {
+            if (field.keyword === curr.id) {
+              fields.splice(idx, 1)
+              return true
+            } else {
+              return false
+            }
+          })
+          const values =
+              foundField !== undefined
+                ? foundField.values || [{ value: '' }]
+                : [{ value: '' }]
+
+          noMappingFields.push({
+            ...curr,
+            values
+          })
+        }
+        return prev
+      }, [])
       : []
 
     const schemaWithMappings = { ...schema, fields: mappingFields }
@@ -1079,18 +1238,18 @@ export default class EditPage extends Component {
     if (!isTranscriptAvailable) {
       return (
         <Invalid
-          title={(
+          title={
             <EuiI18n
               token="theTranscriptNotAvailable"
               default="The transcript is not available"
             />
-          )}
-          message={(
+          }
+          message={
             <EuiI18n
               token="theTranscriptNotAvailableDescription"
               default="The transcript is already exported or not available"
             />
-          )}
+          }
         />
       )
     }
@@ -1167,21 +1326,21 @@ export default class EditPage extends Component {
                       <EuiFormRow label={field.name}>
                         <EuiTextArea
                           value={field.values[0].value}
-                          onChange={({ target: { value } }) =>
-                            this.onNoMappingFieldValueChange(
-                              value,
-                              field.id
-                            )
+                          onChange={({ target: { value }}) =>
+                            this.onNoMappingFieldValueChange(value, field.id)
                           }
                         />
                       </EuiFormRow>
                     </EuiFlexItem>
                   ))}
-                  {mic &&
-                    <EuiFlexItem grow={false} style={{position: 'sticky', top: 20}}>
+                  {mic && (
+                    <EuiFlexItem
+                      grow={false}
+                      style={{ position: 'sticky', top: 20 }}
+                    >
                       <ListOfHeaders headers={this.sectionHeaders()} />
                     </EuiFlexItem>
-                  }
+                  )}
                 </EuiFlexGroup>
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -1189,25 +1348,23 @@ export default class EditPage extends Component {
             <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
               <EuiFlexItem grow={false}>
                 {/* id is used by Conscriptor */}
-                <EuiI18n
-                  tokens={['press']}
-                  defaults={['Press']}
-                >
+                <EuiI18n tokens={['press']} defaults={['Press']}>
                   {([press]) => (
                     <EuiToolTip
                       position="top"
                       content={`${press} 'alt + shift + esc'`}
                     >
-                      <EuiSwitch label={
-                        <EuiI18n
-                          token="sendToCoWorker"
-                          default="Approved, ready to send to Co-worker."
-                        />
-                      }
-                      checked={approved}
-                      onChange={this.onApprovedChange}
-                      disabled={mic}
-                      id="approved_checkbox"
+                      <EuiSwitch
+                        label={
+                          <EuiI18n
+                            token="sendToCoWorker"
+                            default="Approved, ready to send to Co-worker."
+                          />
+                        }
+                        checked={approved}
+                        onChange={this.onApprovedChange}
+                        disabled={mic}
+                        id="approved_checkbox"
                       />
                     </EuiToolTip>
                   )}
@@ -1276,8 +1433,18 @@ const MissingFieldModal = ({ fields, onClose }) => {
   if (!fields.length) return null
   return (
     <EuiI18n
-      tokens={["missingReuiredHeaders", "save", "cancel", "missingFieldMessage"]}
-      defaults={["Required field is missing", "Save", "Cancel", "is missing. Do you want to save anyways?"]}
+      tokens={[
+        'missingReuiredHeaders', 
+        'save', 
+        'cancel', 
+        'missingFieldMessage'
+      ]}
+      defaults={[
+        'Required field is missing', 
+        'Save', 
+        'Cancel', 
+        'is missing. Do you want to save anyways?'
+      ]}
     >
       {([title, save, cancel, message]) =>
         <EuiOverlayMask>
@@ -1291,10 +1458,17 @@ const MissingFieldModal = ({ fields, onClose }) => {
             </EuiModalBody>
 
             <EuiModalFooter>
-              <EuiButtonEmpty size="s" onClick={() => onClose(false)} id='popup_cancel_button'>
+              <EuiButtonEmpty 
+                size="s" 
+                onClick={() => onClose(false)} 
+                id="popup_cancel_button"
+              >
                 {cancel}
               </EuiButtonEmpty>
-              <EuiButton size="s" onClick={() => onClose(true)} id='popup_save_button'>
+              <EuiButton 
+                size="s" 
+                onClick={() => onClose(true)} id="popup_save_button"
+              >
                 {save}
               </EuiButton>
             </EuiModalFooter>

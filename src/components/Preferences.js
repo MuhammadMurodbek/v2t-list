@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { Fragment, useState, useContext } from 'react'
 import PropTypes from 'prop-types'
 import {
@@ -60,17 +61,20 @@ const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
   const [preferences, setPreferences] = usePreferences()
   const setColumns = (columnsForCombo) => setPreferences({ columnsForCombo })
-  const setAutoPlayStatus = ({ target: { checked: autoPlayStatus}}) =>
+  const setAutoPlayStatus = ({ target: { checked: autoPlayStatus }}) =>
     setPreferences({ autoPlayStatus })
   const setExternalMode = ({ target: { checked: externalMode }}) =>
     setPreferences({ externalMode })
   const setEditReadOnly = ({ target: { checked: editReadOnly }}) =>
     setPreferences({ editReadOnly })
-  const setStopButtonVisibilityStatus = ({ target: { checked: stopButtonVisibilityStatus }}) =>
-    setPreferences({ stopButtonVisibilityStatus })
-  const setShowVideo = ({ target: { checked: showVideo }}) => setPreferences({ showVideo })
+  const setStopButtonVisibilityStatus = ({
+    target: { checked: stopButtonVisibilityStatus }
+  }) => setPreferences({ stopButtonVisibilityStatus })
+  const setShowVideo = ({ target: { checked: showVideo }}) =>
+    setPreferences({ showVideo })
   const setFontSize = (currentFontSize) => setPreferences({ currentFontSize })
-  const setAutoCorrectTable = (autoCorrectTable) => setPreferences({ autoCorrectTable });
+  const setAutoCorrectTable = (autoCorrectTable) =>
+    setPreferences({ autoCorrectTable })
   const [selectedTabId, setSelectedTabId] = useState('0')
   const [autoCorrectSelection, setAutoCorrectSelection] = useState([])
   const transcriptId = localStorage.getItem('transcriptId')
@@ -89,7 +93,7 @@ const Flyout = ({ visible, onClose }) => {
   const columns = [
     {
       name: <EuiI18n token="Replace" default="REPLACE" />,
-      render: ({ shortcut, index}) => (
+      render: ({ shortcut, index }) => (
         <EuiFieldText
           onChange={(e) => {
             const { value } = e.target
@@ -104,7 +108,7 @@ const Flyout = ({ visible, onClose }) => {
     },
     {
       name: <EuiI18n token="with" default="WITH" />,
-      render: ({ value, index}) => (
+      render: ({ value, index }) => (
         <EuiFieldText
           onChange={(e) => {
             const { value } = e.target
@@ -116,7 +120,7 @@ const Flyout = ({ visible, onClose }) => {
           value={value}
         />
       )
-    },
+    }
   ]
 
   const tabs = [
@@ -172,9 +176,7 @@ const Flyout = ({ visible, onClose }) => {
           </EuiFormRow>
           <EuiFormRow label="" fullWidth={true}>
             <EuiSwitch
-              label={
-                <EuiI18n token="externalMode" default="External mode" />
-              }
+              label={<EuiI18n token="externalMode" default="External mode" />}
               checked={preferences.externalMode}
               onChange={setExternalMode}
             />
@@ -182,7 +184,10 @@ const Flyout = ({ visible, onClose }) => {
           <EuiFormRow label="" fullWidth={true}>
             <EuiSwitch
               label={
-                <EuiI18n token="editReadOnlyFields" default="Edit read-only fields" />
+                <EuiI18n
+                  token="editReadOnlyFields"
+                  default="Edit read-only fields"
+                />
               }
               checked={preferences.editReadOnly}
               onChange={setEditReadOnly}
@@ -278,14 +283,27 @@ const Flyout = ({ visible, onClose }) => {
           <EuiSpacer size="l" />
           <EuiFlexGroup direction="columnReverse">
             <EuiFlexItem style={{ marginTop: -30 }}>
-              <EuiFormRow label={<EuiI18n token="ReplaceTextAsYouType" default="Replace text as you type" />} fullWidth>
+              <EuiFormRow
+                label={
+                  <EuiI18n
+                    token="ReplaceTextAsYouType"
+                    default="Replace text as you type"
+                  />
+                }
+                fullWidth
+              >
                 <EuiInMemoryTable
                   className="editableTable"
                   // this will temporarly fix the problem with selections:
-                  items={preferences.autoCorrectTable.map((v, index)=> ({...v, index}))}
-                  itemId={'index'}
-                  // itemId="id" temporaryly changed to the "position" (i) eg. sorting won't work
-                  // use "position" while id is temporarily editable so the row doesn't loose focus
+                  items={preferences.autoCorrectTable.map((v, index) => ({
+                    ...v,
+                    index
+                  }))}
+                  itemId="index"
+                  // itemId="id" temporaryly changed to the "position" 
+                  // (i) eg. sorting won't work
+                  // use "position" while id is temporarily 
+                  // editable so the row doesn't loose focus
                   columns={columns}
                   isSelectable={true}
                   selection={{ onSelectionChange: setAutoCorrectSelection }}
@@ -296,13 +314,18 @@ const Flyout = ({ visible, onClose }) => {
               </EuiFormRow>
               <EuiFormRow style={{ marginTop: 0 }}>
                 <EuiText size="s">
-                <span
-                  onClick={() => setAutoCorrectTable([...preferences.autoCorrectTable, {shortcut: '', value:''}])}
-                  style={{ cursor: 'pointer' }}
-                >
-                  +
-                  <EuiI18n token="createNewField" default="Add a new field" />
-                </span>
+                  <span
+                    onClick={() =>
+                      setAutoCorrectTable([
+                        ...preferences.autoCorrectTable,
+                        { shortcut: '', value: '' }
+                      ])
+                    }
+                    style={{ cursor: 'pointer' }}
+                  >
+                    +
+                    <EuiI18n token="createNewField" default="Add a new field" />
+                  </span>
                 </EuiText>
               </EuiFormRow>
             </EuiFlexItem>
@@ -315,7 +338,10 @@ const Flyout = ({ visible, onClose }) => {
                     onClick={() => {
                       const currentTable = [...preferences.autoCorrectTable]
                       setAutoCorrectTable(
-                        currentTable.filter((field, index) => !autoCorrectSelection.some(s => s.index===index))
+                        currentTable.filter(
+                          (field, index) =>
+                            !autoCorrectSelection.some((s) => s.index === index)
+                        )
                       )
                       setAutoCorrectSelection([])
                     }}

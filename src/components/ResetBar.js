@@ -9,7 +9,9 @@ import {
 } from '@patronum/eui'
 
 const ResetBar = ({ showCancelBar, showHideCancelBox, resetState }) => (
-  <EuiBottomBar style={showCancelBar === false ? { display: 'none' } : { display: 'flex' }}>
+  <EuiBottomBar
+    style={showCancelBar === false ? { display: 'none' } : { display: 'flex' }}
+  >
     <EuiFlexGroup justifyContent="flexEnd">
       <EuiFlexItem grow={false}>
         <EuiFlexGroup gutterSize="xl">
@@ -20,7 +22,7 @@ const ResetBar = ({ showCancelBar, showHideCancelBox, resetState }) => (
               iconType="cross"
               onClick={showHideCancelBox}
             >
-            Leave as it is
+              Leave as it is
             </EuiButtonEmpty>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
@@ -31,7 +33,7 @@ const ResetBar = ({ showCancelBar, showHideCancelBox, resetState }) => (
               iconType="check"
               onClick={resetState}
             >
-            Reset all the changes
+              Reset all the changes
             </EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>

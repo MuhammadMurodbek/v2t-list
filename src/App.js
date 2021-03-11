@@ -33,11 +33,13 @@ import {
   addErrorToast,
   clearGlobalToastList
 } from './components/GlobalToastList'
-import { addUnexpectedErrorToast } from './components/GlobalToastList/GlobalToastList'
+import { 
+  addUnexpectedErrorToast 
+} from './components/GlobalToastList/GlobalToastList'
 import { EuiFlexGroup } from '@patronum/eui'
 import { EuiFlexItem } from '@patronum/eui'
 import getQueryStringValue from './models/getQueryStringValue'
-import { EventHandler } from "./components/EventHandler";
+import { EventHandler } from './components/EventHandler'
 
 class App extends Component {
   state = {
@@ -69,7 +71,7 @@ class App extends Component {
             )
           }
           api.logout()
-          this.setState({isLoggedIn: false})
+          this.setState({ isLoggedIn: false })
         }
         return Promise.reject(error)
       }
@@ -102,7 +104,13 @@ class App extends Component {
     })
   }
 
-  fetchTranscripts = (tag = undefined, pageIndex = 0, pageSize = 20, sortField, sortDirection) => {
+  fetchTranscripts = (
+    tag = undefined,
+    pageIndex = 0,
+    pageSize = 20,
+    sortField,
+    sortDirection
+  ) => {
     return new Promise((resolve) => {
       const tokenFromStorage = localStorage.getItem('token')
       const tokenFromQuery = getQueryStringValue.prototype.decodeToken('token')
@@ -410,7 +418,6 @@ class App extends Component {
                 url={collapsedLogo}
                 onClick={this.loadHomescreen}
               />
-
               <EuiButtonIcon
                 style={{
                   color: 'white',
@@ -444,74 +451,67 @@ class App extends Component {
               --
               {/* </EuiButtonEmpty> */}
             </EuiPageSideBar>
-            {
-              isLoggedIn ? (
-                <Switch>
-                  <Route
-                    exact
-                    path="/"
-                    render={(props) =>
-                      <StartPage
-                        {...{
-                          ...props,
-                          transcripts,
-                          job,
-                          fetchTranscripts,
-                          contentLength,
-                          pageIndex,
-                          setPageIndex
-                        }}
+            {isLoggedIn ? (
+              <Switch>
+                <Route
+                  exact
+                  path="/"
+                  render={(props) => (
+                    <StartPage
+                      {...{
+                        ...props,
+                        transcripts,
+                        job,
+                        fetchTranscripts,
+                        contentLength,
+                        pageIndex,
+                        setPageIndex
+                      }}
+                    />
+                  )}
+                />
+                <Route
+                  path="/edit/:id"
+                  render={(props) => {
+                    const { id } = props.match.params
+                    const preloadedTranscript = transcripts.find(
+                      (currentTranscript) => currentTranscript.id === id
+                    )
+                    return (
+                      <EditPage
+                        {...{ ...props, id, preloadedTranscript, token }}
                       />
-                    }
-                  />
-                  <Route
-                    path="/edit/:id"
-                    render={(props) => {
-                      const { id } = props.match.params
-                      const preloadedTranscript = transcripts.find(
-                        (currentTranscript) => currentTranscript.id === id
-                      )
-                      return (
-                        <EditPage
-                          {...{ ...props, id, preloadedTranscript, token }}
-                        />
-                      )
-                    }}
-                  />
-                  <Route
-                    path="/upload/"
-                    render={() => <UploadPage />}
-                  />
-                  <Route
-                    path="/training/"
-                    render={() => <TrainingPage />}
-                  />
-                  <Route
-                    path="/live-diktering/:id"
-                    render={(props) => {
-                      const { id } = props.match.params
-                      return <EditPage mic redirectOnSave {...{ ...props, id, token }} />
-                    }}
-                  />
-                  <Route
-                    path="/live-diktering/"
-                    render={(params) => (
-                      <NewLiveTranscription search={params.location.search} />
-                    )}
-                  />
-                  <Route
-                    render={() => <Invalid />}
-                  />
-                </Switch>
-              )
-                : (
-                  <Route
-                    render={(props) => <LoginPage {...props} />}
-                  />
-                )
-            }
+                    )
+                  }}
+                />
+                <Route path="/upload/" render={() => <UploadPage />} />
+                <Route path="/training/" render={() => <TrainingPage />} />
+                <Route
+                  path="/live-diktering/:id"
+                  render={(props) => {
+                    const { id } = props.match.params
+                    return (
+                      <EditPage
+                        mic
+                        redirectOnSave
+                        {...{ ...props, id, token }}
+                      />
+                    )
+                  }}
+                />
+                <Route
+                  path="/live-diktering/"
+                  render={(params) => (
+                    <NewLiveTranscription search={params.location.search} />
+                  )}
+                />
+                <Route render={() => <Invalid />} />
+              </Switch>
+            ) : (
+              <Route render={(props) => <LoginPage {...props} />} />
+            )}
             <GlobalToastListContainer />
-            <EventHandler/>
+            <EventHandler />
           </EuiPage>
         </PreferencesProvider>
       </HashRouter>
@@ -520,13 +520,14 @@ class App extends Component {
 }
 
 const NewLiveTranscription = ({ search }) => {
-  const [ redirect, setRedirect ] = useState(null)
+  const [redirect, setRedirect] = useState(null)
   useEffect(() => {
     const startSession = async () => {
       const token = jwtDecode(localStorage.getItem('token'))
       const userId = token.sub
       let transcriptId 
-      // Instead of creating a new live session, check for active live session first
+      // Instead of creating a new live session, 
+      // check for active live session first
       api
         .getActiveLiveSession()
         .then((activeLiveSession)=>{          
@@ -542,7 +543,9 @@ const NewLiveTranscription = ({ search }) => {
             transcriptId = id
           }
         }).finally(()=>{
-          setRedirect(<Redirect to={`/live-diktering/${transcriptId}${search}`} />)
+          setRedirect(
+            <Redirect to={`/live-diktering/${transcriptId}${search}`} />
+          )
         })      
     }
     startSession().catch((e) => {

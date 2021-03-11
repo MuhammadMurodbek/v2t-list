@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 import React, { Fragment } from 'react'
 import { EuiSpacer, EuiFormRow, EuiButtonEmpty, EuiI18n } from '@patronum/eui'
-import api from "../api";
+import api from '../api'
 
 
 const Logout = ({ setPreferences }) => {

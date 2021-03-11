@@ -13,7 +13,13 @@ import Player from '../../Player'
 afterEach(cleanup)
 
 test('render Mic component', () => {
-  const { asFragment } = render(<Mic recordingAction="start" microphoneBeingPressed={false} toggleRecord={() => {}} />)
+  const { asFragment } = render(
+    <Mic
+      recordingAction="start"
+      microphoneBeingPressed={false}
+      toggleRecord={() => {}}
+    />
+  )
   expect(asFragment()).toMatchSnapshot()
 })
 

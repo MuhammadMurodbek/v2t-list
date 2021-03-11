@@ -18,12 +18,12 @@ function useCache(loaders) {
 module.exports = {
   mode: isDevelopment ? 'development' : 'production',
   entry: join(__dirname, 'src', 'index.js'),
-  devtool: "source-map",
+  devtool: 'source-map',
   output: {
     path: join(__dirname, 'build'),
     filename: '[name].[hash].js',
     chunkFilename: '[name].[hash].chunk.js',
-    publicPath: "/"
+    publicPath: '/'
   },
   watchOptions: {
     ignored: /node_modules/,

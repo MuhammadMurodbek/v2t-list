@@ -7,7 +7,8 @@
     "host": "http://localhost:3000/"
   }
   Environment variable documentation for Cypress:
-  https://docs.cypress.io/guides/guides/environment-variables.html#Option-2-cypress-env-json
+  https://docs.cypress.io/guides/
+  guides/environment-variables.html#Option-2-cypress-env-json
 */
 
 describe('Check page loading', () => {

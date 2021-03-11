@@ -16,7 +16,7 @@ const init = async () => {
   const mapApiUri = ({ headers, url }) => {
     const { pathname, search } = url
     const uri = `${baseUrl}${pathname}${search}`
-    return { uri, headers: { ...headers, origin: baseUrl } }
+    return { uri, headers: { ...headers, origin: baseUrl }}
   }
 
   if (isDevelopment) {

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import interpolateArray from '../models/interpolateArray'
 
 const SECOND_TO_BYTE_RATIO = 46.6 / 16

@@ -196,7 +196,10 @@ export default class UploadPage extends Component {
       addErrorToast(
         <EuiI18n
           token="lettersError"
-          default="Use only letters (the instruction has a list of valid characters)!"
+          default={
+            'Use only letters (the instruction has  \
+            a list of valid characters)!'
+          }
         />
       )
     }
@@ -256,7 +259,7 @@ export default class UploadPage extends Component {
         ]
       },
       async () => {
-        this.setState({ chapters: [] })
+        this.setState({ chapters: []})
         try {
           await api.trainingReject(transcriptionId)
         } catch {
@@ -264,7 +267,10 @@ export default class UploadPage extends Component {
             <EuiI18n token="error" default="Error" />,
             <EuiI18n
               token="trainingNotExists"
-              default="The action cannot be performed as transcript can no longer be found"
+              default={
+                'The action cannot be performed \
+                as transcript can no longer be found'
+              }
             />
           )
         }
@@ -279,7 +285,7 @@ export default class UploadPage extends Component {
   }
 
   removeToast = () => {
-    this.setState({ toasts: [] })
+    this.setState({ toasts: []})
   }
 
   changePreviewVisibility = () => {
@@ -390,7 +396,10 @@ export default class UploadPage extends Component {
             <EuiSpacer size="m" />
             <EuiFlexGroup>
               <EuiFlexItem style={{ fontSize: '22px' }}>
-                <Preview visible={isPreviewVisible} contents={previewContents} />
+                <Preview 
+                  visible={isPreviewVisible} 
+                  contents={previewContents} 
+                />
               </EuiFlexItem>
             </EuiFlexGroup>
             <EuiFlexGroup

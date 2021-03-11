@@ -27,11 +27,11 @@ describe('Check editor component', () => {
     cy.wait(1000)
   })
 
-//   it('Start typing at first', () => {
-//     cy.wait(5000)
-//     cy.get('span.editorBody').first().click().type(' sample words ')
-//     cy.wait(1000)
-//   })
+  //   it('Start typing at first', () => {
+  //     cy.wait(5000)
+  //     cy.get('span.editorBody').first().click().type(' sample words ')
+  //     cy.wait(1000)
+  //   })
 
   it('Start typing at the end', () => {
     // cy.wait(5000)
@@ -45,10 +45,10 @@ describe('Check editor component', () => {
 
       
     
-      // cy
-      // .get('span.editorBody')
-      // .nextAll()
-      // .type('sss')
+    // cy
+    // .get('span.editorBody')
+    // .nextAll()
+    // .type('sss')
 
     // cy
     //   .get('span.editorBody')
@@ -84,7 +84,8 @@ describe('Check editor component', () => {
   //     .click()
 
 
-  // ”Allmän Tillstånd: Gott och opåverkad.Inga kardiella inkompensationstecken i vila.Pollenallergiker.
+  // ”Allmän Tillstånd: Gott och opåverkad.Inga 
+  // kardiella inkompensationstecken i vila.Pollenallergiker.
   //   Lungor: Rena andningsljud.Inga rassel eller ronki.
   //     Buk: Palperas mjuk och oöm.Inga patologiska resistenser.”
 

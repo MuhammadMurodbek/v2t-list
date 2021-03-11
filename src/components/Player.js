@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/media-has-caption */
+/* eslint-disable react/prop-types */
 import React, { Component, Fragment } from 'react'
 import {
   EuiGlobalToastList,
@@ -12,7 +12,7 @@ import { PreferenceContext } from './PreferencesProvider'
 import { EuiI18n } from '@patronum/eui'
 import Mic from '../components/Mic'
 import { EVENTS } from '../components/EventHandler'
-import EventEmitter from "../models/events"
+import EventEmitter from '../models/events'
 
 class Player extends Component {
   static contextType = PreferenceContext
@@ -88,7 +88,7 @@ class Player extends Component {
   playAudio = () => {
     if (!this.myRef || !this.myRef.current) return
     this.myRef.current.play().catch(e => {
-      console.log(e);
+      console.error(e)
     })
     this.setState({ isPlaying: true })
   }
@@ -97,7 +97,9 @@ class Player extends Component {
     if (!this.myRef || !this.myRef.current) return
     this.myRef.current.pause()
     this.setState({ isPlaying: false })
-    this.props.onPause(this.myRef && this.myRef.current && this.myRef.current.currentTime)
+    this.props.onPause(
+      this.myRef && this.myRef.current && this.myRef.current.currentTime
+    )
   }
 
   stopAudio = () => {
@@ -159,7 +161,7 @@ class Player extends Component {
           .filter((time) => time)
         this.setState({ startTimes })
       } else {
-        this.setState({ startTimes: [] })
+        this.setState({ startTimes: []})
       }
     }
   }
@@ -297,7 +299,7 @@ class Player extends Component {
   increasePlaybackRate = (shouldIncreasePlaybackRate) => {
     const change = shouldIncreasePlaybackRate ? 0.2 : -0.2
     const { playbackRate } = this.state
-    const title = (v) => 'Uppspelningshastighet'
+    const title = () => 'Uppspelningshastighet'
     const text = (v) => `${v * 100}%`
     this.updateMedia('playbackRate', title, text, 0.2, 2, playbackRate, change)
   }
@@ -311,7 +313,7 @@ class Player extends Component {
   }
 
   removeToast = () => {
-    this.setState({ toasts: [] })
+    this.setState({ toasts: []})
   }
 
   render() {
@@ -335,7 +337,6 @@ class Player extends Component {
       token,
       mic,
       recording,
-      recordedTime,
       toggleRecord
     } = this.props
 
@@ -375,7 +376,8 @@ class Player extends Component {
           ref={this.myRef}
           src={audioClip ? audioClip.src : trackUrl}
           style={{
-            display: preferences.showVideo && !isContentAudio ? 'block' : 'none'
+            display:
+              preferences.showVideo && !isContentAudio ? 'block' : 'none'
           }}
           className="videoPlayer"
           onTimeUpdate={getCurrentTime}
@@ -388,10 +390,11 @@ class Player extends Component {
 
         <div className="sticky-controls">
           <div
-            className={
-              `${preferences.stopButtonVisibilityStatus === false
-                ? 'controls' : 'controlsWithStopButtonEnabled'} ${mic ? 'micS' : ''}`
-            }
+            className={`${
+              preferences.stopButtonVisibilityStatus === false
+                ? 'controls'
+                : 'controlsWithStopButtonEnabled'
+            } ${mic ? 'micS' : ''}`}
           >
             <EuiI18n
               tokens={[
@@ -521,7 +524,6 @@ class Player extends Component {
               visible={mic}
               microphoneBeingPressed={recording}
               toggleRecord={toggleRecord}
-              seconds={recordedTime}
             />
           </div>
           <VirtualControl

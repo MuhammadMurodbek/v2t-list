@@ -13,7 +13,6 @@ import {
   EuiFieldText,
   EuiI18n,
   EuiLoadingContent,
-  EuiSuperSelect,
   EuiHorizontalRule,
   EuiCallOut
 } from '@patronum/eui'
@@ -79,7 +78,7 @@ export default class UploadPage extends Component {
   }
 
   parseList = (list) =>
-    list.map(({id, name}) => ({ value: id, label: name }))
+    list.map(({ id, name }) => ({ value: id, label: name }))
 
   setDefaultValues = () => {
     const { schemaFields } = this.state
@@ -99,7 +98,10 @@ export default class UploadPage extends Component {
       console.error(e)
       addWarningToast(
         <EuiI18n token="warning" default="Warning" />,
-        <EuiI18n token="unableToGetDoctorsName" default="Unable to get the name" />
+        <EuiI18n 
+          token="unableToGetDoctorsName"
+          default="Unable to get the name"
+        />
       )
     }
   }
@@ -173,7 +175,7 @@ export default class UploadPage extends Component {
   }
 
   removeToast = () => {
-    this.setState({ toasts: [] })
+    this.setState({ toasts: []})
   }
 
   resetForm = () => {
@@ -209,7 +211,10 @@ export default class UploadPage extends Component {
     const { data: schema } = await api.getSchema(schemaId)
     const schemaFields = schema.fields ?
       schema.fields.filter((field => !field.editable)) : []
-    this.setState({ schemaFields, isLoadingSchema: false }, this.setDefaultValues)
+    this.setState({
+      schemaFields,
+      isLoadingSchema: false
+    }, this.setDefaultValues)
   }
 
   onFieldChange = (id, value) => {
@@ -238,9 +243,12 @@ export default class UploadPage extends Component {
       <EuiI18n token="upload" default="Upload">{ title => {
         // set translated document title
         document.title = `Inovia AI :: ${title}`
-        const selectedDepartment = departments.find(({value}) => value === departmentId)
-        const selectedDepartments = selectedDepartment ? [selectedDepartment] : []
-        const selectedSchema = schemas.find(({value}) => value === schemaId)
+        const selectedDepartment = departments
+          .find(({ value }) => value === departmentId)
+        const selectedDepartments 
+          = selectedDepartment ? [selectedDepartment] : []
+        const selectedSchema = schemas
+          .find(({ value }) => value === schemaId)
         const selectedSchemas = selectedSchema ? [selectedSchema] : []
 
         return (
@@ -260,12 +268,7 @@ export default class UploadPage extends Component {
                     />
                   </EuiFormRow>
                   <EuiFormRow
-                    label={
-                      <EuiI18n
-                        token="department"
-                        default="Department"
-                      />
-                    }
+                    label={<EuiI18n token="department" default="Department" />}
                   >
                     <EuiComboBox
                       options={departments}
@@ -276,12 +279,7 @@ export default class UploadPage extends Component {
                     />
                   </EuiFormRow>
                   <EuiFormRow
-                    label={
-                      <EuiI18n
-                        token="schema"
-                        default="Schema"
-                      />
-                    }
+                    label={<EuiI18n token="schema" default="Schema" />}
                   >
                     <EuiComboBox
                       options={schemas}
@@ -300,7 +298,11 @@ export default class UploadPage extends Component {
                   />
                   <EuiFlexGroup alignItems="center">
                     <EuiFlexItem grow={false}>
-                      <EuiButton fill onClick={this.onSubmit} isLoading={uploading}>
+                      <EuiButton
+                        fill
+                        onClick={this.onSubmit}
+                        isLoading={uploading}
+                      >
                         <EuiI18n token="upload" default="Upload" />
                       </EuiButton>
                     </EuiFlexItem>
@@ -309,18 +311,24 @@ export default class UploadPage extends Component {
               </EuiFlexItem>
               <EuiFlexItem>
                 <EuiCallOut
-                  title={<EuiI18n token="uploadDescriptionTitle" default="The schema updates the form" />}
+                  title={
+                    <EuiI18n
+                      token="uploadDescriptionTitle"
+                      default="The schema updates the form"
+                    />
+                  }
                   iconType="pin"
                 >
-                  <span style={{whiteSpace: "pre-line"}}>
+                  <span style={{ whiteSpace: 'pre-line' }}>
                     <EuiI18n
                       token="uploadDescription"
-                      default={
-                        `A schema can define fields as non editable. These are fields expected \
-                        to come with the audio file and are not up to users to fill in. The form \
+                      default={`A schema can define fields as non editable. \
+                          These are fields expected \
+                        to come with the audio file and are not  \
+                        up to users to fill in. The form \
                         to the left contains these non editable fields.
-
-                        If you're missing a field you have to look at the schema configuration \
+                        If you're missing a field you have to look at  \
+                        the schema configuration \
                         in the admin panel and remove the editable attribute.`
                       }
                     />
@@ -341,9 +349,15 @@ export default class UploadPage extends Component {
   }
 }
 
-const SchemaInputs = ({ isLoadingSchema, schemaFields, transcriptionFields, onFieldChange }) => {
+const SchemaInputs = ({ 
+  isLoadingSchema, schemaFields, transcriptionFields, onFieldChange 
+}) => {
   if (isLoadingSchema)
-    return <div style={{maxWidth: '400px'}}><EuiLoadingContent lines={6} /></div>
+    return (
+      <div style={{ maxWidth: '400px' }}>
+        <EuiLoadingContent lines={6} />
+      </div>
+    )
 
   return schemaFields.map(({ id, name }) => (
     <Fragment key={id}>

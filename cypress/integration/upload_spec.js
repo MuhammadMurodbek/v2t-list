@@ -27,7 +27,8 @@
 
 //   it('Uploads a CSV', () => {
 //     cy.document().trigger('dragenter')
-//     // you don't need to use cy.document() that is where my event listener is.
+//     // you don't need to use cy.document() 
+// that is where my event listener is.
 //     // you could use cy.get('element').trigger('dragenter')
 //     cy.dropFile('/Users/reza/Downloads/voice-recording.png')
 //   })

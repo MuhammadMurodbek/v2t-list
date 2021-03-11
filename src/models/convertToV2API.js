@@ -43,7 +43,7 @@ const convertToV2API = (schema, chapters, tags = {}) => {
       })
     }
   })
-  return [ ...updatedChapters, ...tagFields ]
+  return [...updatedChapters, ...tagFields]
 }
 
 export default convertToV2API

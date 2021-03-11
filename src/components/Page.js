@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react'
 import {
   EuiPageBody, EuiPageContent, EuiPageContentHeader,
@@ -7,7 +8,7 @@ import {
 import PropTypes from 'prop-types'
 import Preferences from './Preferences'
 
-const Start = ({ title, logo, children, preferences }) => (
+const Start = ({ title, children, preferences }) => (
   <EuiPageBody style={{
     minHeight: '100vh',
     margin: '0px',
@@ -33,7 +34,7 @@ const Start = ({ title, logo, children, preferences }) => (
 )
 
 Start.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired
   // children: PropTypes.object.isRequired,
   // children: PropTypes.oneOf(['object', 'array']).isRequired,
   // preferences: PropTypes.bool.isRequired

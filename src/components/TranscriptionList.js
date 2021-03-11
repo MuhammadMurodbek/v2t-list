@@ -26,7 +26,7 @@ export default class TranscriptionList extends Component {
     document.title = 'Inovia AI :: All Transcripts'
   }
 
-  onTableChange = async ({ page = {}, sort = {} }) => {
+  onTableChange = async ({ page = {}, sort = {}}) => {
     const { index: pageIndex, size: pageSize } = page
     const { field: sortField, direction: sortDirection } = sort
     const { fetchTranscripts, setPageIndex, job: department } = this.props
@@ -34,8 +34,13 @@ export default class TranscriptionList extends Component {
       loading: true
     })
 
-    await fetchTranscripts(department, pageIndex, pageSize, sortField, sortDirection)
-
+    await fetchTranscripts(
+      department,
+      pageIndex,
+      pageSize,
+      sortField,
+      sortDirection
+    )
     setPageIndex(pageIndex)
     this.setState({
       pageSize,

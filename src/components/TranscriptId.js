@@ -3,6 +3,7 @@ import { EuiFormRow, EuiButtonEmpty } from '@patronum/eui'
 import { EuiI18n } from '@patronum/eui'
 import { addSuccessToast, addWarningToast } from './GlobalToastList'
 
+// eslint-disable-next-line react/prop-types
 const TranscriptId = ({ id }) => {
   const copyToClipBoard = () => {
     navigator.permissions.query({ name: 'clipboard-write' }).then((result) => {
@@ -22,7 +23,8 @@ const TranscriptId = ({ id }) => {
               <EuiI18n token="warning" default="Warning" />,
               <EuiI18n
                 token="browserIsNotSupported"
-                default="Your browser is not supported, use e.g. Chrome or Firefox"
+                default="Your browser is not supported, 
+                  use e.g. Chrome or Firefox"
               />
             )
         )

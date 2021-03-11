@@ -230,7 +230,9 @@ export { URLS }
 
 
 const completeLiveTranscript = async (transcriptionId) => {
-  await axios.post(`/api/transcription/v2/live/session/${transcriptionId}/complete`)
+  await axios.post(
+    `/api/transcription/v2/live/session/${transcriptionId}/complete`
+  )
 }
 
 const createLiveSession = async (userId, schemaId, fields = []) => {
@@ -246,7 +248,9 @@ const getBlobFile = async (recordedAudioClip) => {
   const config = { responseType: 'blob' }
   let file
   await axios.get(recordedAudioClip.src, config).then(response => {
-    file = new File([response.data], recordedAudioClip.name, { type: 'audio/wav' })
+    file = new File([response.data], recordedAudioClip.name, {
+      type: 'audio/wav'
+    })
   })
   return file
 }
@@ -257,7 +261,8 @@ const getDepartments = (payload) => axios.post(URLS.searchDepartments, {
   ...payload
 })
 
-const getActiveLiveSession = () => axios.get('/api/transcription/v2/live/session/active')
+const getActiveLiveSession = () =>
+  axios.get('/api/transcription/v2/live/session/active')
 
 export default {
   approveTranscription,

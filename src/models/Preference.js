@@ -51,7 +51,8 @@ export const COLUMN_OPTIONS = [
     label: 'Received',
     name: <EuiI18n token="receivedTime" default="Received" />,
     field: 'receivedTime',
-    render: (receivedTime) => moment(receivedTime).format('YYYY-MM-DD HH:mm:ss'),
+    render: (receivedTime) =>
+      moment(receivedTime).format('YYYY-MM-DD HH:mm:ss'),
     sortable: 'true'
   },
   {
@@ -66,16 +67,16 @@ export const COLUMN_OPTIONS = [
 export const AUTOCORRECT_TABLE = [
   {
     shortcut: 'MVH',
-    value: 'Med vanliga hälsningar',
+    value: 'Med vanliga hälsningar'
   },
   {
     shortcut: 'bl.a.',
-    value: 'bland annat',
+    value: 'bland annat'
   },
   {
     shortcut: 'd.v.s',
-    value: 'det vill saga',
-  },
+    value: 'det vill saga'
+  }
 ]
 
 export default class Preference {
@@ -267,7 +268,7 @@ export default class Preference {
   static defaultState = {
     words: '3',
     showVideo: true,
-    autoPlayStatus: localStorage.getItem('autoPlayStatus') === "true",
+    autoPlayStatus: localStorage.getItem('autoPlayStatus') === 'true',
     stopButtonVisibilityStatus: false,
     columns: COLUMN_OPTIONS,
     columnsForCombo: COLUMN_OPTIONS.map(({ render, ...items }) => items).filter(

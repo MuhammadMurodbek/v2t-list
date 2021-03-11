@@ -14,34 +14,41 @@ import '../styles/tags.css'
 import { PreferenceContext } from '../components/PreferencesProvider'
 import { LanguageContext } from '../context'
 
-const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
+const ReadOnlyChapters = ({ 
+  chapters, onCreate, onUpdate 
+}) => {
   if (!chapters || !chapters.length) return null
   const [preferences] = useContext(PreferenceContext)
 
   return (
     <EuiForm>
       <EuiFlexGroup direction="column" gutterSize="m">
-        {
-          chapters.map(({ keyword, name, values }, key) => (
-            <EuiFlexItem key={key}>
-              <EuiFlexGroup>
-                <EuiFlexItem>
-                  <EuiFormRow style={{ paddingBottom: 0 }} label={name}>
-                    <span></span>
-                  </EuiFormRow>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  {
-                    values.length ? !preferences.editReadOnly
-                      ? <ReadOnlyFields values={values} />
-                      : <EditableFields keyword={keyword} values={values} onUpdate={onUpdate} />
-                      : <EuiFieldText onBlur={e => onCreate(keyword, e)} />
-                  }
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
-          ))
-        }
+        {chapters.map(({ keyword, name, values }, key) => (
+          <EuiFlexItem key={key}>
+            <EuiFlexGroup>
+              <EuiFlexItem>
+                <EuiFormRow style={{ paddingBottom: 0 }} label={name}>
+                  <span></span>
+                </EuiFormRow>
+              </EuiFlexItem>
+              <EuiFlexItem>
+                {values.length ? (
+                  !preferences.editReadOnly ? (
+                    <ReadOnlyFields values={values} />
+                  ) : (
+                    <EditableFields
+                      keyword={keyword}
+                      values={values}
+                      onUpdate={onUpdate}
+                    />
+                  )
+                ) : (
+                  <EuiFieldText onBlur={(e) => onCreate(keyword, e)} />
+                )}
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </EuiFlexItem>
+        ))}
       </EuiFlexGroup>
     </EuiForm>
   )
@@ -49,6 +56,7 @@ const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
 
 ReadOnlyChapters.propTypes = {
   chapters: PropTypes.array,
+  onCreate: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired
 }
 
@@ -108,8 +116,15 @@ const EditableFields = ({ keyword, values, onUpdate }) => {
           description ?
             <Fragment>
               <strong>
-                <EuiFieldText value={value} onChange={(e) => onChange(e, key, 'value')} />
-              </strong> - <EuiFieldText value={description} onChange={(e) => onChange(e, key, 'description')} />
+                <EuiFieldText 
+                  value={value} 
+                  onChange={(e) => onChange(e, key, 'value')} 
+                />
+              </strong> - 
+              <EuiFieldText 
+                value={description} 
+                onChange={(e) => onChange(e, key, 'description')} 
+              />
             </Fragment>
             :
             formattedDate(value, key)

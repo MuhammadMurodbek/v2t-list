@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-restricted-globals */
 import React, { useEffect, useState } from 'react'
 import {
@@ -38,7 +39,7 @@ const LoginPage = ({ history }) => {
   }, [])
 
   const loadDomains = async () => {
-    const { data: { domains } } = await api.getDomains()
+    const { data: { domains }} = await api.getDomains()
     setDomainList(domains)
     setDomain(domains[0])
   }
@@ -58,7 +59,9 @@ const LoginPage = ({ history }) => {
           const redirectUrl = getRedirectURL()
           const nextUrl = (!redirectUrl ? '#/' : redirectUrl)
           history.push(nextUrl.substring(1))
-          window.history.replaceState(null, '', location.pathname + location.hash)
+          window
+            .history
+            .replaceState(null, '', location.pathname + location.hash)
           window.location.reload()
         })
         .catch((error) => {
@@ -78,7 +81,8 @@ const LoginPage = ({ history }) => {
   }
 
   const changeDomain = (selection) => {
-    const domain = selection[0] ? selection[0].label : undefined
+    const domain 
+      = selection[0] ? selection[0].label : undefined
     if (domain)
       setDomain(domain)
   }
@@ -92,7 +96,12 @@ const LoginPage = ({ history }) => {
   }
 
   return (
-    <EuiFlexGroup gutterSize="none" direction="column" justifyContent="center" alignItems="center">
+    <EuiFlexGroup
+      gutterSize="none" 
+      direction="column" 
+      justifyContent="center" 
+      alignItems="center"
+    >
       <EuiFlexItem grow={false}>
         <EuiImage className="logo" size="m" alt="logo" url={logo} />
       </EuiFlexItem>
@@ -111,7 +120,11 @@ const LoginPage = ({ history }) => {
               />
             </EuiFormRow>
             <EuiFormRow
-              label={<EuiTextColor color="ghost">username/ password</EuiTextColor>}
+              label={
+                <EuiTextColor color="ghost">
+                  username/ password
+                </EuiTextColor>
+              }
             >
               <EuiFieldText
                 placeholder="username"

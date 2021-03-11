@@ -34,95 +34,95 @@ const KEY_CODE = {
 
 const EventHandler = () => {
   const handleExternalKeydown = (event) => {
-    switch (event.keyCode){
-      case KEY_CODE.S: {
-        if (event.ctrlKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.SEND)
+    switch (event.keyCode) {
+    case KEY_CODE.S: {
+      if (event.ctrlKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.SEND)
+      }
+      break
+    }
+    case KEY_CODE.ESC: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.CANCEL)
+      }
+      break
+    }
+    case KEY_CODE.SPACE: {
+      if (event.altKey && event.shiftKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.APPROVE_CHANGE)
+      }
+      break
+    }
+    case KEY_CODE.D: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.STOP_AUDIO)
+      }
+      break
+    }
+    case KEY_CODE.P: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.TOGGLE_PLAY)
+      }
+      break
+    }
+    case KEY_CODE.Q: {
+      if (event.altKey) {
+        event.preventDefault()
+        if(event.shiftKey) {
+          EventEmitter.dispatch(EVENTS.PAUSE_AUDIO)
           break
         }
+        EventEmitter.dispatch(EVENTS.PLAY_AUDIO)
       }
-      case KEY_CODE.ESC: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.CANCEL)
-          break
-        }
+      break
+    }
+    case KEY_CODE.LEFT_ARROW: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.BACKWARD_AUDIO)  
       }
-      case KEY_CODE.SPACE: {
-        if (event.altKey && event.shiftKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.APPROVE_CHANGE)
-          break
-        }
+      break
+    }
+    case KEY_CODE.RIGHT_ARROW: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.FORWARD_AUDIO)
       }
-      case KEY_CODE.D: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.STOP_AUDIO)
-          break
-        }
+      break
+    }
+    case KEY_CODE.J: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.VOLUMEUP)
       }
-      case KEY_CODE.P: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.TOGGLE_PLAY)
-          break
-        }
+      break
+    }
+    case KEY_CODE.N: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.VOLUMEDOWN)
       }
-      case KEY_CODE.Q: {
-        if (event.altKey) {
-          event.preventDefault()
-          if(event.shiftKey) {
-            EventEmitter.dispatch(EVENTS.PAUSE_AUDIO)
-            break
-          }
-          EventEmitter.dispatch(EVENTS.PLAY_AUDIO)
-          break
-        }
+      break
+    }
+    case KEY_CODE.K: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.PLAYBACKUP)
       }
-      case KEY_CODE.LEFT_ARROW: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.BACKWARD_AUDIO)
-          break
-        }
+      break
+    }
+    case KEY_CODE.M: {
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.PLAYBACKDOWN)
       }
-      case KEY_CODE.RIGHT_ARROW: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.FORWARD_AUDIO)
-          break
-        }
-      }
-      case KEY_CODE.J: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.VOLUMEUP)
-          break
-        }
-      }
-      case KEY_CODE.N: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.VOLUMEDOWN)
-          break
-        }
-      }
-      case KEY_CODE.K: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.PLAYBACKUP)
-          break
-        }
-      }
-      case KEY_CODE.M: {
-        if (event.altKey) {
-          event.preventDefault()
-          EventEmitter.dispatch(EVENTS.PLAYBACKDOWN)
-          break
-        }
-      }
+      break
+    }
     }
   }
 
@@ -134,10 +134,7 @@ const EventHandler = () => {
     }
   }, [])
 
-  return <div/>
+  return <div />
 }
 
-export {
-  EVENTS,
-  EventHandler
-}
+export { EVENTS, EventHandler }
