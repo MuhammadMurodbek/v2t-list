@@ -35,6 +35,7 @@ import Editor from '../components/Editor'
 import Tags, { TAG_NAMESPACES } from '../components/Tags'
 import Player from '../components/Player'
 import Schemas from '../components/Schemas'
+import Departments from '../components/Departments'
 import convertToV1API from '../models/convertToV1API'
 import convertToV2API from '../models/convertToV2API'
 import {
@@ -84,6 +85,8 @@ export default class EditPage extends Component {
     isMediaAudio: true,
     originalTags: {},
     schemas: [],
+    departments: [],
+    departmentId: '',
     schema: {},
     originalSchemaId: '',
     initialCursor: 0,
@@ -604,6 +607,8 @@ export default class EditPage extends Component {
       } = await api.getSchemas({
         departmentId: transcript.departmentId
       })
+      const { data: { departments }} = await api.getDepartments()
+      this.setState({ departments, departmentId: transcript.departmentId })
 
       const legacyTranscript = convertToV1API(transcript)
       this.onNewTranscript(legacyTranscript, schemas)
@@ -1090,6 +1095,17 @@ export default class EditPage extends Component {
     this.setState({ tagRequestCache })
   }
 
+  updateDepartmentId = async (departmentId) => {
+    this.setState({ departmentId })
+    // Get the list of schema for the department
+    const {
+      data: { schemas }
+    } = await api.getSchemas({ departmentId: departmentId })
+    this.setState({ schemas })
+    // Update selected schema
+    this.updateSchemaId(schemas[0].id)
+  }
+
   updateSchemaId = async (schemaId) => {
     const { allChapters } = this.state
     const { data: originalSchema } =
@@ -1221,6 +1237,8 @@ export default class EditPage extends Component {
       isMediaAudio,
       schemas,
       schema,
+      departments,
+      departmentId,
       initialCursor,
       currentChapter,
       error,
@@ -1300,6 +1318,15 @@ export default class EditPage extends Component {
 
               <EuiFlexItem grow={1}>
                 <EuiFlexGroup direction="column" gutterSize="xl">
+                  { mic && (
+                    <EuiFlexItem grow={false}>
+                      <Departments
+                        departments={departments}
+                        departmentId={departmentId}
+                        onUpdate={this.updateDepartmentId}
+                      />
+                    </EuiFlexItem>
+                  )}
                   <EuiFlexItem grow={false}>
                     <Schemas
                       schemas={schemas}
