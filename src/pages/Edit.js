@@ -105,8 +105,7 @@ export default class EditPage extends Component {
     modalMissingFields: [],
     approved: false,
     noMappingFields: [],
-    isUploadingMedia: false,
-    schemaSupportsLive: false
+    isUploadingMedia: false
   }
 
   async componentDidMount() {
@@ -152,20 +151,8 @@ export default class EditPage extends Component {
   }
 
   startRecording = async () => {
-    const { recordedTime, schemaSupportsLive } = this.state
-    if (!schemaSupportsLive) {
-      addWarningToast(
-        <EuiI18n
-          token="unableToStartLiveTranscriptSession"
-          default="Unable to start dictation"
-        />,
-        <EuiI18n
-          token="liveIsNotSupportedBySchema"
-          default="Selected schema doesn't support live dictation"
-        />
-      )
-      return
-    }
+    const { recordedTime } = this.state
+
     this.sessionId = Date.now()
     if (this.audioContext === null)
       this.audioContext = new window.AudioContext()
@@ -488,7 +475,7 @@ export default class EditPage extends Component {
       initialKeyword,
       tagRequestCache
     } = this.state
-    if (!recording || Date.now() < this.ignoreMessagesTo) return 
+    if (!recording || Date.now() < this.ignoreMessagesTo) return
     // throw away changes that comes after stoped
     const chunks = JSON.parse(message.toString('utf-8')).map((json) => ({
       word: json.text,
@@ -652,11 +639,7 @@ export default class EditPage extends Component {
         schemas,
         schema: schemaWithMappings,
         noMappingFields,
-        transcriptions: filteredTranscriptions,
-        schemaSupportsLive:
-          schemaWithMappings.profile.trim().toLowerCase() === 'default'
-            ? true
-            : false
+        transcriptions: filteredTranscriptions
       },
       () => {
         if (!this.state.originalChapters.length)
@@ -1127,11 +1110,7 @@ export default class EditPage extends Component {
       originalChapters: parsedChapters,
       chapters: parsedChapters,
       noMappingFields,
-      transcriptions: filteredTranscriptions,
-      schemaSupportsLive:
-        schemaWithMappings.profile.trim().toLowerCase() === 'default'
-          ? true
-          : false
+      transcriptions: filteredTranscriptions
     })
     localStorage.setItem('lastUsedSchema', schema.id)
   }
@@ -1461,15 +1440,15 @@ const MissingFieldModal = ({ fields, onClose }) => {
   return (
     <EuiI18n
       tokens={[
-        'missingReuiredHeaders', 
-        'save', 
-        'cancel', 
+        'missingReuiredHeaders',
+        'save',
+        'cancel',
         'missingFieldMessage'
       ]}
       defaults={[
-        'Required field is missing', 
-        'Save', 
-        'Cancel', 
+        'Required field is missing',
+        'Save',
+        'Cancel',
         'is missing. Do you want to save anyways?'
       ]}
     >
@@ -1485,15 +1464,15 @@ const MissingFieldModal = ({ fields, onClose }) => {
             </EuiModalBody>
 
             <EuiModalFooter>
-              <EuiButtonEmpty 
-                size="s" 
-                onClick={() => onClose(false)} 
+              <EuiButtonEmpty
+                size="s"
+                onClick={() => onClose(false)}
                 id="popup_cancel_button"
               >
                 {cancel}
               </EuiButtonEmpty>
-              <EuiButton 
-                size="s" 
+              <EuiButton
+                size="s"
                 onClick={() => onClose(true)} id="popup_save_button"
               >
                 {save}
