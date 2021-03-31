@@ -536,8 +536,15 @@ const NewLiveTranscription = ({ search }) => {
         }).catch(async (error)=>{
           // There is no active live session
           if(error.response.data.status===404) {
-            const schemaId = localStorage.getItem('lastUsedSchema')
-              || (await api.getSchemas()).data.schemas[0].id
+            const departments = await api.getDepartments()
+            const initialDepartmentId = departments.data.departments[0].id
+            const schemaId =
+              localStorage.getItem('lastUsedSchema') ||
+              (
+                await api.getSchemas({
+                  departmentId: initialDepartmentId
+                })
+              ).data.schemas[0].id
             // Create a new live session
             const id = await api.createLiveSession(userId, schemaId)
             transcriptId = id
