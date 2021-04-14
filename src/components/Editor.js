@@ -717,6 +717,10 @@ EditableChapters.propTypes = {
   inputRef: PropTypes.any
 }
 
+const escapeRegularExpression = (string) => string
+  .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  // $& means the whole matched string
+
 const EditableChapter = ({
   recordingChapter,
   chapterId,
@@ -737,7 +741,8 @@ const EditableChapter = ({
   const namePatterns = field
     ? [field.name, ...(field.headerPatterns || [])]
     : []
-  const regex = new RegExp(`^(${namePatterns.join(' |')} )?(.?)`, 'i')
+  const escapedNamePatterns = namePatterns.map(escapeRegularExpression)
+  const regex = new RegExp(`^(${escapedNamePatterns.join(' |')} )?(.?)`, 'i')
   const filteredSegments = segments.map((segment, i) => {
     const words =
       i === 0
