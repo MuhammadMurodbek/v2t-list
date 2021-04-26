@@ -355,7 +355,6 @@ export default class UploadPage extends Component {
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
                   searchBoxVisible={false}
-                  isTraining
                   autoplayEnabled={autoplayStatus}
                   onPause={() => {}}
                   token={token}

@@ -1272,7 +1272,6 @@ export default class EditPage extends Component {
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
                   searchBoxVisible
-                  isTraining={false}
                   onPause={this.onPause}
                   token={token}
                   mic={mic}

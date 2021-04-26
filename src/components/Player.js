@@ -341,11 +341,7 @@ class Player extends Component {
     } = this.props
 
     const [preferences] = this.context
-    let trackUrl = `/api/transcriptions/v1/${trackId}/media`
-    const isTraining = this.props
-    if (isTraining) {
-      trackUrl = `/api/training/v2/transcript/${trackId}/media?_token=${token}`
-    }
+    const trackUrl = `/api/transcription/v2/${trackId}/media?_token=${token}`
     return (
       <Fragment>
         <span style={{ display: searchBoxVisible ? 'flex' : 'none' }}>
