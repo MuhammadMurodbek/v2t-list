@@ -1278,6 +1278,7 @@ export default class EditPage extends Component {
                   recording={recording}
                   recordedTime={recordedTime}
                   toggleRecord={this.toggleRecord}
+                  isTraining={false}
                 />
                 <EuiSpacer size="xl" />
                 <Editor

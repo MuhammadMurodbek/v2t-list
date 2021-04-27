@@ -358,6 +358,7 @@ export default class UploadPage extends Component {
                   autoplayEnabled={autoplayStatus}
                   onPause={() => {}}
                   token={token}
+                  isTraining
                 />
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -395,9 +396,9 @@ export default class UploadPage extends Component {
             <EuiSpacer size="m" />
             <EuiFlexGroup>
               <EuiFlexItem style={{ fontSize: '22px' }}>
-                <Preview 
-                  visible={isPreviewVisible} 
-                  contents={previewContents} 
+                <Preview
+                  visible={isPreviewVisible}
+                  contents={previewContents}
                 />
               </EuiFlexItem>
             </EuiFlexGroup>

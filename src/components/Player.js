@@ -337,11 +337,14 @@ class Player extends Component {
       token,
       mic,
       recording,
-      toggleRecord
+      toggleRecord,
+      isTraining
     } = this.props
 
     const [preferences] = this.context
-    const trackUrl = `/api/transcription/v2/${trackId}/media?_token=${token}`
+    const trackUrl = isTraining ? 
+      `/api/training/v2/transcript/${trackId}/media?_token=${token}`
+      : `/api/transcription/v2/${trackId}/media?_token=${token}`
     return (
       <Fragment>
         <span style={{ display: searchBoxVisible ? 'flex' : 'none' }}>
