@@ -30,7 +30,7 @@ export default class UploadPage extends Component {
     queryTerm: false,
     chapters: '',
     transcriptionId: 0,
-    mediaId: 0,
+    mediaId: null,
     toasts: [],
     incompleteTranscriptExists: true,
     previewContents: '',

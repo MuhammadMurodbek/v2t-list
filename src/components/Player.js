@@ -342,9 +342,12 @@ class Player extends Component {
     } = this.props
 
     const [preferences] = this.context
-    const trackUrl = isTraining ? 
-      `/api/training/v2/transcript/${trackId}/media?_token=${token}`
-      : `/api/transcription/v2/${trackId}/media?_token=${token}`
+    let trackUrl = ''
+    if (trackId){
+      trackUrl = isTraining
+        ? `/api/training/v2/transcript/${trackId}/media?_token=${token}`
+        : `/api/transcription/v2/${trackId}/media?_token=${token}`
+    }
     return (
       <Fragment>
         <span style={{ display: searchBoxVisible ? 'flex' : 'none' }}>
