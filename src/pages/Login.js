@@ -81,7 +81,7 @@ const LoginPage = ({ history }) => {
   }
 
   const changeDomain = (selection) => {
-    const domain 
+    const domain
       = selection[0] ? selection[0].label : undefined
     if (domain)
       setDomain(domain)
@@ -97,9 +97,9 @@ const LoginPage = ({ history }) => {
 
   return (
     <EuiFlexGroup
-      gutterSize="none" 
-      direction="column" 
-      justifyContent="center" 
+      gutterSize="none"
+      direction="column"
+      justifyContent="center"
       alignItems="center"
     >
       <EuiFlexItem grow={false}>
@@ -128,6 +128,7 @@ const LoginPage = ({ history }) => {
             >
               <EuiFieldText
                 placeholder="username"
+                autocomplete="username"
                 value={username}
                 onChange={changeUsername}
               />
@@ -135,6 +136,7 @@ const LoginPage = ({ history }) => {
             <EuiFormRow>
               <EuiFieldPassword
                 placeholder="password"
+                autocomplete="current-password"
                 value={password}
                 onChange={changePassword}
               />
