@@ -1,6 +1,7 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin')
 const { join, resolve } = require('path')
 const CircularDependencyPlugin = require('circular-dependency-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 const { frontEndDevPort } = require('./server/config')
 
 const { NODE_ENV, CI } = process.env
@@ -80,6 +81,14 @@ module.exports = {
     new CircularDependencyPlugin({
       exclude: /node_modules/,
       failOnError: true
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'public/.well-known',
+          to: '.well-known'
+        }
+      ]
     })
   ],
   devServer: {
