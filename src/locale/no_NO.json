@@ -2,7 +2,7 @@
   "settings": "Innstillningar",
   "editor": "Editor",
   "general": "Generell",
-  "activityListSettings": "Innstillningar for aktivitetsliste",
+  "activityListSettings": "Innstillningar for transcription",
   "enterTheColumnsInTheOrderYouWantToDisplayThem": "Skriv inn kolonnen I den rekkefølgen du vil vise dem",
   "editorSettings": "Redigeringsinnstillinger",
   "textSize": "Tekststørrelse",
@@ -166,5 +166,9 @@
   "template": "Journalmall",
   "receivedTime": "Mottatt",
   "updatedTime": "Uppdaterad",
-  "liveIsNotSupportedBySchema": "Livediktering støttes ikke av skjema"
+  "liveIsNotSupportedBySchema": "Livediktering støttes ikke av skjema",
+  "samtal": "Samtale",
+  "date": "Dato",
+  "agent": "Agent",
+  "newLiveRecording": "Ny live diktat"
 }

@@ -20,8 +20,9 @@
     "react": "^16.8.2",
     "react-beautiful-dnd": "^13.0.0",
     "react-dom": "^16.8.2",
-    "react-router-dom": "^4.3.1",
-    "text-diff": "^1.0.1"
+    "react-router-dom": "^5.1.2",
+    "text-diff": "^1.0.1",
+    "socket.io-client": "^2.3.0"
   },
   "scripts": {
     "dev": "concurrently \"watch 'yarn lint'\"  \"yarn dev:server\" \"yarn dev:front\"  \"yarn typescript:compile\" -k -s first",

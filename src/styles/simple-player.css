@@ -1,26 +1,26 @@
-input[type=range] {
+.sticky-controls input[type=range] {
   background-color: rgba(0,0,0,.35);
 }
-input[type=range]::moz:focus {
+.sticky-controls input[type=range]::moz:focus {
     outline: none;
 }
 /* input:focus, textarea:focus {outline: none;} */
 
-input[type=range]::-webkit-slider-thumb {
+.sticky-controls input[type=range]::-webkit-slider-thumb {
   background: rgba(255,0,0, .35);
 }
 
 /* All the same stuff for Firefox */
-input[type=range]::-moz-range-thumb {
+.sticky-controls input[type=range]::-moz-range-thumb {
   background: rgba(255,0,0, .35);
 }
 
 /* All the same stuff for IE */
-input[type=range]::-ms-thumb {
+.sticky-controls input[type=range]::-ms-thumb {
   background: rgba(255,0,0, .35);
 }
 
-.sliderWrapper {
+.sticky-controls .sliderWrapper {
   height: 4px;
 }
 
@@ -37,4 +37,10 @@ input[type=range]::-ms-thumb {
 }
 
 .reject{
+}
+
+.sticky-controls {
+  position: sticky;
+  top: 0;
+  z-index: 9;
 }

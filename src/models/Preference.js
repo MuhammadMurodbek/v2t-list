@@ -48,6 +48,11 @@ export const COLUMN_OPTIONS = [
     field: 'schemaName'
   },
   {
+    label: 'Department',
+    name: <EuiI18n token="department" default="Department" />,
+    field: 'department'
+  },
+  {
     label: 'Received',
     name: <EuiI18n token="receivedTime" default="Received" />,
     field: 'receivedTime',

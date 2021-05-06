@@ -17,6 +17,7 @@ import collapsedLogo from './img/medspeech+Inovia_logo_rgb_collapsed.png'
 import PreferencesProvider from './components/PreferencesProvider'
 import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
+import TranscriptionPage from './pages/Transcription'
 import UploadPage from './pages/Upload'
 import TrainingPage from './pages/Training'
 import LoginPage from './pages/Login'
@@ -52,7 +53,8 @@ class App extends Component {
     isCollapsed: localStorage.getItem('isSidebarCollapsed') === 'true',
     job: null,
     contentLength: -1,
-    pageIndex: 0
+    pageIndex: 0,
+    activeDepartments: []
   }
 
   componentDidMount() {
@@ -164,7 +166,8 @@ class App extends Component {
                 // which are video before loading all active jobs
                 this.setState({
                   transcripts,
-                  contentLength
+                  contentLength,
+                  activeDepartments: activeTags
                 })
               })
               .catch((e) => {
@@ -181,7 +184,7 @@ class App extends Component {
                     this.setState({
                       transcripts: [],
                       selectedItem: tag.id
-                    })  
+                    })
                     api
                       .loadTickets(tag.id, pageIndex, pageSize, orderBy)
                       .then(({ data }) => {
@@ -217,6 +220,14 @@ class App extends Component {
                     items: sideBar,
                     forceOpen: true,
                     name: <EuiI18n token="department" default="Department" />
+                  },
+                  {
+                    id: 'Conversations',
+                    href: '/#/transcriptor',
+                    name: <EuiI18n token="samtal" default="Transcriptor" />,
+                    onClick: () => {
+                      this.selectItem('Conversations')
+                    }
                   },
                   {
                     href: '/#/upload',
@@ -334,7 +345,8 @@ class App extends Component {
       isCollapsed,
       job,
       contentLength,
-      pageIndex
+      pageIndex,
+      activeDepartments
     } = this.state
     const { fetchTranscripts, setPageIndex } = this
     // set authorization token when the app is refreshed
@@ -483,6 +495,36 @@ class App extends Component {
                       />
                     )
                   }}
+                />
+                <Route
+                  path="/transcriptor/:transcriptionId"
+                  render={(props) => {
+                    const { transcriptionId } = props.match.params
+                    return (
+                      <TranscriptionPage
+                        isListOpen={false}
+                        departments={activeDepartments}
+                        transcriptionId={transcriptionId}
+                      />
+                    )}}
+                />
+                <Route
+                  path="/transcriptor"
+                  render={() => (
+                    <TranscriptionPage
+                      isListOpen={false}
+                      departments={activeDepartments}
+                    />
+                  )}
+                />
+                <Route
+                  path="/listOfTranscriptions"
+                  render={() => (
+                    <TranscriptionPage
+                      isListOpen={true}
+                      departments={activeDepartments}
+                    />
+                  )}
                 />
                 <Route path="/upload/" render={() => <UploadPage />} />
                 <Route path="/training/" render={() => <TrainingPage />} />

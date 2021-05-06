@@ -195,22 +195,22 @@
 }
 
 
-input[type=range] {
+.sticky-controls input[type=range] {
   -webkit-appearance: none;
   -moz-appearance: none;
   width: 487px;
   background-color: transparent;
 }
 
-input[type=range]::-webkit-slider-thumb {
+.sticky-controls input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
 }
 
-input[type=range]:focus {
+.sticky-controls input[type=range]:focus {
   outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
 }
 
-input[type=range]::-ms-track {
+.sticky-controls input[type=range]::-ms-track {
   width: 75%;
   cursor: pointer;
 
@@ -220,18 +220,18 @@ input[type=range]::-ms-track {
   color: transparent;
 }
 
-input[type=range]::-webkit-slider-thumb {
+.sticky-controls input[type=range]::-webkit-slider-thumb {
  -webkit-appearance: none;
   height: 20px;
   width: 20px;
   border-radius: 60%;
   background: rgba(255,0,0,.35);
-  margin-top: -3px;
+  margin-top: -6px;
   cursor: pointer;
 }
 
 /* All the same stuff for Firefox */
-input[type=range]::-moz-range-thumb {
+.sticky-controls input[type=range]::-moz-range-thumb {
   -webkit-appearance: none;
   height: 20px;
   width: 20px;
@@ -242,7 +242,7 @@ input[type=range]::-moz-range-thumb {
 }
 
 /* All the same stuff for IE */
-input[type=range]::-ms-thumb {
+.sticky-controls input[type=range]::-ms-thumb {
  -webkit-appearance: none;
   height: 30px;
   width: 30px;
@@ -255,7 +255,7 @@ input[type=range]::-ms-thumb {
 
 
 /* track */
-input[type=range]::-webkit-slider-runnable-track {
+.sticky-controls input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 15px;
   cursor: pointer;
@@ -263,21 +263,20 @@ input[type=range]::-webkit-slider-runnable-track {
   border-radius: 1.3px;
 }
 
-input[type=range]:focus::-webkit-slider-runnable-track {
+.sticky-controls input[type=range]:focus::-webkit-slider-runnable-track {
   background-color: transparent;
 }
 
-input[type=range]::-moz-range-track {
+.sticky-controls input[type=range]::-moz-range-track {
   width: 100%;
   height: 2.4px;
   cursor: pointer;
   box-shadow: none;
   background-color: transparent;
   border-radius: 1.3px;
-
 }
 
-input[type=range]::-ms-track {
+.sticky-controls input[type=range]::-ms-track {
   width: 100%;
   height: 2.4px;
   cursor: pointer;
@@ -286,25 +285,21 @@ input[type=range]::-ms-track {
   color: transparent;
 }
 
-input[type=range]::-ms-fill-lower {
+.sticky-controls input[type=range]::-ms-fill-lower {
   background-color: rgba(165, 172, 233, 0.5);
-
   border-radius: 2.6px;
-
 }
 
-input[type=range]:focus::-ms-fill-lower {
+.sticky-controls input[type=range]:focus::-ms-fill-lower {
   background-color: rgba(165, 172, 233, 0.5);
 }
 
-input[type=range]::-ms-fill-upper {
+.sticky-controls input[type=range]::-ms-fill-upper {
   background-color: rgba(165, 172, 233, 0.5);
-
   border-radius: 2.6px;
-
 }
 
-input[type=range]:focus::-ms-fill-upper {
+.sticky-controls input[type=range]:focus::-ms-fill-upper {
   background-color: rgba(165, 172, 233, 0.5);
 }
 
