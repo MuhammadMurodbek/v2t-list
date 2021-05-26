@@ -28,25 +28,36 @@ const setToken = (token) => {
   }
 }
 
-export const getRedirectURL = () => {
+export const getNextUrl = (history, basePath = '') => {
   const searchParams = new URLSearchParams(location.search)
-  const redirectUrl = searchParams.get('redirect')
+  const encodedUri = encodeURIComponent(location.hash)
+  const isRootHash = location.hash === '#/'
 
-  return redirectUrl
+  if (!history) {
+    return searchParams.get('redirect') ||
+      isRootHash
+      ? location.hash
+      : `?redirect=${encodedUri}#/`
+  }
+
+  if (searchParams.has('redirect')) {
+    return searchParams.get('redirect').substring(1)
+  }
+
+  if (location.search.length > 1) {
+    return `${history.location.pathname}${location.search}`
+  }
+
+  return `${basePath}/`
 }
 
 export const logout = () => {
   axios.defaults.headers.common.Authorization = undefined
   localStorage.setItem('token', '')
   localStorage.setItem('isSidebarCollapsed', null)
-  const redirectUrl = getRedirectURL()
-  const encodedUri = encodeURIComponent(location.hash)
   const isRootHash = location.hash === '#/'
 
-  const nextUrl = redirectUrl ||
-    isRootHash
-    ? location.hash
-    : `?redirect=${encodedUri}#/`
+  const nextUrl = getNextUrl()
 
   if (isRootHash) {
     window.location.reload()

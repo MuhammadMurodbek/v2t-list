@@ -17,7 +17,7 @@ import {
 import { usePreferences } from '../components/PreferencesProvider'
 // import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'
-import api, { getRedirectURL } from '../api'
+import api, { getNextUrl } from '../api'
 import {
   addErrorToast,
   addUnexpectedErrorToast
@@ -56,9 +56,8 @@ const LoginPage = ({ history }) => {
           setPassword('')
           setToken(token)
 
-          const redirectUrl = getRedirectURL()
-          const nextUrl = (!redirectUrl ? '#/' : redirectUrl)
-          history.push(nextUrl.substring(1))
+          const nextUrl = getNextUrl(history)
+          history.push(nextUrl)
           window
             .history
             .replaceState(null, '', location.pathname + location.hash)

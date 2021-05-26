@@ -765,14 +765,31 @@ export default class EditPage extends Component {
   }
 
   parseReadOnlyTranscripts = (transcriptions) => {
+    const { location } = this.props
+    const params = new URLSearchParams(location.search)
     const { readOnlyHeaders } = this.state
+
     if (!transcriptions) return []
-    return readOnlyHeaders.map((field) => {
+    let chapters = readOnlyHeaders.map((field) => {
       const chapter = transcriptions.find(
         ({ keyword }) => keyword === field.id
       ) || { values: [], keyword: field.id }
       return { ...chapter, name: field.name }
     })
+
+    for (const [key, value] of params.entries()) {
+      if (key === 'token') continue
+
+      const index = chapters.findIndex(({ keyword }) => keyword === key)
+      if (index !== -1) {
+        chapters[index] = { ...chapters[index], values: [{ value }]}
+      } else {
+        const newChapter = { keyword: key, name: key, values: [{ value }]}
+        chapters = [...chapters, newChapter]
+      }
+    }
+
+    return chapters
   }
 
   sectionHeaders = () => {
