@@ -766,7 +766,9 @@ export default class EditPage extends Component {
 
   parseReadOnlyTranscripts = (transcriptions) => {
     const { location } = this.props
-    const params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(
+      location.search || window.location.search
+    )
     const { readOnlyHeaders } = this.state
 
     if (!transcriptions) return []
@@ -778,9 +780,10 @@ export default class EditPage extends Component {
     })
 
     for (const [key, value] of params.entries()) {
-      if (key === 'token') continue
+      if (key === 'token' || key === 'template') continue
 
-      const index = chapters.findIndex(({ keyword }) => keyword === key)
+      const index = chapters.findIndex(({ keyword }) =>
+        keyword.toLowerCase() === key.toLowerCase())
       if (index !== -1) {
         chapters[index] = { ...chapters[index], values: [{ value }]}
       } else {
@@ -1325,6 +1328,7 @@ export default class EditPage extends Component {
                   )}
                   <EuiFlexItem grow={false}>
                     <Schemas
+                      location={this.props.location}
                       schemas={schemas}
                       schemaId={schema.id}
                       onUpdate={this.updateSchemaId}
