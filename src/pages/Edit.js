@@ -51,6 +51,7 @@ import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
 import EventEmitter from '../models/events'
+import moment from 'moment'
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
@@ -766,29 +767,55 @@ export default class EditPage extends Component {
 
   parseReadOnlyTranscripts = (transcriptions) => {
     const { location } = this.props
-    const params = new URLSearchParams(
-      location.search || window.location.search
-    )
     const { readOnlyHeaders } = this.state
+    let search = location.search || window.location.search
+    search = location.search.replaceAll(/&amp;/ig, '&')
+
+    const params = new URLSearchParams(search)
 
     if (!transcriptions) return []
-    let chapters = readOnlyHeaders.map((field) => {
+    const chapters = readOnlyHeaders.map((field) => {
       const chapter = transcriptions.find(
         ({ keyword }) => keyword === field.id
       ) || { values: [], keyword: field.id }
       return { ...chapter, name: field.name }
     })
 
+    let date
+    let time
+    let examination_time
+
     for (const [key, value] of params.entries()) {
       if (key === 'token' || key === 'template') continue
+      if (key === 'date') {
+        date = value
+        continue
+      }
+      if (key === 'time') {
+        time = value
+        continue
+      }
 
       const index = chapters.findIndex(({ keyword }) =>
         keyword.toLowerCase() === key.toLowerCase())
       if (index !== -1) {
         chapters[index] = { ...chapters[index], values: [{ value }]}
-      } else {
-        const newChapter = { keyword: key, name: key, values: [{ value }]}
-        chapters = [...chapters, newChapter]
+      }
+    }
+
+    if (date && time) {
+      const regex = /[^:-\w\s]/gi
+      const d = date.replace(regex, '')
+      const t = time.replace(regex, '')
+      examination_time = new Date(`${d} ${t}`).toISOString()
+
+      const index = chapters.findIndex(({ keyword }) =>
+        keyword === 'examination_time')
+      if (index !== -1) {
+        chapters[index] = {
+          ...chapters[index],
+          values: [{ value: examination_time }]
+        }
       }
     }
 
