@@ -769,6 +769,7 @@ export default class EditPage extends Component {
     const { readOnlyHeaders } = this.state
     let search = location.search || window.location.search
     search = location.search.replaceAll(/&amp;/ig, '&')
+    search = decodeURIComponent(search)
 
     const params = new URLSearchParams(search)
 
