@@ -28,7 +28,7 @@ const LoginPage = ({ history }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   // eslint-disable-next-line no-unused-vars
-  const [prefernces, setPreferences] = usePreferences()
+  const { prefernces, setPreferences } = usePreferences()
   const setToken = (authtoken) => {
     setPreferences({ token: authtoken })
   }

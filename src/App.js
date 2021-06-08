@@ -54,7 +54,8 @@ class App extends Component {
     job: null,
     contentLength: -1,
     pageIndex: 0,
-    activeDepartments: []
+    activeDepartments: [],
+    transcriptId: ''
   }
 
   componentDidMount() {
@@ -104,6 +105,10 @@ class App extends Component {
     this.setState({
       pageIndex
     })
+  }
+
+  setTranscriptId = (transcriptId) => {
+    this.setState({ transcriptId })
   }
 
   fetchTranscripts = (
@@ -346,7 +351,8 @@ class App extends Component {
       job,
       contentLength,
       pageIndex,
-      activeDepartments
+      activeDepartments,
+      transcriptId
     } = this.state
     const { fetchTranscripts, setPageIndex } = this
     // set authorization token when the app is refreshed
@@ -354,7 +360,12 @@ class App extends Component {
 
     return (
       <HashRouter>
-        <PreferencesProvider value={[preferences, this.setPreferences]}>
+        <PreferencesProvider value={{
+          preferences,
+          setPreferences: this.setPreferences,
+          transcriptId,
+          setTranscriptId: this.setTranscriptId
+        }}>
           <EuiPage>
             <EuiPageSideBar
               style={{

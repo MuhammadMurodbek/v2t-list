@@ -18,7 +18,7 @@ const ReadOnlyChapters = ({
   chapters, onCreate, onUpdate 
 }) => {
   if (!chapters || !chapters.length) return null
-  const [preferences] = useContext(PreferenceContext)
+  const { preferences } = useContext(PreferenceContext)
 
   return (
     <EuiForm>

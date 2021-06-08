@@ -23,8 +23,12 @@ import {
   addUnexpectedErrorToast,
   addWarningToast
 } from '../components/GlobalToastList'
+import { PreferenceContext } from '../components/PreferencesProvider'
 
 export default class UploadPage extends Component {
+
+  static contextType = PreferenceContext
+
   DEFAULT_STATE = {
     files: [],
     toasts: [],
@@ -48,7 +52,9 @@ export default class UploadPage extends Component {
   }
 
   componentDidMount = async () => {
-    localStorage.setItem('transcriptId', '')
+    const { setTranscriptId } = this.context
+
+    setTranscriptId('')
     await this.loadDepartments()
   }
 

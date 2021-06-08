@@ -23,6 +23,9 @@ export default class TranscriptionList extends Component {
   }
 
   componentDidMount = async () => {
+    const { setTranscriptId } = this.context
+
+    setTranscriptId('')
     document.title = 'Inovia AI :: All Transcripts'
   }
 
@@ -98,7 +101,7 @@ export default class TranscriptionList extends Component {
   }
 
   getTranscriptHref = (schemaId) => {
-    const [preferences] = this.context
+    const { preferences } = this.context
     const token = localStorage.getItem('token')
 
     if (preferences.externalMode) {
@@ -115,7 +118,6 @@ export default class TranscriptionList extends Component {
   }
 
   render() {
-    localStorage.setItem('transcriptId', '')
     const {
       pageSize,
       loading,
@@ -124,7 +126,7 @@ export default class TranscriptionList extends Component {
       sortDirection
     } = this.state
     const { transcripts, contentLength, pageIndex } = this.props
-    const [preferences] = this.context
+    const { preferences } = this.context
     const pagination = {
       pageIndex,
       pageSize,

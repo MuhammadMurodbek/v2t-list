@@ -667,7 +667,7 @@ export default class Editor extends Component {
       schema
     } = this.props
     const { diff, error } = this.state
-    const [preferences] = this.context
+    const { preferences } = this.context
     if (!chapters) return null
     return (
       <>

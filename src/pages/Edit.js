@@ -605,8 +605,10 @@ export default class EditPage extends Component {
   }
 
   onNewTranscript = async (transcript, schemas) => {
-    localStorage.setItem('transcriptId', this.props.id)
+    const { setTranscriptId } = this.context
     const { fields, media_content_type, schemaId, transcriptions } = transcript
+
+    setTranscriptId(this.props.id)
 
     const { data: originalSchema } =
       (await api.getSchema(schemaId).catch(this.onError)) || {}

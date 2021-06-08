@@ -23,8 +23,12 @@ import {
   addErrorToast,
   addUnexpectedErrorToast
 } from '../components/GlobalToastList'
+import { PreferenceContext } from '../components/PreferencesProvider'
 
 export default class UploadPage extends Component {
+
+  static contextType = PreferenceContext
+
   state = {
     isMediaAudio: true,
     queryTerm: false,
@@ -40,6 +44,8 @@ export default class UploadPage extends Component {
   }
 
   componentDidMount = async () => {
+    const { setTranscriptId } = this.context
+
     this.playerRef = React.createRef()
     this.setState(
       {
@@ -66,7 +72,7 @@ export default class UploadPage extends Component {
         this.loadCurrentTranscript()
       }
     )
-    localStorage.setItem('transcriptId', '')
+    setTranscriptId('')
   }
 
   loadCurrentTranscript = async () => {

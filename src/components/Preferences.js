@@ -59,7 +59,7 @@ const Button = ({ onClick }) => (
 
 const Flyout = ({ visible, onClose }) => {
   if (!visible) return null
-  const [preferences, setPreferences] = usePreferences()
+  const { preferences, setPreferences, transcriptId } = usePreferences()
   const setColumns = (columnsForCombo) => setPreferences({ columnsForCombo })
   const setAutoPlayStatus = ({ target: { checked: autoPlayStatus }}) =>
     setPreferences({ autoPlayStatus })
@@ -77,7 +77,6 @@ const Flyout = ({ visible, onClose }) => {
     setPreferences({ autoCorrectTable })
   const [selectedTabId, setSelectedTabId] = useState('0')
   const [autoCorrectSelection, setAutoCorrectSelection] = useState([])
-  const transcriptId = localStorage.getItem('transcriptId')
   const { language, setLanguage, languagesList } = useContext(LanguageContext)
 
   const languageOptions = languagesList.map((lang) => ({

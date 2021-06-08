@@ -17,7 +17,7 @@ import api from '../../api'
 import { usePreferences } from '../PreferencesProvider'
 
 const FirstColumn = ({ item, isListOpen, departments, selectTranscript }) => {
-  const [preferences] = usePreferences()
+  const { preferences } = usePreferences()
   const history = useHistory()
   const [transcriptionId, setTranscriptionId] = useState(
     useParams().transcriptionId

@@ -129,7 +129,7 @@ class Player extends Component {
 
   getAudioData = (e) => {
     const { duration } = e.target
-    const [preferences] = this.context
+    const { preferences } = this.context
     let minutes = Math.floor(duration / 60)
     minutes = minutes < 10 ? `0${minutes}` : minutes
     let seconds = Math.floor(duration - minutes * 60)
@@ -341,7 +341,7 @@ class Player extends Component {
       isTraining
     } = this.props
 
-    const [preferences] = this.context
+    const { preferences } = this.context
     let trackUrl = ''
     if (trackId){
       trackUrl = isTraining
