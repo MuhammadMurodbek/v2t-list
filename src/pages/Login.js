@@ -127,7 +127,7 @@ const LoginPage = ({ history }) => {
             >
               <EuiFieldText
                 placeholder="username"
-                autocomplete="username"
+                autoComplete="username"
                 value={username}
                 onChange={changeUsername}
               />
@@ -135,7 +135,7 @@ const LoginPage = ({ history }) => {
             <EuiFormRow>
               <EuiFieldPassword
                 placeholder="password"
-                autocomplete="current-password"
+                autoComplete="current-password"
                 value={password}
                 onChange={changePassword}
               />

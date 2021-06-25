@@ -236,6 +236,14 @@ const getSchemas = (payload) => axios.post(URLS.schemaSearch, {
 })
 
 const getSchema = (id) => axios.get(`${URLS.schemaById}/${id}`)
+  .then(({ data }) => ({ data: { ...data, fields: data.fields.map(curr => {
+    if (curr.id === 'priority' || curr.id === 'doctor_full_name') {
+      curr.choiceValues = ['1', '2', '3', '4', '5']
+      curr.multiSelect = true
+      // curr.required = {}
+    }
+    return curr
+  }) }})) //test
 
 export { URLS }
 

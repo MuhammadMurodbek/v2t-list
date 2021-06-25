@@ -23,7 +23,8 @@ import {
   EuiModalFooter,
   EuiFormRow,
   EuiTextArea,
-  EuiToolTip
+  EuiToolTip,
+  EuiComboBox
 } from '@patronum/eui'
 import { connect } from 'mqtt'
 import jwtDecode from 'jwt-decode'
@@ -105,7 +106,9 @@ export default class EditPage extends Component {
     modalMissingFields: [],
     approved: false,
     noMappingFields: [],
-    isUploadingMedia: false
+    fieldsWithRequirement: [],
+    isUploadingMedia: false,
+    complicatedFieldOptions: {}
   }
 
   async componentDidMount() {
@@ -596,15 +599,30 @@ export default class EditPage extends Component {
       })
       const { data: { departments }} = await api.getDepartments()
       this.setState({ departments, departmentId: transcript.departmentId })
-
-      const legacyTranscript = convertToV1API(transcript)
-      this.onNewTranscript(legacyTranscript, schemas)
+      const { data: originalSchema } =
+        (await api.getSchema(transcript.schemaId).catch(this.onError)) || {}
+      const schema = await this.extractHeaders(originalSchema)
+      const selectedSchemaFields = schema.fields? schema.fields : []
+      const legacyTranscript = convertToV1API(transcript, selectedSchemaFields)
+      // set complicated fields
+      // complicatedFieldOptions
+      // console.log('😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀')
+      const complicatedFields = {}
+      schema.fields
+        .filter((f) => f.multiSelect)
+        .forEach((f) => {
+          complicatedFields[f.name] = f.choiceValues
+        })
+      // console.log('complicatedFields', complicatedFields)
+      this.setState({ complicatedFieldOptions: complicatedFields })
+      // console.log('😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀')
+      this.onNewTranscript(legacyTranscript, schemas, schema)
     } catch (error) {
       this.onError(error)
     }
   }
 
-  onNewTranscript = async (transcript, schemas) => {
+  onNewTranscript = async (transcript, schemas, selectedSchema) => {
     const { setTranscriptId } = this.context
     const { fields, media_content_type, schemaId, transcriptions } = transcript
 
@@ -612,18 +630,20 @@ export default class EditPage extends Component {
 
     const { data: originalSchema } =
       (await api.getSchema(schemaId).catch(this.onError)) || {}
-    let schema = await this.extractHeaders(originalSchema)
-    schema = this.extractTagsAndSchema(schema, transcriptions)
-
+    const schema = this.extractTagsAndSchema(selectedSchema, transcriptions)
     const defaultField =
       originalSchema && originalSchema.fields.find((field) => field.default)
+    if (!defaultField) {
+      addErrorToast('Default field is missing in the schema')
+    }
     const defaultFields = [
       { keyword: defaultField.name || '', segments: [], values: []}
     ]
     const {
       noMappingFields,
       schemaWithMappings,
-      transcriptions: filteredTranscriptions
+      transcriptions: filteredTranscriptions,
+      fieldsWithRequirement
     } = this.filterSchema(schema, [...transcriptions])
     const parsedChapters = this.parseTranscriptions(
       filteredTranscriptions,
@@ -641,6 +661,7 @@ export default class EditPage extends Component {
         schemas,
         schema: schemaWithMappings,
         noMappingFields,
+        fieldsWithRequirement,
         transcriptions: filteredTranscriptions
       },
       () => {
@@ -686,13 +707,13 @@ export default class EditPage extends Component {
 
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
-      const namespaces = schema.fields.filter(({ id }) =>
-        TAG_NAMESPACES.includes(id)
-      )
-      schema.fields = schema.fields.filter(
-        ({ id }) => !TAG_NAMESPACES.includes(id)
-      )
-      const originalTags = namespaces.reduce(
+      console.log('schema?', JSON.parse(JSON.stringify(schema)))
+      const hasSelector = ({ id, choiceValues }) => TAG_NAMESPACES.includes(id)
+      // || (choiceValues && choiceValues.length)
+      const selectors = schema.fields.filter(hasSelector)
+      console.log('selectors', selectors)
+      schema.fields = schema.fields.filter((...args) => !hasSelector(...args))
+      const originalTags = selectors.reduce(
         (store, { id: namespace, visible }) => {
           const tagTranscript = transcriptions.find(
             ({ keyword }) => keyword === namespace
@@ -709,6 +730,7 @@ export default class EditPage extends Component {
         },
         {}
       )
+      console.log('extract', originalTags)
 
       this.setState({
         originalTags,
@@ -777,10 +799,11 @@ export default class EditPage extends Component {
 
     if (!transcriptions) return []
     const chapters = readOnlyHeaders.map((field) => {
+      const { id, name, choiceValues, multiSelect } = field
       const chapter = transcriptions.find(
         ({ keyword }) => keyword === field.id
       ) || { values: [], keyword: field.id }
-      return { ...chapter, name: field.name }
+      return { ...chapter, name: field.name, choiceValues, multiSelect  }
     })
 
     let date
@@ -1082,13 +1105,8 @@ export default class EditPage extends Component {
   }
 
   getMissingSections = async () => {
-    const {
-      readOnlyHeaders,
-      hiddenHeaderIds,
-      chapters,
-      allChapters,
-      schema
-    } = this.state
+    const { readOnlyHeaders, hiddenHeaderIds, chapters, allChapters, schema } =
+      this.state
     const excludedKeywords = readOnlyHeaders
       .map(({ id }) => id)
       .concat(hiddenHeaderIds)
@@ -1148,6 +1166,7 @@ export default class EditPage extends Component {
     const {
       noMappingFields,
       schemaWithMappings,
+      fieldsWithRequirement,
       transcriptions: filteredTranscriptions
     } = this.filterSchema(schema, [...allChapters])
     const parsedChapters = this.parseTranscriptions(
@@ -1159,6 +1178,7 @@ export default class EditPage extends Component {
       originalChapters: parsedChapters,
       chapters: parsedChapters,
       noMappingFields,
+      fieldsWithRequirement,
       transcriptions: filteredTranscriptions
     })
     localStorage.setItem('lastUsedSchema', schema.id)
@@ -1184,8 +1204,86 @@ export default class EditPage extends Component {
     this.setState({ allChapters })
   }
 
-  onUpdateTranscript = (chapters) => {
-    return new Promise((resolve) => this.setState({ chapters }, resolve))
+  onUpdateTranscript = (chapters, isKeyWordUpdated = false) => {
+    return new Promise((resolve) => {
+      if (isKeyWordUpdated) {
+        const { fieldsWithRequirement, schema } = this.state
+        console.log('chapters88888', chapters)
+        const multiSelectMap = {}
+        const selectedSchemaFields = schema.fields.forEach((schemaField) => {
+          if (schemaField.multiSelect) {
+            multiSelectMap[schemaField.name] = true
+          } else {
+            multiSelectMap[schemaField.name] = false
+          }
+        })
+        console.log('multiSelectMap', multiSelectMap)
+        const segmentsToBeAddedToTheNextField = []
+        // Check if the current keyword has multiselect property
+        const updatedChapters = chapters.map((chapter) => {
+          if (multiSelectMap[chapter.keyword]) {
+            // remove remaining segments to the next chapter
+            return chapter
+          } else {
+            return chapter
+          }
+        })
+
+        // Dependency calculation
+        const keywordsFromTheChapters = updatedChapters.map(
+          (chapter) => chapter.keyword
+        )
+        const schemaHeaderNames = schema.fields.map((field) => field.name)
+        // Check if there is any field satisfy dependency
+        const fieldsMetDependency = []
+        // Check if there is any field does not satisfy dependency
+        const fieldsUnmetDependency = []
+        // newly elegible fields should be added here
+        const addedFields = []
+
+        fieldsWithRequirement.map((f) => {
+          if (keywordsFromTheChapters.includes(f.requires.field)) {
+            fieldsMetDependency.push(f)
+          } else {
+            fieldsUnmetDependency.push(f)
+          }
+        })
+
+        fieldsMetDependency.map((field) => {
+          if (!schemaHeaderNames.includes(field.name)) {
+            addedFields.push(field)
+          }
+        })
+
+        let updatedSchema = addedFields.length
+          ? {
+            ...schema,
+            fields: [...schema.fields, ...addedFields]
+          }
+          : schema
+        const removedFieldNames = fieldsUnmetDependency.map(
+          (field) => field.name
+        )
+        const fieldNamesAfterRemovalOfDependency = updatedSchema.fields.filter(
+          (field) => !removedFieldNames.includes(field.name)
+        )
+        updatedSchema = fieldsUnmetDependency.length
+          ? {
+            ...schema,
+            fields: fieldNamesAfterRemovalOfDependency
+          }
+          : updatedSchema
+        this.setState(
+          {
+            chapters: updatedChapters,
+            schema: updatedSchema
+          },
+          resolve
+        )
+      } else {
+        this.setState({ chapters }, resolve)
+      }
+    })
   }
 
   onPause = (playerCurrentTime) => {
@@ -1207,11 +1305,45 @@ export default class EditPage extends Component {
   }
 
   filterSchema = (schema, fields) => {
+    console.log('-------------------------------------schema', schema)
+    console.log(
+      '--------------------------------------------------fields',
+      fields
+    )
     const noMappingFields = []
+    const fieldsWithRequirement = []
     const mappingFields = schema.fields
       ? schema.fields.reduce((prev, curr) => {
-        if (curr.mappings) prev.push(curr)
-        else if (!curr.mappings && curr.visible && curr.editable) {
+        // if (curr.mappings) prev.push(curr)
+        // Check if requirement condition is met
+        if (curr.mappings) {
+          // check the requirememt is met
+          if (curr.requires) {
+            if (curr.requires.field) {
+              // Check if the field exists
+              const fieldNames = fields.map((field) => field.keyword)
+              console.log('curr.requires.field', curr.requires.field)
+              console.log('fieldNames', fieldNames)
+              console.log(
+                'fieldNames.includes(curr.requires.field)',
+                fieldNames.includes(curr.requires.field)
+              )
+              if (fieldNames.includes(curr.requires.field)) {
+                prev.push(curr)
+              } else {
+                fieldsWithRequirement.push(curr)
+              }
+              // curr.requires.field
+            }
+
+            console.log('field with requirement', curr.name)
+            console.log('required field', curr.requires.field)
+          } else {
+            console.log('field with requirement2', curr.name)
+            console.log('required field2', curr)
+            prev.push(curr)
+          }
+        } else if (!curr.mappings && curr.visible && curr.editable) {
           const foundField = fields.find((field, idx) => {
             if (field.keyword === curr.id) {
               fields.splice(idx, 1)
@@ -1221,9 +1353,9 @@ export default class EditPage extends Component {
             }
           })
           const values =
-              foundField !== undefined
-                ? foundField.values || [{ value: '' }]
-                : [{ value: '' }]
+            foundField !== undefined
+              ? foundField.values || [{ value: '' }]
+              : [{ value: '' }]
 
           noMappingFields.push({
             ...curr,
@@ -1235,8 +1367,13 @@ export default class EditPage extends Component {
       : []
 
     const schemaWithMappings = { ...schema, fields: mappingFields }
-
-    return { schemaWithMappings, noMappingFields, transcriptions: fields }
+    console.log('schemaWithMappings', schemaWithMappings)
+    return {
+      schemaWithMappings,
+      noMappingFields,
+      transcriptions: fields,
+      fieldsWithRequirement
+    }
   }
 
   onNoMappingFieldValueChange = (value, id) => {
@@ -1251,6 +1388,78 @@ export default class EditPage extends Component {
     this.setState({
       noMappingFields
     })
+  }
+
+  updateComplicatedFields = (updatedComplicatedFields, chapterId) => {
+    console.log('updatedcombo', updatedComplicatedFields)
+    console.log('chapterId', chapterId)
+    // update chapters
+    const { chapters } = this.state
+    const updatedChapters = chapters.map((ch, i) => {
+      if (chapterId !== i) {
+        console.log('ch22', ch)
+        return ch
+      } else {
+        let updatedSegments = []
+        console.log('updatedcombo.length', updatedComplicatedFields.length)
+        console.log('updatedcombo', updatedComplicatedFields.length)
+        console.log(
+          'updatedcombo22',
+          updatedComplicatedFields
+            .map((updatedComplicatedField) => updatedComplicatedField.label)
+            .join(' ')
+        )
+        console.log('i', i)
+        console.log('chapters', chapters)
+        if (updatedComplicatedFields.length > 0) {
+          if (ch.segments.length > 0) {
+            updatedSegments = ch.segments.map((segment) => {
+              return {
+                ...segment,
+                words: updatedComplicatedFields
+                  .map(
+                    (updatedComplicatedField) => updatedComplicatedField.label
+                  )
+                  .join(' ')
+              }
+            })
+          } else {
+            updatedSegments = [
+              {
+                words: updatedComplicatedFields
+                  .map(
+                    (updatedComplicatedField) => updatedComplicatedField.label
+                  )
+                  .join(' '),
+                startTime: 0,
+                endTime: 0
+              }
+            ]
+          }
+          return { ...ch, segments: updatedSegments }
+        } else {
+          let updatedSegments = []
+          if (ch.segments) {
+            updatedSegments = ch.segments.map((segment) => {
+              return {
+                ...segment,
+                words: ''
+              }
+            })
+          } else {
+            updatedSegments = {
+              words: '',
+              startTime: 0,
+              endTime: 0
+            }
+          }
+          console.log('ch33', ch)
+          return { ...ch, segments: updatedSegments }
+        }
+      }
+    })
+    console.log('updatedChapter', updatedChapters)
+    this.setState({ chapters: updatedChapters })
   }
 
   render() {
@@ -1278,7 +1487,8 @@ export default class EditPage extends Component {
       modalMissingFields,
       approved,
       noMappingFields,
-      isUploadingMedia
+      isUploadingMedia,
+      complicatedFieldOptions
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -1341,12 +1551,14 @@ export default class EditPage extends Component {
                   initialCursor={initialCursor}
                   recordingChapter={recording ? currentChapter : null}
                   noDiff={mic}
+                  complicatedFieldOptions={complicatedFieldOptions}
+                  updateComplicatedFields={this.updateComplicatedFields}
                 />
               </EuiFlexItem>
 
               <EuiFlexItem grow={1}>
                 <EuiFlexGroup direction="column" gutterSize="xl">
-                  { mic && (
+                  {mic && (
                     <EuiFlexItem grow={false}>
                       <Departments
                         departments={departments}
@@ -1365,7 +1577,7 @@ export default class EditPage extends Component {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <ReadOnlyChapters
-                      chapters={this.parseReadOnlyTranscripts(allChapters)}
+                      chapters={this.parseReadOnlyTranscripts()}
                       onCreate={this.onCreateReadOnly}
                       onUpdate={this.onUpdateReadOnly}
                     />
@@ -1380,12 +1592,40 @@ export default class EditPage extends Component {
                   {noMappingFields.map((field, key) => (
                     <EuiFlexItem grow={false} key={key}>
                       <EuiFormRow label={field.name}>
-                        <EuiTextArea
-                          value={field.values[0].value}
-                          onChange={({ target: { value }}) =>
-                            this.onNoMappingFieldValueChange(value, field.id)
-                          }
-                        />
+                        {field.choiceValues ? (
+                          <EuiComboBox
+                            isClearable={false}
+                            options={field.choiceValues.map((label) => ({
+                              label
+                            }))}
+                            selectedOptions={field.values.map(({ value }) => ({
+                              label: value
+                            }))}
+                            singleSelection={
+                              !field.multiSelect && { asPlainText: true }
+                            }
+                            onChange={(selectedOptions) => {
+                              this.setState((prevState) => {
+                                const noMappingFields = [
+                                  ...prevState.noMappingFields
+                                ]
+                                const values = selectedOptions.map(
+                                  ({ label }) => ({ value: label })
+                                )
+                                noMappingFields[key].values = values
+                                return { ...prevState, noMappingFields }
+                              })
+                            }}
+                          />
+                        ) : (
+                          <EuiTextArea
+                            value={field.values[0].value}
+                            onChange={({ target: { value }}) =>
+                              console.log(value, schema) ||
+                              this.onNoMappingFieldValueChange(value, field.id)
+                            }
+                          />
+                        )}
                       </EuiFormRow>
                     </EuiFlexItem>
                   ))}

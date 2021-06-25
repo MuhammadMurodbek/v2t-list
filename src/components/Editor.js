@@ -1,17 +1,15 @@
+/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unused-prop-types */
 import React, { Component } from 'react'
 import Diff from 'text-diff'
 import PropTypes from 'prop-types'
-import {
-  EuiFormRow,
-  EuiText,
-  EuiTextColor,
-  EuiSpacer
-} from '@patronum/eui'
-
 import { PreferenceContext } from './PreferencesProvider'
-import SectionHeader from '../components/SectionHeader'
+import FullDiff from '../components/FullDiff'
+import EditableChapters from '../components/EditableChapters'
+import AddedLine from '../components/AddedLine'
+import RemovedLine from '../components/RemovedLine'
+import HeaderLine from '../components/HeaderLine'
 import reduceSegment from '../utils/reduceSegment'
 import '../styles/editor.css'
 
@@ -19,11 +17,8 @@ const NEW_KEYWORD = 'New Chapter'
 const KEYCODE_ENTER = 13
 const KEYCODE_BACKSPACE = 8
 const KEYCODE_DELETE = 46
-
 const HEADER_TYPE = 72
-
 const ILLEGAL_CHARS_REGEX = /˜/g
-
 export default class Editor extends Component {
   static contextType = PreferenceContext
 
@@ -179,15 +174,17 @@ export default class Editor extends Component {
     if (selection.rangeCount > 0) selection.removeAllRanges()
     const container = this.getSelectedElement()
     const element = container.firstChild || container
-    const textLength = element.textContent.length
-    const safeOffset = Math.min(offset, textLength)
-    if (safeOffset !== offset)
-      console.error('Offset was too large, fallback to element text length')
-    const startOffset = select ? 0 : safeOffset
-    const endOffset = select && textLength ? textLength - 1 : safeOffset
-    range.setStart(element, startOffset)
-    range.setEnd(element, endOffset)
-    selection.addRange(range)
+    if(element.textContent) {
+      const textLength = element.textContent.length
+      const safeOffset = Math.min(offset, textLength)
+      if (safeOffset !== offset)
+        console.error('Offset was too large, fallback to element text length')
+      const startOffset = select ? 0 : safeOffset
+      const endOffset = select && textLength ? textLength - 1 : safeOffset
+      range.setStart(element, startOffset)
+      range.setEnd(element, endOffset)
+      selection.addRange(range)
+    } 
     this.stashCursorAt(null)
   }
 
@@ -233,9 +230,29 @@ export default class Editor extends Component {
     // eslint-disable-next-line max-len
     const filter = `[data-chapter='${this.cursor.chapter}'][data-segment='${this.cursor.segment}']`
     const fallbackFilter = `[data-chapter='${this.cursor.chapter}']`
-    return (
+    console.log('fallbackFilter', fallbackFilter)
+    console.log(
+      'document.querySelector(fallbackFilter)',
+      document.querySelector(fallbackFilter)
+    )
+    console.log(
+      'document.querySelector(filter)',
+      document.querySelector(filter)
+    )
+    console.log('this.cursor.segment', this.cursor.segment)
+    console.log('this.cursor.chapter', this.cursor.chapter)
+    if (document.querySelector(filter)===null) {
+      return(<></>)
+    }
+
+    console.log(
+      'or',
       document.querySelector(filter) ||
       document.querySelector(fallbackFilter).lastChild
+    )
+    return (
+      document.querySelector(filter) ||
+        document.querySelector(fallbackFilter).lastChild
     )
   }
 
@@ -280,6 +297,8 @@ export default class Editor extends Component {
     document.execCommand('insertHTML', false, this.escapeHTML(text))
   }
 
+  
+
   escapeHTML = (text) => {
     const map = {
       '&': '&amp;',
@@ -293,6 +312,7 @@ export default class Editor extends Component {
 
   onKeyDown = (e, chapterId) => {
     const selection = window.getSelection()
+    console.log('selection', selection)
     const segmentId = Number(
       selection.anchorNode.parentNode.dataset.segment || 0
     )
@@ -335,7 +355,7 @@ export default class Editor extends Component {
 
       segments[lastSegmentId].words = charArray.join('')
       chapters[chapterId].segments = segments
-      updateTranscript(chapters).then(this.refreshDiff)
+      updateTranscript(chapters, true).then(this.refreshDiff)
     }
   }
 
@@ -360,46 +380,67 @@ export default class Editor extends Component {
     )
     segments[segmentId].words = charArray.join('')
     chapters[chapterId].segments = segments
-    updateTranscript(chapters).then(this.refreshDiff)
+    updateTranscript(chapters, true).then(this.refreshDiff)
   }
 
   updateKeyword = (id, value) => {
     const { updateTranscript } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     chapters[id].keyword = value.replace(/\r?\n|\r/g, '')
-    updateTranscript(chapters).then(this.refreshDiff)
+    // retrieve the new schema setup based on dependednt field
+    updateTranscript(chapters, true).then(this.refreshDiff)
   }
 
-  splitChapter = (e, chapterId, segmentId) => {
+  splitChapter = (e, chapterId, segmentId, isComplicatedField=false) => {
     const { updateTranscript, schema } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
     e.preventDefault()
-    const range = window.getSelection().getRangeAt(0)
-    const chapter = chapters[chapterId]
-    const segment = chapter.segments[segmentId]
-    if (!segment) return
-    const nextSegment = { ...segment }
-    nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
-    const usedKeywords = chapters.map(({ keyword }) => keyword)
-    const nextField = schema.fields
-      .filter(({ visible }) => visible)
-      .find(({ id }) => !usedKeywords.includes(id))
-    const nextChapter = {
-      keyword: nextField ? nextField.id : '',
-      segments: [
-        nextSegment,
-        ...chapters[chapterId].segments.slice(segmentId + 1)
+    if(!isComplicatedField){
+      const range = window.getSelection().getRangeAt(0)
+      console.log('range', range)
+      const chapter = chapters[chapterId]
+      const segment = chapter.segments[segmentId]
+      if (!segment) return
+      const nextSegment = { ...segment }
+      nextSegment.words = nextSegment.words.slice(range.startOffset).trimStart()
+      const usedKeywords = chapters.map(({ keyword }) => keyword)
+      const nextField = schema.fields
+        .filter(({ visible }) => visible)
+        .find(({ id }) => !usedKeywords.includes(id))
+      const nextChapter = {
+        keyword: nextField ? nextField.id : '',
+        segments: [
+          nextSegment,
+          ...chapters[chapterId].segments.slice(segmentId + 1)
+        ].filter((segment) => segment.words.length)
+      }
+      const prevSegment = { ...segment }
+      prevSegment.words = prevSegment.words
+        .slice(0, range.startOffset)
+        .trimEnd()
+      chapters[chapterId].segments = [
+        ...chapter.segments.slice(0, segmentId),
+        prevSegment
       ].filter((segment) => segment.words.length)
+      chapters.splice(chapterId + 1, 0, nextChapter)
+      this.stashCursorAt({ chapter: chapterId + 1, segment: 0, offset: 0 })
+      updateTranscript(chapters, true).then(this.refreshDiff)
+    } else {
+      const chapter = chapters[chapterId]
+      const segment = chapter.segments[segmentId]
+      if (!segment) return
+      const usedKeywords = chapters.map(({ keyword }) => keyword)
+      const nextField = schema.fields
+        .filter(({ visible }) => visible)
+        .find(({ id }) => !usedKeywords.includes(id))
+      const nextChapter = {
+        keyword: nextField ? nextField.id : '',
+        segments: []
+      }
+      chapters.splice(chapterId + 1, 0, nextChapter)
+      this.stashCursorAt({ chapter: chapterId + 1, segment: 0, offset: 0 })
+      updateTranscript(chapters, true).then(this.refreshDiff)
     }
-    const prevSegment = { ...segment }
-    prevSegment.words = prevSegment.words.slice(0, range.startOffset).trimEnd()
-    chapters[chapterId].segments = [
-      ...chapter.segments.slice(0, segmentId),
-      prevSegment
-    ].filter((segment) => segment.words.length)
-    chapters.splice(chapterId + 1, 0, nextChapter)
-    this.stashCursorAt({ chapter: chapterId + 1, segment: 0, offset: 0 })
-    updateTranscript(chapters).then(this.refreshDiff)
   }
 
   handleChapterChange = (e, chapterId, segmentId) => {
@@ -441,7 +482,7 @@ export default class Editor extends Component {
     this.stashCursor(cursorOffset, overrideSegment)
     chapters[toChapterId].segments.push(...chapters[fromChapterId].segments)
     chapters.splice(fromChapterId, 1)
-    updateTranscript(chapters).then(this.refreshDiff)
+    updateTranscript(chapters, true).then(this.refreshDiff)
   }
 
   parseChapter = (target, chapterId) => {
@@ -657,6 +698,21 @@ export default class Editor extends Component {
     this.updateKeyword(chapterId, keywordId)
   }
 
+  createNewSectionAfterThis = (chapterId) => {
+    this.splitChapter(
+      new KeyboardEvent('keydown', {
+        code: 'Enter',
+        key: 'Enter',
+        charCode: 13,
+        keyCode: 13,
+        view: window,
+        bubbles: true
+      }),
+      chapterId,
+      0, true
+    )
+  }
+  
   render() {
     const {
       recordingChapter,
@@ -664,7 +720,9 @@ export default class Editor extends Component {
       chapters,
       onSelect,
       noDiff,
-      schema
+      schema,
+      complicatedFieldOptions,
+      updateComplicatedFields
     } = this.props
     const { diff, error } = this.state
     const { preferences } = this.context
@@ -677,6 +735,10 @@ export default class Editor extends Component {
           currentTime={currentTime}
           onChange={this.onChange}
           onPaste={this.onPaste}
+          complicatedFieldOptions={complicatedFieldOptions}
+          // onChangeComplicatedField={this.onChangeComplicatedField}
+          // updateComplicatedFieldOptions={updateComplicatedFieldOptions}
+          updateComplicatedFields={updateComplicatedFields}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
           onCursorChange={this.onCursorChange}
@@ -685,320 +747,10 @@ export default class Editor extends Component {
           schema={schema}
           setKeyword={this.setKeyword}
           recordingChapter={recordingChapter}
+          createNewSectionAfterThis={this.createNewSectionAfterThis}
         />
         {!noDiff && <FullDiff diff={diff} />}
       </>
     )
   }
-}
-
-const EditableChapters = ({
-  recordingChapter,
-  chapters,
-  inputRef,
-  ...editableChapterProps
-}) => {
-  if (!inputRef) return null
-  const editors = chapters.map((chapter, i) => (
-    <EditableChapter
-      key={i}
-      chapterId={i}
-      keyword={chapter.keyword}
-      segments={chapter.segments}
-      recordingChapter={recordingChapter}
-      {...{ ...editableChapterProps }}
-    />
-  ))
-  return <div ref={inputRef}>{editors}</div>
-}
-
-EditableChapters.propTypes = {
-  chapters: PropTypes.array.isRequired,
-  inputRef: PropTypes.any
-}
-
-const escapeRegularExpression = (string) => string
-  .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  // $& means the whole matched string
-
-const EditableChapter = ({
-  recordingChapter,
-  chapterId,
-  keyword,
-  schema,
-  setKeyword,
-  segments,
-  ...chunkProps
-}) => {
-  const sectionHeaders = schema.fields
-    ? schema.fields.map(({ name }) => name)
-    : []
-  const field = schema.fields
-    ? schema.fields.find(({ id }) => id === keyword)
-    : null
-  const isVisible = field ? field.visible : true
-  const sectionHeader = field ? field.name : ''
-  const namePatterns = field
-    ? [field.name, ...(field.headerPatterns || [])]
-    : []
-  const escapedNamePatterns = namePatterns.map(escapeRegularExpression)
-  const regex = new RegExp(`^(${escapedNamePatterns.join(' |')} )?(.?)`, 'i')
-  const filteredSegments = segments.map((segment, i) => {
-    const words =
-      i === 0
-        ? segment.words.replace(regex, (...match) => {
-          const hideChars = match[1] ? match[1] : ''
-          return `${'\u200c'.repeat(
-            hideChars.length
-          )}${match[2].toUpperCase()}`
-        })
-        : segment.words
-    return { ...segment, words }
-  })
-  return (
-    <EuiFormRow
-      style={{
-        maxWidth: '100%',
-        display: isVisible ? 'default' : 'none'
-      }}
-    >
-      <>
-        <SectionHeader
-          keywords={sectionHeaders}
-          selectedHeader={sectionHeader}
-          updateKey={setKeyword}
-          chapterId={chapterId}
-        />
-        <Chunks
-          recordingChapter={recordingChapter}
-          chapterId={chapterId}
-          segments={filteredSegments}
-          {...{ ...chunkProps }}
-        />
-      </>
-    </EuiFormRow>
-  )
-}
-
-EditableChapter.propTypes = {
-  chapterId: PropTypes.number,
-  keyword: PropTypes.string,
-  schema: PropTypes.object.isRequired,
-  setKeyword: PropTypes.func.isRequired
-}
-
-const Chunks = ({
-  recordingChapter,
-  segments,
-  currentTime,
-  context,
-  chapterId,
-  onChange,
-  onPaste,
-  onKeyDown,
-  onSelect,
-  onCursorChange
-}) => {
-  if (recordingChapter !== null)
-    return (
-      <ReadOnlyChunks {...{ recordingChapter, chapterId, segments, context }} />
-    )
-  const chunks = segments.map((props, i) => (
-    <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />
-  ))
-  return (
-    <EuiText>
-      <pre>
-        <code
-          className="editorTextArea"
-          key={JSON.stringify(segments)}
-          onInput={(e) => onChange(e, chapterId)}
-          onPaste={(e) => onPaste(e, chapterId)}
-          onKeyDown={(e) => onKeyDown(e, chapterId)}
-          onKeyUp={onCursorChange}
-          onClick={onCursorChange}
-          onSelect={onSelect}
-          contentEditable
-          suppressContentEditableWarning
-          data-chapter={chapterId}
-        >
-          {chunks.length ? chunks : <FallbackChunk chapterId={chapterId} />}
-        </code>
-      </pre>
-    </EuiText>
-  )
-}
-
-Chunks.propTypes = {
-  segments: PropTypes.array,
-  currentTime: PropTypes.number,
-  context: PropTypes.object,
-  chapterId: PropTypes.number,
-  onChange: PropTypes.func,
-  onPaste: PropTypes.func,
-  onKeyDown: PropTypes.func,
-  onSelect: PropTypes.func,
-  onCursorChange: PropTypes.func
-}
-
-const ReadOnlyChunks = ({ context, segments, chapterId, recordingChapter }) => (
-  <EuiText>
-    <pre>
-      <code
-        className={`editorTextArea${
-          chapterId === recordingChapter ? ' active' : ''
-        }`}
-        data-chapter={chapterId}
-      >
-        <span
-          style={{ fontSize: context.currentFontSize }}
-          className="editorBody"
-        >
-          {segments.map(({ words }) => words).join(' ')}
-        </span>
-      </code>
-    </pre>
-  </EuiText>
-)
-
-const Chunk = ({
-  words,
-  startTime,
-  endTime,
-  chapterId,
-  i,
-  currentTime,
-  context
-}) => {
-  let style
-  const current = currentTime > startTime && currentTime <= endTime
-  if (context) {
-    style = current
-      ? {
-        fontWeight: 'bold',
-        backgroundColor: '#FFFF00',
-        fontSize: context.currentFontSize
-      }
-      : { fontSize: context.currentFontSize }
-  } else {
-    style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : {}
-  }
-  return (
-    <span
-      style={style}
-      className="editorBody"
-      data-chapter={chapterId}
-      data-segment={i}
-    >
-      {words}
-    </span>
-  )
-}
-
-Chunk.propTypes = {
-  words: PropTypes.any,
-  startTime: PropTypes.number,
-  endTime: PropTypes.number,
-  chapterId: PropTypes.number,
-  i: PropTypes.number,
-  currentTime: PropTypes.number,
-  context: PropTypes.object
-}
-
-const FallbackChunk = ({ chapterId }) => (
-  <Chunk
-    words=""
-    startTime={0}
-    endTime={0}
-    chapterId={chapterId}
-    i={0}
-    currentTime={0}
-  />
-)
-
-FallbackChunk.propTypes = {
-  chapterId: PropTypes.number
-}
-
-const FullDiff = ({ diff }) => {
-  if (diff === null || diff.length === 0) return null
-  return (
-    <>
-      <code className="fullDiffArea">{diff}</code>
-      <EuiSpacer size="xl" />
-    </>
-  )
-}
-
-FullDiff.propTypes = {
-  diff: PropTypes.array
-}
-
-const RemovedLine = ({ diff, prevDiff, nextDiff }) => (
-  <div>
-    <EuiTextColor color="danger">- </EuiTextColor>
-    {prevDiff[1].split(' ').slice(-3).join(' ')}
-    <EuiTextColor 
-      color="danger" 
-      style={{ background: '#BD271E30' }}
-    >{diff[1]}</EuiTextColor>
-    {nextDiff[1].split(' ').slice(0, 3).join(' ')}
-  </div>
-)
-
-RemovedLine.propTypes = {
-  diff: PropTypes.array,
-  prevDiff: PropTypes.array,
-  nextDiff: PropTypes.array
-}
-
-const AddedLine = ({ diff, prevDiff, nextDiff }) => (
-  <div>
-    <EuiTextColor color="secondary">+ </EuiTextColor>
-    {prevDiff[1].split(' ').slice(-3).join(' ')}
-    <EuiTextColor color="secondary" style={{ background: '#017D7330' }}>
-      {diff[1]}
-    </EuiTextColor>
-    {nextDiff[1].split(' ').slice(0, 3).join(' ')}
-  </div>
-)
-
-AddedLine.propTypes = {
-  diff: PropTypes.array,
-  prevDiff: PropTypes.array,
-  nextDiff: PropTypes.array
-}
-
-const HeaderLine = ({ header, updatedHeader }) => {
-  if (header === updatedHeader) {
-    return (
-      <EuiText size="m"><b>{ header }</b></EuiText>
-    )
-  } else {
-    return (
-      <EuiText size="m">
-        {
-          header &&
-          <b><EuiTextColor color="danger" style={{ background: '#BD271E30' }}>
-            { header }
-          </EuiTextColor> </b>
-        }
-        {
-          updatedHeader &&
-          <b>
-            <EuiTextColor 
-              color="secondary" 
-              style={{ background: '#017D7330' }}
-            >
-              { updatedHeader }
-            </EuiTextColor></b>
-        }
-      </EuiText>
-    )
-  }
-}
-
-HeaderLine.propTypes = {
-  header: PropTypes.string,
-  updatedHeader: PropTypes.string
 }

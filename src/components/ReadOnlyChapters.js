@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-console */
 import React, { Fragment, useContext } from 'react'
 import PropTypes from 'prop-types'
 import {
@@ -14,41 +16,42 @@ import '../styles/tags.css'
 import { PreferenceContext } from '../components/PreferencesProvider'
 import { LanguageContext } from '../context'
 
-const ReadOnlyChapters = ({ 
-  chapters, onCreate, onUpdate 
-}) => {
+const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
   if (!chapters || !chapters.length) return null
   const { preferences } = useContext(PreferenceContext)
-
   return (
     <EuiForm>
       <EuiFlexGroup direction="column" gutterSize="m">
-        {chapters.map(({ keyword, name, values }, key) => (
-          <EuiFlexItem key={key}>
-            <EuiFlexGroup>
-              <EuiFlexItem>
-                <EuiFormRow style={{ paddingBottom: 0 }} label={name}>
-                  <span></span>
-                </EuiFormRow>
-              </EuiFlexItem>
-              <EuiFlexItem>
-                {values.length ? (
-                  !preferences.editReadOnly ? (
-                    <ReadOnlyFields values={values} />
+        {chapters.map(
+          ({ keyword, name, values, choiceValues, multiSelect }, key) => (
+            <EuiFlexItem key={key}>
+              <EuiFlexGroup>
+                <EuiFlexItem>
+                  <EuiFormRow style={{ paddingBottom: 0 }} label={name}>
+                    <span></span>
+                  </EuiFormRow>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  {values.length ? (
+                    !preferences.editReadOnly ? (
+                      <ReadOnlyFields values={values} />
+                    ) : (
+                      <EditableFields
+                        keyword={keyword}
+                        values={values}
+                        choiceValues={choiceValues}
+                        multiSelect={multiSelect}
+                        onUpdate={onUpdate}
+                      />
+                    )
                   ) : (
-                    <EditableFields
-                      keyword={keyword}
-                      values={values}
-                      onUpdate={onUpdate}
-                    />
-                  )
-                ) : (
-                  <EuiFieldText onBlur={(e) => onCreate(keyword, e)} />
-                )}
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiFlexItem>
-        ))}
+                    <EuiFieldText onBlur={(e) => onCreate(keyword, e)} />
+                  )}
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiFlexItem>
+          )
+        )}
       </EuiFlexGroup>
     </EuiForm>
   )
@@ -62,28 +65,33 @@ ReadOnlyChapters.propTypes = {
 
 const ReadOnlyFields = ({ values }) => {
   const formattedDate = (str) => {
-    return moment(str, 'YYYY-MM-DDTHH:mm:ss.SSSSZ', true).isValid() ?
-      moment(str).format('YYYY-MM-DD HH:mm:ss') : str
+    return moment(str, 'YYYY-MM-DDTHH:mm:ss.SSSSZ', true).isValid()
+      ? moment(str).format('YYYY-MM-DD HH:mm:ss')
+      : str
   }
-  return values.map(
-    ({ value, description }, key) => (
-      <div key={key}>
-        {
-          description ?
-            <Fragment>
-              <strong>{value}</strong> - {description}
-            </Fragment>
-            :
-            formattedDate(value)
-        }
-      </div>
-    ))
+  return values.map(({ value, description }, key) => (
+    <div key={key}>
+      {description ? (
+        <Fragment>
+          <strong>{value}</strong> - {description}
+        </Fragment>
+      ) : (
+        formattedDate(value)
+      )}
+    </div>
+  ))
 }
 ReadOnlyFields.propTypes = {
   values: PropTypes.array.isRequired
 }
 
-const EditableFields = ({ keyword, values, onUpdate }) => {
+const EditableFields = ({
+  keyword,
+  values,
+  choiceValues,
+  multiSelect,
+  onUpdate
+}) => {
   const { languagesList, language } = useContext(LanguageContext)
   const onChange = (value, index, type) => {
     values[index][type] = value
@@ -91,8 +99,8 @@ const EditableFields = ({ keyword, values, onUpdate }) => {
   }
 
   const formattedDate = (value, key) => {
-    return moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSSZ', true).isValid()
-      ? <EuiDatePicker
+    return moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSSZ', true).isValid() ? (
+      <EuiDatePicker
         showTimeSelect
         selected={moment(value)}
         fullWidth
@@ -103,39 +111,69 @@ const EditableFields = ({ keyword, values, onUpdate }) => {
         locale={languagesList[language].code}
         onChange={(date) => onChange(date, key, 'value')}
       />
-      : <EuiFieldText
+    ) : (
+      <EuiFieldText
         value={value}
         onChange={(e) => onChange(e.target.value, key, 'value')}
       />
+    )
   }
 
-  return values.map(
-    ({ value, description }, key) => (
-      <div key={key}>
-        {
-          description ?
-            <Fragment>
-              <strong>
-                <EuiFieldText 
-                  value={value} 
-                  onChange={(e) => onChange(e, key, 'value')} 
-                />
-              </strong> - 
-              <EuiFieldText 
-                value={description} 
-                onChange={(e) => onChange(e, key, 'description')} 
-              />
-            </Fragment>
-            :
-            formattedDate(value, key)
-        }
-      </div>
-    ))
+  console.log('choice', choiceValues)
+  if (choiceValues && choiceValues.length)
+    return (
+      <Selector
+        {...{
+          keyword,
+          choiceValues,
+          values,
+          multiSelect,
+          onUpdate
+        }}
+      />
+    )
+
+  return values.map(({ value, description }, key) => (
+    <div key={key}>
+      {description ? (
+        <Fragment>
+          <strong>
+            <EuiFieldText
+              value={value}
+              onChange={(e) => onChange(e, key, 'value')}
+            />
+          </strong>{' '}
+          -
+          <EuiFieldText
+            value={description}
+            onChange={(e) => onChange(e, key, 'description')}
+          />
+        </Fragment>
+      ) : (
+        formattedDate(value, key)
+      )}
+    </div>
+  ))
 }
 EditableFields.propTypes = {
   keyword: PropTypes.string.isRequired,
   values: PropTypes.array.isRequired,
+  choiceValues: PropTypes.array,
+  multiSelect: PropTypes.bool.isRequired,
   onUpdate: PropTypes.func.isRequired
 }
+
+const Selector = ({ keyword, choiceValues, values, multiSelect, onUpdate }) => (
+  <EuiComboBox
+    isClearable={false}
+    options={choiceValues.map((label) => ({ label }))}
+    selectedOptions={values.map(({ value }) => ({ label: value }))}
+    singleSelection={!multiSelect && { asPlainText: true }}
+    onChange={(selectedOptions) => {
+      const values = selectedOptions.map(({ label }) => ({ value: label }))
+      onUpdate(keyword, values)
+    }}
+  />
+)
 
 export default ReadOnlyChapters

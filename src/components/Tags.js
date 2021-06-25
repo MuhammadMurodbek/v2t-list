@@ -47,11 +47,26 @@ export default class Tags extends Component {
     const { tags } = this.props
 
     Object.keys(tags).forEach(namespace => {
-      this.loadTags('', namespace)
+      this.loadOptions('', namespace)
     })
   }
 
-  loadTags = async (searchTerm, namespace) => {
+  loadOptions = async (searchTerm = '', namespace) => {
+    const { tags } = this.props
+    this.loadOption(searchTerm, namespace, tags[namespace].choiceValues)
+  }
+
+  loadOption = async (searchTerm, namespace, choiceValues) => {
+    if (!choiceValues || !choiceValues.length)
+      this.fetchOptions(searchTerm, namespace)
+    else
+      this.setState(prevState => ({ options: {
+        ...prevState.options,
+        [namespace]: choiceValues.map(code => ({ code, label: code }))
+      }}))
+  }
+
+  fetchOptions = async (searchTerm, namespace) => {
     const { tags } = this.props
     try {
       const codeData = await api.keywordsSearch(searchTerm, namespace)
@@ -114,7 +129,7 @@ export default class Tags extends Component {
           description
         }]
       }
-      this.emptySelectedOption()
+      // this.emptySelectedOption()
       this.props.updateTags({ ...tags, [namespace]: {
         ...tags[namespace],
         values
@@ -141,7 +156,7 @@ export default class Tags extends Component {
     })
 
 
-    await this.loadTags(searchValue, namespace)
+    await this.loadOptions(searchValue, namespace)
     this.setState({
       isLoading: false
     })
