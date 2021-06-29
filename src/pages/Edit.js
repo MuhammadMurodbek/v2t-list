@@ -843,9 +843,9 @@ export default class EditPage extends Component {
         }
       }
     }
-
     return chapters
   }
+
 
   sectionHeaders = () => {
     const { schema, chapters } = this.state
@@ -1333,14 +1333,8 @@ export default class EditPage extends Component {
               } else {
                 fieldsWithRequirement.push(curr)
               }
-              // curr.requires.field
             }
-
-            console.log('field with requirement', curr.name)
-            console.log('required field', curr.requires.field)
           } else {
-            console.log('field with requirement2', curr.name)
-            console.log('required field2', curr)
             prev.push(curr)
           }
         } else if (!curr.mappings && curr.visible && curr.editable) {
@@ -1577,7 +1571,7 @@ export default class EditPage extends Component {
                   </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <ReadOnlyChapters
-                      chapters={this.parseReadOnlyTranscripts()}
+                      chapters={this.parseReadOnlyTranscripts(allChapters)}
                       onCreate={this.onCreateReadOnly}
                       onUpdate={this.onUpdateReadOnly}
                     />
