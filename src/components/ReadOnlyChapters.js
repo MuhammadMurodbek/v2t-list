@@ -32,7 +32,7 @@ const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
                   </EuiFormRow>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                  {values.length ? (
+                  {values ? (
                     !preferences.editReadOnly ? (
                       <ReadOnlyFields values={values} />
                     ) : (

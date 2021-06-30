@@ -1064,7 +1064,23 @@ export default class EditPage extends Component {
         ...schema,
         fields: [...schema.fields, ...noMappingFields]
       }
-
+      const readOnlyChapters = this.parseReadOnlyTranscripts(chapters)
+      readOnlyChapters.map(readOnlyChapter=>{
+        const index = chapters.findIndex(
+          (c) => c.keyword === readOnlyChapter.keyword
+        )
+        if (index > -1) {
+          if (chapters[index].values) {chapters[index].segments = []
+            chapters[index].values = readOnlyChapter.values}
+        } else {
+          if (readOnlyChapter.values) {
+            chapters.push({
+              keyword: readOnlyChapter.keyword,
+              segments: [],
+              values: readOnlyChapter.values
+            })}
+        }
+      })
       const fields = convertToV2API(unfiltredSchema, chapters, tags)
 
       const filtredFields = fields.filter(
