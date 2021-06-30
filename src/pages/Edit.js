@@ -1653,7 +1653,7 @@ export default class EditPage extends Component {
                         }
                         checked={approved}
                         onChange={this.onApprovedChange}
-                        disabled={mic}
+                        // disabled={mic}
                         id="approved_checkbox"
                       />
                     </EuiToolTip>
