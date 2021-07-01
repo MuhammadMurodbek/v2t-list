@@ -8,7 +8,8 @@ import {
   EuiFieldText,
   EuiForm,
   EuiFormRow,
-  EuiDatePicker
+  EuiDatePicker,
+  EuiComboBox
 } from '@patronum/eui'
 import moment from 'moment'
 import '../styles/editor.css'
