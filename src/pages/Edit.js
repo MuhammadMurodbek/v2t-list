@@ -1257,9 +1257,27 @@ export default class EditPage extends Component {
         // newly elegible fields should be added here
         const addedFields = []
 
-        fieldsWithRequirement.map((f) => {
+        fieldsWithRequirement.forEach((f) => {
           if (keywordsFromTheChapters.includes(f.requires.field)) {
-            fieldsMetDependency.push(f)
+            if (f.requires.oneOf) {
+              if (f.requires.oneOf.length > 0) {
+                let existingSegmentWords = updatedChapters
+                  .filter((ch) => ch.keyword === f.requires.field)
+                  .map((ch) => ch.segments.map((seg) => seg.words).join(' '))
+                if (existingSegmentWords.length>0) {
+                  existingSegmentWords = existingSegmentWords[0]
+                }
+                if (f.requires.oneOf.includes(existingSegmentWords)) {
+                  fieldsMetDependency.push(f)
+                } else {
+                  fieldsUnmetDependency.push(f)
+                }        
+              } else {
+                fieldsMetDependency.push(f)
+              }
+            } else {
+              fieldsMetDependency.push(f)
+            }
           } else {
             fieldsUnmetDependency.push(f)
           }
@@ -1469,7 +1487,7 @@ export default class EditPage extends Component {
       }
     })
     console.log('updatedChapter', updatedChapters)
-    this.setState({ chapters: updatedChapters })
+    this.onUpdateTranscript(updatedChapters, true).then(this.refreshDiff)
   }
 
   render() {

@@ -43,6 +43,7 @@ const ComplicatedField = ({
       <EuiFlexItem grow={false}>
         <EuiToolTip position="top" content="Remove this section">
           <EuiButtonIcon
+            aria-label="remove"
             color="danger"
             display="base"
             size="l"
@@ -53,10 +54,11 @@ const ComplicatedField = ({
       <EuiFlexItem grow={false}>
         <EuiToolTip position="top" content="Add a new section">
           <EuiButtonIcon
+            aria-label="add"
             display="base"
             size="l"
             iconType="plusInCircle"
-            onClick={()=>createNewSectionAfterThis(chapterId)}
+            onClick={() => createNewSectionAfterThis(chapterId)}
           />
         </EuiToolTip>
       </EuiFlexItem>

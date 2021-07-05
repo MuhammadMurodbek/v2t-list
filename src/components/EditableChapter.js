@@ -117,7 +117,7 @@ EditableChapter.propTypes = {
   schema: PropTypes.object.isRequired,
   setKeyword: PropTypes.func.isRequired,
   segments: PropTypes.array,
-  complicatedFieldOptions: PropTypes.array,
+  complicatedFieldOptions: PropTypes.object,
   updateComplicatedFields: PropTypes.func,
   createNewSectionAfterThis: PropTypes.func
 }
