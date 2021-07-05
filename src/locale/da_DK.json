@@ -143,6 +143,7 @@
     "idIsCopied": "ID kopieres til udklipsholderen",
     "browserIsNotSupported": "Webbrowser understøttes ikke, brug f.eks. Chrome eller Firefox",
     "removeDictation": "Fjern diktat",
+    "dictationRejected": "diktering annulleres",
     "removeDictationConfirmation": "Vil du virkelig slette diktaten?",
     "yesDoIt": "ja gør det",
     "noDontDoIt": "Nej, ikke",

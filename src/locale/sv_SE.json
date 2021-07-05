@@ -143,6 +143,7 @@
   "idIsCopied": "ID är kopierat till klippbordet",
   "browserIsNotSupported": "Web browsern stöds inte, använd ex Chrome eller Firefox",
   "removeDictation": "Ta bort diktat",
+  "dictationRejected": "Diktatet avbryts",
   "removeDictationConfirmation": "Vill du verkligen ta bort diktatet?",
   "yesDoIt": "Ja gör det",
   "noDontDoIt": "Nej, gör det inte",

@@ -1332,6 +1332,25 @@ export default class EditPage extends Component {
 
   cancel = () => {
     window.location = '/'
+    const { mic, id } = this.props
+    if(mic) {
+      api
+        .rejectTranscription(id)
+        .then((outcome)=>{
+          console.log('outcome', outcome)
+          addSuccessToast(
+            <EuiI18n
+              token="dictationRejected"
+              default="The dictation has been rejected"
+            />
+          )
+        }).catch((e)=>{
+          console.log('error', e)
+          addErrorToast(
+            <EuiI18n token="error" default="Session persists" />
+          )
+        })
+    }
   }
 
   onError = (error) => {

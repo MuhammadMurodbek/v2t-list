@@ -144,6 +144,7 @@
   "idIsCopied": "ID kopiert til utklippstavlen",
   "browserIsNotSupported": "Nettleser støttes ikke, bruk f.eks. Chrome eller Firefox",
   "removeDictation": "Fjern diktering",
+  "dictationRejected": "Diktering avbrytes",
   "removeDictationConfirmation": "Vil du virkelig slette diktatet?",
   "yesDoIt": "Ja det gjør det",
   "noDontDoIt": "Nei, det gjør det ikke",
