@@ -1331,7 +1331,6 @@ export default class EditPage extends Component {
   }
 
   cancel = () => {
-    window.location = '/'
     const { mic, id } = this.props
     if(mic) {
       api
@@ -1351,6 +1350,7 @@ export default class EditPage extends Component {
           )
         })
     }
+    window.location = '/'
   }
 
   onError = (error) => {
