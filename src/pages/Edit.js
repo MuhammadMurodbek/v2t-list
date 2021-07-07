@@ -1509,6 +1509,27 @@ export default class EditPage extends Component {
     this.onUpdateTranscript(updatedChapters, true).then(this.refreshDiff)
   }
 
+  deleteComplicatedField = (chapterId) => {
+    const { chapters } = this.state
+    const updatedChapters =
+      chapters.filter((chapter) => chapter.id !== chapterId)
+    this.setState({ chapters: updatedChapters })
+  }
+
+  deleteComplicatedField = (chapterId) => {
+    const { chapters } = this.state
+    const updatedChapters = [...chapters]
+    updatedChapters.splice(chapterId, 1)
+    this.setState({ chapters: updatedChapters })
+  }
+
+  deleteComplicatedField = (chapterId) => {
+    const { chapters } = this.state
+    const updatedChapters = [...chapters]
+    updatedChapters.splice(chapterId, 1)
+    this.setState({ chapters: updatedChapters })
+  }
+
   render() {
     const { id, mic, token } = this.props
     const {
@@ -1600,6 +1621,7 @@ export default class EditPage extends Component {
                   noDiff={mic}
                   complicatedFieldOptions={complicatedFieldOptions}
                   updateComplicatedFields={this.updateComplicatedFields}
+                  deleteComplicatedField={this.deleteComplicatedField}
                 />
               </EuiFlexItem>
 

@@ -12,6 +12,7 @@ import {
 const ComplicatedField = ({
   complicatedFieldOptions,
   updateComplicatedFields,
+  deleteComplicatedField,
   selectedChoice,
   sectionHeader,
   chapterId,
@@ -48,6 +49,7 @@ const ComplicatedField = ({
             display="base"
             size="l"
             iconType="trash"
+            onClick={() => deleteComplicatedField(chapterId)}
           />
         </EuiToolTip>
       </EuiFlexItem>

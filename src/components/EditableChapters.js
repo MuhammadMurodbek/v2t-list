@@ -10,19 +10,23 @@ const EditableChapters = ({
   inputRef,
   complicatedFieldOptions,
   updateComplicatedFields,
+  deleteComplicatedField,
   ...editableChapterProps
 }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => {
+    console.log('chapter', chapter)
     return (
       <EditableChapter
         key={i}
         chapterId={i}
+        id={chapter.id}
         keyword={chapter.keyword}
         segments={chapter.segments}
         recordingChapter={recordingChapter}
         complicatedFieldOptions={complicatedFieldOptions}
         updateComplicatedFields={updateComplicatedFields}
+        deleteComplicatedField={deleteComplicatedField}
         {...{ ...editableChapterProps }}
       />
     )

@@ -14,6 +14,7 @@ const EditableChapter = ({
   segments,
   complicatedFieldOptions,
   updateComplicatedFields,
+  deleteComplicatedField,
   createNewSectionAfterThis,
   ...chunkProps
 }) => {
@@ -90,6 +91,8 @@ const EditableChapter = ({
               sectionHeader={sectionHeader}
               chapterId={chapterId}
               createNewSectionAfterThis={createNewSectionAfterThis}
+              deleteComplicatedField={deleteComplicatedField}
+              id={chunkProps.id}
             />
           </>
         ) : (
@@ -119,7 +122,8 @@ EditableChapter.propTypes = {
   segments: PropTypes.array,
   complicatedFieldOptions: PropTypes.object,
   updateComplicatedFields: PropTypes.func,
-  createNewSectionAfterThis: PropTypes.func
+  createNewSectionAfterThis: PropTypes.func,
+  deleteComplicatedField: PropTypes.func
 }
 
 export default EditableChapter

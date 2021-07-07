@@ -722,7 +722,8 @@ export default class Editor extends Component {
       noDiff,
       schema,
       complicatedFieldOptions,
-      updateComplicatedFields
+      updateComplicatedFields,
+      deleteComplicatedField
     } = this.props
     const { diff, error } = this.state
     const { preferences } = this.context
@@ -739,6 +740,7 @@ export default class Editor extends Component {
           // onChangeComplicatedField={this.onChangeComplicatedField}
           // updateComplicatedFieldOptions={updateComplicatedFieldOptions}
           updateComplicatedFields={updateComplicatedFields}
+          deleteComplicatedField={deleteComplicatedField}
           onKeyDown={this.onKeyDown}
           onSelect={onSelect}
           onCursorChange={this.onCursorChange}
