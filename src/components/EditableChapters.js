@@ -16,7 +16,7 @@ const EditableChapters = ({
 }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => {
-    console.log('chapter', chapter)
+    // console.log('chapter', chapter)
     return (
       <EditableChapter
         key={i}

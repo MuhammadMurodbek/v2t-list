@@ -62,6 +62,7 @@ const EditableChapter = ({
   })
   // console.log('filteredSegments', filteredSegments)
   // console.log('segments', segments)
+  // console.log('field', field)
   const joinedSegments = segments.map((segment) => segment.words).join('')
   // console.log('joinedSegments', joinedSegments)
   const selectedChoice = field
@@ -78,6 +79,9 @@ const EditableChapter = ({
     : []
   // console.log('selectedChoice', selectedChoice)
   // console.log('complicatedFieldOptions------>', complicatedFieldOptions)
+  // console.log('isSingleSelectEnabled------>', isSingleSelectEnabled)
+  // console.log('isMultiSelectEnabled------>', isMultiSelectEnabled)
+  // console.log('sectionHeader------>', sectionHeader)
   return (
     <EuiFormRow
       style={{
@@ -92,7 +96,7 @@ const EditableChapter = ({
           updateKey={setKeyword}
           chapterId={chapterId}
         />
-        {isMultiSelectEnabled && (
+        {(isMultiSelectEnabled && complicatedFieldOptions[sectionHeader]) && (
           <>
             <ComplicatedField
               complicatedFieldOptions={complicatedFieldOptions}
@@ -107,7 +111,7 @@ const EditableChapter = ({
             />
           </>
         )}
-        {isSingleSelectEnabled && (
+        {(isSingleSelectEnabled && singleSelectFieldOptions[sectionHeader]) && (
           <>
             <ComplicatedField
               complicatedFieldOptions={singleSelectFieldOptions}

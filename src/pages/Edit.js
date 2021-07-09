@@ -603,34 +603,38 @@ export default class EditPage extends Component {
       const { data: originalSchema } =
         (await api.getSchema(transcript.schemaId).catch(this.onError)) || {}
       const schema = await this.extractHeaders(originalSchema)
-      const selectedSchemaFields = schema.fields? schema.fields : []
-      const legacyTranscript = convertToV1API(transcript, selectedSchemaFields)
+      const legacyTranscript = convertToV1API(transcript)
       // set complicated fields
       // complicatedFieldOptions
-      const complicatedFields = {}
-      const singleSelectFields = {}
-      schema.fields
-        .filter((f) => f.multiSelect)
-        .forEach((f) => {
-          complicatedFields[f.name] = f.choiceValues
-        })
-      schema.fields
-        .filter((f) => !f.multiSelect)
-        .filter((f) => f.choiceValues)
-        .forEach((f) => {
-          singleSelectFields[f.name] = f.choiceValues
-        })
-      // console.log('legacyTranscript', legacyTranscript)
-      // console.log('complicatedFields', complicatedFields)
-      // console.log('singleSelectFields', singleSelectFields)
-      this.setState({
-        complicatedFieldOptions: complicatedFields,
-        singleSelectFieldOptions: singleSelectFields
-      })
+      await this.updateFieldsWithSelection(schema)
       this.onNewTranscript(legacyTranscript, schemas, schema)
     } catch (error) {
       this.onError(error)
     }
+  }
+
+  updateFieldsWithSelection = async (schema) => {
+    console.log('schema', schema)
+    const complicatedFields = {}
+    const singleSelectFields = {}
+    schema.fields
+      .filter((f) => f.multiSelect)
+      .forEach((f) => {
+        complicatedFields[f.name] = f.choiceValues
+      })
+    schema.fields
+      .filter((f) => !f.multiSelect)
+      .filter((f) => f.choiceValues)
+      .forEach((f) => {
+        singleSelectFields[f.name] = f.choiceValues
+      })
+    console.log('schema', schema.name)
+    console.log('complicatedFields', complicatedFields)
+    console.log('singleSelectFields', singleSelectFields)
+    this.setState({
+      complicatedFieldOptions: complicatedFields,
+      singleSelectFieldOptions: singleSelectFields
+    })
   }
 
   onNewTranscript = async (transcript, schemas, selectedSchema) => {
@@ -1190,6 +1194,7 @@ export default class EditPage extends Component {
     if (!originalSchema) return
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, allChapters)
+    await this.updateFieldsWithSelection(schema)
     const {
       noMappingFields,
       schemaWithMappings,
@@ -1235,9 +1240,8 @@ export default class EditPage extends Component {
     return new Promise((resolve) => {
       if (isKeyWordUpdated) {
         const { fieldsWithRequirement, schema } = this.state
-        console.log('chapters88888', chapters)
         const multiSelectMap = {}
-        const selectedSchemaFields = schema.fields.forEach((schemaField) => {
+        schema.fields.forEach((schemaField) => {
           if (schemaField.multiSelect) {
             multiSelectMap[schemaField.name] = true
           } else {
@@ -1245,7 +1249,6 @@ export default class EditPage extends Component {
           }
         })
         console.log('multiSelectMap', multiSelectMap)
-        const segmentsToBeAddedToTheNextField = []
         // Check if the current keyword has multiselect property
         const updatedChapters = chapters.map((chapter) => {
           if (multiSelectMap[chapter.keyword]) {

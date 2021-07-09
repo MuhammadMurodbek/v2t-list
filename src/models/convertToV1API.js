@@ -1,14 +1,16 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
-const convertToV1API = ({ id, schemaId, fields }, selectedSchemaFields) => {
+const convertToV1API = ({ id, schemaId, fields }) => {
   const multiSelectMap = {}
   const singleSelectMap = {}
-  console.log('selectedSchemaFields', selectedSchemaFields)
-  selectedSchemaFields.forEach((schemaField) => {
-    if(schemaField.multiSelect) { multiSelectMap[schemaField.id]= true }
-    else { multiSelectMap[schemaField.id]= false }
+  fields.forEach((schemaField) => {
+    if (schemaField.multiSelect) {
+      multiSelectMap[schemaField.id] = true
+    } else {
+      multiSelectMap[schemaField.id] = false
+    }
   })
-  selectedSchemaFields.forEach((schemaField) => {
+  fields.forEach((schemaField) => {
     if (schemaField.choiceValues) {
       if (schemaField.choiceValues.length > 0) {
         if (schemaField.multiSelect) {
@@ -66,7 +68,7 @@ const convertToV1API = ({ id, schemaId, fields }, selectedSchemaFields) => {
         // existing options
         // stack
         
-        const options = selectedSchemaFields.filter(
+        const options = fields.filter(
           (f) => f.id === field.id
         )[0].choiceValues
         console.log('existing options', options)
