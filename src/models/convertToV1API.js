@@ -1,27 +1,33 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 const convertToV1API = ({ id, schemaId, fields }, selectedSchemaFields) => {
-  console.log(
-    '---- ----- ---- ----- ---- ----- ---- ----- ---- ----- ---- ----- ---- -----> ',
-    fields
-  )
-  console.log('schemaId', schemaId)
-  console.log(
-    'fields-----> ',
-    selectedSchemaFields.filter((f) => f.name)
-  )
   const multiSelectMap = {}
+  const singleSelectMap = {}
+  console.log('selectedSchemaFields', selectedSchemaFields)
   selectedSchemaFields.forEach((schemaField) => {
-    if(schemaField.multiSelect) { multiSelectMap[schemaField.name]= true }
-    else { multiSelectMap[schemaField.name]= false }
+    if(schemaField.multiSelect) { multiSelectMap[schemaField.id]= true }
+    else { multiSelectMap[schemaField.id]= false }
   })
-  console.log('multiSelectMap', multiSelectMap)
+  selectedSchemaFields.forEach((schemaField) => {
+    if (schemaField.choiceValues) {
+      if (schemaField.choiceValues.length > 0) {
+        if (schemaField.multiSelect) {
+          singleSelectMap[schemaField.id] = false
+        } else {
+          singleSelectMap[schemaField.id] = true
+        }
+      } else {
+        singleSelectMap[schemaField.id] = false
+      }
+    } else {
+      singleSelectMap[schemaField.id] = false
+    }
+  })
   // get the schema
   const segmentsToBeAddedToTheNextField = []
   const transcriptions = fields
     ? fields.map((field) => {
-
-      if (!multiSelectMap[field.id]) {
+      if (!multiSelectMap[field.id] && !singleSelectMap[field.id]) {
         const keyword = field.id
         let charIndex = 0
         const segments = (field.values || []).reduce((store, { value }) => {
@@ -55,12 +61,13 @@ const convertToV1API = ({ id, schemaId, fields }, selectedSchemaFields) => {
       } else {
         // handle multiselect case
         const keyword = field.id
-        console.log('multi select enabled field', field.values[0].value)
+        // console.log('multi select enabled field id', field.id)
+        // console.log('multi select enabled field', field.values[0].value)
         // existing options
         // stack
         
         const options = selectedSchemaFields.filter(
-          (f) => f.name === field.id
+          (f) => f.id === field.id
         )[0].choiceValues
         console.log('existing options', options)
         const sentence = field.values[0].value
@@ -74,45 +81,26 @@ const convertToV1API = ({ id, schemaId, fields }, selectedSchemaFields) => {
           }
         })
 
-
-
-
         console.log('tempSegments[0]', tempSegments)
-        if (tempSegments.length>0) {
+        if (tempSegments.length > 0) {
           ///// There are matches, add to the segments
           // const unusedTempSegment = tempSegments.
           // segmentsToBeAddedToTheNextField.push(unusedTempSegment)
-          return {
-            keyword,
-            segments: [{ words: tempSegments.join(' ') }],
-            values: field.values
+          console.log('multiSelectMap[field.id]', multiSelectMap[field.id])
+          console.log('singleSelectMap[field.id]', singleSelectMap[field.id])
+          if (multiSelectMap[field.id]) {
+            return {
+              keyword,
+              segments: [{ words: tempSegments.join(' ') }],
+              values: field.values
+            }
+          } else {
+            return {
+              keyword,
+              segments: [{ words: tempSegments[0] }],
+              values: field.values
+            }
           }
-          /////
-
-
-          // if (tempSegments[0].trim().length === sentence.length) {
-          //   console.log('yay')
-          //   return {
-          //     keyword,
-          //     segments: [{ words: tempSegments[0] }],
-          //     values: field.values
-          //   }
-          // } else {
-          //   console.log('match found, but there are some extra data')
-          //   // add to the stack
-          //   segmentsToBeAddedToTheNextField.push(
-          //     sentence.substring(substringLength, sentence.length).trim()
-          //   )
-          //   console.log(
-          //     'segmentsToBeAddedToTheNextField',
-          //     segmentsToBeAddedToTheNextField
-          //   )
-          //   return {
-          //     keyword,
-          //     segments: [{ words: tempSegments[0] }],
-          //     values: field.values
-          //   }
-          // }
         } else {
           // not matched at all, pass everything to the next chapter
           console.log('lets the magic begin')

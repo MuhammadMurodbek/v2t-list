@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from 'react'
 import { EuiFormRow } from '@patronum/eui'
 import SectionHeader from '../components/SectionHeader'
@@ -13,6 +14,7 @@ const EditableChapter = ({
   setKeyword,
   segments,
   complicatedFieldOptions,
+  singleSelectFieldOptions,
   updateComplicatedFields,
   deleteComplicatedField,
   createNewSectionAfterThis,
@@ -27,8 +29,18 @@ const EditableChapter = ({
   const isVisible = field ? field.visible : true
   const sectionHeader = field ? field.name : ''
   const isMultiSelectEnabled = field ? field.multiSelect : false
-  // console.log('field', field.name)
-  // console.log('isMultiSelectEnabled', isMultiSelectEnabled)
+  let isSingleSelectEnabled = false
+  if(!isMultiSelectEnabled) {
+    if(field.choiceValues) {
+      if (field.choiceValues.length > 0) {
+        isSingleSelectEnabled = true
+      }
+    }
+  }
+
+  console.log('field', field.name)
+  console.log('isMultiSelectEnabled', isMultiSelectEnabled)
+  console.log('isSingleSelectEnabled', isSingleSelectEnabled)
   // console.log('choiceValues', field.choiceValues)
   const namePatterns = field
     ? [field.name, ...(field.headerPatterns || [])]
@@ -70,9 +82,6 @@ const EditableChapter = ({
       style={{
         maxWidth: '100%',
         display: isVisible ? 'default' : 'none'
-        // ,
-        // borderBottom: isMultiSelectEnabled ? '1px solid green' : 'none',
-        // padding: isMultiSelectEnabled ? '10px' : 'none'
       }}
     >
       <>
@@ -82,7 +91,7 @@ const EditableChapter = ({
           updateKey={setKeyword}
           chapterId={chapterId}
         />
-        {isMultiSelectEnabled ? (
+        {isMultiSelectEnabled && (
           <>
             <ComplicatedField
               complicatedFieldOptions={complicatedFieldOptions}
@@ -93,9 +102,26 @@ const EditableChapter = ({
               createNewSectionAfterThis={createNewSectionAfterThis}
               deleteComplicatedField={deleteComplicatedField}
               id={chunkProps.id}
+              isSingleSelectEnabled={isSingleSelectEnabled}
             />
           </>
-        ) : (
+        )}
+        {isSingleSelectEnabled && (
+          <>
+            <ComplicatedField
+              complicatedFieldOptions={singleSelectFieldOptions}
+              updateComplicatedFields={updateComplicatedFields}
+              selectedChoice={selectedChoice}
+              sectionHeader={sectionHeader}
+              chapterId={chapterId}
+              createNewSectionAfterThis={createNewSectionAfterThis}
+              deleteComplicatedField={deleteComplicatedField}
+              id={chunkProps.id}
+              isSingleSelectEnabled={isSingleSelectEnabled}
+            />
+          </>
+        )}
+        {!isSingleSelectEnabled && !isMultiSelectEnabled && (
           <Chunks
             recordingChapter={recordingChapter}
             chapterId={chapterId}
@@ -121,6 +147,7 @@ EditableChapter.propTypes = {
   setKeyword: PropTypes.func.isRequired,
   segments: PropTypes.array,
   complicatedFieldOptions: PropTypes.object,
+  singleSelectFieldOptions: PropTypes.object,
   updateComplicatedFields: PropTypes.func,
   createNewSectionAfterThis: PropTypes.func,
   deleteComplicatedField: PropTypes.func

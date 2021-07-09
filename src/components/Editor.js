@@ -722,6 +722,7 @@ export default class Editor extends Component {
       noDiff,
       schema,
       complicatedFieldOptions,
+      singleSelectFieldOptions,
       updateComplicatedFields,
       deleteComplicatedField
     } = this.props
@@ -737,6 +738,7 @@ export default class Editor extends Component {
           onChange={this.onChange}
           onPaste={this.onPaste}
           complicatedFieldOptions={complicatedFieldOptions}
+          singleSelectFieldOptions={singleSelectFieldOptions}
           // onChangeComplicatedField={this.onChangeComplicatedField}
           // updateComplicatedFieldOptions={updateComplicatedFieldOptions}
           updateComplicatedFields={updateComplicatedFields}

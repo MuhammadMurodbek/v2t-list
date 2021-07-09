@@ -16,7 +16,8 @@ const ComplicatedField = ({
   selectedChoice,
   sectionHeader,
   chapterId,
-  createNewSectionAfterThis
+  createNewSectionAfterThis,
+  isSingleSelectEnabled
 }) => {
   return (
     <EuiFlexGroup>
@@ -24,6 +25,7 @@ const ComplicatedField = ({
         <EuiComboBox
           placeholder="Select or create options"
           style={{ width: 300 }}
+          singleSelection={isSingleSelectEnabled}
           options={complicatedFieldOptions[sectionHeader].map((f) => {
             return { label: f }
           })}

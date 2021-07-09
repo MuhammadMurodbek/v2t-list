@@ -108,7 +108,8 @@ export default class EditPage extends Component {
     noMappingFields: [],
     fieldsWithRequirement: [],
     isUploadingMedia: false,
-    complicatedFieldOptions: {}
+    complicatedFieldOptions: {},
+    singleSelectFieldOptions: {}
   }
 
   async componentDidMount() {
@@ -606,16 +607,26 @@ export default class EditPage extends Component {
       const legacyTranscript = convertToV1API(transcript, selectedSchemaFields)
       // set complicated fields
       // complicatedFieldOptions
-      // console.log('😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀')
       const complicatedFields = {}
+      const singleSelectFields = {}
       schema.fields
         .filter((f) => f.multiSelect)
         .forEach((f) => {
           complicatedFields[f.name] = f.choiceValues
         })
+      schema.fields
+        .filter((f) => !f.multiSelect)
+        .filter((f) => f.choiceValues)
+        .forEach((f) => {
+          singleSelectFields[f.name] = f.choiceValues
+        })
+      // console.log('legacyTranscript', legacyTranscript)
       // console.log('complicatedFields', complicatedFields)
-      this.setState({ complicatedFieldOptions: complicatedFields })
-      // console.log('😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀')
+      // console.log('singleSelectFields', singleSelectFields)
+      this.setState({
+        complicatedFieldOptions: complicatedFields,
+        singleSelectFieldOptions: singleSelectFields
+      })
       this.onNewTranscript(legacyTranscript, schemas, schema)
     } catch (error) {
       this.onError(error)
@@ -1556,7 +1567,8 @@ export default class EditPage extends Component {
       approved,
       noMappingFields,
       isUploadingMedia,
-      complicatedFieldOptions
+      complicatedFieldOptions,
+      singleSelectFieldOptions
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -1620,6 +1632,7 @@ export default class EditPage extends Component {
                   recordingChapter={recording ? currentChapter : null}
                   noDiff={mic}
                   complicatedFieldOptions={complicatedFieldOptions}
+                  singleSelectFieldOptions={singleSelectFieldOptions}
                   updateComplicatedFields={this.updateComplicatedFields}
                   deleteComplicatedField={this.deleteComplicatedField}
                 />

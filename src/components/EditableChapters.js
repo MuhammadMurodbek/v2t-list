@@ -9,6 +9,7 @@ const EditableChapters = ({
   chapters,
   inputRef,
   complicatedFieldOptions,
+  singleSelectFieldOptions,
   updateComplicatedFields,
   deleteComplicatedField,
   ...editableChapterProps
@@ -25,6 +26,7 @@ const EditableChapters = ({
         segments={chapter.segments}
         recordingChapter={recordingChapter}
         complicatedFieldOptions={complicatedFieldOptions}
+        singleSelectFieldOptions={singleSelectFieldOptions}
         updateComplicatedFields={updateComplicatedFields}
         deleteComplicatedField={deleteComplicatedField}
         {...{ ...editableChapterProps }}
