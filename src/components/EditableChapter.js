@@ -30,18 +30,19 @@ const EditableChapter = ({
   const sectionHeader = field ? field.name : ''
   const isMultiSelectEnabled = field ? field.multiSelect : false
   let isSingleSelectEnabled = false
-  if(!isMultiSelectEnabled) {
-    if(field.choiceValues) {
-      if (field.choiceValues.length > 0) {
-        isSingleSelectEnabled = true
+  if (!isMultiSelectEnabled) {
+    if (field) {
+      if (field.choiceValues) {
+        if (field.choiceValues.length > 0) {
+          isSingleSelectEnabled = true
+        }
       }
+      // console.log('field', field.name)
+      // console.log('isMultiSelectEnabled', isMultiSelectEnabled)
+      // console.log('isSingleSelectEnabled', isSingleSelectEnabled)
     }
   }
 
-  console.log('field', field.name)
-  console.log('isMultiSelectEnabled', isMultiSelectEnabled)
-  console.log('isSingleSelectEnabled', isSingleSelectEnabled)
-  // console.log('choiceValues', field.choiceValues)
   const namePatterns = field
     ? [field.name, ...(field.headerPatterns || [])]
     : []
