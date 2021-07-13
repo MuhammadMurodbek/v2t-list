@@ -146,11 +146,26 @@ export default class EditPage extends Component {
   }
 
   toggleRecord = () => {
-    const { recording } = this.state
-    if (recording) {
-      this.stopRecording()
+    const { recording, schema } = this.state
+    if(schema.id) {
+      if (recording) {
+        this.stopRecording()
+      } else {
+        this.startRecording()
+      }
     } else {
-      this.startRecording()
+      addWarningToast(
+        <EuiI18n
+          token="unableToStartLiveTranscriptSession"
+          default="Unable to start live dictation"
+        />,
+        <>
+          <EuiI18n
+            token="schemaIsMissing"
+            default="Schema is missing"
+          />
+        </>
+      )
     }
   }
 
@@ -590,7 +605,6 @@ export default class EditPage extends Component {
   initiate = async () => {
     const { id, defaultTranscript } = this.props
     if (defaultTranscript) await this.onNewTranscript(defaultTranscript)
-
     try {
       const { data: transcript } = await api.loadTranscription(id)
       const {
@@ -599,11 +613,16 @@ export default class EditPage extends Component {
         departmentId: transcript.departmentId
       })
       const { data: { departments }} = await api.getDepartments()
-      this.setState({ departments, departmentId: transcript.departmentId })
       const { data: originalSchema } =
         (await api.getSchema(transcript.schemaId).catch(this.onError)) || {}
       const schema = await this.extractHeaders(originalSchema)
+      this.setState({
+        departments,
+        departmentId: transcript.departmentId,
+        schemas
+      })
       const legacyTranscript = convertToV1API(transcript)
+      
       // set complicated fields
       // complicatedFieldOptions
       await this.updateFieldsWithSelection(schema)

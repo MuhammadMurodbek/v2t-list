@@ -159,6 +159,7 @@
   "lettersError": "Bruk bare bokstaver (instruksjonen har en liste over gyldige tegn)!",
   "unableToUpload": "Det er ikke mulig å laste opp",
   "fileIsMissing": "Filen mangler",
+  "schemaIsMissing": "Skjema mangler",
   "missingReuiredHeaders": "Informasjon mangler",
   "missingFieldMessage": "mangler. Vil du spare uansett?",
   "unableToStartLiveTranscriptSession": "Kan ikke starte direkte transkripsjon",

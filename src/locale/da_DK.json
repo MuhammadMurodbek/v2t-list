@@ -158,6 +158,7 @@
     "lettersError": "Brug kun bogstaver (instruktionen har en liste med gyldige tegn)!",
     "unableToUpload": "Kan ikke uploade",
     "fileIsMissing": "Fil mangler",
+    "schemaIsMissing": "Skema mangler",
     "missingReuiredHeaders": "Manglende oplysninger",
     "missingFieldMessage": "mangler. Vil du gemme alligevel?",
     "unableToStartLiveTranscriptSession": "Start af diktat kunne ikke startes",

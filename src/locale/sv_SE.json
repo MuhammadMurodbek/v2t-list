@@ -158,6 +158,7 @@
   "lettersError": "Använd bara bokstäver (instruktionen har en lista på giltiga tecken)!",
   "unableToUpload": "Det är inte möjligt att ladda upp",
   "fileIsMissing": "Fil saknas",
+  "schemaIsMissing": "Schemat saknas",
   "missingReuiredHeaders": "Information saknas",
   "missingFieldMessage": "saknas. Vill du spara ändå?",
   "unableToStartLiveTranscriptSession": "Det gick inte att starta livedikteringen",

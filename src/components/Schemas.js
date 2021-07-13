@@ -13,7 +13,6 @@ const Schemas = ({ schemas, schemaId, onUpdate, location }) => {
   const [options, setOptions] = useState([{ label: '' }])
   const [selectedSchema, setSelectedSchema] = useState({ label: '' })
   const params = new URLSearchParams(location.search || window.location.search)
-
   useEffect(() => {
     const options = schemas
       .map((schema) => ({ ...schema, value: schema.id, label: schema.name }))
@@ -30,7 +29,7 @@ const Schemas = ({ schemas, schemaId, onUpdate, location }) => {
         onUpdate(found.value)
       }
     }
-  }, [schemas.length])
+  }, [schemaId, schemas.length])
 
   const onSchemaChange = (schemas) => {
     if (!schemas.length) return
