@@ -48,6 +48,10 @@ export const getNextUrl = (history, basePath = '') => {
     return `${history.location.pathname}${location.search}`
   }
 
+  if (!location.search && location.hash) {
+    return location.hash.replace('#', '')
+  }
+
   return `${basePath}/`
 }
 
