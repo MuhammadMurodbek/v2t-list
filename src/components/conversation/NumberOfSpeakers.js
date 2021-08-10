@@ -25,8 +25,8 @@ const NumberOfSpeakers = ({ updateNumberOfSpeakers }) => {
 
   return (
     <>
-      <EuiText>
-        <span>Number of Speakers &nbsp;&nbsp;</span>
+      <EuiText style={{ marginLeft: 16 }}>
+        <h5>Number of Speakers &nbsp;&nbsp;</h5>
       </EuiText>
       <EuiComboBox
         placeholder="Select number of speakers"

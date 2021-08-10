@@ -226,7 +226,7 @@
   width: 20px;
   border-radius: 60%;
   background: rgba(255,0,0,.35);
-  margin-top: -6px;
+  margin-top: -2.5px;
   cursor: pointer;
 }
 
@@ -237,7 +237,7 @@
   width: 20px;
   border-radius: 60%;
   background: rgba(255,0,0,.35);
-  margin-top: -13px;
+  margin-top: -1px;
   cursor: pointer;
 }
 
@@ -248,7 +248,7 @@
   width: 30px;
   border-radius: 60%;
   background: rgba(255,0,0,.35);
-  margin-top: -13px;
+  margin-top: -1px;
   cursor: pointer;
 }
 

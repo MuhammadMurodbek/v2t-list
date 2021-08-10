@@ -1,0 +1,132 @@
+.range-slider {
+  margin-left: -44px;
+}
+.range-slider .input-range {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+  -webkit-appearance: none;
+  cursor: pointer;
+  height: 500px;
+  border-radius: 5px;
+  background: rgb(27,0,255);
+  outline: none;
+  writing-mode: bt-lr;
+  /* IE */
+  -webkit-appearance: slider-vertical;
+  /* WebKit */
+}
+
+.range-slider input[type=range]::-moz-range-track {
+  background: rgb(27,0,255);
+  border: 0;
+}
+
+.range-slider  input[type=range]input::-moz-focus-inner {
+  border: 0;
+}
+
+.range-slider input[type=range]::-webkit-slider-runnable-track {
+}
+
+.range-slider input[type=range]:focus::-webkit-slider-runnable-track {
+}
+
+
+.conversationFooter {
+    bottom: 21.31px;
+    position: fixed;
+    width: 86%;
+    display: flex;
+    justify-content: center;
+}
+
+.conversationPlayer {
+  width: 695px;
+  background-color: #041587;
+  color: white;
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  border-radius: 5px;
+}
+
+.conversationPlayer .play:before {
+  font-family: HeydingsControlsRegular;
+  font-size: 30px;
+  position: relative;
+  content: attr(data-icon);
+}
+
+.conversationPlayer .play{
+    border: none;
+    padding-bottom: 7px;
+    cursor: pointer;
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-top: 1px;
+}
+
+.conversationPlayer .play:focus {
+  outline: 0;
+}
+
+
+.conversationPlayer .forward:before {
+  font-family: HeydingsControlsRegular;
+  font-size: 20px;
+  position: relative;
+  content: attr(data-icon);
+  font-weight: 100;
+}
+
+.conversationPlayer .forward{
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    padding-top: 3px;
+    margin-top: 10px;
+    margin-left: 6px;
+    -moz-transform: scale(1, -1);
+    -webkit-transform: scale(1, -1);
+    -o-transform: scale(1, -1);
+    -ms-transform: scale(1, -1);
+    transform: scale(1, -1);
+}
+
+.conversationPlayer .forward:focus {
+  outline: 0;
+}
+
+
+.conversationPlayer .backward:before {
+  font-family: HeydingsControlsRegular;
+  font-size: 20px;
+  position: relative;
+  content: attr(data-icon);
+  font-weight: 100;
+}
+
+.conversationPlayer .backward {
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    padding-top: 3px;
+    transform: rotate(180deg);
+} 
+
+.conversationPlayer .backward:focus {
+  outline: 0;
+}
+
+.bubble-text {
+  margin-top: 5px;
+  padding: 0 !important;
+}
+
+.bubble-text:focus {
+  background: unset !important;
+  border: unset !important;
+}

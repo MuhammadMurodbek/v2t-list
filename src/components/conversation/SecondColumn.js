@@ -15,11 +15,14 @@ import io from 'socket.io-client'
 import interpolateArray from '../../models/interpolateArray'
 import * as recorder from '../../utils/recorder'
 import NumberOfSpeakers from './NumberOfSpeakers'
+//  import api from '../../api'
+
 const SecondColumn = ({
   item,
   numberOfSpeakers,
   updateNumberOfSpeakers,
-  updateTranscription
+  updateTranscription,
+  updateRecordingStatus
 }) => {
   const [audioContext, setAudioContext] = useState(null)
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false)
@@ -27,7 +30,7 @@ const SecondColumn = ({
   const [isRecording, setIsRecording] = useState(false)
   const [recordedTime, setRecordedTime] = useState(0)
   const socketio = io.connect('wss://ilxgpu1000.inoviaai.se/audio', {
-    path: '/api/v1/sweden',
+    path: '/api/v1/diarization',
     transports: ['websocket']
   })
 
@@ -58,7 +61,7 @@ const SecondColumn = ({
         16000,
         audioContext.sampleRate
       )
-      const output = new DataView(new ArrayBuffer(input.length * 2)) 
+      const output = new DataView(new ArrayBuffer(input.length * 2))
       // length is in bytes (8-bit), so *2 to get 16-bit length
       for (var i = 0, offset = 0; i < input.length; i++, offset += 2) {
         var s = Math.max(-1, Math.min(1, input[i]))
@@ -109,7 +112,7 @@ const SecondColumn = ({
       recorder.start()
       socketio.on('add-transcript', (text) => {
         // eslint-disable-next-line no-console
-        // console.log(text)
+        console.log(text)
         updateTranscription(text)
       })
     } else {
@@ -128,14 +131,35 @@ const SecondColumn = ({
 
   const beginTheRecording = () => {
     setIsFlyoutOpen(false)
+    // get the new trancript ID 
+    // const token = jwtDecode(localStorage.getItem('token'))
+    // const userId = token.sub
+    // let transcriptId 
+    // api.getActiveLiveSession().then((activeLiveSession) => {
+    //   const { id } = activeLiveSession.data
+    //   transcriptId = id
+    // })
+
+
+
+
+
+
+
+
+
     toggleRecording()
+    updateRecordingStatus(true)
+  }
+  const stopRecording = () => {
+    setIsFlyoutOpen(false)
+    toggleRecording()
+    updateRecordingStatus(false)
   }
 
   return item === '+New live recording' ? (
     <>
-      <EuiButtonEmpty onClick={openFlyout} disabled={isRecording}>
-        +New live recording
-      </EuiButtonEmpty>
+      <EuiButtonEmpty onClick={openFlyout}>+New live recording</EuiButtonEmpty>
       {isFlyoutOpen && (
         <EuiFlyout
           ownFocus
@@ -150,24 +174,39 @@ const SecondColumn = ({
           </EuiFlyoutHeader>
           <EuiFlyoutBody>
             <EuiSpacer size="l" />
-            <EuiFlexGroup direction="unset">
-              <NumberOfSpeakers
-                updateNumberOfSpeakers={updateNumberOfSpeakers}
-              />
-            </EuiFlexGroup>
-            <EuiSpacer size="l" />
-            <EuiFlexGroup direction="column">
-              <EuiFlexItem>
-                <EuiButton
-                  size="m"
-                  fill
-                  style={{ width: '200px', color: '#041587' }}
-                  onClick={beginTheRecording}
-                >
-                  Start Live Recording
-                </EuiButton>
-              </EuiFlexItem>
-            </EuiFlexGroup>
+            {!isRecording && (
+              <>
+                <EuiFlexGroup direction="unset">
+                  <NumberOfSpeakers
+                    updateNumberOfSpeakers={updateNumberOfSpeakers}
+                  />
+                </EuiFlexGroup>
+                <EuiSpacer size="l" />
+                <EuiFlexGroup direction="column">
+                  <EuiFlexItem>
+                    <EuiButton
+                      size="m"
+                      fill
+                      style={{ width: '200px', color: '#041587' }}
+                      onClick={beginTheRecording}
+                    >
+                      Start Live Recording
+                    </EuiButton>
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              </>
+            )}
+            {isRecording && (
+              <EuiButton
+                color="danger"
+                size="m"
+                fill
+                style={{ width: '200px' }}
+                onClick={stopRecording}
+              >
+                Stop Live Recording
+              </EuiButton>
+            )}
           </EuiFlyoutBody>
         </EuiFlyout>
       )}
@@ -183,28 +222,8 @@ SecondColumn.propTypes = {
   item: PropTypes.string.isRequired,
   numberOfSpeakers: PropTypes.number.isRequired,
   updateNumberOfSpeakers: PropTypes.func.isRequired,
-  updateTranscription: PropTypes.func.isRequired  
-}
-
-SecondColumn.propTypes = {
-  item: PropTypes.string.isRequired,
-  numberOfSpeakers: PropTypes.number.isRequired,
-  updateNumberOfSpeakers: PropTypes.func.isRequired,
-  updateTranscription: PropTypes.func.isRequired  
-}
-
-SecondColumn.propTypes = {
-  item: PropTypes.string.isRequired,
-  numberOfSpeakers: PropTypes.number.isRequired,
-  updateNumberOfSpeakers: PropTypes.func.isRequired,
-  updateTranscription: PropTypes.func.isRequired  
-}
-
-SecondColumn.propTypes = {
-  item: PropTypes.string.isRequired,
-  numberOfSpeakers: PropTypes.number.isRequired,
-  updateNumberOfSpeakers: PropTypes.func.isRequired,
-  updateTranscription: PropTypes.func.isRequired  
+  updateTranscription: PropTypes.func.isRequired,
+  updateRecordingStatus: PropTypes.func.isRequired
 }
 
 export default SecondColumn
