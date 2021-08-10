@@ -1408,17 +1408,43 @@ export default class EditPage extends Component {
             if (curr.requires.field) {
               // Check if the field exists
               const fieldNames = fields.map((field) => field.keyword)
-              console.log('curr.requires.field', curr.requires.field)
-              console.log('fieldNames', fieldNames)
-              console.log(
-                'fieldNames.includes(curr.requires.field)',
-                fieldNames.includes(curr.requires.field)
-              )
               if (fieldNames.includes(curr.requires.field)) {
-                prev.push(curr)
+                // Check if the specific value is present 
+                const requiredField = fields.filter(
+                  (f) => f.keyword === curr.requires.field
+                )
+                console.log('requiredField', requiredField)
+                if(requiredField.length>0) {
+                  if(requiredField[0].values) {
+                    if(requiredField[0].values[0].value) {
+                      console.log(
+                        'current value in the transcript',
+                        requiredField[0].values[0].value
+                      )
+                      console.log('required value/s', curr.requires)
+                      if(curr.requires.oneOf) {
+                        if(curr.requires.oneOf.length>0) {
+                          console.log('oneof', curr.requires.oneOf)
+                          if(curr.requires.oneOf
+                            .includes(requiredField[0].values[0].value)) {
+                            prev.push(curr)  
+                          } else {
+                            fieldsWithRequirement.push(curr)
+                          }
+                        } else {
+                          prev.push(curr)
+                        }
+                      } else {
+                        prev.push(curr)
+                      }
+                    }      
+                  }
+                }
               } else {
                 fieldsWithRequirement.push(curr)
               }
+            } else { 
+              prev.push(curr)
             }
           } else {
             prev.push(curr)
@@ -1448,6 +1474,7 @@ export default class EditPage extends Component {
 
     const schemaWithMappings = { ...schema, fields: mappingFields }
     console.log('schemaWithMappings', schemaWithMappings)
+    // console.log('fieldsWithRequirement', fieldsWithRequirement)
     return {
       schemaWithMappings,
       noMappingFields,
@@ -1542,19 +1569,19 @@ export default class EditPage extends Component {
     this.onUpdateTranscript(updatedChapters, true).then(this.refreshDiff)
   }
 
-  deleteComplicatedField = (chapterId) => {
-    const { chapters } = this.state
-    const updatedChapters =
-      chapters.filter((chapter) => chapter.id !== chapterId)
-    this.setState({ chapters: updatedChapters })
-  }
+  // deleteComplicatedField = (chapterId) => {
+  //   const { chapters } = this.state
+  //   const updatedChapters =
+  //     chapters.filter((chapter) => chapter.id !== chapterId)
+  //   this.setState({ chapters: updatedChapters })
+  // }
 
-  deleteComplicatedField = (chapterId) => {
-    const { chapters } = this.state
-    const updatedChapters = [...chapters]
-    updatedChapters.splice(chapterId, 1)
-    this.setState({ chapters: updatedChapters })
-  }
+  // deleteComplicatedField = (chapterId) => {
+  //   const { chapters } = this.state
+  //   const updatedChapters = [...chapters]
+  //   updatedChapters.splice(chapterId, 1)
+  //   this.setState({ chapters: updatedChapters })
+  // }
 
   deleteComplicatedField = (chapterId) => {
     const { chapters } = this.state
