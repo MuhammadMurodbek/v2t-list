@@ -659,7 +659,6 @@ export default class EditPage extends Component {
   onNewTranscript = async (transcript, schemas, selectedSchema) => {
     const { setTranscriptId } = this.context
     const { fields, media_content_type, schemaId, transcriptions } = transcript
-
     setTranscriptId(this.props.id)
 
     const { data: originalSchema } =
@@ -1255,29 +1254,54 @@ export default class EditPage extends Component {
     this.setState({ allChapters })
   }
 
-  onUpdateTranscript = (chapters, isKeyWordUpdated = false) => {
+  onUpdateTranscript = (
+    chapters,
+    isKeyWordUpdated = false,
+    chapterId = null
+  ) => {
     return new Promise((resolve) => {
       if (isKeyWordUpdated) {
         const { fieldsWithRequirement, schema } = this.state
-        const multiSelectMap = {}
+        const complicatedFieldMap = {}
         schema.fields.forEach((schemaField) => {
-          if (schemaField.multiSelect) {
-            multiSelectMap[schemaField.name] = true
+          if (schemaField.choiceValues) {
+            complicatedFieldMap[schemaField.name] = true
+            // sometimes id is used as  keyword
+            complicatedFieldMap[schemaField.id] = true
           } else {
-            multiSelectMap[schemaField.name] = false
+            complicatedFieldMap[schemaField.name] = false
+            complicatedFieldMap[schemaField.id] = false
           }
         })
-        console.log('multiSelectMap', multiSelectMap)
+        // console.log('complicatedFieldMap', complicatedFieldMap)
         // Check if the current keyword has multiselect property
-        const updatedChapters = chapters.map((chapter) => {
-          if (multiSelectMap[chapter.keyword]) {
+        const stringToBeAttachedToTheNextChapter = []
+        const updatedChapters = chapters.map((chapter, i) => {
+          if (complicatedFieldMap[chapter.keyword]) {
             // remove remaining segments to the next chapter
-            return chapter
+            // if the chapter id is the current id
+            if(i===chapterId) {
+              // no options are selected
+              // send the extra value to the next chapter
+              stringToBeAttachedToTheNextChapter.push(chapter.segments
+                .map((segment) => segment.words)
+                .join(' '))
+              return { ...chapter, segments: []}
+            } else {
+              return chapter
+            }
           } else {
             return chapter
           }
         })
-
+        stringToBeAttachedToTheNextChapter.forEach((appendedChapterWords) =>
+          updatedChapters.push({
+            keyword: '',
+            segments: [
+              { words: appendedChapterWords, startTime: 0, endTime: 0 }
+            ]
+          })
+        )
         // Dependency calculation
         const keywordsFromTheChapters = updatedChapters.map(
           (chapter) => chapter.keyword
@@ -1566,7 +1590,8 @@ export default class EditPage extends Component {
       }
     })
     console.log('updatedChapter', updatedChapters)
-    this.onUpdateTranscript(updatedChapters, true).then(this.refreshDiff)
+    this.onUpdateTranscript(updatedChapters, true)
+      .then(this.refreshDiff)
   }
 
   // deleteComplicatedField = (chapterId) => {
