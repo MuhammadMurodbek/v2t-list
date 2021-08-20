@@ -72,9 +72,9 @@ const convertToV1API = ({ id, schemaId, fields }) => {
         const options = fields.filter(
           (f) => f.id === field.id
         )[0].choiceValues
-        console.log('existing options', options)
+        // console.log('existing options', options)
         const sentence = field.values[0].value
-        console.log('sentence', sentence)
+        // console.log('sentence', sentence)
         const tempSegments = []
         
         options.forEach((option) => {
@@ -84,13 +84,13 @@ const convertToV1API = ({ id, schemaId, fields }) => {
           }
         })
 
-        console.log('tempSegments[0]', tempSegments)
+        // console.log('tempSegments[0]', tempSegments)
         if (tempSegments.length > 0) {
           ///// There are matches, add to the segments
           // const unusedTempSegment = tempSegments.
           // segmentsToBeAddedToTheNextField.push(unusedTempSegment)
-          console.log('multiSelectMap[field.id]', multiSelectMap[field.id])
-          console.log('singleSelectMap[field.id]', singleSelectMap[field.id])
+          // console.log('multiSelectMap[field.id]', multiSelectMap[field.id])
+          // console.log('singleSelectMap[field.id]', singleSelectMap[field.id])
           if (multiSelectMap[field.id]) {
             return {
               keyword,
@@ -106,7 +106,7 @@ const convertToV1API = ({ id, schemaId, fields }) => {
           }
         } else {
           // not matched at all, pass everything to the next chapter
-          console.log('lets the magic begin')
+          // console.log('lets the magic begin')
           segmentsToBeAddedToTheNextField.push(sentence)
           return {
             keyword,
@@ -118,11 +118,11 @@ const convertToV1API = ({ id, schemaId, fields }) => {
     })
     : []
 
-  console.log(
-    'segmentsToBeAddedToTheNextField',
-    segmentsToBeAddedToTheNextField
-  )
-  console.log('transcriptions', transcriptions)
+  // console.log(
+  //   'segmentsToBeAddedToTheNextField',
+  //   segmentsToBeAddedToTheNextField
+  // )
+  // console.log('transcriptions', transcriptions)
   return { id, schemaId, transcriptions }
 }
 

@@ -633,7 +633,7 @@ export default class EditPage extends Component {
   }
 
   updateFieldsWithSelection = async (schema) => {
-    console.log('schema', schema)
+    // console.log('schema', schema)
     const complicatedFields = {}
     const singleSelectFields = {}
     schema.fields
@@ -647,9 +647,9 @@ export default class EditPage extends Component {
       .forEach((f) => {
         singleSelectFields[f.name] = f.choiceValues
       })
-    console.log('schema', schema.name)
-    console.log('complicatedFields', complicatedFields)
-    console.log('singleSelectFields', singleSelectFields)
+    // console.log('schema', schema.name)
+    // console.log('complicatedFields', complicatedFields)
+    // console.log('singleSelectFields', singleSelectFields)
     this.setState({
       complicatedFieldOptions: complicatedFields,
       singleSelectFieldOptions: singleSelectFields
@@ -687,8 +687,8 @@ export default class EditPage extends Component {
       schema,
       parsedChapters
     )
-    console.log('parsedChapters', parsedChapters)
-    console.log('updatedChapters', updatedChapters)
+    // console.log('parsedChapters', parsedChapters)
+    // console.log('updatedChapters', updatedChapters)
     
     this.setState(
       {
@@ -714,10 +714,10 @@ export default class EditPage extends Component {
   }
 
   processComplicatedFields = (schema, chapters) => {
-    console.log('---------- .........-------')
-    console.log('---------- .........-------')
-    console.log('schema', schema)
-    console.log('chapters', chapters)
+    // console.log('---------- .........-------')
+    // console.log('---------- .........-------')
+    // console.log('schema', schema)
+    // console.log('chapters', chapters)
     const complicatedFieldMap = {}
     schema.fields.forEach((schemaField) => {
       if (schemaField.choiceValues) {
@@ -729,7 +729,7 @@ export default class EditPage extends Component {
         complicatedFieldMap[schemaField.id] = false
       }
     })
-    console.log('complicatedFieldMap', complicatedFieldMap)
+    // console.log('complicatedFieldMap', complicatedFieldMap)
     const stringToBeAttachedToTheNextChapter = []
     const updatedChapters = chapters.map((chapter, i) => {
       if (complicatedFieldMap[chapter.keyword]) {
@@ -750,14 +750,14 @@ export default class EditPage extends Component {
             })
           }
         }
-        console.log('chapter', chapter)
-        console.log('segments', joinedSegments)
-        console.log('fieldWithOptions', fieldWithOptions)
-        console.log('choices', choices)
+        // console.log('chapter', chapter)
+        // console.log('segments', joinedSegments)
+        // console.log('fieldWithOptions', fieldWithOptions)
+        // console.log('choices', choices)
         const ch = choices
           .map((choice) => {
-            console.log('choice1', choice.toLowerCase())
-            console.log('segments1', joinedSegments.toLowerCase())
+            // console.log('choice1', choice.toLowerCase())
+            // console.log('segments1', joinedSegments.toLowerCase())
 
             // search by segments one by one
             if (
@@ -768,7 +768,7 @@ export default class EditPage extends Component {
             }
           }).filter(Boolean) // remove undefined values
         
-        console.log('ch', ch)      
+        // console.log('ch', ch)      
         if(ch.length) { 
           return {
             ...chapter, 
@@ -783,7 +783,7 @@ export default class EditPage extends Component {
             .filter(field=>
               field.name===chapter.keyword||field.id===chapter.keyword
             ).filter(Boolean)
-          console.log('currentFieldOfSchema', currentFieldOfSchema)
+          // console.log('currentFieldOfSchema', currentFieldOfSchema)
           if(currentFieldOfSchema.length){
             if(currentFieldOfSchema[0].multiSelect) { isSingleSelect = false }
           }
@@ -802,7 +802,7 @@ export default class EditPage extends Component {
         return chapter
       }
     })
-    console.log('updatedChapters', updatedChapters)
+    // console.log('updatedChapters', updatedChapters)
     // add stringToBeAttachedToTheNextChapter
     stringToBeAttachedToTheNextChapter.forEach((appendedChapter, j) =>
       updatedChapters.splice(appendedChapter.index+1+j, 0, {
@@ -811,8 +811,8 @@ export default class EditPage extends Component {
       })
     )
 
-    console.log('---------- .........-------')
-    console.log('---------- .........-------')
+    // console.log('---------- .........-------')
+    // console.log('---------- .........-------')
     return updatedChapters
   }
 
@@ -852,11 +852,11 @@ export default class EditPage extends Component {
 
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
-      console.log('schema?', JSON.parse(JSON.stringify(schema)))
+      // console.log('schema?', JSON.parse(JSON.stringify(schema)))
       const hasSelector = ({ id, choiceValues }) => TAG_NAMESPACES.includes(id)
       // || (choiceValues && choiceValues.length)
       const selectors = schema.fields.filter(hasSelector)
-      console.log('selectors', selectors)
+      // console.log('selectors', selectors)
       schema.fields = schema.fields.filter((...args) => !hasSelector(...args))
       const originalTags = selectors.reduce(
         (store, { id: namespace, visible }) => {
@@ -875,7 +875,7 @@ export default class EditPage extends Component {
         },
         {}
       )
-      console.log('extract', originalTags)
+      // console.log('extract', originalTags)
 
       this.setState({
         originalTags,
@@ -1505,7 +1505,7 @@ export default class EditPage extends Component {
       api
         .rejectTranscription(id)
         .then((outcome)=>{
-          console.log('outcome', outcome)
+          // console.log('outcome', outcome)
           addSuccessToast(
             <EuiI18n
               token="dictationRejected"
@@ -1527,11 +1527,11 @@ export default class EditPage extends Component {
   }
 
   filterSchema = (schema, fields) => {
-    console.log('-------------------------------------schema', schema)
-    console.log(
-      '--------------------------------------------------fields',
-      fields
-    )
+    // console.log('-------------------------------------schema', schema)
+    // console.log(
+    //   '--------------------------------------------------fields',
+    //   fields
+    // )
     const noMappingFields = []
     const fieldsWithRequirement = []
     const mappingFields = schema.fields
@@ -1549,18 +1549,18 @@ export default class EditPage extends Component {
                 const requiredField = fields.filter(
                   (f) => f.keyword === curr.requires.field
                 )
-                console.log('requiredField', requiredField)
+                // console.log('requiredField', requiredField)
                 if(requiredField.length>0) {
                   if(requiredField[0].values) {
                     if(requiredField[0].values[0].value) {
-                      console.log(
-                        'current value in the transcript',
-                        requiredField[0].values[0].value
-                      )
-                      console.log('required value/s', curr.requires)
+                      // console.log(
+                      //   'current value in the transcript',
+                      //   requiredField[0].values[0].value
+                      // )
+                      // console.log('required value/s', curr.requires)
                       if(curr.requires.oneOf) {
                         if(curr.requires.oneOf.length>0) {
-                          console.log('oneof', curr.requires.oneOf)
+                          // console.log('oneof', curr.requires.oneOf)
                           if (
                             requiredField[0].values[0].value.includes(
                               curr.requires.oneOf
@@ -1612,7 +1612,7 @@ export default class EditPage extends Component {
       : []
 
     const schemaWithMappings = { ...schema, fields: mappingFields }
-    console.log('schemaWithMappings', schemaWithMappings)
+    // console.log('schemaWithMappings', schemaWithMappings)
     // console.log('fieldsWithRequirement', fieldsWithRequirement)
     return {
       schemaWithMappings,
@@ -1637,26 +1637,26 @@ export default class EditPage extends Component {
   }
 
   updateComplicatedFields = (updatedComplicatedFields, chapterId) => {
-    console.log('updatedcombo', updatedComplicatedFields)
-    console.log('chapterId', chapterId)
+    // console.log('updatedcombo', updatedComplicatedFields)
+    // console.log('chapterId', chapterId)
     // update chapters
     const { chapters } = this.state
     const updatedChapters = chapters.map((ch, i) => {
       if (chapterId !== i) {
-        console.log('ch22', ch)
+        // console.log('ch22', ch)
         return ch
       } else {
         let updatedSegments = []
-        console.log('updatedcombo.length', updatedComplicatedFields.length)
-        console.log('updatedcombo', updatedComplicatedFields.length)
-        console.log(
-          'updatedcombo22',
-          updatedComplicatedFields
-            .map((updatedComplicatedField) => updatedComplicatedField.label)
-            .join(' ')
-        )
-        console.log('i', i)
-        console.log('chapters', chapters)
+        // console.log('updatedcombo.length', updatedComplicatedFields.length)
+        // console.log('updatedcombo', updatedComplicatedFields.length)
+        // console.log(
+        //   'updatedcombo22',
+        //   updatedComplicatedFields
+        //     .map((updatedComplicatedField) => updatedComplicatedField.label)
+        //     .join(' ')
+        // )
+        // console.log('i', i)
+        // console.log('chapters', chapters)
         if (updatedComplicatedFields.length > 0) {
           if (ch.segments.length > 0) {
             // updatedSegments = ch.segments.map((segment) => {
@@ -1711,12 +1711,12 @@ export default class EditPage extends Component {
               endTime: 0
             }
           }
-          console.log('ch33', ch)
+          // console.log('ch33', ch)
           return { ...ch, segments: updatedSegments }
         }
       }
     })
-    console.log('updatedChapter', updatedChapters)
+    // console.log('updatedChapter', updatedChapters)
     this.onUpdateTranscript(updatedChapters, true)
       .then(this.refreshDiff)
   }
