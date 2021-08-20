@@ -683,12 +683,21 @@ export default class EditPage extends Component {
       originalSchema
     )
 
+    const updatedChapters = this.processComplicatedFields(
+      schema,
+      parsedChapters
+    )
+    console.log('parsedChapters', parsedChapters)
+    console.log('updatedChapters', updatedChapters)
+    
     this.setState(
       {
         originalSchemaId: schemaId,
         allChapters: transcriptions,
-        originalChapters: parsedChapters,
-        chapters: parsedChapters,
+        //originalChapters: parsedChapters,
+        originalChapters: updatedChapters,
+        //chapters: parsedChapters,
+        chapters: updatedChapters,
         fields: fields || {},
         isMediaAudio: (media_content_type || '').match(/^video/) === null,
         schemas,
@@ -702,6 +711,109 @@ export default class EditPage extends Component {
           this.setState({ chapters: defaultFields })
       }
     )
+  }
+
+  processComplicatedFields = (schema, chapters) => {
+    console.log('---------- .........-------')
+    console.log('---------- .........-------')
+    console.log('schema', schema)
+    console.log('chapters', chapters)
+    const complicatedFieldMap = {}
+    schema.fields.forEach((schemaField) => {
+      if (schemaField.choiceValues) {
+        complicatedFieldMap[schemaField.name] = true
+        // sometimes id is used as  keyword
+        complicatedFieldMap[schemaField.id] = true
+      } else {
+        complicatedFieldMap[schemaField.name] = false
+        complicatedFieldMap[schemaField.id] = false
+      }
+    })
+    console.log('complicatedFieldMap', complicatedFieldMap)
+    const stringToBeAttachedToTheNextChapter = []
+    const updatedChapters = chapters.map((chapter, i) => {
+      if (complicatedFieldMap[chapter.keyword]) {
+        // Works only for singleselect
+
+        const joinedSegments = chapter.segments
+          .map((segment) => segment.words)
+          .join(' ')
+        const fieldWithOptions = schema.fields.filter(
+          (field) =>
+            field.name === chapter.keyword || field.id === chapter.keyword
+        )
+        const choices = []
+        if (fieldWithOptions.length > 0) {
+          if (fieldWithOptions[0].choiceValues) {
+            fieldWithOptions[0].choiceValues.forEach((choice) => {
+              choices.push(choice)
+            })
+          }
+        }
+        console.log('chapter', chapter)
+        console.log('segments', joinedSegments)
+        console.log('fieldWithOptions', fieldWithOptions)
+        console.log('choices', choices)
+        const ch = choices
+          .map((choice) => {
+            console.log('choice1', choice.toLowerCase())
+            console.log('segments1', joinedSegments.toLowerCase())
+
+            // search by segments one by one
+            if (
+              choice.toLowerCase().trim() ===
+              joinedSegments.toLowerCase().trim()
+            ) {
+              return joinedSegments
+            }
+          }).filter(Boolean) // remove undefined values
+        
+        console.log('ch', ch)      
+        if(ch.length) { 
+          return {
+            ...chapter, 
+            segments: [{ words: ch[0], startTime: 0, endTime: 0 }]
+          }
+        } else {
+          //for single select
+          // check if this field is singleselect
+          let isSingleSelect = true
+          const currentFieldOfSchema = schema
+            .fields
+            .filter(field=>
+              field.name===chapter.keyword||field.id===chapter.keyword
+            ).filter(Boolean)
+          console.log('currentFieldOfSchema', currentFieldOfSchema)
+          if(currentFieldOfSchema.length){
+            if(currentFieldOfSchema[0].multiSelect) { isSingleSelect = false }
+          }
+          if(isSingleSelect) {
+            stringToBeAttachedToTheNextChapter.push({
+              index: i,
+              words: joinedSegments
+            })
+            return { keyword: chapter.keyword, segments: []}
+          } else { 
+            // Handle infectious and non-infectios error
+            return chapter
+          }
+        }
+      } else {
+        return chapter
+      }
+    })
+    console.log('updatedChapters', updatedChapters)
+    // add stringToBeAttachedToTheNextChapter
+    stringToBeAttachedToTheNextChapter.forEach((appendedChapter, j) =>
+      updatedChapters.splice(appendedChapter.index+1+j, 0, {
+        keyword: '',
+        segments: [{ words: appendedChapter.words, startTime: 0, endTime: 0 }]
+      })
+    )
+
+    console.log('---------- .........-------')
+    console.log('---------- .........-------')
+    return updatedChapters
   }
 
   extractHeaders = (schema) =>
@@ -1449,9 +1561,12 @@ export default class EditPage extends Component {
                       if(curr.requires.oneOf) {
                         if(curr.requires.oneOf.length>0) {
                           console.log('oneof', curr.requires.oneOf)
-                          if(curr.requires.oneOf
-                            .includes(requiredField[0].values[0].value)) {
-                            prev.push(curr)  
+                          if (
+                            requiredField[0].values[0].value.includes(
+                              curr.requires.oneOf
+                            )
+                          ) {
+                            prev.push(curr)
                           } else {
                             fieldsWithRequirement.push(curr)
                           }
@@ -1544,16 +1659,28 @@ export default class EditPage extends Component {
         console.log('chapters', chapters)
         if (updatedComplicatedFields.length > 0) {
           if (ch.segments.length > 0) {
-            updatedSegments = ch.segments.map((segment) => {
-              return {
-                ...segment,
+            // updatedSegments = ch.segments.map((segment) => {
+            //   return {
+            //     ...segment,
+            //     words: updatedComplicatedFields
+            //       .map(
+            //         (updatedComplicatedField) =>
+            // updatedComplicatedField.label
+            //       )
+            //       .join(' ')
+            //   }
+            // })
+            updatedSegments = [
+              {
                 words: updatedComplicatedFields
                   .map(
                     (updatedComplicatedField) => updatedComplicatedField.label
                   )
-                  .join(' ')
+                  .join(' '), 
+                startTime: ch.segments[0].startTime, 
+                endTime: ch.segments[ch.segments.length-1].endTime
               }
-            })
+            ]
           } else {
             updatedSegments = [
               {

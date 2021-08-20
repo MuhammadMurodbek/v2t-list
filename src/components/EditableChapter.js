@@ -65,18 +65,28 @@ const EditableChapter = ({
   // console.log('field', field)
   const joinedSegments = segments.map((segment) => segment.words).join('')
   // console.log('joinedSegments', joinedSegments)
-  const selectedChoice = field
+  let selectedChoice = field
     ? field.choiceValues
       ? field.choiceValues.filter(
-        // (ch) => ch.toLowerCase() === joinedSegments.toLowerCase())
-        (ch) => {
-          if(joinedSegments.length) {
-            return joinedSegments.toLowerCase().includes(ch.toLowerCase())
-          }
-        }
+        (ch) => ch.toLowerCase() === joinedSegments.toLowerCase()
       )
       : []
     : []
+  if(!isSingleSelectEnabled) {
+    selectedChoice = field
+      ? field.choiceValues
+        ? field.choiceValues.filter(
+          // (ch) => ch.toLowerCase() === joinedSegments.toLowerCase())
+          (ch) => {
+            if (joinedSegments.length) {
+              return joinedSegments.toLowerCase().includes(ch.toLowerCase())
+            }
+          }
+        )
+        : []
+      : []
+  }
+  
   // console.log('selectedChoice', selectedChoice)
   // console.log('complicatedFieldOptions------>', complicatedFieldOptions)
   // console.log('isSingleSelectEnabled------>', isSingleSelectEnabled)
