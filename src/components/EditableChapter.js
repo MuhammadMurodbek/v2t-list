@@ -68,7 +68,8 @@ const EditableChapter = ({
   let selectedChoice = field
     ? field.choiceValues
       ? field.choiceValues.filter(
-        (ch) => ch.toLowerCase() === joinedSegments.toLowerCase()
+        (ch) =>
+          ch.toLowerCase().trim() === joinedSegments.toLowerCase().trim()
       )
       : []
     : []

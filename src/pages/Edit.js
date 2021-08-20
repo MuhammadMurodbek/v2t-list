@@ -737,7 +737,7 @@ export default class EditPage extends Component {
 
         const joinedSegments = chapter.segments
           .map((segment) => segment.words)
-          .join(' ')
+          .join('')
         const fieldWithOptions = schema.fields.filter(
           (field) =>
             field.name === chapter.keyword || field.id === chapter.keyword
