@@ -82,6 +82,7 @@ p {
   font-size: 0.75rem;
   color: #2a292c;
   font-weight: 600;
+  white-space: normal !important;
 }
 
 .fullDiffArea {
