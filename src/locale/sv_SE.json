@@ -171,5 +171,6 @@
   "samtal": "Transcriptor",
   "date": "Datum",
   "agent": "Agent",
-  "newLiveRecording": "+Ny Live Diktering"
+  "newLiveRecording": "+Ny Live Diktering",
+  "noTranscripts": "Inga diktering hittades"
 }

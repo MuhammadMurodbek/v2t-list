@@ -1,6 +1,13 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { EuiBasicTable, EuiButtonIcon, EuiButtonEmpty } from '@patronum/eui'
+import {
+  EuiBasicTable,
+  EuiButtonIcon,
+  EuiButtonEmpty,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiCallOut
+} from '@patronum/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import api from '../api'
 
@@ -137,7 +144,7 @@ export default class TranscriptionList extends Component {
       sortField,
       sortDirection
     } = this.state
-    const { transcripts, contentLength, pageIndex } = this.props
+    const { transcripts, contentLength, pageIndex, hasNoTags } = this.props
     const { preferences } = this.context
     const pagination = {
       pageIndex,
@@ -209,6 +216,24 @@ export default class TranscriptionList extends Component {
       </EuiOverlayMask>
     ) : null
 
+
+    if (hasNoTags) return (
+      <EuiI18n token="noTranscripts" default="No transcripts found">
+        {(noTranscriptsText) => (
+          <div>
+            <EuiFlexGroup>
+              <EuiFlexItem style={{ maxWidth: '50%' }}>
+                <EuiCallOut
+                  title={noTranscriptsText}
+                  iconType="pin"
+                />
+              </EuiFlexItem>
+            </EuiFlexGroup>
+          </div>
+        )}
+      </EuiI18n>
+    )
+
     return (
       <Fragment>
         <EuiBasicTable
@@ -242,7 +267,8 @@ TranscriptionList.propTypes = {
   fetchTranscripts: PropTypes.func,
   setPageIndex: PropTypes.func,
   contentLength: PropTypes.number,
-  pageIndex: PropTypes.number.isRequired
+  pageIndex: PropTypes.number.isRequired,
+  hasNoTags:PropTypes.bool
 }
 
 TranscriptionList.defaultProps = {

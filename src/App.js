@@ -55,7 +55,8 @@ class App extends Component {
     contentLength: -1,
     pageIndex: 0,
     activeDepartments: [],
-    transcriptId: ''
+    transcriptId: '',
+    hasNoTags: false
   }
 
   componentDidMount() {
@@ -156,28 +157,34 @@ class App extends Component {
           .then(({ data: activeTags }) => {
             // Count number of active tags
             const sideBar = []
+
             if(!tag && activeTags.length) {
               tag = activeTags[0].id
               this.selectItem(tag)
+            } else if (activeTags.length === 0) {
+              this.setState({ hasNoTags: true })
             }
-            api
-              .loadTickets(tag, pageIndex, pageSize, orderBy)
-              .then(({ data }) => {
-                const {
-                  items: transcripts,
-                  total: contentLength
-                } = data
-                // Check which one are audio and
-                // which are video before loading all active jobs
-                this.setState({
-                  transcripts,
-                  contentLength,
-                  activeDepartments: activeTags
+
+            if (tag) {
+              api
+                .loadTickets(tag, pageIndex, pageSize, orderBy)
+                .then(({ data }) => {
+                  const {
+                    items: transcripts,
+                    total: contentLength
+                  } = data
+                  // Check which one are audio and
+                  // which are video before loading all active jobs
+                  this.setState({
+                    transcripts,
+                    contentLength,
+                    activeDepartments: activeTags
+                  })
                 })
-              })
-              .catch((e) => {
-                addUnexpectedErrorToast(e)
-              })
+                .catch((e) => {
+                  addUnexpectedErrorToast(e)
+                })
+            }
 
             activeTags.forEach((tag) => {
               const temp = {
@@ -352,7 +359,8 @@ class App extends Component {
       contentLength,
       pageIndex,
       activeDepartments,
-      transcriptId
+      transcriptId,
+      hasNoTags
     } = this.state
     const { fetchTranscripts, setPageIndex } = this
     // set authorization token when the app is refreshed
@@ -488,7 +496,8 @@ class App extends Component {
                         fetchTranscripts,
                         contentLength,
                         pageIndex,
-                        setPageIndex
+                        setPageIndex,
+                        hasNoTags
                       }}
                     />
                   )}
