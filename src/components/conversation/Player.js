@@ -46,6 +46,11 @@ const Player = forwardRef(({
     updateCurrentTime(audioRef.current.currentTime)
   }
 
+  const onTrackEnd = () => {
+    audioRef.current.currentTime = 0
+    setIsPlaying(false)
+  }
+
   return (
     <div className="conversationFooter">
       <div className="conversationPlayer">
@@ -55,6 +60,7 @@ const Player = forwardRef(({
           src={trackUrl}
           onTimeUpdate={updateAudioStatus}
           onLoadedData={getAudioData}
+          onEnded={onTrackEnd}
         />
         <button
           title="Backward"

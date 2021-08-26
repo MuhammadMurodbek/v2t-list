@@ -5,8 +5,7 @@ import { EuiText, EuiSpacer, EuiFieldText } from '@patronum/eui'
 import PropTypes from 'prop-types'
 
 const ConversationTabs = ({ conversationData, transcriptId, currentTime }) => {
-  console.log(conversationData)
-  console.log(currentTime.toPrecision(4))
+
   const colors = ['red', 'blue', 'green', 'brown']
   const speakers = conversationData
     .map((dialog) => dialog.speaker)
