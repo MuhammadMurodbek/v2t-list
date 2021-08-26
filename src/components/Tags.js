@@ -31,7 +31,10 @@ export default class Tags extends Component {
 
   state = {
     isLoading: false,
-    selectedOption: [],
+    selectedOptions: {
+      'icd-10': [],
+      'kva': []
+    },
     options: {},
     tags: {}
   }
@@ -110,9 +113,9 @@ export default class Tags extends Component {
 
   addCode = (namespace) => {
     const { tags } = this.props
-    const { selectedOption } = this.state
-    if (selectedOption.length > 0) {
-      const data = selectedOption[0]
+    const { selectedOptions } = this.state
+    if (selectedOptions[namespace].length > 0) {
+      const data = selectedOptions[namespace][0]
       const [value, description] = data.label.split(': ')
       let values
       if (tags[namespace].values) {
@@ -129,7 +132,8 @@ export default class Tags extends Component {
           description
         }]
       }
-      // this.emptySelectedOption()
+      this.emptySelectedOption()
+
       this.props.updateTags({ ...tags, [namespace]: {
         ...tags[namespace],
         values
@@ -138,16 +142,24 @@ export default class Tags extends Component {
   }
 
   emptySelectedOption = () => {
-    this.setState({ selectedOption: []})
+    this.setState({
+      selectedOptions: {
+        'icd-10': [],
+        kva: []
+      }
+    })
   }
 
   onChange = (namespace, selectedOption) => {
-    this.setState(
+    this.setState(prevState => (
       {
-        selectedOption
-      },
-      () => this.addCode(namespace)
-    )
+        selectedOptions: {
+          ...prevState.selectedOptions,
+          [namespace]: selectedOption
+        }
+      }
+    ),
+    () => this.addCode(namespace))
   }
 
   onSearchChange = async (namespace, searchValue) => {
@@ -197,7 +209,7 @@ export default class Tags extends Component {
     const {
       options,
       isLoading,
-      selectedOption
+      selectedOptions
     } = this.state
     const {
       tags,
@@ -223,7 +235,7 @@ export default class Tags extends Component {
                           placeholder={`${lookFor} ${this.getLabel(namespace)}`}
                           async
                           options={options[namespace] || []}
-                          selectedOptions={selectedOption}
+                          selectedOptions={selectedOptions[namespace]}
                           singleSelection
                           isLoading={isLoading}
                           onChange={(selectedOptions) =>
