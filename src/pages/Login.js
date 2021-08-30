@@ -15,34 +15,38 @@ import {
   EuiTextColor
 } from '@patronum/eui'
 import { usePreferences } from '../components/PreferencesProvider'
-// import logo from '../img/medspeech+Inovia_logo_rgb.original.png'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'
 import api, { getNextUrl } from '../api'
 import {
   addErrorToast,
   addUnexpectedErrorToast
 } from '../components/GlobalToastList'
+import { useAsync, asyncActionTypes } from '../hooks/useAsync'
+const { loading, success } = asyncActionTypes
+
 const LoginPage = ({ history }) => {
-  const [domainList, setDomainList] = useState([])
+  const { data, status, run } = useAsync()
   const [domain, setDomain] = useState()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  // eslint-disable-next-line no-unused-vars
-  const { prefernces, setPreferences } = usePreferences()
+  const { setPreferences } = usePreferences()
   const setToken = (authtoken) => {
     setPreferences({ token: authtoken })
   }
 
   useEffect(() => {
     document.title = 'Inovia AI :: Log in 🗝'
-    loadDomains()
-  }, [])
+    run(api.getDomains())
+  }, [run])
 
-  const loadDomains = async () => {
-    const { data: { domains }} = await api.getDomains()
-    setDomainList(domains)
-    setDomain(domains[0])
-  }
+  useEffect(() => {
+    if (status === success) {
+      setDomain(data.domains[0])
+    }
+  }, [status])
+
+  const options =
+    (data && data.domains) ? data.domains.map(label => ({ label })) : []
 
   const login = (e) => {
     e.preventDefault()
@@ -112,10 +116,11 @@ const LoginPage = ({ history }) => {
             >
               <EuiComboBox
                 singleSelection={{ asPlainText: true }}
-                options={domainList.map(label => ({ label }))}
+                options={options}
                 selectedOptions={domain ? [{ label: domain }] : []}
                 onChange={changeDomain}
                 isClearable={false}
+                isLoading={status === loading}
               />
             </EuiFormRow>
             <EuiFormRow
