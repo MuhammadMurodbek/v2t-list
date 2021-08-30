@@ -78,7 +78,7 @@ stages:
 
 .docker_scripts: &docker_scripts |
   function init_docker() {
-    mkdir -p ~/.docker && echo "$V2T_DOCKER_CONFIG" > ~/.docker/config.json
+    mkdir -p ~/.docker && echo "$DOCKER_AUTH_CONFIG" > ~/.docker/config.json
   }
 
   function get_other_image_tags() {
