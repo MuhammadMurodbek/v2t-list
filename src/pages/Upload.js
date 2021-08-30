@@ -83,7 +83,7 @@ export default class UploadPage extends Component {
     }
   }
 
-  parseList = (list) =>
+  parseList = (list = []) =>
     list.map(({ id, name }) => ({ value: id, label: name }))
 
   setDefaultValues = () => {
