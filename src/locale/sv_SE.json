@@ -172,5 +172,6 @@
   "date": "Datum",
   "agent": "Agent",
   "newLiveRecording": "+Ny Live Diktering",
-  "noTranscripts": "Inga diktering hittades"
+  "noTranscripts": "Inga diktering hittades",
+  "selectOptions": "Välj"
 }

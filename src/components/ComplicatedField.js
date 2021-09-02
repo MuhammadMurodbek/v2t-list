@@ -6,6 +6,7 @@ import {
   EuiComboBox,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiI18n,
   EuiToolTip
 } from '@patronum/eui'
 
@@ -21,27 +22,34 @@ const ComplicatedField = ({
 }) => {
   return (
     <EuiFlexGroup>
-      <EuiFlexItem>
-        <EuiComboBox
-          placeholder="Select or create options"
-          style={{ width: 300 }}
-          singleSelection={isSingleSelectEnabled}
-          options={complicatedFieldOptions[sectionHeader].map((f) => {
-            return { label: f }
-          })}
-          onChange={(value) => updateComplicatedFields(value, chapterId)}
-          isClearable={true}
-          selectedOptions={complicatedFieldOptions[sectionHeader]
-            .map((f) => {
-              return selectedChoice.map((ch) => {
-                if (ch.toLowerCase() === f.toLowerCase()) {
-                  return { label: f }
-                }
-              })
-            })
-            .flat(1)
-            .filter((obj) => obj)}
-        />
+      <EuiFlexItem grow={false}>
+        <EuiI18n
+          token="selectOptions"
+          default="Select"
+        >
+          {(translation) => (
+            <EuiComboBox
+              placeholder={translation}
+              style={{ width: 300 }}
+              singleSelection={isSingleSelectEnabled}
+              options={complicatedFieldOptions[sectionHeader].map((f) => {
+                return { label: f }
+              })}
+              onChange={(value) => updateComplicatedFields(value, chapterId)}
+              isClearable={true}
+              selectedOptions={complicatedFieldOptions[sectionHeader]
+                .map((f) => {
+                  return selectedChoice.map((ch) => {
+                    if (ch.toLowerCase() === f.toLowerCase()) {
+                      return { label: f }
+                    }
+                  })
+                })
+                .flat(1)
+                .filter((obj) => obj)}
+            />
+          )}
+        </EuiI18n>
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiToolTip position="top" content="Remove this section">
