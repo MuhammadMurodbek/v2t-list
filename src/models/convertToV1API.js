@@ -37,7 +37,8 @@ const convertToV1API = ({ id, schemaId, fields }) => {
           return [
             ...store,
             ...value
-              .replace('\n ', '\n\u200c')
+              // .replace('\n ', '\n\u200c')
+              .replace('\n ', '\n')
               .split(' ')
               .map((words) => {
                 const offset = field.offsets
