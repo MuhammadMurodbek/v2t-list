@@ -514,8 +514,24 @@ export default class EditPage extends Component {
       keyword,
       timeStartRecording
     )
+    
+    const capitalizedChapters = chapters.map((chapter, i)=>{
+      const updatedSegments = []
+      chapter.segments.forEach((seg, segmentIndex)=>{
+        if(segmentIndex===1) {
+          const trimmedSegment = seg.words.trim()
+          const updatedWords = 
+            trimmedSegment.charAt(0).toUpperCase() + trimmedSegment.slice(1)
+          updatedSegments.push({ ...seg, words: updatedWords })
+        } else {
+          updatedSegments.push(seg)
+        }
+      })
+      return { ...chapter, segments: updatedSegments }
+    })
+    // console.log('capitalizedChapters', capitalizedChapters)
     if (chapters) {
-      this.setState({ chapters })
+      this.setState({ chapters: capitalizedChapters })
     }
   }
 
