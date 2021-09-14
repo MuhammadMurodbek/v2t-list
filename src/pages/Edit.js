@@ -515,12 +515,12 @@ export default class EditPage extends Component {
       timeStartRecording
     )
     
-    const capitalizedChapters = chapters.map((chapter, i)=>{
+    const capitalizedChapters = chapters.map((chapter, chapterIndex)=>{
       const updatedSegments = []
       chapter.segments.forEach((seg, segmentIndex)=>{
-        if(segmentIndex===1) {
+        if (segmentIndex === 1 && chapterIndex !== 0) {
           const trimmedSegment = seg.words.trim()
-          const updatedWords = 
+          const updatedWords =
             trimmedSegment.charAt(0).toUpperCase() + trimmedSegment.slice(1)
           updatedSegments.push({ ...seg, words: updatedWords })
         } else {
