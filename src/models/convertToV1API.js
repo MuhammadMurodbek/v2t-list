@@ -3,7 +3,13 @@
 const convertToV1API = ({ id, schemaId, fields }) => {
   const multiSelectMap = {}
   const singleSelectMap = {}
-  if(!fields) return { id, schemaId, transcriptions }
+  if(!fields) {
+    return { 
+      id, 
+      schemaId, 
+      transcriptions: []
+    }
+  }
   fields.forEach((schemaField) => {
     if (schemaField.multiSelect) {
       multiSelectMap[schemaField.id] = true
