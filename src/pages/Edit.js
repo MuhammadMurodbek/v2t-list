@@ -519,9 +519,8 @@ export default class EditPage extends Component {
       const updatedSegments = []
       chapter.segments.forEach((seg, segmentIndex)=>{
         if (segmentIndex === 1 && chapterIndex !== 0) {
-          const trimmedSegment = seg.words.trim()
           const updatedWords =
-            trimmedSegment.charAt(0).toUpperCase() + trimmedSegment.slice(1)
+            seg.words.charAt(0).toUpperCase() + seg.words.slice(1)
           updatedSegments.push({ ...seg, words: updatedWords })
         } else {
           updatedSegments.push(seg)
