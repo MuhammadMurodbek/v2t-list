@@ -165,8 +165,11 @@ const loadTranscription = (transcriptionId) => {
 }
 
 
-const approveTranscription = (transcriptionId) =>
-  axios.post(`${URLS.transcriptionV2}/${transcriptionId}/approve`)
+const approveTranscription = (transcriptionId, optionalSettings) =>
+  axios.post(
+    `${URLS.transcriptionV2}/${transcriptionId}/approve`,
+    { ...optionalSettings }
+  )
 
 const rejectTranscription = (transcriptionId) =>
   axios.post(`${URLS.transcriptionV2}/${transcriptionId}/reject`)

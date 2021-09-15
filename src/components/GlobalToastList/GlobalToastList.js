@@ -18,10 +18,10 @@ const clearGlobalToastList = () => {
   clearToastsHandler()
 }
 
-const addErrorToast = (title = null, message = null) => {
+const addErrorToast = (title = null, message = null, delay) => {
   if (!title) return
 
-  addGlobalToast(title, message && <p>{message}</p>, 'danger', 'alert')
+  addGlobalToast(title, message && <p>{message}</p>, 'danger', 'alert', delay)
 }
 
 const addUnexpectedErrorToast = (error) => {

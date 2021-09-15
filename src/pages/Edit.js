@@ -52,6 +52,9 @@ import reduceSegment from '../utils/reduceSegment'
 import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
 import EventEmitter from '../models/events'
+import J4Login from '../components/J4Login'
+import { delay } from 'lodash'
+import { renderTranscriptionState } from '../utils'
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
@@ -109,7 +112,8 @@ export default class EditPage extends Component {
     fieldsWithRequirement: [],
     isUploadingMedia: false,
     complicatedFieldOptions: {},
-    singleSelectFieldOptions: {}
+    singleSelectFieldOptions: {},
+    openJ4LoginModal: false
   }
 
   async componentDidMount() {
@@ -1113,17 +1117,15 @@ export default class EditPage extends Component {
         )
         return
       }
-      const sendingToCoworker = await api.approveTranscription(id)
-      if (sendingToCoworker) {
-        window.location = '/'
-      } else {
-        addErrorToast(
-          <EuiI18n
-            token="unableToSendToCoWorker"
-            default="Unbale to send to co-worker"
-          />
-        )
+      const { data: { exports }} = await api.transcriptState(id)
+      const [{ requiresCredentials }] = exports
+
+      if (requiresCredentials) {
+        this.setState({ openJ4LoginModal: true })
+        return
       }
+      await api.approveTranscription(id)
+      delay(renderTranscriptionState, 500, id)
     } catch (e) {
       addUnexpectedErrorToast(e)
     }
@@ -1784,7 +1786,8 @@ export default class EditPage extends Component {
       noMappingFields,
       isUploadingMedia,
       complicatedFieldOptions,
-      singleSelectFieldOptions
+      singleSelectFieldOptions,
+      openJ4LoginModal
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -2016,6 +2019,10 @@ export default class EditPage extends Component {
               fields={modalMissingFields}
               onClose={this.onCloseMissingFieldsModal}
             />
+            <J4Login
+              transcriptionId={this.props.id}
+              onClose={() => this.setState({ openJ4LoginModal: false })}
+              isOpen={openJ4LoginModal}/>
           </Page>
         )}
       </EuiI18n>
