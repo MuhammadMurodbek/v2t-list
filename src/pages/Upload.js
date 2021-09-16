@@ -246,7 +246,7 @@ export default class UploadPage extends Component {
     } = this.state
 
     return (
-      <EuiI18n token="upload" default="Upload">{ title => {
+      <EuiI18n token="upload" default="V2T :: Upload">{ title => {
         // set translated document title
         document.title = `Inovia AI :: ${title}`
         const selectedDepartment = departments
