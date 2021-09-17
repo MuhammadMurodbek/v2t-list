@@ -20,6 +20,21 @@ const ComplicatedField = ({
   createNewSectionAfterThis,
   isSingleSelectEnabled
 }) => {
+  const [selectedOption, setSelectedOption] = React.useState(
+    isSingleSelectEnabled ? (
+      complicatedFieldOptions[sectionHeader]
+        .map((f) => {
+          return selectedChoice.map((ch) => {
+            if (ch.toLowerCase() === f.toLowerCase()) {
+              return { label: f }
+            }
+          })
+        })
+        .flat(1)
+        .filter((obj) => obj)
+    ) : selectedChoice.map(choice => ({ label: choice.value }))
+  )
+
   return (
     <EuiFlexGroup>
       <EuiFlexItem grow={false}>
@@ -35,18 +50,12 @@ const ComplicatedField = ({
               options={complicatedFieldOptions[sectionHeader].map((f) => {
                 return { label: f }
               })}
-              onChange={(value) => updateComplicatedFields(value, chapterId)}
+              onChange={(value) => {
+                setSelectedOption(value)
+                updateComplicatedFields(value, chapterId, isSingleSelectEnabled)
+              }}
               isClearable={true}
-              selectedOptions={complicatedFieldOptions[sectionHeader]
-                .map((f) => {
-                  return selectedChoice.map((ch) => {
-                    if (ch.toLowerCase() === f.toLowerCase()) {
-                      return { label: f }
-                    }
-                  })
-                })
-                .flat(1)
-                .filter((obj) => obj)}
+              selectedOptions={selectedOption}
             />
           )}
         </EuiI18n>

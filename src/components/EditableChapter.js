@@ -18,6 +18,7 @@ const EditableChapter = ({
   updateComplicatedFields,
   deleteComplicatedField,
   createNewSectionAfterThis,
+  multiSelectOptionValues,
   ...chunkProps
 }) => {
   const sectionHeaders = schema.fields
@@ -37,9 +38,6 @@ const EditableChapter = ({
           isSingleSelectEnabled = true
         }
       }
-      // console.log('field', field.name)
-      // console.log('isMultiSelectEnabled', isMultiSelectEnabled)
-      // console.log('isSingleSelectEnabled', isSingleSelectEnabled)
     }
   }
 
@@ -60,12 +58,9 @@ const EditableChapter = ({
         : segment.words
     return { ...segment, words }
   })
-  // console.log('filteredSegments', filteredSegments)
-  // console.log('segments', segments)
-  // console.log('field', field)
+
   const joinedSegments = segments.map((segment) => segment.words).join('')
-  // console.log('joinedSegments', joinedSegments)
-  let selectedChoice = field
+  const selectedChoice = field
     ? field.choiceValues
       ? field.choiceValues.filter(
         (ch) =>
@@ -73,26 +68,20 @@ const EditableChapter = ({
       )
       : []
     : []
-  if(!isSingleSelectEnabled) {
-    selectedChoice = field
-      ? field.choiceValues
-        ? field.choiceValues.filter(
-          // (ch) => ch.toLowerCase() === joinedSegments.toLowerCase())
-          (ch) => {
-            if (joinedSegments.length) {
-              return joinedSegments.toLowerCase().includes(ch.toLowerCase())
-            }
-          }
-        )
-        : []
-      : []
+
+  const getComplicatedFieldProps = (props) => {
+    return {
+      complicatedFieldOptions,
+      updateComplicatedFields,
+      sectionHeader,
+      chapterId,
+      createNewSectionAfterThis,
+      deleteComplicatedField,
+      id: chunkProps.id,
+      isSingleSelectEnabled,
+      ...props
+    }
   }
-  
-  // console.log('selectedChoice', selectedChoice)
-  // console.log('complicatedFieldOptions------>', complicatedFieldOptions)
-  // console.log('isSingleSelectEnabled------>', isSingleSelectEnabled)
-  // console.log('isMultiSelectEnabled------>', isMultiSelectEnabled)
-  // console.log('sectionHeader------>', sectionHeader)
   return (
     <EuiFormRow
       style={{
@@ -110,30 +99,16 @@ const EditableChapter = ({
         {(isMultiSelectEnabled && complicatedFieldOptions[sectionHeader]) && (
           <>
             <ComplicatedField
-              complicatedFieldOptions={complicatedFieldOptions}
-              updateComplicatedFields={updateComplicatedFields}
-              selectedChoice={selectedChoice}
-              sectionHeader={sectionHeader}
-              chapterId={chapterId}
-              createNewSectionAfterThis={createNewSectionAfterThis}
-              deleteComplicatedField={deleteComplicatedField}
-              id={chunkProps.id}
-              isSingleSelectEnabled={isSingleSelectEnabled}
+              {...getComplicatedFieldProps(
+                { selectedChoice: multiSelectOptionValues || []}
+              )}
             />
           </>
         )}
         {(isSingleSelectEnabled && singleSelectFieldOptions[sectionHeader]) && (
           <>
             <ComplicatedField
-              complicatedFieldOptions={singleSelectFieldOptions}
-              updateComplicatedFields={updateComplicatedFields}
-              selectedChoice={selectedChoice}
-              sectionHeader={sectionHeader}
-              chapterId={chapterId}
-              createNewSectionAfterThis={createNewSectionAfterThis}
-              deleteComplicatedField={deleteComplicatedField}
-              id={chunkProps.id}
-              isSingleSelectEnabled={isSingleSelectEnabled}
+              {...getComplicatedFieldProps({ selectedChoice })}
             />
           </>
         )}
@@ -166,7 +141,8 @@ EditableChapter.propTypes = {
   singleSelectFieldOptions: PropTypes.object,
   updateComplicatedFields: PropTypes.func,
   createNewSectionAfterThis: PropTypes.func,
-  deleteComplicatedField: PropTypes.func
+  deleteComplicatedField: PropTypes.func,
+  multiSelectOptionValues: PropTypes.array
 }
 
 export default EditableChapter

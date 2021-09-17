@@ -113,7 +113,8 @@ export default class EditPage extends Component {
     isUploadingMedia: false,
     complicatedFieldOptions: {},
     singleSelectFieldOptions: {},
-    openJ4LoginModal: false
+    openJ4LoginModal: false,
+    complicatedFieldMultiSelectOptions: {}
   }
 
   async componentDidMount() {
@@ -640,6 +641,7 @@ export default class EditPage extends Component {
         departmentId: transcript.departmentId,
         schemas
       })
+      this.updateMultiSelectOptionsOnLoad(transcript.fields)
       const legacyTranscript = convertToV1API(transcript)
       
       // set complicated fields
@@ -649,6 +651,19 @@ export default class EditPage extends Component {
     } catch (error) {
       this.onError(error)
     }
+  }
+
+  updateMultiSelectOptionsOnLoad = (fields) => {
+    const { complicatedFieldMultiSelectOptions } = this.state
+    const updates = complicatedFieldMultiSelectOptions
+    for (const field of fields) {
+      if (!TAG_NAMESPACES.includes(field.id)
+          && Object.prototype.hasOwnProperty.call(field, 'namespace')
+          && Object.prototype.hasOwnProperty.call(field, 'values')) {
+        updates[field.id] = field
+      }
+    }
+    this.setState({ complicatedFieldMultiSelectOptions: updates })
   }
 
   updateFieldsWithSelection = async (schema) => {
@@ -1272,8 +1287,20 @@ export default class EditPage extends Component {
       )
 
       filtredFields.push(...noMappingFields)
+      const { complicatedFieldMultiSelectOptions } = this.state
+      const updatedFieldsWithMultiSelectOptions = filtredFields.map((field) => {
+        if (complicatedFieldMultiSelectOptions[field.id]
+            && complicatedFieldMultiSelectOptions[field.id].values.length) {
+          return complicatedFieldMultiSelectOptions[field.id]
+        }
+        return field
+      })
 
-      await api.updateTranscription(id, unfiltredSchema.id, filtredFields)
+      console.log('UPDATED', updatedFieldsWithMultiSelectOptions)
+
+      await api.updateTranscription(
+        id, unfiltredSchema.id, updatedFieldsWithMultiSelectOptions
+      )
       const parsedChapters = this.parseTranscriptions(chapters)
       this.setState(
         {
@@ -1675,11 +1702,22 @@ export default class EditPage extends Component {
     })
   }
 
-  updateComplicatedFields = (updatedComplicatedFields, chapterId) => {
-    // console.log('updatedcombo', updatedComplicatedFields)
-    // console.log('chapterId', chapterId)
-    // update chapters
-    const { chapters } = this.state
+  updateComplicatedFields = (
+    updatedComplicatedFields, chapterId, isSingleSelectEnabled
+  ) => {
+    const { chapters, complicatedFieldMultiSelectOptions } = this.state
+    if (!isSingleSelectEnabled) {
+      const updates = complicatedFieldMultiSelectOptions
+      const chapter = chapters[chapterId]
+      if (chapter) {
+        updates[chapter.keyword] = {
+          id: chapter.keyword,
+          namespace: chapter.keyword,
+          values:
+            updatedComplicatedFields.map(field => ({ value: field.label }))
+        }
+      }
+    }
     const updatedChapters = chapters.map((ch, i) => {
       if (chapterId !== i) {
         // console.log('ch22', ch)
@@ -1775,10 +1813,19 @@ export default class EditPage extends Component {
   // }
 
   deleteComplicatedField = (chapterId) => {
-    const { chapters } = this.state
+    const { chapters, complicatedFieldMultiSelectOptions } = this.state
     const updatedChapters = [...chapters]
+    const updatedMultiSelectOptions = complicatedFieldMultiSelectOptions
+    const keyword = chapters[chapterId]
+      ? chapters[chapterId].keyword : undefined
+    if (keyword && updatedMultiSelectOptions[keyword]) {
+      delete updatedMultiSelectOptions[keyword]
+    }
     updatedChapters.splice(chapterId, 1)
-    this.setState({ chapters: updatedChapters })
+    this.setState({
+      chapters: updatedChapters,
+      complicatedFieldMultiSelectOptions: updatedMultiSelectOptions
+    })
   }
 
   render() {

@@ -16,14 +16,14 @@ const EditableChapters = ({
 }) => {
   if (!inputRef) return null
   const editors = chapters.map((chapter, i) => {
-    // console.log('chapter', chapter)
     return (
       <EditableChapter
-        key={i}
+        key={chapter.keyword}
         chapterId={i}
         id={chapter.id}
         keyword={chapter.keyword}
         segments={chapter.segments}
+        multiSelectOptionValues={chapter.values}
         recordingChapter={recordingChapter}
         complicatedFieldOptions={complicatedFieldOptions}
         singleSelectFieldOptions={singleSelectFieldOptions}
