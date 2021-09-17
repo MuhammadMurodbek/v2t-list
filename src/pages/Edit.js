@@ -1243,8 +1243,30 @@ export default class EditPage extends Component {
             })}
         }
       })
-      const fields = convertToV2API(unfiltredSchema, chapters, tags)
 
+      let chapterBeforeSubmission = chapters
+      if(force) {
+        // approving, remove the non-zero width joiner 
+        // (journal system is not unicode)
+        chapterBeforeSubmission = chapters.map((chapter) => {
+          const updatedSegments = []
+          chapter.segments.forEach((segment) => {
+            let updatedWords
+            if (segment.words) {
+              updatedWords = segment.words.replace('\u200c', '')
+            }
+            updatedSegments.push({ ...segment, words: updatedWords })
+          })
+          return { ...chapter, segments: updatedSegments }
+        })
+      } 
+      const fields = convertToV2API(
+        unfiltredSchema,
+        chapterBeforeSubmission,
+        tags
+      )
+      // console.log('chapterBeforeSubmission', chapterBeforeSubmission)
+      // console.log('chapters', chapters)
       const filtredFields = fields.filter(
         (field) => !~noMappingFields.findIndex(({ id }) => id === field.id)
       )
