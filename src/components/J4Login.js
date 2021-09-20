@@ -8,7 +8,9 @@ import {
   EuiModal,
   EuiModalBody,
   EuiModalHeader,
-  EuiFieldText
+  EuiFieldText,
+  EuiText,
+  EuiTextColor
 } from '@patronum/eui'
 import '../styles/j4login.scss'
 import api from '../api'
@@ -23,26 +25,31 @@ const J4Login = ({
   const [isLoading, setIsLoading] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault()
     setIsLoading(true)
-    try {
-      await api.approveTranscription(transcriptionId, {
-        channelSettings: [{
-          channel: 'J4',
-          name: username,
-          value: password
-        }]
-      })
-
-      delay(renderTranscriptionState, 500, transcriptionId)
-      onClose()
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsLoading(false)
-    }
+    setError(null)
+    api.approveTranscription(transcriptionId, {
+      channelSettings: [{
+        channel: 'J4',
+        name: username,
+        value: password
+      }]
+    }).then(
+      () => {
+        delay(renderTranscriptionState, 500, transcriptionId)
+        onClose()
+      },
+      (error) => {
+        if (error instanceof Error) {
+          setError(error.message)
+        }
+        setIsLoading(false)
+        console.error(error)
+      }
+    )
   }
 
   if (isOpen) {
@@ -86,6 +93,9 @@ const J4Login = ({
               >
               Login
               </EuiButton>
+              <EuiText>
+                <EuiTextColor color="danger">{error}</EuiTextColor>
+              </EuiText>
             </form>
           </EuiModalBody>
         </EuiModal>
