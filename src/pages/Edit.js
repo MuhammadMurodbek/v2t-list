@@ -1103,6 +1103,7 @@ export default class EditPage extends Component {
   }
 
   onSave = async () => {
+    console.log('is approved::', this.state.approved)
     if (this.state.approved) this.finalize()
     else await this.save()
   }
