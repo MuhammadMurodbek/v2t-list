@@ -656,11 +656,13 @@ export default class EditPage extends Component {
   updateMultiSelectOptionsOnLoad = (fields) => {
     const { complicatedFieldMultiSelectOptions } = this.state
     const updates = complicatedFieldMultiSelectOptions
-    for (const field of fields) {
-      if (!TAG_NAMESPACES.includes(field.id)
+    if(fields) {
+      for (const field of fields) {
+        if (!TAG_NAMESPACES.includes(field.id)
           && Object.prototype.hasOwnProperty.call(field, 'namespace')
           && Object.prototype.hasOwnProperty.call(field, 'values')) {
-        updates[field.id] = field
+          updates[field.id] = field
+        }
       }
     }
     this.setState({ complicatedFieldMultiSelectOptions: updates })
