@@ -108,7 +108,10 @@ const EditableChapter = ({
         {(isSingleSelectEnabled && singleSelectFieldOptions[sectionHeader]) && (
           <>
             <ComplicatedField
-              {...getComplicatedFieldProps({ selectedChoice })}
+              {...getComplicatedFieldProps({
+                selectedChoice,
+                complicatedFieldOptions: singleSelectFieldOptions
+              })}
             />
           </>
         )}
