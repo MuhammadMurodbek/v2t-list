@@ -583,40 +583,8 @@ class App extends Component {
 
 const NewLiveTranscription = ({ search }) => {
   const [redirect, setRedirect] = useState(null)
+
   useEffect(() => {
-    const startSession = async () => {
-      const token = jwtDecode(localStorage.getItem('token'))
-      const userId = token.sub
-      let transcriptId 
-      // Instead of creating a new live session, 
-      // check for active live session first
-      api
-        .getActiveLiveSession()
-        .then((activeLiveSession)=>{          
-          const { id } = activeLiveSession.data
-          transcriptId = id
-        }).catch(async (error)=>{
-          // There is no active live session
-          if(error.response.data.status===404) {
-            const departments = await api.getDepartments()
-            const initialDepartmentId = departments.data.departments[0].id
-            const schemaId =
-              localStorage.getItem('lastUsedSchema') ||
-              (
-                await api.getSchemas({
-                  departmentId: initialDepartmentId
-                })
-              ).data.schemas[0].id
-            // Create a new live session
-            const id = await api.createLiveSession(userId, schemaId)
-            transcriptId = id
-          }
-        }).finally(()=>{
-          setRedirect(
-            <Redirect to={`/live-diktering/${transcriptId}${search}`} />
-          )
-        })      
-    }
     startSession().catch((e) => {
       console.error(e)
       addWarningToast(
@@ -632,6 +600,56 @@ const NewLiveTranscription = ({ search }) => {
       return null
     })
   }, [])
+
+  const getUsername = () => {
+    const token = jwtDecode(localStorage.getItem('token'))
+    return token.sub
+  }
+
+  const loadTranscriptId = async () => {
+    const username = getUsername()
+    let schemaId = null
+    const lastUsedSchemaId = localStorage.getItem('lastUsedSchema')
+    try {
+      if (lastUsedSchemaId) {
+        schemaId = lastUsedSchemaId
+      } else {
+        const { data: { departments }} = await api.getDepartments()
+        const [{ id: departmentId }] = departments
+        const { data: { schemas }} = await api.getSchemas({ departmentId })
+        const [{ id }] = schemas
+        schemaId = id
+      }
+      const transcriptId = await api.createLiveSession(username, schemaId)
+      return transcriptId
+    } catch (error) {
+      if (error instanceof Error) {
+        addErrorToast(error.message)
+      }
+      console.error(error)
+    }
+  }
+
+  const startSession = async () => {
+    let transcriptId = null
+    try {
+      const { data: { id: sessionId }} = await api.getActiveLiveSession()
+
+      if (sessionId) {
+        transcriptId = sessionId
+      } else {
+        transcriptId = await loadTranscriptId()
+      }
+    } catch (error) {
+      if (error.response.data.status === 404) {
+        transcriptId = await loadTranscriptId()
+      }
+    } finally {
+      setRedirect(
+        <Redirect to={`/live-diktering/${transcriptId}${search}`} />
+      )
+    }
+  }
 
   return redirect
 }
