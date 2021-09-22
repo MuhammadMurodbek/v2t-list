@@ -1147,6 +1147,7 @@ export default class EditPage extends Component {
         this.setState({ openJ4LoginModal: true })
         return
       }
+      console.log('before calling API')
       await api.approveTranscription(id)
       delay(renderTranscriptionState, 500, id)
     } catch (e) {
