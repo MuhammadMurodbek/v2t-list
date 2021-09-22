@@ -614,11 +614,7 @@ const NewLiveTranscription = ({ search }) => {
       if (lastUsedSchemaId) {
         schemaId = lastUsedSchemaId
       } else {
-        const { data: { departments }} = await api.getDepartments()
-        const [{ id: departmentId }] = departments
-        const { data: { schemas }} = await api.getSchemas({ departmentId })
-        const [{ id }] = schemas
-        schemaId = id
+        schemaId = await getFirstAvailableSchemaId()
       }
       const transcriptId = await api.createLiveSession(username, schemaId)
       return transcriptId
@@ -628,6 +624,21 @@ const NewLiveTranscription = ({ search }) => {
       }
       console.error(error)
     }
+  }
+
+  const getFirstAvailableSchemaId = async () => {
+    let schemaId = null
+    const { data: { departments }} = await api.getDepartments()
+    for (const department of departments) {
+      const { data: { schemas }} =
+            await api.getSchemas({ departmentId: department.id })
+
+      if (Array.isArray(schemas) && schemas.length) {
+        schemaId = schemas[0].id
+        break
+      }
+    }
+    return schemaId
   }
 
   const startSession = async () => {
