@@ -1116,7 +1116,7 @@ export default class EditPage extends Component {
     const canBeSaved = await this.save(true)
     console.log('canBeSaved', canBeSaved)
     if (canBeSaved) {
-      this.sendToCoworker()
+      await this.sendToCoworker()
     }
   }
 
