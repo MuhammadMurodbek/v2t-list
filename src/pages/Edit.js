@@ -1112,11 +1112,15 @@ export default class EditPage extends Component {
   }
 
   finalize = async () => {
+    const { redirectOnSave } = this.props
     console.log('finalizing')
     const canBeSaved = await this.save(true)
     console.log('canBeSaved', canBeSaved)
     if (canBeSaved) {
       await this.sendToCoworker()
+      if (redirectOnSave) {
+        window.location = '/'
+      }
     }
   }
 
@@ -1164,6 +1168,8 @@ export default class EditPage extends Component {
 
   save = async (force = false) => {
     const { id, mic, redirectOnSave } = this.props
+    console.log('redirectOnSave', redirectOnSave)
+    // return
     const {
       readOnlyHeaders,
       hiddenHeaderIds,
@@ -1329,7 +1335,7 @@ export default class EditPage extends Component {
         }
       )
 
-      if (redirectOnSave) {
+      if (redirectOnSave && !force) {
         window.location = '/'
       }
       return true
