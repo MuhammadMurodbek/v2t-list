@@ -1104,12 +1104,17 @@ export default class EditPage extends Component {
 
   onSave = async () => {
     console.log('is approved::', this.state.approved)
-    if (this.state.approved) this.finalize()
-    else await this.save()
+    if (this.state.approved) {
+      this.finalize()
+    } else {
+      await this.save()
+    }
   }
 
   finalize = async () => {
+    console.log('finalizing')
     const canBeSaved = await this.save(true)
+    console.log('canBeSaved', canBeSaved)
     if (canBeSaved) {
       this.sendToCoworker()
     }
@@ -1266,6 +1271,7 @@ export default class EditPage extends Component {
       if(force) {
         // approving, remove the non-zero width joiner 
         // (journal system is not unicode)
+        console.log('approving ...')
         chapterBeforeSubmission = chapters.map((chapter) => {
           const updatedSegments = []
           chapter.segments.forEach((segment) => {
