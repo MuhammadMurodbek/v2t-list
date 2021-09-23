@@ -166,13 +166,10 @@ const loadTranscription = (transcriptionId) => {
 
 
 const approveTranscription = (transcriptionId, optionalSettings) =>{
-  console.log('Inside approve')
   axios.post(
     `${URLS.transcriptionV2}/${transcriptionId}/approve`,
     { ...optionalSettings }
-  ).then((outcome)=>{
-    console.log('outcome', outcome)
-  }).catch((error)=>{
+  ).catch((error)=>{
     console.log('approving error', error)
   })
 }

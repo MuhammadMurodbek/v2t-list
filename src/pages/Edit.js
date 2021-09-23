@@ -1103,7 +1103,6 @@ export default class EditPage extends Component {
   }
 
   onSave = async () => {
-    console.log('is approved::', this.state.approved)
     if (this.state.approved) {
       this.finalize()
     } else {
@@ -1113,9 +1112,7 @@ export default class EditPage extends Component {
 
   finalize = async () => {
     const { redirectOnSave } = this.props
-    console.log('finalizing')
     const canBeSaved = await this.save(true)
-    console.log('canBeSaved', canBeSaved)
     if (canBeSaved) {
       await this.sendToCoworker()
       if (redirectOnSave) {
@@ -1151,7 +1148,6 @@ export default class EditPage extends Component {
         this.setState({ openJ4LoginModal: true })
         return
       }
-      console.log('before calling API')
       await api.approveTranscription(id)
       delay(renderTranscriptionState, 500, id)
     } catch (e) {
@@ -1168,8 +1164,6 @@ export default class EditPage extends Component {
 
   save = async (force = false) => {
     const { id, mic, redirectOnSave } = this.props
-    console.log('redirectOnSave', redirectOnSave)
-    // return
     const {
       readOnlyHeaders,
       hiddenHeaderIds,
@@ -1278,7 +1272,6 @@ export default class EditPage extends Component {
       if(force) {
         // approving, remove the non-zero width joiner 
         // (journal system is not unicode)
-        console.log('approving ...')
         chapterBeforeSubmission = chapters.map((chapter) => {
           const updatedSegments = []
           chapter.segments.forEach((segment) => {
@@ -1311,8 +1304,6 @@ export default class EditPage extends Component {
         }
         return field
       })
-
-      console.log('UPDATED', updatedFieldsWithMultiSelectOptions)
 
       await api.updateTranscription(
         id, unfiltredSchema.id, updatedFieldsWithMultiSelectOptions
@@ -1595,7 +1586,7 @@ export default class EditPage extends Component {
             />
           )
         }).catch((e)=>{
-          console.log('error', e)
+          // console.log('error', e)
           addErrorToast(
             <EuiI18n token="error" default="Session persists" />
           )
