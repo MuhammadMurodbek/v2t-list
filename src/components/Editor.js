@@ -230,26 +230,10 @@ export default class Editor extends Component {
     // eslint-disable-next-line max-len
     const filter = `[data-chapter='${this.cursor.chapter}'][data-segment='${this.cursor.segment}']`
     const fallbackFilter = `[data-chapter='${this.cursor.chapter}']`
-    console.log('fallbackFilter', fallbackFilter)
-    console.log(
-      'document.querySelector(fallbackFilter)',
-      document.querySelector(fallbackFilter)
-    )
-    console.log(
-      'document.querySelector(filter)',
-      document.querySelector(filter)
-    )
-    console.log('this.cursor.segment', this.cursor.segment)
-    console.log('this.cursor.chapter', this.cursor.chapter)
     if (document.querySelector(filter)===null) {
       return(<></>)
     }
 
-    console.log(
-      'or',
-      document.querySelector(filter) ||
-      document.querySelector(fallbackFilter).lastChild
-    )
     return (
       document.querySelector(filter) ||
         document.querySelector(fallbackFilter).lastChild
@@ -312,7 +296,6 @@ export default class Editor extends Component {
 
   onKeyDown = (e, chapterId) => {
     const selection = window.getSelection()
-    console.log('selection', selection)
     const segmentId = Number(
       selection.anchorNode.parentNode.dataset.segment || 0
     )
@@ -397,7 +380,6 @@ export default class Editor extends Component {
     e.preventDefault()
     if(!isComplicatedField){
       const range = window.getSelection().getRangeAt(0)
-      console.log('range', range)
       const chapter = chapters[chapterId]
       const segment = chapter.segments[segmentId]
       if (!segment) return
