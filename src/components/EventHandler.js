@@ -14,7 +14,9 @@ const EVENTS = {
   PAUSE_AUDIO: 'pauseAudio',
   STOP_AUDIO: 'stopAudio',
   FORWARD_AUDIO: 'forwardAudio',
-  BACKWARD_AUDIO: 'backwardAudio'
+  BACKWARD_AUDIO: 'backwardAudio',
+  UNDO: 'undo',
+  REDO: 'redo'
 }
 
 const KEY_CODE = {
@@ -26,6 +28,8 @@ const KEY_CODE = {
   S: 83,
   P: 80,
   Q: 81,
+  Z: 90,
+  R: 82,
   SPACE: 32,
   ESC: 27,
   LEFT_ARROW: 37,
@@ -120,6 +124,20 @@ const EventHandler = () => {
       if (event.altKey) {
         event.preventDefault()
         EventEmitter.dispatch(EVENTS.PLAYBACKDOWN)
+      }
+      break
+    }
+    case KEY_CODE.Z: {
+      if (event.ctrlKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.UNDO)
+      }
+      break
+    }
+    case KEY_CODE.R: {
+      if (event.ctrlKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.REDO)
       }
       break
     }

@@ -8,6 +8,7 @@
     "@patronum/eui": "^2.8.0",
     "@testing-library/jest-dom": "^4.0.0",
     "@types/react-beautiful-dnd": "^13.0.0",
+    "@xstate/react": "^1.6.1",
     "axios": "^0.18.0",
     "echarts": "^4.6.0",
     "echarts-for-react": "^2.0.15-beta.1",
@@ -23,7 +24,8 @@
     "react-dom": "^16.8.2",
     "react-router-dom": "^5.1.2",
     "socket.io-client": "^2.3.0",
-    "text-diff": "^1.0.1"
+    "text-diff": "^1.0.1",
+    "xstate": "^4.25.0"
   },
   "scripts": {
     "dev": "concurrently \"watch 'yarn lint'\"  \"yarn dev:server\" \"yarn dev:front\"  \"yarn typescript:compile\" -k -s first",

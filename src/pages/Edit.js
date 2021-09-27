@@ -55,9 +55,51 @@ import EventEmitter from '../models/events'
 import J4Login from '../components/J4Login'
 import { delay } from 'lodash'
 import { renderTranscriptionState } from '../utils'
+import { interpret } from 'xstate'
+import { timeMachine } from '../config/timeMachine'
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
+
+const INITIAL_STATE = {
+  isTranscriptAvailable: true,
+  originalChapters: [],
+  currentTime: 0,
+  cursorTime: 0,
+  queryTerm: '',
+  tags: {},
+  chapters: [],
+  fields: {},
+  isMediaAudio: true,
+  originalTags: {},
+  schemas: [],
+  departments: [],
+  departmentId: '',
+  schema: {},
+  originalSchemaId: '',
+  initialCursor: 0,
+  allChapters: [],
+  readOnlyHeaders: [],
+  hiddenHeaderIds: [],
+  defaultHeaderIds: [],
+  recording: false,
+  recordedTime: 0,
+  recordedAudio: null,
+  timeStartRecording: 0,
+  chaptersBeforeRecording: [],
+  initialKeyword: null,
+  currentChapter: null,
+  tagRequestCache: {},
+  modalMissingFields: [],
+  approved: false,
+  noMappingFields: [],
+  fieldsWithRequirement: [],
+  isUploadingMedia: false,
+  complicatedFieldOptions: {},
+  singleSelectFieldOptions: {},
+  openJ4LoginModal: false,
+  complicatedFieldMultiSelectOptions: {}
+}
 
 export default class EditPage extends Component {
   static contextType = PreferenceContext
@@ -77,48 +119,19 @@ export default class EditPage extends Component {
   ignoreMessagesTo = 0 // Avoid getting late replies, solve this better in mqtt
   offsetAudioStop = 0 // Include keyword when merging audio
 
-  state = {
-    isTranscriptAvailable: true,
-    originalChapters: null,
-    currentTime: 0,
-    cursorTime: 0,
-    queryTerm: '',
-    tags: {},
-    chapters: [],
-    fields: {},
-    isMediaAudio: true,
-    originalTags: {},
-    schemas: [],
-    departments: [],
-    departmentId: '',
-    schema: {},
-    originalSchemaId: '',
-    initialCursor: 0,
-    allChapters: [],
-    readOnlyHeaders: [],
-    hiddenHeaderIds: [],
-    defaultHeaderIds: [],
-    recording: false,
-    recordedTime: 0,
-    recordedAudio: null,
-    timeStartRecording: 0,
-    chaptersBeforeRecording: [],
-    initialKeyword: null,
-    currentChapter: null,
-    tagRequestCache: {},
-    modalMissingFields: [],
-    approved: false,
-    noMappingFields: [],
-    fieldsWithRequirement: [],
-    isUploadingMedia: false,
-    complicatedFieldOptions: {},
-    singleSelectFieldOptions: {},
-    openJ4LoginModal: false,
-    complicatedFieldMultiSelectOptions: {}
-  }
+  state = INITIAL_STATE
+
+  service = interpret(timeMachine).onTransition((current) => {
+    const UNSAFE_STATE =
+      current.context.present[current.context.present.length - 1]
+    const currentState = UNSAFE_STATE ? UNSAFE_STATE : INITIAL_STATE
+
+    this.setState({ ...currentState })
+  })
 
   async componentDidMount() {
     const { mic } = this.props
+    this.service.start()
     document.title = 'Inovia AI :: V2t Editor 🎤'
     this.playerRef = React.createRef()
     this.editorRef = React.createRef()
@@ -126,6 +139,8 @@ export default class EditPage extends Component {
     EventEmitter.subscribe(EVENTS.CANCEL, this.cancel)
     EventEmitter.subscribe(EVENTS.SEND, this.onSave)
     EventEmitter.subscribe(EVENTS.APPROVE_CHANGE, this.onApprovedChange)
+    EventEmitter.subscribe(EVENTS.UNDO, this.undo)
+    EventEmitter.subscribe(EVENTS.REDO, this.redo)
     await this.checkTranscriptStateAndLoad()
     if (mic) this.initiateMQTT()
   }
@@ -138,6 +153,9 @@ export default class EditPage extends Component {
     EventEmitter.unsubscribe(EVENTS.CANCEL)
     EventEmitter.unsubscribe(EVENTS.SEND)
     EventEmitter.unsubscribe(EVENTS.APPROVE_CHANGE)
+    EventEmitter.unsubscribe(EVENTS.UNDO)
+    EventEmitter.unsubscribe(EVENTS.REDO)
+    this.service.stop()
   }
 
   async componentDidUpdate(prevProps) {
@@ -725,27 +743,32 @@ export default class EditPage extends Component {
     )
     // console.log('parsedChapters', parsedChapters)
     // console.log('updatedChapters', updatedChapters)
-    
-    this.setState(
-      {
-        originalSchemaId: schemaId,
-        allChapters: transcriptions,
-        //originalChapters: parsedChapters,
-        originalChapters: updatedChapters,
-        //chapters: parsedChapters,
-        chapters: updatedChapters,
-        fields: fields || {},
-        isMediaAudio: (media_content_type || '').match(/^video/) === null,
-        schemas,
-        schema: schemaWithMappings,
-        noMappingFields,
-        fieldsWithRequirement,
-        transcriptions: filteredTranscriptions
-      },
-      () => {
-        if (!this.state.originalChapters.length)
-          this.setState({ chapters: defaultFields })
-      }
+    const updatedState = {
+      originalSchemaId: schemaId,
+      allChapters: transcriptions,
+      //originalChapters: parsedChapters,
+      originalChapters: updatedChapters,
+      //chapters: parsedChapters,
+      chapters: updatedChapters,
+      fields: fields || {},
+      isMediaAudio: (media_content_type || '').match(/^video/) === null,
+      schemas,
+      schema: schemaWithMappings,
+      noMappingFields,
+      fieldsWithRequirement,
+      transcriptions: filteredTranscriptions
+    }
+    this.service.send({
+      type: 'UPDATE_TIME_MACHINE', data: { ...this.state, ...updatedState }
+    })
+    this.setState(state => ({
+      ...state,
+      ...updatedState
+    }),
+    () => {
+      if (!this.state.originalChapters.length)
+        this.setState({ chapters: defaultFields })
+    }
     )
   }
 
@@ -1408,13 +1431,17 @@ export default class EditPage extends Component {
       filteredTranscriptions,
       originalSchema
     )
-    this.setState({
+    const updatedState = {
       schema: schemaWithMappings,
       originalChapters: parsedChapters,
       chapters: parsedChapters,
       noMappingFields,
       fieldsWithRequirement,
       transcriptions: filteredTranscriptions
+    }
+    this.setState(state => ({ ...state, ...updatedState }))
+    this.service.send({
+      type: 'UPDATE_TIME_MACHINE', data: { ...this.state, ...updatedState }
     })
     localStorage.setItem('lastUsedSchema', schema.id)
   }
@@ -1549,17 +1576,35 @@ export default class EditPage extends Component {
             fields: fieldNamesAfterRemovalOfDependency
           }
           : updatedSchema
-        this.setState(
-          {
+        this.setState({
+          chapters: updatedChapters,
+          schema: updatedSchema
+        },
+        resolve
+        )
+        this.service.send({
+          type: 'UPDATE_TIME_MACHINE',
+          data: {
+            ...this.state,
             chapters: updatedChapters,
             schema: updatedSchema
-          },
-          resolve
-        )
+          }
+        })
       } else {
         this.setState({ chapters }, resolve)
+        this.service.send({
+          type: 'UPDATE_TIME_MACHINE', data: { ...this.state, chapters }
+        })
       }
     })
+  }
+
+  undo = () => {
+    this.service.send({ type: 'UNDO' })
+  }
+
+  redo = () => {
+    this.service.send({ type: 'REDO' })
   }
 
   onPause = (playerCurrentTime) => {
