@@ -122,9 +122,10 @@ export default class EditPage extends Component {
   state = INITIAL_STATE
 
   service = interpret(timeMachine).onTransition((current) => {
-    const UNSAFE_STATE =
+    const state =
       current.context.present[current.context.present.length - 1]
-    const currentState = UNSAFE_STATE ? UNSAFE_STATE : INITIAL_STATE
+      // ! state is undefined on the first render
+    const currentState = state ? state : INITIAL_STATE
 
     this.setState({ ...currentState })
   })
@@ -139,8 +140,6 @@ export default class EditPage extends Component {
     EventEmitter.subscribe(EVENTS.CANCEL, this.cancel)
     EventEmitter.subscribe(EVENTS.SEND, this.onSave)
     EventEmitter.subscribe(EVENTS.APPROVE_CHANGE, this.onApprovedChange)
-    EventEmitter.subscribe(EVENTS.UNDO, this.undo)
-    EventEmitter.subscribe(EVENTS.REDO, this.redo)
     await this.checkTranscriptStateAndLoad()
     if (mic) this.initiateMQTT()
   }
@@ -153,8 +152,6 @@ export default class EditPage extends Component {
     EventEmitter.unsubscribe(EVENTS.CANCEL)
     EventEmitter.unsubscribe(EVENTS.SEND)
     EventEmitter.unsubscribe(EVENTS.APPROVE_CHANGE)
-    EventEmitter.unsubscribe(EVENTS.UNDO)
-    EventEmitter.unsubscribe(EVENTS.REDO)
     this.service.stop()
   }
 
@@ -1599,14 +1596,6 @@ export default class EditPage extends Component {
     })
   }
 
-  undo = () => {
-    this.service.send({ type: 'UNDO' })
-  }
-
-  redo = () => {
-    this.service.send({ type: 'REDO' })
-  }
-
   onPause = (playerCurrentTime) => {
     const { currentTime } = this.state
     const initialCursor = playerCurrentTime || currentTime
@@ -1975,6 +1964,7 @@ export default class EditPage extends Component {
                   singleSelectFieldOptions={singleSelectFieldOptions}
                   updateComplicatedFields={this.updateComplicatedFields}
                   deleteComplicatedField={this.deleteComplicatedField}
+                  service={this.service}
                 />
               </EuiFlexItem>
 

@@ -12,6 +12,8 @@ import RemovedLine from '../components/RemovedLine'
 import HeaderLine from '../components/HeaderLine'
 import reduceSegment from '../utils/reduceSegment'
 import '../styles/editor.css'
+import EventEmitter from '../models/events'
+import { EVENTS } from '../components/EventHandler'
 
 const NEW_KEYWORD = 'New Chapter'
 const KEYCODE_ENTER = 13
@@ -43,7 +45,8 @@ export default class Editor extends Component {
     updateTranscript: PropTypes.func.isRequired,
     onCursorTimeChange: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
-    isDiffVisible: PropTypes.bool
+    isDiffVisible: PropTypes.bool,
+    service: PropTypes.object.isRequired
   }
 
   state = {
@@ -54,6 +57,8 @@ export default class Editor extends Component {
   componentDidMount() {
     this.inputRef = React.createRef()
     this.initChapters()
+    EventEmitter.subscribe(EVENTS.UNDO, this.undo)
+    EventEmitter.subscribe(EVENTS.REDO, this.redo)
   }
 
   componentDidUpdate(prevProps) {
@@ -73,12 +78,27 @@ export default class Editor extends Component {
       this.refreshDiff()
   }
 
+  componentWillUnmount() {
+    EventEmitter.unsubscribe(EVENTS.UNDO)
+    EventEmitter.unsubscribe(EVENTS.REDO)
+  }
+
   initChapters = () => {
     // eslint-disable-next-line no-unused-vars
     const { originalChapters, updateTranscript } = this.props
     if (originalChapters) {
       this.refreshDiff()
     }
+  }
+
+  undo = () => {
+    this.props.service.send({ type: 'UNDO' })
+    this.refreshDiff()
+  }
+
+  redo = () => {
+    this.props.service.send({ type: 'REDO' })
+    this.refreshDiff()
   }
 
   setCursor = (select) => {
