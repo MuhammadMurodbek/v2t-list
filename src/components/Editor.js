@@ -409,13 +409,25 @@ export default class Editor extends Component {
       const nextField = schema.fields
         .filter(({ visible }) => visible)
         .find(({ id }) => !usedKeywords.includes(id))
-      const nextChapter = {
+      let nextChapter = {
         keyword: nextField ? nextField.id : '',
         segments: [
           nextSegment,
           ...chapters[chapterId].segments.slice(segmentId + 1)
         ].filter((segment) => segment.words.length)
       }
+      // capitalize the first letter of the new segment
+      const updatedSegments = []
+      nextChapter.segments.forEach((seg, segmentIndex) => {
+        if (segmentIndex === 0) {
+          const updatedWords =
+            seg.words.charAt(0).toUpperCase() + seg.words.slice(1)
+          updatedSegments.push({ ...seg, words: updatedWords })
+        } else {
+          updatedSegments.push(seg)
+        }
+      })
+      nextChapter = { ...nextChapter, segments: updatedSegments }
       const prevSegment = { ...segment }
       prevSegment.words = prevSegment.words
         .slice(0, range.startOffset)
