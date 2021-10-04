@@ -167,13 +167,15 @@ export default class TranscriptionList extends Component {
         field: 'id',
         name: '',
         width: '100px',
-        render: (schemaId) => (
-          <EuiButtonEmpty
-            {...this.getTranscriptHref(schemaId)}
-          >
-            <EuiI18n token="open" default="Open" />
-          </EuiButtonEmpty>
-        ),
+        render: (id, transcriptInfo) => {
+          if(!transcriptInfo.status) {return (<></>)}
+          return transcriptInfo.status === 'TRANSCRIBED'
+            ||  transcriptInfo.status === 'ERROR'? (
+              <EuiButtonEmpty {...this.getTranscriptHref(id)}>
+                <EuiI18n token="open" default="Open" />
+              </EuiButtonEmpty>
+            ) : (<></>)
+        },
         disabled: true
       },
       {
@@ -181,15 +183,18 @@ export default class TranscriptionList extends Component {
         field: 'id',
         name: '',
         disabled: true,
-        width: '100px',
-        render: (id) => (
-          <EuiButtonIcon
-            color="danger"
-            iconType="trash"
-            aria-label="Delete"
-            onClick={() => this.showConfirmModal(id)}
-          />
-        )
+        width: '50px',
+        render: (id, transcriptInfo) => {
+          if(!transcriptInfo.status) {return (<></>)}
+          return transcriptInfo.status === 'TRANSCRIBED'
+            ||  transcriptInfo.status === 'ERROR'? (
+              <EuiButtonIcon
+                color="danger"
+                iconType="trash"
+                aria-label="Delete"
+                onClick={() => this.showConfirmModal(id)}
+              />) : (<></>)
+        }
       }
     ]
 

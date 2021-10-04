@@ -2,7 +2,7 @@
 import React from 'react'
 import moment from 'moment'
 import api from '../api'
-import { EuiI18n } from '@patronum/eui'
+import { EuiI18n, EuiText } from '@patronum/eui'
 
 export const WORD_OPTIONS = [
   {
@@ -29,11 +29,21 @@ export const COLUMN_OPTIONS = [
     label: 'Skapad',
     field: 'createdTime',
     name: <EuiI18n token="created" default="Created" />,
-    render: (createdTime) => moment(createdTime).format('YYYY-MM-DD HH:mm:ss'),
+    render: (createdTime) => {
+      return (
+        <>
+          <EuiText size="s">
+            <span>{moment(createdTime).format('YYYY-MM-DD')}</span>
+            <p>{moment(createdTime).format('HH:mm:ss')}</p>
+          </EuiText>
+        </>
+      )
+    },
     sortable: 'true'
   },
   {
     label: 'Status',
+    width: '120px',
     name: <EuiI18n token="status" default="Status" />,
     field: 'status'
   },

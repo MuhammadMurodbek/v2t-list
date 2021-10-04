@@ -154,7 +154,8 @@ class App extends Component {
 
         api
           .loadTags()
-          .then(({ data: activeTags }) => {
+          .then(({ data }) => {
+            const activeTags = data.departments ? data.departments : []
             // Count number of active tags
             const sideBar = []
 
@@ -465,22 +466,6 @@ class App extends Component {
                 disabled={false}
                 onClick={() => this.toggleCollapsed()}
               />
-              {/* <EuiButtonEmpty
-                size="l"
-                style={{
-                  color: 'white',
-                  position: 'fixed',
-                  left: 0,
-                  right: 10,
-                  fontWeight: 600,
-                  bottom: 40,
-                  width: 100,
-                  background: 'transparent'
-                }}
-                onClick={() => this.collapse()}
-              > */}
-              --
-              {/* </EuiButtonEmpty> */}
             </EuiPageSideBar>
             {isLoggedIn ? (
               <Switch>
