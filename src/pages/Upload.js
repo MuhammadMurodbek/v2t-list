@@ -215,8 +215,9 @@ export default class UploadPage extends Component {
   loadSchema = async (schemaId) => {
     this.setState({ schemaId, schemaFields: [], isLoadingSchema: true })
     const { data: schema } = await api.getSchema(schemaId)
-    const schemaFields = schema.fields ?
-      schema.fields.filter((field => !field.editable)) : []
+    const schemaFields = schema.fields ? schema.fields.filter(
+      (({ editable, visible }) => !editable && visible)
+    ) : []
     this.setState({
       schemaFields,
       isLoadingSchema: false
