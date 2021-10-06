@@ -59,7 +59,7 @@ import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
-const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED']
+const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED', 'ERROR']
 
 const INITIAL_STATE = {
   isTranscriptAvailable: true,
