@@ -1,19 +1,30 @@
 // @ts-nocheck
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react'
-import { EuiComboBox, EuiI18n } from '@patronum/eui'
+import { EuiComboBox, EuiI18n, EuiFormRow } from '@patronum/eui'
 
 const SectionHeader = ({
   keywords,
   selectedHeader,
   updateKey,
-  chapterId
+  chapterId,
+  chapters
 }) => {
   const [selectedKeyword, setSelectedKeyword] = useState(selectedHeader)
+  const [isInvalid, setIsInvalid] = useState(false)
 
   useEffect(() => {
     setSelectedKeyword(selectedHeader)
   })
+
+  useEffect(() => {
+    const hasRepeatedKeywords =chapters
+      .filter(({ keyword }) => keyword === selectedHeader).length > 1
+    if (hasRepeatedKeywords || !selectedHeader)
+      setIsInvalid(true)
+    else
+      setIsInvalid(false)
+  }, [chapters, selectedHeader])
 
   const onKeywordChange = (k) => {
     if (k.length) {
@@ -30,20 +41,34 @@ const SectionHeader = ({
   }
 
   return (
-    < EuiI18n
-      token="selectAKeyword"
-      default="Select A Keyword"
+    <EuiI18n
+      token="keywordsError"
+      default="All keywords must be set and may only appear once"
     >
       {(translation) => (
-        <EuiComboBox
-          className="sectionHeader"
-          placeholder={translation}
-          options={keywordsOptions}
-          selectedOptions={selectedKeyword ? [{ label: selectedKeyword }] : []}
-          singleSelection={{ asPlainText: true }}
-          onChange={onKeywordChange}
-          isClearable={false}
-        />
+        <EuiFormRow
+          aria-label="Select a keyword"
+          isInvalid={isInvalid} 
+          error={translation}>
+          < EuiI18n
+            token="selectAKeyword"
+            default="Select A Keyword"
+          >
+            {(translation) => (
+              <EuiComboBox
+                className="sectionHeader"
+                placeholder={translation}
+                options={keywordsOptions}
+                selectedOptions={
+                  selectedKeyword ? [{ label: selectedKeyword }] : []}
+                singleSelection={{ asPlainText: true }}
+                onChange={onKeywordChange}
+                isClearable={false}
+                isInvalid={isInvalid}
+              />
+            )}
+          </EuiI18n>
+        </EuiFormRow>
       )}
     </EuiI18n>
   )

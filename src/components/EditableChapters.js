@@ -18,7 +18,7 @@ const EditableChapters = ({
   const editors = chapters.map((chapter, i) => {
     return (
       <EditableChapter
-        key={chapter.keyword}
+        key={`${chapter.keyword}_${i}`}
         chapterId={i}
         id={chapter.id}
         keyword={chapter.keyword}
@@ -29,6 +29,7 @@ const EditableChapters = ({
         singleSelectFieldOptions={singleSelectFieldOptions}
         updateComplicatedFields={updateComplicatedFields}
         deleteComplicatedField={deleteComplicatedField}
+        chapters={chapters}
         {...{ ...editableChapterProps }}
       />
     )

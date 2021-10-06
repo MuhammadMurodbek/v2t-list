@@ -19,6 +19,7 @@ const EditableChapter = ({
   deleteComplicatedField,
   createNewSectionAfterThis,
   multiSelectOptionValues,
+  chapters,
   ...chunkProps
 }) => {
   const sectionHeaders = schema.fields
@@ -95,6 +96,7 @@ const EditableChapter = ({
           selectedHeader={sectionHeader}
           updateKey={setKeyword}
           chapterId={chapterId}
+          chapters={chapters}
         />
         {(isMultiSelectEnabled && complicatedFieldOptions[sectionHeader]) && (
           <>
@@ -145,7 +147,8 @@ EditableChapter.propTypes = {
   updateComplicatedFields: PropTypes.func,
   createNewSectionAfterThis: PropTypes.func,
   deleteComplicatedField: PropTypes.func,
-  multiSelectOptionValues: PropTypes.array
+  multiSelectOptionValues: PropTypes.array,
+  chapters: PropTypes.array.isRequired
 }
 
 export default EditableChapter
