@@ -32,11 +32,17 @@ const J4Login = ({
     setIsLoading(true)
     setError(null)
     api.approveTranscription(transcriptionId, {
-      channelSettings: [{
-        channel: 'J4',
-        name: username,
-        value: password
-      }]
+      channelSettings: [
+        {
+          channel: 'J4',
+          name: 'principal',
+          value: username
+        }, {
+          channel: 'J4',
+          name: 'secret',
+          value: password
+        }
+      ]
     }).then(
       () => {
         delay(renderTranscriptionState, 500, transcriptionId)
