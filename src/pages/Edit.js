@@ -627,6 +627,9 @@ export default class EditPage extends Component {
         transcriptState.id &&
         VALID_TRANSCRIPT_STATES.includes(transcriptState.state)
       ) {
+        if (transcriptState.state==='ERROR') {
+          delay(renderTranscriptionState, 500, id)
+        }
         await this.initiate()
       } else {
         throw new ReferenceError()
