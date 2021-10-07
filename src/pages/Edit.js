@@ -53,7 +53,7 @@ import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
 import EventEmitter from '../models/events'
 import J4Login from '../components/J4Login'
-import { delay } from 'lodash'
+import { delay, isEmpty } from 'lodash'
 import { renderTranscriptionState } from '../utils'
 import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
@@ -1200,7 +1200,7 @@ export default class EditPage extends Component {
     } = this.state
     if (isUploadingMedia) return
     this.setState({ isUploadingMedia: true })
-    let { chapters } = this.state
+    let chapters = [...this.state.chapters]
     const emptyChapters = chapters.filter(
       (chapter) => chapter.segments.length === 0
     )
@@ -1244,13 +1244,20 @@ export default class EditPage extends Component {
       return false
     }
 
-    chapters.forEach((chapter) => {
-      chapter.segments.forEach((segment) => {
-        if (/\s$/.test(segment.words)) {
-          segment.words = segment.words.slice(0, -1)
-        }
-      })
-    })
+    const map = chapters.reduce((store, chapter) => {
+      if (!store.has(chapter.keyword)) {
+        const segments = chapter.segments.map((segment) => {
+          if (/\s$/.test(segment.words)) {
+            return { ...segment, words: segment.words.slice(0, -1) }
+          }
+          return segment
+        })
+        store.set(chapter.keyword, { ...chapter, segments })
+      }
+      return store
+    }, new Map())
+
+    chapters = [...map.values()]
 
     const excludedKeywords = readOnlyHeaders
       .map(({ id }) => id)
@@ -1312,21 +1319,13 @@ export default class EditPage extends Component {
         chapterBeforeSubmission,
         tags
       )
-      // console.log('chapterBeforeSubmission', chapterBeforeSubmission)
-      // console.log('chapters', chapters)
-      const filtredFields = fields.filter(
+      const filteredFields = fields.filter(
         (field) => !~noMappingFields.findIndex(({ id }) => id === field.id)
       )
 
-      filtredFields.push(...noMappingFields)
-      const { complicatedFieldMultiSelectOptions } = this.state
-      const updatedFieldsWithMultiSelectOptions = filtredFields.map((field) => {
-        if (complicatedFieldMultiSelectOptions[field.id]
-            && complicatedFieldMultiSelectOptions[field.id].values.length) {
-          return complicatedFieldMultiSelectOptions[field.id]
-        }
-        return field
-      })
+      filteredFields.push(...noMappingFields)
+      const updatedFieldsWithMultiSelectOptions =
+        this.getComplicatedFieldsMultiSelectValues(filteredFields)
 
       await api.updateTranscription(
         id, unfiltredSchema.id, updatedFieldsWithMultiSelectOptions
@@ -1359,6 +1358,21 @@ export default class EditPage extends Component {
     } finally {
       this.setState({ isUploadingMedia: false })
     }
+  }
+
+  getComplicatedFieldsMultiSelectValues = (fields) => {
+    const { complicatedFieldMultiSelectOptions } = this.state
+
+    if (isEmpty(complicatedFieldMultiSelectOptions)) return fields
+
+    return fields.map((field) => {
+      if (complicatedFieldMultiSelectOptions[field.id]
+          && Array.isArray(complicatedFieldMultiSelectOptions[field.id].values)
+          && complicatedFieldMultiSelectOptions[field.id].values.length) {
+        return complicatedFieldMultiSelectOptions[field.id]
+      }
+      return field
+    })
   }
 
   getMissingSections = async () => {
