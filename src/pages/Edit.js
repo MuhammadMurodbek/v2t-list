@@ -1517,9 +1517,18 @@ export default class EditPage extends Component {
               return chapter
             }
           } else {
+            const keyword = chapter.keyword ? chapter.keyword.toLowerCase() : ''
+            const indexOfKeyword = chapter.segments.findIndex(({ words }) =>
+              words.replace(/\r?\n|\r|\s/g, '').toLowerCase() === keyword
+            )
+
+            if (indexOfKeyword === 0) {
+              chapter.segments = chapter.segments.slice(indexOfKeyword + 1)
+            }
             return chapter
           }
         })
+
         stringToBeAttachedToTheNextChapter.forEach((appendedChapterWords) =>
           updatedChapters.push({
             keyword: '',

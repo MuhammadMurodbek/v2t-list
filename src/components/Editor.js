@@ -389,7 +389,7 @@ export default class Editor extends Component {
   updateKeyword = (id, value) => {
     const { updateTranscript } = this.props
     const chapters = JSON.parse(JSON.stringify(this.props.chapters))
-    chapters[id].keyword = value.replace(/\r?\n|\r/g, '')
+    chapters[id].keyword = value.replace(/\r?\n|\r|\s/g, '')
     // retrieve the new schema setup based on dependednt field
     updateTranscript(chapters, true, id).then(this.refreshDiff)
   }
