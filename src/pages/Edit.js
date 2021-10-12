@@ -1075,10 +1075,11 @@ export default class EditPage extends Component {
     const initialKeyword = chapters[chapterId].keyword
     const timeStartRecording = this.getChapterEndTimeAdjusted(chapterId)
     this.setState({
-      cursorTime,
+      //cursorTime, // This will change cursor position if user drags seek
       initialKeyword,
-      timeStartRecording,
-      currentTime: cursorTime
+      timeStartRecording
+      // currentTime: cursorTime 
+      // This will change cursor position if user drags seek
     })
   }
 
