@@ -1147,6 +1147,7 @@ export default class EditPage extends Component {
 
   sendToCoworker = async () => {
     const { id } = this.props
+    
     try {
       const missingSections = await this.getMissingSections()
       if (missingSections.length) {
@@ -1173,11 +1174,20 @@ export default class EditPage extends Component {
         return
       }
       await api.approveTranscription(id)
-      delay(renderTranscriptionState, 500, id)
+      await renderTranscriptionState(id)
+
     } catch (e) {
-      addUnexpectedErrorToast(e)
+      if (e instanceof Error) {
+        console.error(e.stack)
+        addErrorToast(
+          <EuiI18n token="error" default="Error" />,
+          e.message
+        )
+      }
+      console.error(e)
     }
   }
+
 
   mediaUpload = async () => {
     const { id } = this.props
@@ -1354,8 +1364,14 @@ export default class EditPage extends Component {
       }
       return true
     } catch (e) {
+      if (e instanceof Error) {
+        console.error(e.stack)
+        addErrorToast(
+          <EuiI18n token="error" default="Error" />,
+          e.message
+        )
+      }
       console.error(e)
-      addUnexpectedErrorToast(e)
     } finally {
       this.setState({ isUploadingMedia: false })
     }

@@ -14,7 +14,6 @@ import {
 } from '@patronum/eui'
 import '../styles/j4login.scss'
 import api from '../api'
-import { delay } from 'lodash'
 import { renderTranscriptionState } from '../utils'
 
 const J4Login = ({
@@ -27,35 +26,33 @@ const J4Login = ({
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
-    api.approveTranscription(transcriptionId, {
-      channelSettings: [
-        {
-          channel: 'J4',
-          name: 'principal',
-          value: username
-        }, {
-          channel: 'J4',
-          name: 'secret',
-          value: password
-        }
-      ]
-    }).then(
-      () => {
-        delay(renderTranscriptionState, 500, transcriptionId)
-        onClose()
-      },
-      (error) => {
-        if (error instanceof Error) {
-          setError(error.message)
-        }
-        setIsLoading(false)
-        console.error(error)
+    try {
+      await api.approveTranscription(transcriptionId, {
+        channelSettings: [
+          {
+            channel: 'J4',
+            name: 'principal',
+            value: username
+          }, {
+            channel: 'J4',
+            name: 'secret',
+            value: password
+          }
+        ]
+      })
+      await renderTranscriptionState(transcriptionId)
+      onClose()
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message)
       }
-    )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (isOpen) {

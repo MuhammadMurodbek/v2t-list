@@ -170,7 +170,7 @@ const loadTranscription = (transcriptionId) => {
 
 
 const approveTranscription = (transcriptionId, optionalSettings) =>{
-  axios.post(
+  return axios.post(
     `${URLS.transcriptionV2}/${transcriptionId}/approve`,
     { ...optionalSettings }
   ).catch((error)=>{
