@@ -35,17 +35,36 @@ export default class TranscriptionList extends Component {
     setTranscriptId('')
     document.title = 'Inovia AI :: All Transcripts'
 
-    this.interval = setInterval(async () => {
-      await this.props.fetchTranscripts(
-        this.props.job,
-        this.props.pageIndex,
-        this.state.pageSize
-      )
-    }, 20000)
+    this.initPollingTranscripts()
   }
 
-  componentWillUnmount() {
-    clearInterval(this.interval)
+
+  initPollingTranscripts = () => {
+    const { fetchTranscripts, job, pageIndex } = this.props
+    const { pageSize } = this.state
+    const INTERVAL = 15000
+    const BACKOFF = 5000
+    let timeToMakeNextRequest = 0
+    let failedTries = 0
+
+    const setupTimer = (time) => {
+      if (timeToMakeNextRequest <= time) {
+        fetchTranscripts(job, pageIndex, pageSize).then(
+          () => {
+            failedTries = 0
+          },
+          () => {
+            // backoff if request fails
+            failedTries++
+          }
+        )
+        timeToMakeNextRequest = time + INTERVAL + failedTries * BACKOFF
+      }
+
+      requestAnimationFrame(setupTimer)
+    }
+
+    requestAnimationFrame(setupTimer)
   }
 
   onTableChange = async ({ page = {}, sort = {}}) => {

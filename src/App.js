@@ -119,7 +119,7 @@ class App extends Component {
     sortField,
     sortDirection
   ) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const tokenFromStorage = localStorage.getItem('token')
       const tokenFromQuery = getQueryStringValue.prototype.decodeToken('token')
       let token
@@ -184,6 +184,7 @@ class App extends Component {
                 })
                 .catch((e) => {
                   addUnexpectedErrorToast(e)
+                  reject()
                 })
             }
 
@@ -295,6 +296,7 @@ class App extends Component {
           })
           .catch((e) => {
             addUnexpectedErrorToast(e)
+            reject()
           })
       }
     })
