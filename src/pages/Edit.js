@@ -1534,7 +1534,8 @@ export default class EditPage extends Component {
               return chapter
             }
           } else {
-            const keyword = chapter.keyword ? chapter.keyword.toLowerCase() : ''
+            const keyword = chapter.keyword ?
+              chapter.keyword.replace(/\s/g, '').toLowerCase() : ''
             const indexOfKeyword = chapter.segments.findIndex(({ words }) =>
               words.replace(/\r?\n|\r|\s/g, '').toLowerCase() === keyword
             )
