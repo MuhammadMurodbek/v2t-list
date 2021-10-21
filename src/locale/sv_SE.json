@@ -163,5 +163,6 @@
   "agent": "Agent",
   "newLiveRecording": "+Ny Live Diktering",
   "noTranscripts": "Inga diktering hittades",
-  "selectOptions": "Välj"
+  "selectOptions": "Välj",
+  "enableAutorefresh": "Aktivera autorefresh"
 }

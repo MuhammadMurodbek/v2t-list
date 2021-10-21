@@ -161,5 +161,6 @@
     "date": "Dato",
     "agent": "Agent",
     "newLiveRecording": "Ny live diktat",
-    "selectOptions": "Vælg"
+    "selectOptions": "Vælg",
+    "enableAutorefresh": "Aktivér autorefresh"
 }

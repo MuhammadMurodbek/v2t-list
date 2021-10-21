@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import {
+  EuiSwitch,
+  EuiSpacer,
   EuiBasicTable,
   EuiButtonIcon,
   EuiButtonEmpty,
@@ -25,6 +27,10 @@ export default class TranscriptionList extends Component {
       isConfirmModalVisible: false,
       dictationToRemove: null,
       sortField: 'createdTime',
+      isAutorefreshEnabled: localStorage
+        .getItem('isAutorefreshEnabled')===null ? false : (
+          localStorage.getItem('isAutorefreshEnabled') === 'true'
+        ),
       sortDirection: 'desc'
     }
   }
@@ -41,7 +47,7 @@ export default class TranscriptionList extends Component {
 
   initPollingTranscripts = () => {
     const { fetchTranscripts, job, pageIndex } = this.props
-    const { pageSize } = this.state
+    const { pageSize, isAutorefreshEnabled } = this.state
     const INTERVAL = 15000
     const BACKOFF = 5000
     let timeToMakeNextRequest = 0
@@ -49,15 +55,17 @@ export default class TranscriptionList extends Component {
 
     const setupTimer = (time) => {
       if (timeToMakeNextRequest <= time) {
-        fetchTranscripts(job, pageIndex, pageSize).then(
-          () => {
-            failedTries = 0
-          },
-          () => {
-            // backoff if request fails
-            failedTries++
-          }
-        )
+        if(isAutorefreshEnabled) {
+          fetchTranscripts(job, pageIndex, pageSize).then(
+            () => {
+              failedTries = 0
+            },
+            () => {
+              // backoff if request fails
+              failedTries++
+            }
+          )
+        }
         timeToMakeNextRequest = time + INTERVAL + failedTries * BACKOFF
       }
 
@@ -155,12 +163,24 @@ export default class TranscriptionList extends Component {
     }
   }
 
+  toggleAutorefresh = () => {
+    const autorefreshStatus = localStorage.getItem('isAutorefreshEnabled')
+    if(autorefreshStatus==='true') {
+      localStorage.setItem('isAutorefreshEnabled', false)
+      this.setState({ isAutorefreshEnabled: false })
+    } else {
+      localStorage.setItem('isAutorefreshEnabled', true)
+      this.setState({ isAutorefreshEnabled: true })
+    }
+  }
+
   render() {
     const {
       pageSize,
       loading,
       isConfirmModalVisible,
       sortField,
+      isAutorefreshEnabled,
       sortDirection
     } = this.state
     const { transcripts, contentLength, pageIndex, hasNoTags } = this.props
@@ -260,6 +280,16 @@ export default class TranscriptionList extends Component {
 
     return (
       <Fragment>
+        <EuiI18n token="enableAutorefresh" default="enableAutorefresh">
+          {(enableAutorefreshText) => (
+            <EuiSwitch
+              label={enableAutorefreshText}
+              checked={isAutorefreshEnabled}
+              onChange={this.toggleAutorefresh}
+            />
+          )}
+        </EuiI18n>
+        <EuiSpacer size="l" />
         <EuiBasicTable
           pagination={pagination}
           columns={columns}
