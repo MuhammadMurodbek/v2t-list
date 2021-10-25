@@ -256,30 +256,6 @@ class App extends Component {
                     onClick: () => this.selectItem('Training')
                   },
                   {
-                    id: 'Co-worker',
-                    name: <EuiI18n token="coWorker" default="Co-Worker" />,
-                    onClick: () => {
-                      if (
-                        window.location.hostname.split('.')[0].includes('dev')
-                      ) {
-                        window
-                          .open(
-                            'https://v2t-dev-webdoc.inoviagroup.se/#/',
-                            '_blank'
-                          )
-                          .focus()
-                      } else if (
-                        window.location.hostname.split('.')[0].includes('stage')
-                      ) {
-                        window
-                          .open(
-                            'https://v2t-stage-webdoc.inoviagroup.se/#/',
-                            '_blank'
-                          )
-                          .focus()
-                      }
-                    }
-                  }, {
                     href: '/#/live-diktering',
                     id: 'Live Diktering',
                     name: <EuiI18n token="live" default="Live Dictation" />,
