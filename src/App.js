@@ -7,7 +7,6 @@ import {
   EuiImage,
   EuiPage,
   EuiPageSideBar,
-  EuiButtonEmpty,
   EuiSideNav,
   EuiButtonIcon,
   EuiI18n
@@ -37,8 +36,6 @@ import {
 import { 
   addUnexpectedErrorToast 
 } from './components/GlobalToastList/GlobalToastList'
-import { EuiFlexGroup } from '@patronum/eui'
-import { EuiFlexItem } from '@patronum/eui'
 import getQueryStringValue from './models/getQueryStringValue'
 import { EventHandler } from './components/EventHandler'
 
@@ -262,6 +259,20 @@ class App extends Component {
                     onClick: () => {
                       this.selectItem('Live Diktering')
                     }
+                  },
+                  {
+                    id: 'Collapse',
+                    name: <EuiI18n token="collapse" default="Collapse" />,
+                    onClick: () => {
+                      this.toggleCollapsed()
+                    }
+                  },
+                  {
+                    id: 'Help',
+                    name: <EuiI18n token="help" default="Help" />,
+                    onClick: () => {
+                      this.openHelpWindow()
+                    }
                   }
                 ],
                 name: ''
@@ -372,45 +383,10 @@ class App extends Component {
 
               <EuiSideNav
                 mobileTitle=""
-                // toggleOpenOnMobile={false}
                 isOpenOnMobile={false}
-                style={{ width: 400 }}
                 items={this.getSideNavItems()}
+                className="AppNavigation"
               />
-              <EuiFlexGroup
-                direction="column"
-                gutterSize="s"
-                className="sidebarBottomButtons"
-              >
-                <EuiFlexItem>
-                  <EuiButtonEmpty
-                    size="s"
-                    contentProps={{
-                      style: {
-                        justifyContent: 'flex-start'
-                      }
-                    }}
-                    color="ghost"
-                    onClick={() => this.toggleCollapsed()}
-                  >
-                    <EuiI18n token="collapse" default="Collapse" />
-                  </EuiButtonEmpty>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <EuiButtonEmpty
-                    size="s"
-                    contentProps={{
-                      style: {
-                        justifyContent: 'flex-start'
-                      }
-                    }}
-                    color="ghost"
-                    onClick={() => this.openHelpWindow()}
-                  >
-                    <EuiI18n token="help" default="Help" />
-                  </EuiButtonEmpty>
-                </EuiFlexItem>
-              </EuiFlexGroup>
             </EuiPageSideBar>
             <EuiPageSideBar
               style={{

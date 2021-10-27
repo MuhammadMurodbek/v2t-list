@@ -6,6 +6,7 @@ body, #root {
 
 .euiImage.logo {
   margin-bottom: 5vh;
+  padding-right: 20px;
 }
 .euiTableCellContent {
     padding: 4px;
@@ -21,6 +22,22 @@ p {
   background-repeat: no-repeat;
   background-size: cover;
   padding: 0px;
+}
+
+.euiSideNav.AppNavigation {
+  max-height: calc(100vh - 25vh);
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.euiSideNav.AppNavigation::-webkit-scrollbar {
+  width: 3px;      
+}
+.euiSideNav.AppNavigation::-webkit-scrollbar-track {
+  background: transparent;  
+}
+.euiSideNav.AppNavigation::-webkit-scrollbar-thumb {
+  background-color: #62B4F7;  
 }
 
 .euiSideNavItemButton__label {
@@ -57,11 +74,7 @@ p {
     flex: 0 1;
     margin-top: 24px;
     margin-left: 20px;
-    margin-right: 20px;
-}
-
-.euiSideNavItem--trunk > .euiSideNavItem__items {
-    width: 50%;
+    margin-right: 0;
 }
 
 .help{
