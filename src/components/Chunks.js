@@ -1,9 +1,20 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React from 'react'
 import { EuiText } from '@patronum/eui'
 import PropTypes from 'prop-types'
 import Chunk from '../components/Chunk'
+
+const isValidHighlightedSegment = (objArray, item) => {
+  let matched = false
+  objArray.forEach(obj => {
+    if(obj.chapterId === item.chapterId && obj.segmentId === item.segmentId) {
+      matched = true
+    }
+  })
+  return matched
+}
 
 const Chunks = ({
   recordingChapter,
@@ -15,15 +26,41 @@ const Chunks = ({
   onPaste,
   onKeyDown,
   onSelect,
-  onCursorChange
+  onCursorChange,
+  highlightedContextForMedicalAssistant,
+  isMedicalAssistantEnabled
 }) => {
+  const highligtedChapterIdByMedicalAssistant = highlightedContextForMedicalAssistant.map(ch => ch.chapterId)
+  const highligtedSegmentIdByMedicalAssistant = highlightedContextForMedicalAssistant.map(ch => ch.segmentId)
+
   if (recordingChapter !== null)
     return (
       <ReadOnlyChunks {...{ recordingChapter, chapterId, segments, context }} />
     )
-  const chunks = segments.map((props, i) => (
-    <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />
-  ))
+  // const chunks = segments.map((props, i) => (
+  //   <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context }} />
+  // ))
+  const chunks = segments.map((props, i) =>
+  {
+    if(isMedicalAssistantEnabled){
+      if (highligtedChapterIdByMedicalAssistant.includes(chapterId)
+        && highligtedSegmentIdByMedicalAssistant.includes(i)
+        && isValidHighlightedSegment(highlightedContextForMedicalAssistant, { chapterId, segmentId: i })
+      )
+      {
+        const isThisChunkHighlighted = true
+        return <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context, highlightedContextForMedicalAssistant, isMedicalAssistantEnabled, isThisChunkHighlighted }} />
+      }
+      else {
+        const isThisChunkHighlighted = false
+        return <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context, highlightedContextForMedicalAssistant, isMedicalAssistantEnabled, isThisChunkHighlighted }} />
+      }
+    } else {
+      const isThisChunkHighlighted = false
+      return <Chunk key={i} {...{ ...props, chapterId, i, currentTime, context, highlightedContextForMedicalAssistant, isMedicalAssistantEnabled, isThisChunkHighlighted }} />
+    }
+  }
+  )
   return (
     <EuiText>
       <pre>

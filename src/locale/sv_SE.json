@@ -164,5 +164,15 @@
   "newLiveRecording": "+Ny Live Diktering",
   "noTranscripts": "Inga diktering hittades",
   "selectOptions": "Välj",
-  "enableAutorefresh": "Aktivera autorefresh"
+  "enableAutorefresh": "Aktivera autorefresh",
+  "medicalAssistantParamMissing": "är omnämnt, mer information saknas om",
+  "medicinskAssistent": "Medicinsk Assistent",
+  "missingInforMationTitle": "är omnämnt, mer information saknas om",
+  "Beslutstödsassistent": "Beslutstödsassistent",
+  "Kodningsassistent": "Kodningsassistent",
+  "basedOnSymptom": "visar symptom som kan hänföras till",
+  "thePatient": "patienten",
+  "additionaCode": "Mest använda koder för",
+  "activateMedicalAssistant": "Aktivera medicinsk assistent",
+  "oupphörlig": "Interaktiv assistans"
 }

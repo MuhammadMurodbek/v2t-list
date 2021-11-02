@@ -30,3 +30,12 @@
 .euiRadioGroup__item + .euiRadioGroup__item.euiRadio--compressed {
     margin-left: 50px;
 }
+
+.icdCheckBox {
+  padding-left: 24px;
+  line-height: 24px;
+  font-size: 14px;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}

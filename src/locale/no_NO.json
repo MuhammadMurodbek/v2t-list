@@ -164,5 +164,15 @@
   "agent": "Agent",
   "newLiveRecording": "Ny live diktat",
   "selectOptions": "plukke ut",
-  "enableAutorefresh": "Aktiver autorefresh"
+  "enableAutorefresh": "Aktiver autorefresh",
+  "medicalAssistantParamMissing": "er nevnt, mer informasjon mangler om",
+  "medicinskAssistent": "Medisinsk Assistent",
+  "missingInforMationTitle": "er nevnt, mangler mer informasjon om",
+  "Beslutstödsassistent": "Beslutningsstøtteassistent",
+  "Kodningsassistent": "Kodeassistent",
+  "basedOnSymptom": "viser symptomer som kan tilskrives",
+  "thePatient": "pasienten",
+  "additionaCode": "Mest brukte koder for",
+  "activateMedicalAssistant": "Aktiver medisinsk assistent",
+  "oupphörlig": "Interaktiv assistanse"
 }

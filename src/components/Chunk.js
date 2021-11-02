@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React from 'react'
@@ -10,30 +11,50 @@ const Chunk = ({
   chapterId,
   i,
   currentTime,
-  context
+  context,
+  isMedicalAssistantEnabled,
+  isThisChunkHighlighted
 }) => {
-  let style
-  const current = currentTime > startTime && currentTime <= endTime
-  if (context) {
-    style = current
-      ? {
+  if (isMedicalAssistantEnabled) {
+    let style
+    if (context) {
+      style = isThisChunkHighlighted ? {
         fontWeight: 'bold',
-        backgroundColor: '#FFFF00',
+        backgroundColor: 'pink',
         fontSize: context.currentFontSize
       } : { fontSize: context.currentFontSize }
+    } else {
+      style = isThisChunkHighlighted ? { fontWeight: 'bold', backgroundColor: 'pink' } : {}
+    }
+    return (
+      <span style={style} className="editorBody" data-chapter={chapterId} data-segment={i}>
+        {words}
+      </span>
+    )
   } else {
-    style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : {}
+    let style
+    const current = currentTime > startTime && currentTime <= endTime
+    if (context) {
+      style = current
+        ? {
+          fontWeight: 'bold',
+          backgroundColor: '#FFFF00',
+          fontSize: context.currentFontSize
+        } : { fontSize: context.currentFontSize }
+    } else {
+      style = current ? { fontWeight: 'bold', backgroundColor: '#FFFF00' } : {}
+    }
+    return (
+      <span
+        style={style}
+        className="editorBody"
+        data-chapter={chapterId}
+        data-segment={i}
+      >
+        {words}
+      </span>
+    )
   }
-  return (
-    <span
-      style={style}
-      className="editorBody"
-      data-chapter={chapterId}
-      data-segment={i}
-    >
-      {words}
-    </span>
-  )
 }
 
 Chunk.propTypes = {

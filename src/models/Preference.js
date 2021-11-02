@@ -280,6 +280,121 @@ export default class Preference {
     localStorage.setItem('autoCorrect', JSON.stringify(v))
   }
 
+  get isMedicalAssistantActive() {
+    return this._isMedicalAssistantActive
+  }
+
+  set isMedicalAssistantActive(v) {
+    this._isMedicalAssistantActive = v
+    localStorage.setItem('isMedicalAssistantActive', v)
+    if(v===false) {
+      this._continuousSupportStatus = v
+      localStorage.setItem('continuousSupportStatus', v)
+    }
+  }
+
+  get isSnomedMedicalAssistantActive() {
+    return this._isSnomedMedicalAssistantActive
+  }
+
+  set isSnomedMedicalAssistantActive(v) {
+    this._isSnomedMedicalAssistantActive = v
+    localStorage.setItem('isSnomedMedicalAssistantActive', v)
+  }
+
+  get medicalAssistantStatus() {
+    return this._medicalAssistantStatus
+  }
+
+  set medicalAssistantStatus(v) {
+    this._medicalAssistantStatus = v
+    if (v === true) {
+      this._decisionSupportStatus = false
+      this._codingSupportStatus = false
+      localStorage.setItem('medicalAssistantStatus', 'true')
+      localStorage.setItem('decisionSupportStatus', 'false')
+      localStorage.setItem('codingSupportStatus', 'false')
+    } else if (
+      v === false &&
+      localStorage.getItem('decisionSupportStatus') === 'false' &&
+      localStorage.getItem('codingSupportStatus') === 'false'
+    ) {
+      this._medicalAssistantStatus = true
+      this._decisionSupportStatus = false
+      this._codingSupportStatus = false
+      localStorage.setItem('medicalAssistantStatus', 'true')
+      localStorage.setItem('decisionSupportStatus', 'false')
+      localStorage.setItem('codingSupportStatus', 'false')
+    } else {
+      localStorage.setItem('medicalAssistantStatus', v)
+    }
+  }
+
+  get continuousSupportStatus() {
+    return this._continuousSupportStatus
+  }
+
+  set continuousSupportStatus(v) {
+    this._continuousSupportStatus = v
+    localStorage.setItem('continuousSupportStatus', v)
+  }
+
+  get decisionSupportStatus() {
+    return this._decisionSupportStatus
+  }
+
+  set decisionSupportStatus(v) {
+    this._decisionSupportStatus = v
+    if (v === true) {
+      this._medicalAssistantStatus = false
+      this._codingSupportStatus = false
+      localStorage.setItem('decisionSupportStatus', 'true')
+      localStorage.setItem('medicalAssistantStatus', 'false')
+      localStorage.setItem('codingSupportStatus', 'false')
+    } else if (
+      v === false &&
+      localStorage.getItem('medicalAssistantStatus') === 'false' &&
+      localStorage.getItem('codingSupportStatus') === 'false'
+    ) {
+      this._decisionSupportStatus = true
+      this._medicalAssistantStatus = false
+      this._codingSupportStatus = false
+      localStorage.setItem('medicalAssistantStatus', 'false')
+      localStorage.setItem('decisionSupportStatus', 'true')
+      localStorage.setItem('codingSupportStatus', 'false')
+    } else {
+      localStorage.setItem('decisionSupportStatus', v)
+    }
+  }
+
+  get codingSupportStatus() {
+    return this._codingSupportStatus
+  }
+
+  set codingSupportStatus(v) {
+    this._codingSupportStatus = v
+    if (v === true) {
+      this._medicalAssistantStatus = false
+      this._decisionSupportStatus = false
+      localStorage.setItem('codingSupportStatus', 'true')
+      localStorage.setItem('medicalAssistantStatus', 'false')
+      localStorage.setItem('decisionSupportStatus', 'false')
+    } else if (
+      v === false &&
+      localStorage.getItem('medicalAssistantStatus') === 'false' &&
+      localStorage.getItem('decisionSupportStatus') === 'false'
+    ) {
+      this._codingSupportStatus = true
+      this._decisionSupportStatus = false
+      this._medicalAssistantStatus = false
+      localStorage.setItem('medicalAssistantStatus', 'false')
+      localStorage.setItem('decisionSupportStatus', 'false')
+      localStorage.setItem('codingSupportStatus', 'true')
+    } else {
+      localStorage.setItem('codingSupportStatus', v)
+    }
+  }
+
   static defaultState = {
     words: '3',
     showVideo: true,

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable react/prop-types */
 import React, { Fragment, useState, useContext } from 'react'
 import PropTypes from 'prop-types'
@@ -21,7 +22,8 @@ import {
   EuiTab,
   EuiTabs,
   EuiSelect,
-  EuiI18n
+  EuiI18n,
+  EuiHorizontalRule
 } from '@patronum/eui'
 
 import help from '../img/help.png'
@@ -75,6 +77,16 @@ const Flyout = ({ visible, onClose }) => {
   const setFontSize = (currentFontSize) => setPreferences({ currentFontSize })
   const setAutoCorrectTable = (autoCorrectTable) =>
     setPreferences({ autoCorrectTable })
+  const setIsMedicalAssistantActive = ({ target: { checked: isMedicalAssistantActive }}) =>
+    setPreferences({ isMedicalAssistantActive })
+  const setMedicalAssistantStatus = ({ target: { checked: medicalAssistantStatus }}) =>
+    setPreferences({ medicalAssistantStatus })
+  const setDecisionSupportStatus = ({ target: { checked: decisionSupportStatus }}) =>
+    setPreferences({ decisionSupportStatus })
+  const setCodingSupportStatus = ({ target: { checked: codingSupportStatus }}) =>
+    setPreferences({ codingSupportStatus })
+  const setContinuousSupportStatus = ({ target: { checked: continuousSupportStatus }}) =>
+    setPreferences({ continuousSupportStatus })
   const [selectedTabId, setSelectedTabId] = useState('0')
   const [autoCorrectSelection, setAutoCorrectSelection] = useState([])
   const { language, setLanguage, languagesList } = useContext(LanguageContext)
@@ -353,6 +365,90 @@ const Flyout = ({ visible, onClose }) => {
           </EuiFlexGroup>
         </Fragment>
       )
+    },
+    {
+      id: '4',
+      name: <EuiI18n token="medicinskAssistent" default="Medical Assistant" />,
+      content: (
+        <Fragment>
+          <EuiSpacer size="m" />
+          <EuiFormRow label="" fullWidth={true}>
+            <EuiSwitch
+              className="autoplaySwitch"
+              label={
+                <EuiI18n
+                  token="activateMedicalAssistant"
+                  default="Activate Medical Assistant"
+                />
+              }
+              checked={preferences.isMedicalAssistantActive}
+              onChange={setIsMedicalAssistantActive}
+            />
+          </EuiFormRow>
+          <EuiSpacer size="l" />
+          {localStorage.getItem('isMedicalAssistantActive') === 'true' && (
+            <>
+              <div style={{ marginLeft: 30 }}>
+                <EuiFormRow label="" fullWidth={true}>
+                  <EuiSwitch
+                    className="autoplaySwitch"
+                    label={
+                      <EuiI18n
+                        token="Kodningsassistent"
+                        default="Coding assistant"
+                      />
+                    }
+                    checked={preferences.codingSupportStatus}
+                    onChange={setCodingSupportStatus}
+                  />
+                </EuiFormRow>
+                <EuiFormRow label="" fullWidth={true}>
+                  <EuiSwitch
+                    className="autoplaySwitch"
+                    label={
+                      <EuiI18n
+                        token="medicinskAssistent"
+                        default="Medical Assistant"
+                      />
+                    }
+                    checked={preferences.medicalAssistantStatus}
+                    onChange={setMedicalAssistantStatus}
+                  />
+                </EuiFormRow>
+                <EuiFormRow label="" fullWidth={true}>
+                  <EuiSwitch
+                    className="autoplaySwitch"
+                    label={
+                      <EuiI18n
+                        token="Beslutstödsassistent"
+                        default="Decision support assistant"
+                      />
+                    }
+                    checked={preferences.decisionSupportStatus}
+                    onChange={setDecisionSupportStatus}
+                  />
+                </EuiFormRow>
+              </div>
+              <EuiHorizontalRule />
+              <EuiFormRow label="" fullWidth={true}>
+                <EuiSwitch
+                  className="autoplaySwitch"
+                  label={
+                    <EuiI18n token="oupphörlig" default="Interactive assistance" />
+                  }
+                  checked={preferences.continuousSupportStatus}
+                  onChange={setContinuousSupportStatus}
+                />
+              </EuiFormRow>
+            </>
+          )}
+          <EuiSpacer size="l" />
+          <EuiSpacer size="l" />
+          <EuiSpacer size="l" />
+          <TranscriptId id={transcriptId} />
+          <Logout setPreferences={setPreferences} />
+        </Fragment>
+      )
     }
   ]
 
@@ -379,7 +475,7 @@ const Flyout = ({ visible, onClose }) => {
       onClose={onClose}
       aria-labelledby="flyoutTitle"
       size="m"
-      maxWidth="500px"
+      maxWidth="700px"
       className="preferencesFlyout"
     >
       <EuiFlyoutHeader hasBorder>

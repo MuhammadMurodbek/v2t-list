@@ -1,7 +1,7 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-async-promise-executor */
 // @ts-nocheck
-/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 /* eslint-disable camelcase */
 /* eslint-disable no-alert */
@@ -40,7 +40,6 @@ import Departments from '../components/Departments'
 import convertToV1API from '../models/convertToV1API'
 import convertToV2API from '../models/convertToV2API'
 import {
-  addUnexpectedErrorToast,
   addErrorToast,
   addWarningToast,
   addSuccessToast
@@ -57,6 +56,11 @@ import { delay, isEmpty } from 'lodash'
 import { renderTranscriptionState } from '../utils'
 import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
+
+import MedicalAssistantContext from '../context/MedicalAssistantContext'
+import medicalAssistant from '../models/medicalAssistant'
+import ICDParams from '../components/medical-assistant/ICDParams'
+import AssistantResponse from '../components/medical-assistant/AssistantResponse'
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED', 'ERROR']
@@ -98,7 +102,11 @@ const INITIAL_STATE = {
   complicatedFieldOptions: {},
   singleSelectFieldOptions: {},
   openJ4LoginModal: false,
-  complicatedFieldMultiSelectOptions: {}
+  complicatedFieldMultiSelectOptions: {},
+  highlightedContextForMedicalAssistant: [],
+  isMedicalAssistantTriggered: false,
+  shouldHighlightMedicalAssistant: false,
+  assistanceData: []
 }
 
 export default class EditPage extends Component {
@@ -268,7 +276,8 @@ export default class EditPage extends Component {
               timeStartRecording: this.getChapterEndTimeAdjusted(
                 chapters.length - 1
               ),
-              initialKeyword: chapters[chapters.length - 1].keyword
+              initialKeyword: chapters[chapters.length - 1].keyword,
+              isMedicalAssistantTriggered: false
             },
             resolve
           )
@@ -521,6 +530,9 @@ export default class EditPage extends Component {
       start: json.start / 1000,
       end: json.end / 1000
     }))
+    if (localStorage.getItem('continuousSupportStatus') === 'true') {
+      this.rerunMedicalAssistant(true)
+    }
     const sections = schema.fields.reduce((store, field) => {
       if (field.editable)
         store[field.id] = [field.name, ...(field.headerPatterns || [])]
@@ -550,8 +562,46 @@ export default class EditPage extends Component {
     })
     // console.log('capitalizedChapters', capitalizedChapters)
     if (chapters) {
+      if (chapters.map(ch => ch.keyword.toLowerCase()).includes('bedömning')
+      && this.state.isMedicalAssistantTriggered===false
+      ) {
+        this.setState({ isMedicalAssistantTriggered: true })
+        localStorage.setItem('isMedicalAssistantActive', 'true')
+        this.openMedicalAssistant(false)
+      }
       this.setState({ chapters: capitalizedChapters })
     }
+  }
+
+  rerunMedicalAssistant = (isInteractive=false) => {
+    this.openMedicalAssistant(isInteractive)
+  }
+
+  openMedicalAssistant = async (isInteractive=false) => {
+    const { chapters } = this.state
+    await this.checkParam(
+      medicalAssistant.getTranscriptInPlainText(chapters), isInteractive)
+  }
+
+  checkParam = async (value, isInteractive=false) => {
+    const languageCode = localStorage.getItem('language')
+    let language
+    if (languageCode === '0')
+    {language =  'swedish'}
+    else if (languageCode === '2')
+    {language = 'norwegian'}
+    else if (languageCode === '3')
+    {language = 'danish'}
+    else if (languageCode === '1')
+    {language='english'}
+    api
+      .getMedicalAssistantData(value, language, isInteractive)
+      .then((result) => {
+        this.setState({ 
+          assistanceData: medicalAssistant
+            .parseMedicalAssistantData(result.data, value, isInteractive) 
+        })
+      })
   }
 
   connectAudioInput = async () => {
@@ -1067,7 +1117,7 @@ export default class EditPage extends Component {
   }
 
   onTimeUpdate = (currentTime) => {
-    this.setState({ currentTime })
+    this.setState({ currentTime, shouldHighlightMedicalAssistant: false })
   }
 
   onCursorTimeChange = (cursorTime, chapterId) => {
@@ -1117,6 +1167,207 @@ export default class EditPage extends Component {
 
   getCurrentTime = () => {
     this.playerRef.current.updateTime()
+  }
+
+  getUpdatedValuesAndSegments = (chapters, diff, diseaseName, diseaseText, basedOnSymptom) => {
+    const {
+      currentTime,
+      assistanceData,
+      highlightedContextForMedicalAssistant
+    } = this.state
+    const highLigthedWordIndex = assistanceData.filter(disease=>disease.name===diseaseName)[0].foundAtIndex
+    const isValueUpdated = false
+    const isSegmentUpdated = false
+    const updatedValues = []
+    const updatedSegments = []
+    const previousSegments = 0
+    const highlightedChapterAndSegment = highlightedContextForMedicalAssistant.length>0
+      ? highlightedContextForMedicalAssistant.slice(-1).pop(): []
+
+    const newChapters = chapters.map((chapter, i)=>{
+      const chapterInPlainText = medicalAssistant.getTranscriptInPlainText(chapters)
+      const addedSelection = {
+        ...chapter,
+        segments: chapter.segments.map((segment, j)=>{
+          const numberOfPreviousSegments = chapters.filter((chapter, k) => k < i).map(chapter => chapter.segments.length).reduce((a, b) => a + b, 0)
+          if (i===highlightedChapterAndSegment.chapterId && j===highlightedChapterAndSegment.segmentId) { // works only for the first chapter
+
+            let finalSegmentWord = ''
+            const setOfSymbols = ['.', ';', ',']
+            if (basedOnSymptom){
+              if (setOfSymbols.includes(segment.words.trim().slice(-1))) {
+                finalSegmentWord = `${diseaseText} ${diseaseName} ${diff}${segment.words.trim().slice(-1)} `
+              } else {
+                finalSegmentWord = `${diseaseText} ${diseaseName} ${diff} `
+              }
+            } else {
+              if (setOfSymbols.includes(segment.words.trim().slice(-1))) {
+                finalSegmentWord = `${diseaseText} ${diff}${segment.words.trim().slice(-1)} `
+              } else {
+                finalSegmentWord = `${diseaseText} ${diff} `
+              }
+            }
+
+            return {
+              ...segment,
+              words: finalSegmentWord
+            }
+          } else {
+            return segment
+          }
+        })
+      }
+      return addedSelection
+    })
+
+
+    // Set the values
+    const chaptersWithUpdatedValues = newChapters.map((newChapter, i) => {
+      const chapterString = newChapter.segments.map(segment => segment.words).join(' ')
+      return {
+        ...newChapter,
+        values: [{ value: chapterString }]
+      }
+    })
+
+    this.setState({ chapters: chaptersWithUpdatedValues }, () => {
+    // API call to get new ICD-10 code
+    // get full text
+      const fullText = medicalAssistant.getTranscriptInPlainText(chaptersWithUpdatedValues)
+      const languageCode = localStorage.getItem('language')
+      let language
+      if (languageCode === '0') { language = 'swedish' }
+      else if (languageCode === '2') { language = 'norwegian' }
+      else if (languageCode === '3') { language = 'danish' }
+      else if (languageCode ==='1') { language = 'english'}
+
+      api
+        .getMedicalAssistantData(fullText, language)
+        .then((updatedAssistantData) => {
+          const latestAssistanceData = updatedAssistantData.data.diseases
+          const { assistanceData } = this.state
+          let updatedICDCodes = []
+          let updatedAdditionalCodes = []
+          latestAssistanceData.forEach((latestData) => {
+            if (latestData.name[0] === diseaseName) {
+              updatedICDCodes = latestData.icdCodeMap
+              updatedAdditionalCodes = latestData.additionalCodesMap
+            }
+          })
+          const icdCodes = []
+          const additionalIcdCodes = []
+          Object.keys(updatedICDCodes).forEach((icdKey) => {
+            icdCodes.push({
+              value: icdKey,
+              description: updatedICDCodes[icdKey],
+              selectedStatus: false
+            })
+          })
+          Object.keys(updatedAdditionalCodes).forEach((additionalKey) => {
+            additionalIcdCodes.push({
+              value: additionalKey,
+              description: updatedAdditionalCodes[additionalKey],
+              selectedStatus: false
+            })
+          })
+
+          const assistanceDataWithJustICDTenCodeChange = assistanceData.map((aData) => {
+            if (aData.name === diseaseName) {
+              return { ...aData, icdCodes, additionalIcdCodes }
+            } else {
+              return aData
+            }
+          })
+          this.setState({ assistanceData: assistanceDataWithJustICDTenCodeChange })
+        })
+
+    })
+
+  }
+
+
+  updateValue = (updatedValue) => {
+    // console.log('updated value...............->', updatedValue)
+    const { assistanceData, chapters } = this.state
+    if (updatedValue[0].disease) {
+      const updatedAssistanceData = []
+      assistanceData.forEach((disease) => {
+        if (disease.name === updatedValue[0].disease) {
+          updatedAssistanceData.push({
+            ...disease,
+            parameters: updatedValue.map(updatedParameters => updatedParameters.parameters)
+          })
+          const diff = medicalAssistant.getTheDiff(chapters, updatedValue)
+          this.getUpdatedValuesAndSegments(chapters, diff, updatedValue[0].disease, updatedValue[0].nameFoundInContent, updatedValue[0].basedOnSymptom)
+        } else {
+          updatedAssistanceData.push(disease)
+        }
+      })
+      this.setState({ assistanceData: updatedAssistanceData })
+    } else {
+      const icd10Codes = updatedValue.map(disease => {
+        return disease.icdCodes.filter((icdCode) => icdCode.selectedStatus)
+      }).flat()
+      const additionalIcd10Codes = updatedValue.map(disease => {
+        return disease.additionalIcdCodes.filter((additionalIcdCode) => additionalIcdCode.selectedStatus)
+      }).flat()
+      const listOfCodes = [...icd10Codes, ...additionalIcd10Codes]
+      const currentTags = this.state.tags
+      const newTags = listOfCodes.map((code) => {
+        return { value: code.value, description: code.description }
+      })
+      const existedTagsId = this.state.tags['icd-10'].values.map(val => val.value)
+      const finalTags = {
+        ...this.state.tags,
+        'icd-10': {
+          ...this.state.tags['icd-10'],
+          values: [...this.state.tags['icd-10'].values, ...newTags.filter(t => !existedTagsId.includes(t.value))]
+        }
+      }
+      // console.log('final tags:', finalTags)
+      this.setState({ tags: finalTags })
+      this.setState({ assistanceData: updatedValue })
+    }
+  }
+
+  selectedDisease = (selectedSection) => {
+    const { chapters, assistanceData } = this.state
+
+    if(selectedSection!=='ICD-10')
+    {
+      this.setState({
+        shouldHighlightMedicalAssistant: true,
+        highlightedContextForMedicalAssistant: medicalAssistant
+          .highlightSelectedDisease(selectedSection, chapters, assistanceData) })
+    }
+  }
+
+  onKeyPressed = e => e.ctrlKey && e.keyCode === 75 ? this.openMedicalAssistant(false) : {} // ctrl+k
+
+
+  getExpandedObj = () => {
+    const { chapters, assistanceData } = this.state
+    
+    const chapterInPlainText = medicalAssistant.getTranscriptInPlainText(chapters)
+    const theLastSentence = chapterInPlainText.split('.').pop()
+    const pattern = /diagnoskod|code/ig
+    const obj = {}
+    if(assistanceData.length){
+      if (!assistanceData[0].isInteractive){
+        obj['ICD-10'] = <ICDParams updateValue={this.updateValue} />
+        return obj
+      } 
+      if (theLastSentence.match(pattern)) {
+        obj['ICD-10'] = <ICDParams updateValue={this.updateValue} />
+        return obj
+      } else {
+        obj[assistanceData[0].name] = (
+          <Disease id={0} updateValue={this.updateValue} />
+        )
+        return obj
+      }
+    } 
+    return obj
   }
 
   onSelectText = () => {
@@ -1941,7 +2192,9 @@ export default class EditPage extends Component {
       isUploadingMedia,
       complicatedFieldOptions,
       singleSelectFieldOptions,
-      openJ4LoginModal
+      openJ4LoginModal,
+      highlightedContextForMedicalAssistant,
+      shouldHighlightMedicalAssistant
     } = this.state
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
@@ -1970,7 +2223,11 @@ export default class EditPage extends Component {
       >
         {(pageTitle) => (
           <Page preferences title={pageTitle}>
-            <EuiFlexGroup className="transcriptEdit" wrap>
+            <EuiFlexGroup
+              className="transcriptEdit"
+              wrap
+              onKeyDown={this.onKeyPressed}
+              tabIndex="0">
               <EuiFlexItem grow={3}>
                 <Player
                   audioTranscript={originalChapters}
@@ -2009,6 +2266,10 @@ export default class EditPage extends Component {
                   updateComplicatedFields={this.updateComplicatedFields}
                   deleteComplicatedField={this.deleteComplicatedField}
                   service={this.service}
+                  highlightedContextForMedicalAssistant={
+                    highlightedContextForMedicalAssistant
+                  }
+                  isMedicalAssistantEnabled={shouldHighlightMedicalAssistant}
                 />
               </EuiFlexItem>
 
@@ -2023,6 +2284,28 @@ export default class EditPage extends Component {
                       />
                     </EuiFlexItem>
                   )}
+                  <EuiFlexItem
+                    grow={false}
+                    style={{
+                      display:
+                        localStorage.getItem('isMedicalAssistantActive') ===
+                        'true'
+                          ? 'flex'
+                          : 'none'
+                    }}
+                  >
+                    <MedicalAssistantContext.Provider
+                      value={this.state.assistanceData}
+                    >
+                      <AssistantResponse
+                        data={this.state.assistanceData}
+                        updateValue={this.updateValue}
+                        selectedDisease={this.selectedDisease}
+                        rerunMedicalAssistant={this.rerunMedicalAssistant}
+                        expandedObj={this.getExpandedObj()}
+                      />
+                    </MedicalAssistantContext.Provider>
+                  </EuiFlexItem>
                   <EuiFlexItem grow={false}>
                     <Schemas
                       location={this.props.location}
@@ -2077,7 +2360,7 @@ export default class EditPage extends Component {
                           <EuiTextArea
                             value={field.values[0].value}
                             onChange={({ target: { value }}) =>
-                              console.log(value, schema) ||
+                              // console.log(value, schema) 
                               this.onNoMappingFieldValueChange(value, field.id)
                             }
                           />

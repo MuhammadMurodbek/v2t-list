@@ -738,7 +738,8 @@ export default class Editor extends Component {
       complicatedFieldOptions,
       singleSelectFieldOptions,
       updateComplicatedFields,
-      deleteComplicatedField
+      deleteComplicatedField,
+      isMedicalAssistantEnabled
     } = this.props
     const { diff, error } = this.state
     const { preferences } = this.context
@@ -766,6 +767,9 @@ export default class Editor extends Component {
           setKeyword={this.setKeyword}
           recordingChapter={recordingChapter}
           createNewSectionAfterThis={this.createNewSectionAfterThis}
+          highlightedContextForMedicalAssistant={
+            this.props.highlightedContextForMedicalAssistant}
+          isMedicalAssistantEnabled={isMedicalAssistantEnabled}
         />
         {!noDiff && <FullDiff diff={diff} />}
       </>
