@@ -2196,6 +2196,7 @@ export default class EditPage extends Component {
       highlightedContextForMedicalAssistant,
       shouldHighlightMedicalAssistant
     } = this.state
+    const { preferences } = this.context
     if (error) return <Invalid />
     if (!isTranscriptAvailable) {
       return (
@@ -2250,27 +2251,29 @@ export default class EditPage extends Component {
                   isTraining={false}
                 />
                 <EuiSpacer size="xl" />
-                <Editor
-                  originalChapters={originalChapters}
-                  chapters={chapters}
-                  currentTime={currentTime}
-                  onCursorTimeChange={this.onCursorTimeChange}
-                  onSelect={this.onSelectText}
-                  updateTranscript={this.onUpdateTranscript}
-                  schema={schema}
-                  initialCursor={initialCursor}
-                  recordingChapter={recording ? currentChapter : null}
-                  noDiff={mic}
-                  complicatedFieldOptions={complicatedFieldOptions}
-                  singleSelectFieldOptions={singleSelectFieldOptions}
-                  updateComplicatedFields={this.updateComplicatedFields}
-                  deleteComplicatedField={this.deleteComplicatedField}
-                  service={this.service}
-                  highlightedContextForMedicalAssistant={
-                    highlightedContextForMedicalAssistant
-                  }
-                  isMedicalAssistantEnabled={shouldHighlightMedicalAssistant}
-                />
+                {!preferences.hideEditor && (
+                  <Editor
+                    originalChapters={originalChapters}
+                    chapters={chapters}
+                    currentTime={currentTime}
+                    onCursorTimeChange={this.onCursorTimeChange}
+                    onSelect={this.onSelectText}
+                    updateTranscript={this.onUpdateTranscript}
+                    schema={schema}
+                    initialCursor={initialCursor}
+                    recordingChapter={recording ? currentChapter : null}
+                    noDiff={mic}
+                    complicatedFieldOptions={complicatedFieldOptions}
+                    singleSelectFieldOptions={singleSelectFieldOptions}
+                    updateComplicatedFields={this.updateComplicatedFields}
+                    deleteComplicatedField={this.deleteComplicatedField}
+                    service={this.service}
+                    highlightedContextForMedicalAssistant={
+                      highlightedContextForMedicalAssistant
+                    }
+                    isMedicalAssistantEnabled={shouldHighlightMedicalAssistant}
+                  />
+                )}
               </EuiFlexItem>
 
               <EuiFlexItem grow={1}>

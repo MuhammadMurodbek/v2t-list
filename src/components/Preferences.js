@@ -69,6 +69,8 @@ const Flyout = ({ visible, onClose }) => {
     setPreferences({ externalMode })
   const setEditReadOnly = ({ target: { checked: editReadOnly }}) =>
     setPreferences({ editReadOnly })
+  const setHideEditor = ({ target: { checked: hideEditor }}) =>
+    setPreferences({ hideEditor })
   const setStopButtonVisibilityStatus = ({
     target: { checked: stopButtonVisibilityStatus }
   }) => setPreferences({ stopButtonVisibilityStatus })
@@ -202,6 +204,13 @@ const Flyout = ({ visible, onClose }) => {
               }
               checked={preferences.editReadOnly}
               onChange={setEditReadOnly}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="" fullWidth={true}>
+            <EuiSwitch
+              label={<EuiI18n token="hideEditor" default="Hide editor" />}
+              checked={preferences.hideEditor}
+              onChange={setHideEditor}
             />
           </EuiFormRow>
           <EuiSpacer size="l" />

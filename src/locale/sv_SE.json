@@ -174,5 +174,6 @@
   "thePatient": "patienten",
   "additionaCode": "Mest använda koder för",
   "activateMedicalAssistant": "Aktivera medicinsk assistent",
-  "oupphörlig": "Interaktiv assistans"
+  "oupphörlig": "Interaktiv assistans",
+  "hideEditor": "Dölj redaktör"
 }
