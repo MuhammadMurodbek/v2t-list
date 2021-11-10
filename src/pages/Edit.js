@@ -106,7 +106,9 @@ const INITIAL_STATE = {
   highlightedContextForMedicalAssistant: [],
   isMedicalAssistantTriggered: false,
   shouldHighlightMedicalAssistant: false,
-  assistanceData: []
+  assistanceData: [],
+  metricsStartTime: 0,
+  editSeconds: 0
 }
 
 export default class EditPage extends Component {
@@ -687,7 +689,7 @@ export default class EditPage extends Component {
     } catch (e) {
       isTranscriptAvailable = false
     }
-    this.setState({ isTranscriptAvailable })
+    this.setState({ isTranscriptAvailable, metricsStartTime: new Date().getTime() })
   }
 
   initiate = async () => {
@@ -1398,7 +1400,12 @@ export default class EditPage extends Component {
 
   sendToCoworker = async () => {
     const { id } = this.props
-    
+    const { metricsStartTime } = this.state
+    const metricsEndTime = new Date().getTime()
+
+    const difference = metricsStartTime - metricsEndTime
+    const editSeconds = Math.abs(difference / 1000)
+
     try {
       const missingSections = await this.getMissingSections()
       if (missingSections.length) {
@@ -1421,10 +1428,14 @@ export default class EditPage extends Component {
       const [{ requiresCredentials }] = exports
 
       if (requiresCredentials) {
-        this.setState({ openJ4LoginModal: true })
+        this.setState({ openJ4LoginModal: true, editSeconds })
         return
       }
-      await api.approveTranscription(id)
+      await api.approveTranscription(id, {
+        metrics: {
+          edit_seconds: editSeconds
+        }
+      })
       await renderTranscriptionState(id)
 
     } catch (e) {
@@ -2194,7 +2205,8 @@ export default class EditPage extends Component {
       singleSelectFieldOptions,
       openJ4LoginModal,
       highlightedContextForMedicalAssistant,
-      shouldHighlightMedicalAssistant
+      shouldHighlightMedicalAssistant,
+      editSeconds
     } = this.state
     const { preferences } = this.context
     if (error) return <Invalid />
@@ -2462,6 +2474,7 @@ export default class EditPage extends Component {
             />
             <J4Login
               transcriptionId={this.props.id}
+              editSeconds={editSeconds}
               onClose={() => this.setState({ openJ4LoginModal: false })}
               isOpen={openJ4LoginModal}/>
           </Page>

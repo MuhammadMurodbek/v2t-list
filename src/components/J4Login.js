@@ -19,7 +19,8 @@ import { renderTranscriptionState } from '../utils'
 const J4Login = ({
   onClose,
   isOpen,
-  transcriptionId
+  transcriptionId,
+  editSeconds
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [username, setUsername] = useState('')
@@ -42,7 +43,10 @@ const J4Login = ({
             name: 'secret',
             value: password
           }
-        ]
+        ],
+        metrics: {
+          edit_seconds: editSeconds
+        }
       })
       await renderTranscriptionState(transcriptionId)
       onClose()
@@ -114,5 +118,6 @@ export default J4Login
 J4Login.propTypes = {
   onClose: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
-  transcriptionId: PropTypes.string.isRequired
+  transcriptionId: PropTypes.string.isRequired,
+  editSeconds: PropTypes.number.isRequired
 }
