@@ -20,7 +20,8 @@ const J4Login = ({
   onClose,
   isOpen,
   transcriptionId,
-  editSeconds
+  editSeconds,
+  outgoingChannel
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [username, setUsername] = useState('')
@@ -35,11 +36,12 @@ const J4Login = ({
       await api.approveTranscription(transcriptionId, {
         channelSettings: [
           {
-            channel: 'J4',
+            channel: outgoingChannel,
             name: 'principal',
             value: username
-          }, {
-            channel: 'J4',
+          },
+          {
+            channel: outgoingChannel,
             name: 'secret',
             value: password
           }
@@ -69,7 +71,7 @@ const J4Login = ({
         >
           <EuiModalHeader>
             <EuiTitle>
-              <h3>Login for J4</h3>
+              <h3>Login for {`${outgoingChannel}`}</h3>
             </EuiTitle>
           </EuiModalHeader>
           <EuiModalBody>
@@ -119,5 +121,6 @@ J4Login.propTypes = {
   onClose: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
   transcriptionId: PropTypes.string.isRequired,
-  editSeconds: PropTypes.number.isRequired
+  editSeconds: PropTypes.number.isRequired,
+  outgoingChannel: PropTypes.number.isRequired
 }

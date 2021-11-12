@@ -108,7 +108,8 @@ const INITIAL_STATE = {
   shouldHighlightMedicalAssistant: false,
   assistanceData: [],
   metricsStartTime: 0,
-  editSeconds: 0
+  editSeconds: 0,
+  outgoingChannel: ''
 }
 
 export default class EditPage extends Component {
@@ -686,9 +687,15 @@ export default class EditPage extends Component {
       } else {
         throw new ReferenceError()
       }
+      if(transcriptState.exports[0]) {
+        if(transcriptState.exports[0].id) {
+          this.setState({ outgoingChannel: transcriptState.exports[0] })
+        }
+      }
     } catch (e) {
       isTranscriptAvailable = false
     }
+    
     this.setState({ isTranscriptAvailable, metricsStartTime: new Date().getTime() })
   }
 
@@ -2206,7 +2213,8 @@ export default class EditPage extends Component {
       openJ4LoginModal,
       highlightedContextForMedicalAssistant,
       shouldHighlightMedicalAssistant,
-      editSeconds
+      editSeconds,
+      outgoingChannel
     } = this.state
     const { preferences } = this.context
     if (error) return <Invalid />
@@ -2476,7 +2484,9 @@ export default class EditPage extends Component {
               transcriptionId={this.props.id}
               editSeconds={editSeconds}
               onClose={() => this.setState({ openJ4LoginModal: false })}
-              isOpen={openJ4LoginModal}/>
+              isOpen={openJ4LoginModal}
+              outgoingChannel={outgoingChannel}
+            />
           </Page>
         )}
       </EuiI18n>
