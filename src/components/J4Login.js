@@ -36,12 +36,12 @@ const J4Login = ({
       await api.approveTranscription(transcriptionId, {
         channelSettings: [
           {
-            channel: outgoingChannel,
+            channel: outgoingChannel.id,
             name: 'principal',
             value: username
           },
           {
-            channel: outgoingChannel,
+            channel: outgoingChannel.id,
             name: 'secret',
             value: password
           }
