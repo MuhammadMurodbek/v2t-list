@@ -71,7 +71,7 @@ const J4Login = ({
         >
           <EuiModalHeader>
             <EuiTitle>
-              <h3>Login for {`${outgoingChannel}`}</h3>
+              <h3>Login for {`${outgoingChannel.id}`}</h3>
             </EuiTitle>
           </EuiModalHeader>
           <EuiModalBody>
