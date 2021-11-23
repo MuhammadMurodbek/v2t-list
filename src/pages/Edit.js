@@ -1434,12 +1434,13 @@ export default class EditPage extends Component {
         return
       }
       const { data: { exports }} = await api.transcriptState(id)
-      const [{ requiresCredentials }] = exports
-
-      if (requiresCredentials) {
-        this.setState({ openJ4LoginModal: true, editSeconds })
+      
+      if (Array.isArray(exports) && exports.length) {
+        const requiresCredentials = exports[0].requiresCredentials || false
+        this.setState({ openJ4LoginModal: requiresCredentials, editSeconds })
         return
       }
+
       await api.approveTranscription(id, {
         metrics: {
           edit_seconds: editSeconds

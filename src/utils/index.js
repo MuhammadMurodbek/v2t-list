@@ -2,6 +2,7 @@ import api from '../api'
 import {
   addErrorToast, addSuccessToast
 } from '../components/GlobalToastList'
+import _ from 'lodash'
 
 
 export async function renderTranscriptionState(id) {
@@ -16,7 +17,12 @@ export async function renderTranscriptionState(id) {
       throw new Error(`Request did not succeed: ${response.status}`)
     }
 
-    const [{ error, state }] = response.data.exports
+    const { exports } = response.data
+
+    const state = (Array.isArray(exports) && exports.length)
+      ? exports[0].state : response.data.state
+    const error = (Array.isArray(exports) && exports.length)
+      ? exports[0].error : null
 
     failedTries = 0
 
@@ -26,8 +32,9 @@ export async function renderTranscriptionState(id) {
     case 'PENDING':
       return renderTranscriptionState(id)
     case 'EXPORTED':
+    case 'APPROVED':
       addSuccessToast('Success!', 'Transcript exported successfully')
-      window.location.href = '/'
+      _.delay(() => window.location.href = '/', 3000)
       return
     default:
       throw new Error(`Unsupported state type ${state}`)
