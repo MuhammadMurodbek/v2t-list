@@ -52,7 +52,7 @@ import interpolateArray from '../models/interpolateArray'
 import ListOfHeaders from '../components/ListOfHeaders'
 import EventEmitter from '../models/events'
 import J4Login from '../components/J4Login'
-import { delay, isEmpty } from 'lodash'
+import _ from 'lodash'
 import { renderTranscriptionState } from '../utils'
 import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
@@ -671,6 +671,7 @@ export default class EditPage extends Component {
 
   checkTranscriptStateAndLoad = async () => {
     const { id, mic } = this.props
+    const { outgoingChannel } = this.state
     let isTranscriptAvailable = true
     if (mic) return await this.initiate()
     //if user can create the audio it doesn't need to exist yet
@@ -681,16 +682,17 @@ export default class EditPage extends Component {
         VALID_TRANSCRIPT_STATES.includes(transcriptState.state)
       ) {
         if (transcriptState.state==='ERROR') {
-          delay(renderTranscriptionState, 500, id)
+          _.delay(renderTranscriptionState, 500, id)
         }
         await this.initiate()
       } else {
         throw new ReferenceError()
       }
-      if(transcriptState.exports[0]) {
-        if(transcriptState.exports[0].id) {
-          this.setState({ outgoingChannel: transcriptState.exports[0] })
-        }
+
+      if (_.has(transcriptState, ['exports'])) {
+        const { exports } = transcriptState
+        const _outgoingChannel = Array.isArray(exports) && exports.length ? exports[0] : outgoingChannel
+        this.setState({ outgoingChannel: _outgoingChannel })
       }
     } catch (e) {
       isTranscriptAvailable = false
@@ -1649,7 +1651,7 @@ export default class EditPage extends Component {
   getComplicatedFieldsMultiSelectValues = (fields) => {
     const { complicatedFieldMultiSelectOptions } = this.state
 
-    if (isEmpty(complicatedFieldMultiSelectOptions)) return fields
+    if (_.isEmpty(complicatedFieldMultiSelectOptions)) return fields
 
     return fields.map((field) => {
       if (complicatedFieldMultiSelectOptions[field.id]
