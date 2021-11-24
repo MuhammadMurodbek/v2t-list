@@ -29,7 +29,7 @@ const Schemas = ({ schemas, schemaId, onUpdate, location }) => {
         onUpdate(found.value)
       }
     }
-  }, [schemaId, schemas.length])
+  }, [schemaId, schemas])
 
   const onSchemaChange = (schemas) => {
     if (!schemas.length) return
