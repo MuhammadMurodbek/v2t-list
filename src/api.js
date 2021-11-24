@@ -173,9 +173,7 @@ const approveTranscription = (transcriptionId, optionalSettings) =>{
   return axios.post(
     `${URLS.transcriptionV2}/${transcriptionId}/approve`,
     { ...optionalSettings }
-  ).catch((error)=>{
-    console.log('approving error', error)
-  })
+  )
 }
 
 const rejectTranscription = (transcriptionId) =>

@@ -1437,8 +1437,10 @@ export default class EditPage extends Component {
       
       if (Array.isArray(exports) && exports.length) {
         const requiresCredentials = exports[0].requiresCredentials || false
-        this.setState({ openJ4LoginModal: requiresCredentials, editSeconds })
-        return
+        if (requiresCredentials) {
+          this.setState({ openJ4LoginModal: true, editSeconds })
+          return
+        }
       }
 
       await api.approveTranscription(id, {
@@ -1450,10 +1452,10 @@ export default class EditPage extends Component {
 
     } catch (e) {
       if (e instanceof Error) {
-        console.error(e.stack)
+        const errorMessage = _.has(e, 'response.data.message') ? e.response.data.message : e.message
         addErrorToast(
           <EuiI18n token="error" default="Error" />,
-          e.message
+          errorMessage
         )
       }
       console.error(e)
