@@ -47,7 +47,7 @@ const J4Login = ({
           }
         ],
         metrics: {
-          edit_seconds: editSeconds
+          editSeconds
         }
       })
       await renderTranscriptionState(transcriptionId)

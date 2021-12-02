@@ -1445,7 +1445,7 @@ export default class EditPage extends Component {
 
       await api.approveTranscription(id, {
         metrics: {
-          edit_seconds: editSeconds
+          editSeconds
         }
       })
       await renderTranscriptionState(id)
