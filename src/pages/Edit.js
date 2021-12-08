@@ -352,7 +352,16 @@ export default class EditPage extends Component {
       }
       const startTime = chunk.start + initialTime
       const endTime = chunk.end + initialTime
-      const segment = { words: `${chunk.word} `, startTime, endTime }
+      let wordFromChunk = ''
+      if (chunk.word) {
+        if (chunk.word === '\n') {
+          wordFromChunk = '\n'
+        } else {
+          wordFromChunk = `${chunk.word} `
+        }
+      }
+      const segment = { words: `${wordFromChunk}`, startTime, endTime }
+      // const segment = { words: `${chunk.word} `, startTime, endTime }
       const chapter = store.find((chapter) => chapter.keyword === keyword) || {
         keyword,
         segments: []
@@ -526,8 +535,6 @@ export default class EditPage extends Component {
       initialKeyword,
       tagRequestCache
     } = this.state
-    if (!recording || Date.now() < this.ignoreMessagesTo) return
-    // throw away changes that comes after stoped
     const chunks = JSON.parse(message.toString('utf-8')).map((json) => ({
       word: json.text,
       start: json.start / 1000,
