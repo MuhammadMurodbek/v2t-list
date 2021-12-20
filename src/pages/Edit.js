@@ -2428,7 +2428,7 @@ export default class EditPage extends Component {
                         label={
                           <EuiI18n
                             token="sendToCoWorker"
-                            default="Approve and send."
+                            default="Approve and send"
                           />
                         }
                         checked={approved}
