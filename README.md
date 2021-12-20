@@ -17,7 +17,7 @@ In the project directory, you can run:
 To create release:
 
 
-Run latest Master branch pipeline with RELEASE flag = TRUE
+Run latest Main branch pipeline with RELEASE flag = TRUE
 
 
 Copy release version from pipeline

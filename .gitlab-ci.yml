@@ -107,7 +107,7 @@ stages:
 .release_condition: &release_condition
   only:
     refs:
-      - master
+      - main
   except:
     variables:
       - $RELEASE == null
@@ -204,6 +204,6 @@ deploy-to-dev:
   variables:
     GIT_STRATEGY: none
   only:
-    - master
+    - main
   dependencies:
     - docker-static
