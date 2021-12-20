@@ -17,7 +17,7 @@ const ApproveButtons = ({ item }) => {
         label={
           <EuiI18n
             token="sendToCoWorker"
-            default="Approved, ready to send to Co-worker."
+            default="Approve and send to Co-worker."
           />
         }
         checked={approved}
