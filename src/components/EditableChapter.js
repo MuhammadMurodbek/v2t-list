@@ -32,10 +32,12 @@ const EditableChapter = ({
   const sectionHeader = field ? field.name : ''
   const isMultiSelectEnabled = field ? field.multiSelect : false
   let isSingleSelectEnabled = false
-  if (!isMultiSelectEnabled) {
-    if (field) {
-      if (field.choiceValues) {
-        if (field.choiceValues.length > 0) {
+  let isComplicatedSelect = false
+  if (field) {
+    if (field.choiceValues) {
+      if (field.choiceValues.length > 0) {
+        isComplicatedSelect = true
+        if (!isMultiSelectEnabled) {
           isSingleSelectEnabled = true
         }
       }
@@ -97,6 +99,7 @@ const EditableChapter = ({
           updateKey={setKeyword}
           chapterId={chapterId}
           chapters={chapters}
+          isComplicatedSelect={isComplicatedSelect}
         />
         {(isMultiSelectEnabled && complicatedFieldOptions[sectionHeader]) && (
           <>

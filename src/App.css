@@ -83,11 +83,19 @@ p {
   cursor: pointer;
 }
 
-.sectionHeader {
+.sectionHeader, .complicatedSelect {
   max-width: 400px !important;
 }
 
-.sectionHeader + * {
+.complicatedSelect div {
+  background: #eaeaea !important;
+}
+
+.complicatedSelect div div div:hover {
+  background: #eaeaea !important;
+}
+
+.sectionHeader + *, .complicatedSelect + * {
   margin-top: 10px;
 }
 
@@ -96,6 +104,11 @@ p {
   color: #2a292c;
   font-weight: 600;
   white-space: normal !important;
+}
+
+.complicatedSelect span {
+  font-size: 0.85rem;
+  font-weight: bold;
 }
 
 .fullDiffArea {

@@ -8,7 +8,8 @@ const SectionHeader = ({
   selectedHeader,
   updateKey,
   chapterId,
-  chapters
+  chapters,
+  isComplicatedSelect
 }) => {
   const [selectedKeyword, setSelectedKeyword] = useState(selectedHeader)
   const [isInvalid, setIsInvalid] = useState(false)
@@ -50,13 +51,14 @@ const SectionHeader = ({
           aria-label="Select a keyword"
           isInvalid={isInvalid} 
           error={translation}>
-          < EuiI18n
+          <EuiI18n
             token="selectAKeyword"
             default="Select A Keyword"
           >
             {(translation) => (
               <EuiComboBox
-                className="sectionHeader"
+                className={
+                  isComplicatedSelect ? 'complicatedSelect' : 'sectionHeader'}
                 placeholder={translation}
                 options={keywordsOptions}
                 selectedOptions={
