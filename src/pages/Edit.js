@@ -56,6 +56,7 @@ import _ from 'lodash'
 import { renderTranscriptionState } from '../utils'
 import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
+import '../styles/simple-player.css'
 
 import MedicalAssistantContext from '../context/MedicalAssistantContext'
 import medicalAssistant from '../models/medicalAssistant'

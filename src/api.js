@@ -227,20 +227,6 @@ const updateTranscriptionV2 = (
   })
 }
 
-const trainingGetNext = () => axios.get(URLS.trainingTranscript)
-
-
-
-const trainingUpdate = (transcriptionId, updatedText) =>
-  axios.post(`${URLS.trainingTranscript}/${transcriptionId}/status`, {
-    text: updatedText
-  })
-
-const trainingReject = (transcriptionId) =>
-  axios.post(`${URLS.trainingTranscript}/${transcriptionId}/status`, {
-    reject: true
-  })
-
 const getSchemas = (payload) => axios.post(URLS.schemaSearch, {
   start: 0,
   size: 1000,
@@ -318,9 +304,6 @@ export default {
   loadTickets,
   loadTranscription,
   logout,
-  trainingGetNext,
-  trainingReject,
-  trainingUpdate,
   updateTranscription,
   uploadMedia,
   uploadMediaLive,

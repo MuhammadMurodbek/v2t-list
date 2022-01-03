@@ -18,7 +18,6 @@ import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import TranscriptionPage from './pages/Transcription'
 import UploadPage from './pages/Upload'
-import TrainingPage from './pages/Training'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
 import Preference from './models/Preference'
@@ -245,12 +244,6 @@ class App extends Component {
                     id: 'Upload',
                     name: <EuiI18n token="upload" default="Upload" />,
                     onClick: () => this.selectItem('Upload')
-                  },
-                  {
-                    href: '/#/training',
-                    id: 'Training',
-                    name: <EuiI18n token="training" default="Training" />,
-                    onClick: () => this.selectItem('Training')
                   },
                   {
                     href: '/#/live-diktering',
@@ -486,7 +479,6 @@ class App extends Component {
                   )}
                 />
                 <Route path="/upload/" render={() => <UploadPage />} />
-                <Route path="/training/" render={() => <TrainingPage />} />
                 <Route
                   path="/live-diktering/:id"
                   render={(props) => {
