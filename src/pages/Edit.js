@@ -1726,8 +1726,22 @@ export default class EditPage extends Component {
     this.updateSchemaId(schemas[0].id)
   }
 
+  mergeArrays = async (allChapters, chapters) => {
+    for(let i = 0, l = allChapters.length; i < l; i++) {
+      for(let j = 0, ll = chapters.length; j < ll; j++) {
+        if(allChapters[i].keyword === chapters[j].keyword) {
+          allChapters.splice(i, 1, chapters[j])
+          allChapters[i].segments.forEach(i => i.words = i.words.trim())
+          delete allChapters[i].id
+          break
+        }
+      }
+    }
+  }
+
   updateSchemaId = async (schemaId) => {
-    const { allChapters } = this.state
+    const { allChapters, chapters } = this.state
+    this.mergeArrays(allChapters, chapters)
     const { data: originalSchema } =
       (await api.getSchema(schemaId).catch(this.onError)) || {}
     if (!originalSchema) return
