@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-async-promise-executor */
@@ -536,6 +537,7 @@ export default class EditPage extends Component {
       initialKeyword,
       tagRequestCache
     } = this.state
+    console.log('message', message)
     const chunks = JSON.parse(message.toString('utf-8')).map((json) => ({
       word: json.text,
       start: json.start / 1000,
@@ -549,14 +551,22 @@ export default class EditPage extends Component {
         store[field.id] = [field.name, ...(field.headerPatterns || [])]
       return store
     }, {})
-    const keyword =
-      initialKeyword ||
-      chaptersBeforeRecording[chaptersBeforeRecording.length - 1].keyword
+    let keyword 
+    if (chaptersBeforeRecording.length===0) {
+      keyword = schema.fields.filter(field => field.default)[0].name
+    } else {
+      keyword =
+        initialKeyword ||
+        chaptersBeforeRecording[chaptersBeforeRecording.length - 1].keyword
+    }
+    
     const chapters = this.parseAudioResponse(
       chunks,
       keyword,
       timeStartRecording
     )
+    console.log('chapters -------', chapters)
+    console.log('chunks -------', chunks)
     
     const capitalizedChapters = chapters.map((chapter, chapterIndex)=>{
       const updatedSegments = []
@@ -1928,6 +1938,7 @@ export default class EditPage extends Component {
           }
         })
       } else {
+        console.log('allchapters -------', chapters)
         this.setState({ chapters }, resolve)
         this.service.send({
           type: 'UPDATE_TIME_MACHINE', data: { ...this.state, chapters }

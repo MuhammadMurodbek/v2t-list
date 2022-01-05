@@ -514,6 +514,7 @@ class App extends Component {
 
 const NewLiveTranscription = ({ search }) => {
   const [redirect, setRedirect] = useState(null)
+  console.log('starting new live transcript')
 
   useEffect(() => {
     startSession().catch((e) => {
@@ -576,7 +577,7 @@ const NewLiveTranscription = ({ search }) => {
     let transcriptId = null
     try {
       const { data: { id: sessionId }} = await api.getActiveLiveSession()
-
+      console.log('sessionId', sessionId)
       if (sessionId) {
         transcriptId = sessionId
       } else {
