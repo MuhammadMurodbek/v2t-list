@@ -38,12 +38,12 @@ const J4Login = ({
           {
             channel: outgoingChannel.id,
             name: 'principal',
-            value: username
+            value: username.trim()
           },
           {
             channel: outgoingChannel.id,
             name: 'secret',
-            value: password
+            value: password.trim()
           }
         ],
         metrics: {
