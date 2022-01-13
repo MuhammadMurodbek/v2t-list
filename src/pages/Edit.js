@@ -58,6 +58,7 @@ import { renderTranscriptionState } from '../utils'
 import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
 import '../styles/simple-player.css'
+import { v4 as uuidv4 } from 'uuid'
 
 import MedicalAssistantContext from '../context/MedicalAssistantContext'
 import medicalAssistant from '../models/medicalAssistant'
@@ -154,7 +155,18 @@ export default class EditPage extends Component {
     EventEmitter.subscribe(EVENTS.SEND, this.onSave)
     EventEmitter.subscribe(EVENTS.APPROVE_CHANGE, this.onApprovedChange)
     await this.checkTranscriptStateAndLoad()
-    if (mic) this.initiateMQTT()
+    if (mic) {
+      const token = localStorage.getItem('token')
+      const username = jwtDecode(token).sub
+      this.client = connect(this.getMQTTUrl(), { username, password: token })
+      this.client.on('connect', this.onMQTTConnect)
+      const message = {
+        sessionId: uuidv4(),
+        audioBase64: ''
+      }
+      this.client.publish(`audio/${username}`, JSON.stringify(message))
+      this.initiateMQTT()
+    }
   }
 
   componentWillUnmount() {
@@ -538,11 +550,13 @@ export default class EditPage extends Component {
       tagRequestCache
     } = this.state
     console.log('message', message)
-    const chunks = JSON.parse(message.toString('utf-8')).map((json) => ({
-      word: json.text,
-      start: json.start / 1000,
-      end: json.end / 1000
-    }))
+    const chunks = chaptersBeforeRecording.length===0 ? 
+      [{ 'word': '', 'start': 0, 'end': 0 }] : 
+      JSON.parse(message.toString('utf-8')).map((json) => ({
+        word: json.text,
+        start: json.start / 1000,
+        end: json.end / 1000
+      }))
     if (localStorage.getItem('continuousSupportStatus') === 'true') {
       this.rerunMedicalAssistant(true)
     }
