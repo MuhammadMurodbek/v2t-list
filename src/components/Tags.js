@@ -20,7 +20,7 @@ import '../styles/tags.css'
 import { EuiI18n } from '@patronum/eui'
 import { addUnexpectedErrorToast } from './GlobalToastList'
 
-export const TAG_NAMESPACES = ['icd-10', 'kva']
+export const TAG_NAMESPACES = ['icd-10', 'kva', 'icf']
 
 export default class Tags extends Component {
   static propTypes = {
@@ -33,7 +33,8 @@ export default class Tags extends Component {
     isLoading: false,
     selectedOptions: {
       'icd-10': [],
-      'kva': []
+      'kva': [],
+      'icf': []
     },
     options: {},
     tags: {}
@@ -145,7 +146,8 @@ export default class Tags extends Component {
     this.setState({
       selectedOptions: {
         'icd-10': [],
-        kva: []
+        'kva': [],
+        'icf': []
       }
     })
   }
