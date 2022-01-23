@@ -1795,6 +1795,15 @@ export default class EditPage extends Component {
       type: 'UPDATE_TIME_MACHINE', data: { ...this.state, ...updatedState }
     })
     localStorage.setItem('lastUsedSchema', schema.id)
+    if(!schemaWithMappings.fields.length) {
+      addWarningToast(
+        <EuiI18n token="warning" default="Warning" />,
+        <EuiI18n
+          token="schemaEmptyFields"
+          default={`${schemaWithMappings.name} schema is not editable`}
+        />
+      )
+    }
   }
 
   onCreateReadOnly = (keyword, e) => {
