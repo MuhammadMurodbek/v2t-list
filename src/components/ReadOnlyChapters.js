@@ -9,7 +9,8 @@ import {
   EuiForm,
   EuiFormRow,
   EuiDatePicker,
-  EuiComboBox
+  EuiComboBox,
+  EuiAccordion
 } from '@patronum/eui'
 import moment from 'moment'
 import '../styles/editor.css'
@@ -21,40 +22,46 @@ const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
   if (!chapters || !chapters.length) return null
   const { preferences } = useContext(PreferenceContext)
   return (
-    <EuiForm>
-      <EuiFlexGroup direction="column" gutterSize="m">
-        {chapters.map(
-          ({ keyword, name, values, choiceValues, multiSelect }, key) => (
-            <EuiFlexItem key={key}>
-              <EuiFlexGroup>
-                <EuiFlexItem>
-                  <EuiFormRow style={{ paddingBottom: 0 }} label={name}>
-                    <span></span>
-                  </EuiFormRow>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  {values ? (
-                    !preferences.editReadOnly ? (
-                      <ReadOnlyFields values={values} />
+    <EuiAccordion
+      id="readOnlyChaptersMetadata"
+      initialIsOpen={true}
+      buttonContent="Metadata"
+    >
+      <EuiForm style={{ paddingTop: 16 }}>
+        <EuiFlexGroup direction="column" gutterSize="m">
+          {chapters.map(
+            ({ keyword, name, values, choiceValues, multiSelect }, key) => (
+              <EuiFlexItem key={key}>
+                <EuiFlexGroup>
+                  <EuiFlexItem>
+                    <EuiFormRow style={{ paddingBottom: 0 }} label={name}>
+                      <span></span>
+                    </EuiFormRow>
+                  </EuiFlexItem>
+                  <EuiFlexItem>
+                    {values ? (
+                      !preferences.editReadOnly ? (
+                        <ReadOnlyFields values={values} />
+                      ) : (
+                        <EditableFields
+                          keyword={keyword}
+                          values={values}
+                          choiceValues={choiceValues}
+                          multiSelect={multiSelect}
+                          onUpdate={onUpdate}
+                        />
+                      )
                     ) : (
-                      <EditableFields
-                        keyword={keyword}
-                        values={values}
-                        choiceValues={choiceValues}
-                        multiSelect={multiSelect}
-                        onUpdate={onUpdate}
-                      />
-                    )
-                  ) : (
-                    <EuiFieldText onBlur={(e) => onCreate(keyword, e)} />
-                  )}
-                </EuiFlexItem>
-              </EuiFlexGroup>
-            </EuiFlexItem>
-          )
-        )}
-      </EuiFlexGroup>
-    </EuiForm>
+                      <EuiFieldText onBlur={(e) => onCreate(keyword, e)} />
+                    )}
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+              </EuiFlexItem>
+            )
+          )}
+        </EuiFlexGroup>
+      </EuiForm>
+    </EuiAccordion>
   )
 }
 
