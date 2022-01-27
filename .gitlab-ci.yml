@@ -136,8 +136,8 @@ build-static:
     - node_modules/
     - .yarn
   before_script:
-    - *common_scripts
     - apt update && apt install -y jq python2-minimal build-essential
+    - *common_scripts
     - set_npm_token
     - yarn config set cache-folder .yarn
     - yarn install
