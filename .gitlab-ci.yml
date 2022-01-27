@@ -128,7 +128,7 @@ bump-version:
 ##################################################
 build-static:
   <<: *not_release_condition
-  image: node:lts-jessie
+  image: node:14-bullseye
   stage: build
   cache:
     key: ${CI_COMMIT_REF_SLUG}
@@ -137,8 +137,8 @@ build-static:
     - .yarn
   before_script:
     - *common_scripts
-    - set_npm_token
     - apt update && apt install -y jq
+    - set_npm_token
     - yarn config set cache-folder .yarn
     - yarn install
   script:

@@ -10,7 +10,7 @@ import {
   EuiSideNav,
   EuiButtonIcon,
   EuiI18n
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
 import collapsedLogo from './img/medspeech+Inovia_logo_rgb_collapsed.png'
 import PreferencesProvider from './components/PreferencesProvider'

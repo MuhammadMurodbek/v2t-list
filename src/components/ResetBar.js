@@ -6,7 +6,7 @@ import {
   EuiButton,
   EuiBottomBar,
   EuiButtonEmpty
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 
 const ResetBar = ({ showCancelBar, showHideCancelBox, resetState }) => (
   <EuiBottomBar

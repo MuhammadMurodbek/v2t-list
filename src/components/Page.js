@@ -4,7 +4,7 @@ import {
   EuiPageBody, EuiPageContent, EuiPageContentHeader,
   EuiPageContentHeaderSection, EuiPageContentBody,
   EuiTitle
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import PropTypes from 'prop-types'
 import Preferences from './Preferences'
 

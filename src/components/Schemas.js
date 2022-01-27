@@ -6,7 +6,7 @@ import {
   EuiFormRow,
   EuiComboBox,
   EuiI18n
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import '../App.css'
 
 const Schemas = ({ schemas, schemaId, onUpdate, location }) => {

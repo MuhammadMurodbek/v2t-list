@@ -7,7 +7,7 @@ import {
   EuiButtonIcon,
   EuiSpacer,
   RIGHT_ALIGNMENT
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import { ParamOptionsMultiple } from './ParamOptionsMultiple'
 import '../../styles/tags.css'
 

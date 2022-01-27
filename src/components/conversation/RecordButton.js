@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { EuiIcon } from '@patronum/eui'
+import { EuiIcon } from '@inoviaab/eui'
 import mic from '../../img/mic.svg'
 
 const RecordButton = ({ isRecording }) => {

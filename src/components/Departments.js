@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { EuiForm, EuiFormRow, EuiComboBox, EuiI18n } from '@patronum/eui'
+import { EuiForm, EuiFormRow, EuiComboBox, EuiI18n } from '@inoviaab/eui'
 import '../App.css'
 
 const Departments = ({ departments, departmentId, onUpdate }) => {

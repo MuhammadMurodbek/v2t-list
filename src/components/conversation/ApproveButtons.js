@@ -3,7 +3,7 @@ import {
   EuiButton,
   EuiSwitch,
   EuiI18n
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import PropTypes from 'prop-types'
 
 const ApproveButtons = ({ item }) => {

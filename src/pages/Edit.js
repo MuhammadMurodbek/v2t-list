@@ -26,7 +26,7 @@ import {
   EuiTextArea,
   EuiToolTip,
   EuiComboBox
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import { connect } from 'mqtt'
 import jwtDecode from 'jwt-decode'
 import Invalid from './Invalid'

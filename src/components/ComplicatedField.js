@@ -8,7 +8,7 @@ import {
   EuiFlexItem,
   EuiI18n,
   EuiToolTip
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 
 const ComplicatedField = ({
   complicatedFieldOptions,

@@ -13,7 +13,7 @@ import {
   EuiI18n,
   EuiFlexGroup,
   EuiFlexItem
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import io from 'socket.io-client'
 
 const ThirdColumn = ({ item, updateTranscription }) => {

@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { EuiTextColor } from '@patronum/eui'
+import { EuiTextColor } from '@inoviaab/eui'
 
 const AddedLine = ({ diff, prevDiff, nextDiff }) => (
   <div>

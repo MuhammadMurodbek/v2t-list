@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { EuiText } from '@patronum/eui'
+import { EuiText } from '@inoviaab/eui'
 import PropTypes from 'prop-types'
 import Chunk from '../components/Chunk'
 

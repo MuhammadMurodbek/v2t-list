@@ -13,11 +13,11 @@ import {
   EuiPanel,
   EuiFlexGroup,
   EuiIcon
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 
 import api from '../api'
 import '../styles/tags.css'
-import { EuiI18n } from '@patronum/eui'
+import { EuiI18n } from '@inoviaab/eui'
 import { addUnexpectedErrorToast } from './GlobalToastList'
 
 export const TAG_NAMESPACES = ['icd-10', 'kva', 'icf']

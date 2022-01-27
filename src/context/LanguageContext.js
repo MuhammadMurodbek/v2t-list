@@ -2,7 +2,7 @@
 import React, { useState, createContext } from 'react'
 import PropTypes from 'prop-types'
 import { LanguagesConfig } from '../config'
-import { EuiContext } from '@patronum/eui'
+import { EuiContext } from '@inoviaab/eui'
 import sv_SE from '../locale/sv_SE.json'
 import no_NO from '../locale/no_NO.json'
 import da_DK from '../locale/da_DK.json'

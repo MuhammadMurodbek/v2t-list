@@ -10,7 +10,7 @@ import {
   EuiI18n,
   EuiFlexGroup,
   EuiFlexItem
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 // import SpeakerColumns from '../../constants/SpeakerColumns'
 import Departments from '../../components/Departments'
 import api from '../../api'

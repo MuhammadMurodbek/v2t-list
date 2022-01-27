@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React from 'react'
-import { EuiFormRow } from '@patronum/eui'
+import { EuiFormRow } from '@inoviaab/eui'
 import SectionHeader from '../components/SectionHeader'
 import PropTypes from 'prop-types'
 import Chunks from '../components/Chunks'

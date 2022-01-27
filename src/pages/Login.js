@@ -13,7 +13,7 @@ import {
   EuiImage,
   EuiI18n,
   EuiTextColor
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import { usePreferences } from '../components/PreferencesProvider'
 import logo from '../img/medspeech+Inovia_logo_rgb.png'
 import api, { getNextUrl } from '../api'

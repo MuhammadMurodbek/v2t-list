@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React from 'react'
-import { EuiI18n, EuiText } from '@patronum/eui'
+import { EuiI18n, EuiText } from '@inoviaab/eui'
 
 const MedicalAssistantRowHeader = ({ item, data }) => {  
   return data.map((disease, i) => {

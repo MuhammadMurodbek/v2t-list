@@ -9,11 +9,11 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiCallOut
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import { PreferenceContext } from './PreferencesProvider'
 import api from '../api'
 
-import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@patronum/eui'
+import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@inoviaab/eui'
 import { addUnexpectedErrorToast, addSuccessToast } from './GlobalToastList'
 
 export default class TranscriptionList extends Component {

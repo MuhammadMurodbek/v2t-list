@@ -1,6 +1,6 @@
 import React from 'react'
 // import PropTypes from 'prop-types'
-import { EuiForm, EuiFieldText } from '@patronum/eui'
+import { EuiForm, EuiFieldText } from '@inoviaab/eui'
 
 
 const SerachBox = () => {

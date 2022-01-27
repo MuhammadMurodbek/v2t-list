@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import React, { Fragment } from 'react'
-import { EuiText, EuiPanel, EuiFormRow } from '@patronum/eui'
+import { EuiText, EuiPanel, EuiFormRow } from '@inoviaab/eui'
 import '../App.css'
-import { EuiI18n } from '@patronum/eui'
+import { EuiI18n } from '@inoviaab/eui'
 
 const ListOfHeaders = ({ headers }) => {
   const listItems = headers.map((header, i) => (

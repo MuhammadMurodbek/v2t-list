@@ -16,7 +16,7 @@ import {
   EuiLoadingContent,
   EuiHorizontalRule,
   EuiCallOut
-} from '@patronum/eui'
+} from '@inoviaab/eui'
 import jwtDecode from 'jwt-decode'
 import api from '../api'
 import Page from '../components/Page'

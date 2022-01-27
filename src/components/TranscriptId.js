@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
-import { EuiFormRow, EuiButtonEmpty } from '@patronum/eui'
-import { EuiI18n } from '@patronum/eui'
+import { EuiFormRow, EuiButtonEmpty } from '@inoviaab/eui'
+import { EuiI18n } from '@inoviaab/eui'
 import { addSuccessToast, addWarningToast } from './GlobalToastList'
 
 // eslint-disable-next-line react/prop-types

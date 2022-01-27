@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@elastic/datemath": "^5.0.3",
-    "@patronum/eui": "^2.8.0",
+    "@inoviaab/eui": "^2.8.0",
     "@testing-library/jest-dom": "^4.0.0",
     "@types/react-beautiful-dnd": "^13.0.0",
     "@xstate/react": "^1.6.1",
@@ -54,7 +54,7 @@
     "@babel/plugin-transform-runtime": "^7.10.5",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
-    "@patronum/eslint-config": "^0.3.2",
+    "@inoviaab/eslint-config": "^0.3.2",
     "@testing-library/react": "^8.0.6",
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
