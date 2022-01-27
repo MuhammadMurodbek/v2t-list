@@ -137,7 +137,7 @@ build-static:
     - .yarn
   before_script:
     - *common_scripts
-    - apt update && apt install -y jq
+    - apt update && apt install -y jq python2.7
     - set_npm_token
     - yarn config set cache-folder .yarn
     - yarn install
