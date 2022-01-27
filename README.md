@@ -26,4 +26,4 @@ Copy release version from pipeline
 Rename current open milestone with release version and close it. (Create new milestone for further user)
 
 
-Update https://gitlab.inoviagroup.se/patronum/v2t/v2t-env/-/blob/master/releases.yml with release version.
+Update https://gitlab.com/inoviaab/v2t/v2t-env/-/blob/master/releases.yml with release version.

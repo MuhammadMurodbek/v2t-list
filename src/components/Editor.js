@@ -204,7 +204,7 @@ export default class Editor extends Component {
       range.setStart(element, startOffset)
       range.setEnd(element, endOffset)
       selection.addRange(range)
-    } 
+    }
     this.stashCursorAt(null)
   }
 
@@ -291,7 +291,7 @@ export default class Editor extends Component {
     updateTranscript(chapters).then(this.refreshDiff)
   }
 
-  /* Make sure only text is pasted and override 
+  /* Make sure only text is pasted and override
   browsers default replacment of new lines */
   // eslint-disable-next-line no-unused-vars
   onPaste = (e, chapterId) => {
@@ -301,7 +301,7 @@ export default class Editor extends Component {
     document.execCommand('insertHTML', false, this.escapeHTML(text))
   }
 
-  
+
 
   escapeHTML = (text) => {
     const map = {
@@ -338,7 +338,7 @@ export default class Editor extends Component {
     )
     const { segments } = chapters[chapterId]
     // Workaround when browser adds <br> element
-    // (https://gitlab.inoviagroup.se/patronum/v2t/ui/v2t-list/-/issues/248)
+    // https://gitlab.com/inoviaab/v2t/ui/v2t-list/-/issues/248
     if (
       lastSegmentId === firstSegmentId &&
       lastSegmentId === segments.length - 1 &&
@@ -726,7 +726,7 @@ export default class Editor extends Component {
       0, true
     )
   }
-  
+
   render() {
     const {
       recordingChapter,
