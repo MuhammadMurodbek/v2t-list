@@ -24,7 +24,7 @@ const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
   return (
     <EuiAccordion
       id="readOnlyChaptersMetadata"
-      initialIsOpen={true}
+      initialIsOpen={false}
       buttonContent="Metadata"
     >
       <EuiForm style={{ paddingTop: 16 }}>
