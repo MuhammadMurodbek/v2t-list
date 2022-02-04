@@ -409,36 +409,73 @@ export default class Editor extends Component {
       const nextField = schema.fields
         .filter(({ visible }) => visible)
         .find(({ id }) => !usedKeywords.includes(id))
-      let nextChapter = {
-        keyword: nextField ? nextField.id : '',
-        segments: [
-          nextSegment,
-          ...chapters[chapterId].segments.slice(segmentId + 1)
-        ].filter((segment) => segment.words.length)
-      }
-      // capitalize the first letter of the new segment
-      const updatedSegments = []
-      nextChapter.segments.forEach((seg, segmentIndex) => {
-        if (segmentIndex === 0) {
-          const updatedWords =
-            seg.words.charAt(0).toUpperCase() + seg.words.slice(1)
-          updatedSegments.push({ ...seg, words: updatedWords })
-        } else {
-          updatedSegments.push(seg)
+      if (nextField.choiceValues) {
+        const nextChapter = {
+          keyword: nextField ? nextField.id : '',
+          segments: []
         }
-      })
-      nextChapter = { ...nextChapter, segments: updatedSegments }
-      const prevSegment = { ...segment }
-      prevSegment.words = prevSegment.words
-        .slice(0, range.startOffset)
-        .trimEnd()
-      chapters[chapterId].segments = [
-        ...chapter.segments.slice(0, segmentId),
-        prevSegment
-      ].filter((segment) => segment.words.length)
-      chapters.splice(chapterId + 1, 0, nextChapter)
-      this.stashCursorAt({ chapter: chapterId + 1, segment: 0, offset: 0 })
-      updateTranscript(chapters, true).then(this.refreshDiff)
+        let nextNextChapter = {
+          keyword: '',
+          segments: [
+            nextSegment,
+            ...chapters[chapterId].segments.slice(segmentId + 1)
+          ].filter((segment) => segment.words.length)
+        }
+        const updatedSegments = []
+        nextNextChapter.segments.forEach((seg, segmentIndex) => {
+          if (segmentIndex === 0) {
+            const updatedWords =
+              seg.words.charAt(0).toUpperCase() + seg.words.slice(1)
+            updatedSegments.push({ ...seg, words: updatedWords })
+          } else {
+            updatedSegments.push(seg)
+          }
+        })
+        nextNextChapter = { ...nextNextChapter, segments: updatedSegments }
+        const prevSegment = { ...segment }
+        prevSegment.words = prevSegment.words
+          .slice(0, range.startOffset)
+          .trimEnd()
+        chapters[chapterId].segments = [
+          ...chapter.segments.slice(0, segmentId),
+          prevSegment
+        ].filter((segment) => segment.words.length)
+        chapters.splice(chapterId + 1, 0, nextNextChapter)
+        this.stashCursorAt({ chapter: chapterId + 1, segment: 0, offset: 0 })
+        chapters.splice(chapterId + 1, 0, nextChapter)
+        updateTranscript(chapters, true).then(this.refreshDiff)
+      } else {
+        let nextChapter = {
+          keyword: nextField ? nextField.id : '',
+          segments: [
+            nextSegment,
+            ...chapters[chapterId].segments.slice(segmentId + 1)
+          ].filter((segment) => segment.words.length)
+        }
+        // capitalize the first letter of the new segment
+        const updatedSegments = []
+        nextChapter.segments.forEach((seg, segmentIndex) => {
+          if (segmentIndex === 0) {
+            const updatedWords =
+              seg.words.charAt(0).toUpperCase() + seg.words.slice(1)
+            updatedSegments.push({ ...seg, words: updatedWords })
+          } else {
+            updatedSegments.push(seg)
+          }
+        })
+        nextChapter = { ...nextChapter, segments: updatedSegments }
+        const prevSegment = { ...segment }
+        prevSegment.words = prevSegment.words
+          .slice(0, range.startOffset)
+          .trimEnd()
+        chapters[chapterId].segments = [
+          ...chapter.segments.slice(0, segmentId),
+          prevSegment
+        ].filter((segment) => segment.words.length)
+        chapters.splice(chapterId + 1, 0, nextChapter)
+        this.stashCursorAt({ chapter: chapterId + 1, segment: 0, offset: 0 })
+        updateTranscript(chapters, true).then(this.refreshDiff)
+      }
     } else {
       const chapter = chapters[chapterId]
       const segment = chapter.segments[segmentId]
