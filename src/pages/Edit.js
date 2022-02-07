@@ -1041,7 +1041,7 @@ export default class EditPage extends Component {
   parseTranscriptions = (transcriptions, originalSchema) => {
     const defaultField =
       originalSchema && originalSchema.fields.find((field) => field.default)
-    const defaultKeyword = defaultField ? defaultField.name || '' : ''
+    const defaultKeyword = defaultField ? defaultField.id || '' : ''
     if (!transcriptions)
       return [{ ...EMPTY_TRANSCRIPTION, keyword: defaultKeyword }]
     const { readOnlyHeaders, hiddenHeaderIds, defaultHeaderIds } = this.state
