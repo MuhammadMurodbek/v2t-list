@@ -1801,7 +1801,10 @@ export default class EditPage extends Component {
         <EuiI18n token="warning" default="Warning" />,
         <EuiI18n
           token="schemaEmptyFields"
-          default={`${schemaWithMappings.name} schema is not editable`}
+          default='{name} schema is not editable'
+          values={{
+            name: schemaWithMappings.name
+          }}
         />
       )
     }

@@ -175,5 +175,6 @@
   "additionaCode": "Mest använda koder för",
   "activateMedicalAssistant": "Aktivera medicinsk assistent",
   "oupphörlig": "Interaktiv assistans",
-  "hideEditor": "Dölj redaktör"
+  "hideEditor": "Dölj redaktör",
+  "schemaEmptyFields": "{name} schema kan inte redigeras"
 }

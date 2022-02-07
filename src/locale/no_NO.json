@@ -174,5 +174,7 @@
   "thePatient": "pasienten",
   "additionaCode": "Mest brukte koder for",
   "activateMedicalAssistant": "Aktiver medisinsk assistent",
-  "oupphörlig": "Interaktiv assistanse"
+  "oupphörlig": "Interaktiv assistanse",
+  "hideEditor": "Skjul redaktør",
+  "schemaEmptyFields": "{name} skjemaet kan ikke redigeres"
 }
