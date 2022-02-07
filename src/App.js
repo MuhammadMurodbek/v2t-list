@@ -37,6 +37,7 @@ import {
 } from './components/GlobalToastList/GlobalToastList'
 import getQueryStringValue from './models/getQueryStringValue'
 import { EventHandler } from './components/EventHandler'
+import VersionBadge from './components/VersionBadge'
 
 class App extends Component {
   state = {
@@ -358,6 +359,7 @@ class App extends Component {
           setTranscriptId: this.setTranscriptId
         }}>
           <EuiPage>
+            <VersionBadge />
             <EuiPageSideBar
               style={{
                 display:
