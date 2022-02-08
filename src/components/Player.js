@@ -4,12 +4,12 @@ import {
   EuiGlobalToastList,
   EuiToolTip,
   EuiFieldSearch
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import '../styles/player.css'
 import Seek from './Seek'
 
 import { PreferenceContext } from './PreferencesProvider'
-import { EuiI18n } from '@inoviaab/eui'
+import { EuiI18n } from '@elastic/eui'
 import Mic from '../components/Mic'
 import { EVENTS } from '../components/EventHandler'
 import EventEmitter from '../models/events'

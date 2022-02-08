@@ -3,7 +3,7 @@ import {
   EuiButton,
   EuiSwitch,
   EuiI18n
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import PropTypes from 'prop-types'
 
 const ApproveButtons = ({ item }) => {

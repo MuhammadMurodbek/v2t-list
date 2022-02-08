@@ -8,7 +8,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   RIGHT_ALIGNMENT
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import Disease from './Disease'
 import ICDParams from './ICDParams'
 import MedicalAssistantRowHeader from './MedicalAssistantRowHeader'

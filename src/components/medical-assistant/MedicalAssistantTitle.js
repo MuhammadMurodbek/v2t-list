@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   EuiI18n
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 
 const MedicalAssistantTitle = () => {
   if (localStorage.getItem('decisionSupportStatus') === 'true') {

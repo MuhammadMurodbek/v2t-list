@@ -11,7 +11,7 @@ import {
   EuiDatePicker,
   EuiComboBox,
   EuiAccordion
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import moment from 'moment'
 import '../styles/editor.css'
 import '../styles/tags.css'

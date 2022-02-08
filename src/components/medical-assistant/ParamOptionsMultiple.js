@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
-import { EuiCheckboxGroup } from '@inoviaab/eui'
+import { EuiCheckboxGroup } from '@elastic/eui'
 
 export const ParamOptionsMultiple = ({
   info,

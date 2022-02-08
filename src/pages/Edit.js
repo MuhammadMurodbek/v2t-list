@@ -26,7 +26,7 @@ import {
   EuiTextArea,
   EuiToolTip,
   EuiComboBox
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import { connect } from 'mqtt'
 import jwtDecode from 'jwt-decode'
 import Invalid from './Invalid'

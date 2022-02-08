@@ -1,4 +1,6 @@
-@import '~@inoviaab/eui/dist/eui_theme_light.css';
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i&display=swap&subset=latin-ext');
+@import url('https://fonts.googleapis.com/css?family=Nunito:300,400,600,600i,800&display=swap&subset=latin-ext');
+@import '~@elastic/eui/dist/eui_legacy_light.min.css';
 
 body, #root {
   height: 100%;
@@ -166,46 +168,6 @@ p {
   position: absolute;
   bottom: 30px;
 }
-.editableTable {
-    table,
-    tbody {
-        height: 1px;
-    }
-
-    td, th {
-        border: .25px solid #BBBBBD;
-    }
-
-    th {
-        border-bottom: none;
-    }
-
-    tr:hover
-    div:hover {
-        background-color: #0000 !important;
-    }
-
-    .euiTableCellContent {
-        padding: 8px;
-    }
-
-    .euiFieldText{
-        padding: 0 !important;
-        height: 100%;
-    }
-
-    .euiTableRow {
-        background-color: #F7F7F7;
-    }
-
-    .euiTable .euiTableRow-isSelected {
-        background-color: #F7F7F7 !important;
-    }
-
-    .custom-compress .euiComboBox__inputWrap {
-        padding-right: 4px;
-    }
-}
 
 .sidebarBottomButtons .euiButtonEmpty {
   font-size: 1.2em !important;
@@ -213,4 +175,39 @@ p {
 
 .euiText pre {
   padding: 0 !important;
+}
+
+/* EUI overrides */
+
+.euiTitle {
+  font-family: 'Nunito', sans-serif !important;
+  font-weight: 800 !important;
+}
+.euiTitle--large {
+  color: #041587;
+  line-height: 1.20em;
+}
+
+.euiButton--primary.euiButton--fill {
+  background-color: #076EFF;
+  border-color: #076EFF;
+}
+
+.euiButton--primary.euiButton--fill:enabled:hover, .euiButton--primary.euiButton--fill:enabled:focus {
+  background-color: #0062ed;
+  border-color: #0062ed;
+}
+
+.euiButton--small {
+  border-radius: 14px !important;
+  height: 29px !important;
+  font-size: 13px !important;
+  padding-right: 17px;
+  padding-left: 17px;
+}
+
+.euiButtonIcon {
+  border: none;
+  background-color: transparent;
+  box-shadow: none !important;
 }

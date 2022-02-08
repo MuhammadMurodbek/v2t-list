@@ -6,7 +6,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import Timeline from '../components/conversation/Timeline'
 import ConversationTabs from '../components/conversation/ConversationTabs'
 import Page from '../components/Page'

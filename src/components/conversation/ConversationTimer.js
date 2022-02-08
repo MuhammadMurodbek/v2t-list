@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { EuiText } from '@inoviaab/eui'
+import { EuiText } from '@elastic/eui'
 
 
 const ConversationTimer = ({ time }) => {

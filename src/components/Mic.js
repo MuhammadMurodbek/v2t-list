@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { EuiTextAlign } from '@inoviaab/eui'
+import { EuiTextAlign } from '@elastic/eui'
 import mic from '../img/voice-recording.png'
 import micRecording from '../img/voice-recording-red.png'
 import '../styles/mic.css'

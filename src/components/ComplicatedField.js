@@ -8,7 +8,7 @@ import {
   EuiFlexItem,
   EuiI18n,
   EuiToolTip
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 
 const ComplicatedField = ({
   complicatedFieldOptions,
@@ -66,7 +66,7 @@ const ComplicatedField = ({
             aria-label="remove"
             color="danger"
             display="base"
-            size="l"
+            size="m"
             iconType="trash"
             onClick={() => deleteComplicatedField(chapterId)}
           />
@@ -77,7 +77,7 @@ const ComplicatedField = ({
           <EuiButtonIcon
             aria-label="add"
             display="base"
-            size="l"
+            size="m"
             iconType="plusInCircle"
             onClick={() => createNewSectionAfterThis(chapterId)}
           />

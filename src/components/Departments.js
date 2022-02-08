@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { EuiForm, EuiFormRow, EuiComboBox, EuiI18n } from '@inoviaab/eui'
-import '../App.css'
+import { EuiForm, EuiFormRow, EuiComboBox, EuiI18n } from '@elastic/eui'
 
 const Departments = ({ departments, departmentId, onUpdate }) => {
   const options = departments.map((department) => ({

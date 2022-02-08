@@ -6,8 +6,7 @@ import {
   EuiFormRow,
   EuiComboBox,
   EuiI18n
-} from '@inoviaab/eui'
-import '../App.css'
+} from '@elastic/eui'
 
 const Schemas = ({ schemas, schemaId, onUpdate, location }) => {
   const [options, setOptions] = useState([{ label: '' }])

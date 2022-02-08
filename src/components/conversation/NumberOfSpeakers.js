@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { EuiText, EuiComboBox } from '@inoviaab/eui'
+import { EuiText, EuiComboBox } from '@elastic/eui'
 
 const NumberOfSpeakers = ({ updateNumberOfSpeakers }) => {
   const options = [

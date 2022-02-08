@@ -4,7 +4,7 @@ import {
   EuiButtonEmpty,
   EuiFlexGroup,
   EuiFlexItem
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 
 const ControlButtons = () => {
   return (

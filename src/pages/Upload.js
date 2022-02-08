@@ -16,7 +16,7 @@ import {
   EuiLoadingContent,
   EuiHorizontalRule,
   EuiCallOut
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import jwtDecode from 'jwt-decode'
 import api from '../api'
 import Page from '../components/Page'
@@ -304,7 +304,7 @@ export default class UploadPage extends Component {
                     transcriptionFields={transcriptionFields}
                     onFieldChange={this.onFieldChange}
                   />
-                  <EuiFlexGroup alignItems="center">
+                  <EuiFlexGroup alignItems="center" style={{ marginTop: 10 }}>
                     <EuiFlexItem grow={false}>
                       <EuiButton
                         fill

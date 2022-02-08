@@ -10,7 +10,7 @@ import {
   EuiSideNav,
   EuiButtonIcon,
   EuiI18n
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import logo from './img/medspeech+Inovia_logo_rgb.png'
 import collapsedLogo from './img/medspeech+Inovia_logo_rgb_collapsed.png'
 import PreferencesProvider from './components/PreferencesProvider'
@@ -21,7 +21,7 @@ import UploadPage from './pages/Upload'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
 import Preference from './models/Preference'
-import './App.css'
+import './App.scss'
 import api, { URLS } from './api'
 import axios from 'axios'
 import { LanguageProvider } from './context'

@@ -7,7 +7,7 @@ import {
   EuiButton,
   EuiText,
   EuiTitle
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 
 const Flyout = () => {
   const [isFlyoutVisible, setIsFlyoutVisible] = useState(false)

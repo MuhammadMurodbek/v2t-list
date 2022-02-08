@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { Fragment } from 'react'
-import { EuiSpacer, EuiFormRow, EuiButtonEmpty, EuiI18n } from '@inoviaab/eui'
+import { EuiSpacer, EuiFormRow, EuiButtonEmpty, EuiI18n } from '@elastic/eui'
 import api from '../api'
 
 

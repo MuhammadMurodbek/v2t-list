@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { EuiFlexGroup, EuiFlexItem } from '@inoviaab/eui'
+import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui'
 import DiseaseParams from './DiseaseParams'
 import MedicalAssistantContext from '../../context/MedicalAssistantContext'
 

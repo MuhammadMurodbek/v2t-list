@@ -11,7 +11,7 @@ import {
   EuiFieldText,
   EuiText,
   EuiTextColor
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import '../styles/j4login.scss'
 import api from '../api'
 import { renderTranscriptionState } from '../utils'

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
-import { EuiText, EuiSpacer, EuiFieldText } from '@inoviaab/eui'
+import { EuiText, EuiSpacer, EuiFieldText } from '@elastic/eui'
 import PropTypes from 'prop-types'
 
 const ConversationTabs = ({ conversationData, transcriptId, currentTime }) => {

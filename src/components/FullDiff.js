@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { EuiText, EuiSpacer } from '@inoviaab/eui'
+import { EuiText, EuiSpacer } from '@elastic/eui'
 
 const FullDiff = ({ diff }) => {
   if (diff === null || diff.length === 0) return null

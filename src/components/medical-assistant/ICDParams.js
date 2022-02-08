@@ -8,7 +8,7 @@ import {
   EuiSpacer,
   EuiText,
   EuiI18n
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import MedicalAssistantContext from '../../context/MedicalAssistantContext'
 import ICDCheckbox from './ICDCheckbox'
 

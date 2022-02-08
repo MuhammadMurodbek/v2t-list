@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { EuiToolTip } from '@inoviaab/eui'
+import { EuiToolTip } from '@elastic/eui'
 import React from 'react'
 import '../../styles/tags.css'
 

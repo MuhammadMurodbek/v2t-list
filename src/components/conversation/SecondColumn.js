@@ -10,7 +10,7 @@ import {
   EuiTitle,
   EuiFlexItem, 
   EuiFlexGroup
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 import io from 'socket.io-client'
 import interpolateArray from '../../models/interpolateArray'
 import * as recorder from '../../utils/recorder'

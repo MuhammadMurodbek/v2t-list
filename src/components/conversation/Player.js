@@ -1,7 +1,6 @@
 import React, { useState, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import '../../App.css'
 import ConversationTimer from './ConversationTimer'
 import SearchBox from './SearchBox'
 import PlaybackSpeed from './PlaybackSpeed'

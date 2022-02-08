@@ -24,7 +24,7 @@ import {
   EuiSelect,
   EuiI18n,
   EuiHorizontalRule
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 
 import help from '../img/help.png'
 import Logout from '../components/Logout'

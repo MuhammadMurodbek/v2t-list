@@ -6,7 +6,7 @@ import {
   EuiButton,
   EuiBottomBar,
   EuiButtonEmpty
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 
 const ResetBar = ({ showCancelBar, showHideCancelBox, resetState }) => (
   <EuiBottomBar

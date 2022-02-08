@@ -6,7 +6,7 @@ import {
   EuiContextMenuPanel,
   EuiContextMenuItem,
   EuiPopover
-} from '@inoviaab/eui'
+} from '@elastic/eui'
 
 const PlaybackSpeed = () => {
   const [isPopoverOpen, setPopover] = useState(false)

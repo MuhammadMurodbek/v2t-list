@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react'
-import { EuiComboBox, EuiI18n, EuiFormRow } from '@inoviaab/eui'
+import { EuiComboBox, EuiI18n, EuiFormRow } from '@elastic/eui'
 
 const SectionHeader = ({
   keywords,

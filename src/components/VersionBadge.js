@@ -1,5 +1,5 @@
 import React from 'react'
-import { EuiBadge } from '@inoviaab/eui'
+import { EuiBadge } from '@elastic/eui'
 import packageInformation from '../../package.json'
 
 const VersionBadge = () => {

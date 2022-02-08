@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { EuiText, EuiTextColor } from '@inoviaab/eui'
+import { EuiText, EuiTextColor } from '@elastic/eui'
 
 const HeaderLine = ({ header, updatedHeader }) => {
   if (header === updatedHeader) {

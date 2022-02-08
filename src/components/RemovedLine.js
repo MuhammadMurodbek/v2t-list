@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { EuiTextColor } from '@inoviaab/eui'
+import { EuiTextColor } from '@elastic/eui'
 
 const RemovedLine = ({ diff, prevDiff, nextDiff }) => (
   <div>
