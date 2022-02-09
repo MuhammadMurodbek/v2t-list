@@ -34,8 +34,17 @@ $border: 0.5px solid rgba(112, 112, 112, 0.531);
       border-bottom-color: rgba(255, 255, 255, 0.71) !important;
       color: #FFFFFF;
 
+      &:autofill {
+        -webkit-text-fill-color: #FFFFFF;
+      }
+
       &::-webkit-input-placeholder {
         color: #FFFFFF;
+      }
+
+      &:-moz-placeholder, &::-moz-placeholder {
+        color: #FFFFFF;
+        opacity: 1;
       }
 
       &:focus {
