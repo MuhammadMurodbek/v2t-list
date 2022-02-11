@@ -14,6 +14,14 @@ import Mic from '../components/Mic'
 import { EVENTS } from '../components/EventHandler'
 import EventEmitter from '../models/events'
 
+let micName = ''
+navigator.mediaDevices.enumerateDevices()
+  .then(function(devices) {
+    devices.forEach(function(device) {
+      micName = device.label
+    })
+  })
+
 class Player extends Component {
   static contextType = PreferenceContext
 
@@ -540,6 +548,15 @@ class Player extends Component {
           dismissToast={this.removeToast}
           toastLifeTimeMs={2000}
         />
+        {recording && 
+        <div style={{ marginTop: '20px', 
+          fontSize: '12px', display: 'flex', justifyContent: 'flex-end' }}> 
+          <EuiI18n
+            token="micName"
+            default="You are using {micName}"
+            values={{ micName: micName }}
+          /></div>
+        }
       </Fragment>
     )
   }

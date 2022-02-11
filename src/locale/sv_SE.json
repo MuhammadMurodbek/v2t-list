@@ -176,5 +176,6 @@
   "activateMedicalAssistant": "Aktivera medicinsk assistent",
   "oupphörlig": "Interaktiv assistans",
   "hideEditor": "Dölj redaktör",
-  "schemaEmptyFields": "{name} schema kan inte redigeras"
+  "schemaEmptyFields": "{name} schema kan inte redigeras",
+  "micName": "Du använder {micName}"
 }

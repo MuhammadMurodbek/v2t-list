@@ -174,5 +174,6 @@
     "activateMedicalAssistant": "Aktiver medicinsk assistent",
     "oupphörlig": "Interaktiv assistance",
     "hideEditor": "Skjul editor",
-    "schemaEmptyFields": "{name} skemaet kan ikke redigeres"
+    "schemaEmptyFields": "{name} skemaet kan ikke redigeres",
+    "micName": "Du bruger {micName}"
 }
