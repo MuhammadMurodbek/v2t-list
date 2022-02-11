@@ -431,7 +431,8 @@ class App extends Component {
                         contentLength,
                         pageIndex,
                         setPageIndex,
-                        hasNoTags
+                        hasNoTags,
+                        activeDepartments
                       }}
                     />
                   )}
