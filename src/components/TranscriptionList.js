@@ -8,6 +8,7 @@ import {
   EuiButtonEmpty,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiText,
   EuiCallOut
 } from '@elastic/eui'
 import { PreferenceContext } from './PreferencesProvider'
@@ -183,7 +184,19 @@ export default class TranscriptionList extends Component {
       isAutorefreshEnabled,
       sortDirection
     } = this.state
-    const { transcripts, contentLength, pageIndex, hasNoTags } = this.props
+    const {
+      transcripts,
+      contentLength,
+      pageIndex,
+      hasNoTags,
+      activeDepartments
+    } = this.props
+    let departmentName = ''
+    if (transcripts.length) {
+      departmentName = activeDepartments
+        .filter(department => department.id === transcripts[0].department)[0]
+        .name
+    }
     const { preferences } = this.context
     const pagination = {
       pageIndex,
@@ -280,6 +293,8 @@ export default class TranscriptionList extends Component {
 
     return (
       <Fragment>
+        <EuiText><h2>{departmentName}</h2></EuiText>
+        <EuiSpacer size="s" />
         <EuiI18n token="enableAutorefresh" default="enableAutorefresh">
           {(enableAutorefreshText) => (
             <EuiSwitch
@@ -316,6 +331,7 @@ export default class TranscriptionList extends Component {
 }
 
 TranscriptionList.propTypes = {
+  activeDepartments: PropTypes.array,
   transcripts: PropTypes.array,
   job: PropTypes.any,
   fetchTranscripts: PropTypes.func,

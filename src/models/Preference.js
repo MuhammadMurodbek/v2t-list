@@ -48,19 +48,9 @@ export const COLUMN_OPTIONS = [
     field: 'status'
   },
   {
-    label: 'Schema Id',
-    name: <EuiI18n token="schemaId" default="Schema Id" />,
-    field: 'schemaId'
-  },
-  {
     label: 'Schema Name',
     name: <EuiI18n token="template" default="Journal Template" />,
     field: 'schemaName'
-  },
-  {
-    label: 'Department',
-    name: <EuiI18n token="department" default="Department" />,
-    field: 'department'
   },
   {
     label: 'Received',
@@ -403,12 +393,10 @@ export default class Preference {
     columns: COLUMN_OPTIONS,
     columnsForCombo: COLUMN_OPTIONS.map(({ render, ...items }) => items).filter(
       (column) =>
-        column.label !== 'Id' &&
-        column.label !== 'Schema Id'
+        column.label !== 'Id'
     ),
     columnsForTranscriptList: COLUMN_OPTIONS.filter(
-      (column) => column.label !== 'Id' &&
-      column.label !== 'Schema Id'
+      (column) => column.label !== 'Id'
     ),
     fontSizeList: [
       {
