@@ -175,5 +175,6 @@
     "oupphörlig": "Interaktiv assistance",
     "hideEditor": "Skjul editor",
     "schemaEmptyFields": "{name} skemaet kan ikke redigeres",
-    "micName": "Du bruger {micName}"
+    "micName": "Du bruger {micName}",
+    "noMicName": "Mikrofon til optagelse blev ikke fundet"
 }

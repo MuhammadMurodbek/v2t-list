@@ -177,5 +177,6 @@
   "oupphörlig": "Interaktiv assistanse",
   "hideEditor": "Skjul redaktør",
   "schemaEmptyFields": "{name} skjemaet kan ikke redigeres",
-  "micName": "Du bruker {micName}"
+  "micName": "Du bruker {micName}",
+  "noMicName": "Finner ikke mikrofon for opptak"
 }

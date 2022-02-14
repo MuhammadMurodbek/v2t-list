@@ -177,5 +177,6 @@
   "oupphörlig": "Interaktiv assistans",
   "hideEditor": "Dölj redaktör",
   "schemaEmptyFields": "{name} schema kan inte redigeras",
-  "micName": "Du använder {micName}"
+  "micName": "Du använder {micName}",
+  "noMicName": "Mikrofon för inspelning hittades inte"
 }

@@ -18,7 +18,9 @@ let micName = ''
 navigator.mediaDevices.enumerateDevices()
   .then(function(devices) {
     devices.forEach(function(device) {
-      micName = device.label
+      if(device.kind == 'audioinput') {
+        micName = device.label
+      }
     })
   })
 
@@ -550,12 +552,18 @@ class Player extends Component {
         />
         {recording && 
         <div style={{ marginTop: '20px', 
-          fontSize: '12px', display: 'flex', justifyContent: 'flex-end' }}> 
+          fontSize: '12px', display: 'flex' }}>
+          {micName ? 
           <EuiI18n
             token="micName"
             default="You are using {micName}"
             values={{ micName: micName }}
-          /></div>
+          /> : 
+          <EuiI18n
+            token="noMicName"
+            default="Microphone for recording not found"
+          />}
+        </div>
         }
       </Fragment>
     )
