@@ -554,15 +554,15 @@ class Player extends Component {
         <div style={{ marginTop: '20px', 
           fontSize: '12px', display: 'flex' }}>
           {micName ? 
-          <EuiI18n
-            token="micName"
-            default="You are using {micName}"
-            values={{ micName: micName }}
-          /> : 
-          <EuiI18n
-            token="noMicName"
-            default="Microphone for recording not found"
-          />}
+            <EuiI18n
+              token="micName"
+              default="You are using {micName}"
+              values={{ micName: micName }}
+            /> : 
+            <EuiI18n
+              token="noMicName"
+              default="Microphone for recording not found"
+            />}
         </div>
         }
       </Fragment>
