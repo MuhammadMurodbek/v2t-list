@@ -113,7 +113,6 @@ const EditableFields = ({
         selected={moment(value)}
         fullWidth
         showIcon={false}
-        popperPlacement="left-start"
         dateFormat="YYYY-MM-DD HH:mm:ss"
         timeFormat="HH:mm:ss"
         locale={languagesList[language].code}
