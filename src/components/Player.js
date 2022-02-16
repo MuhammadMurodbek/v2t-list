@@ -14,6 +14,7 @@ import Mic from '../components/Mic'
 import { EVENTS } from '../components/EventHandler'
 import EventEmitter from '../models/events'
 
+const isChrome = navigator.userAgent.indexOf('Chrome') != -1
 let micName = ''
 navigator.mediaDevices.enumerateDevices()
   .then(function(devices) {
@@ -547,7 +548,7 @@ class Player extends Component {
           dismissToast={this.removeToast}
           toastLifeTimeMs={2000}
         />
-        {recording && 
+        {recording && isChrome &&
         <div style={{ marginTop: '20px', 
           fontSize: '12px', display: 'flex' }}>
           {micName ? 
