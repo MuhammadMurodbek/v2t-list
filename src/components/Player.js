@@ -17,11 +17,8 @@ import EventEmitter from '../models/events'
 let micName = ''
 navigator.mediaDevices.enumerateDevices()
   .then(function(devices) {
-    devices.forEach(function(device) {
-      if(device.kind == 'audioinput') {
-        micName = device.label
-      }
-    })
+    devices = devices.filter((d) => d.kind === 'audioinput')
+    micName = devices[0].label
   })
 
 class Player extends Component {
@@ -43,7 +40,7 @@ class Player extends Component {
     playbackRate: 1.0,
     toasts: []
   }
-
+ 
   componentDidMount = () => {
     EventEmitter.subscribe(EVENTS.TOGGLE_PLAY, this.togglePlay)
     EventEmitter.subscribe(EVENTS.PLAY_AUDIO, this.playAudio)
