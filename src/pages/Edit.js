@@ -59,7 +59,7 @@ import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
 import '../styles/simple-player.css'
 import { v4 as uuidv4 } from 'uuid'
-
+import Disease from '../components/medical-assistant/Disease'
 import MedicalAssistantContext from '../context/MedicalAssistantContext'
 import medicalAssistant from '../models/medicalAssistant'
 import ICDParams from '../components/medical-assistant/ICDParams'
