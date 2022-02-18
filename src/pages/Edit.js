@@ -238,73 +238,80 @@ export default class EditPage extends Component {
   stopRecording = (offsetEnd = 0) => {
     const offset = this.offsetAudioStop
     this.offsetAudioStop = 0
-    return new Promise(async (resolve) => {
-      const {
-        chapters,
-        chaptersBeforeRecording,
-        initialKeyword,
-        timeStartRecording
-      } = this.state
-      await this.audioContext.suspend()
-      const chapterIndex = chapters.findIndex(
-        (chapter) => chapter.keyword === initialKeyword
-      )
-      const chapterIdStart = chapterIndex > 0 ? chapterIndex : 0
-      const chapterIdEnd =
-        chapterIdStart + chapters.length - chaptersBeforeRecording.length
-      return recorder.stop(
-        (recordedAudio, appendedTime, appendedTimeCurrent) => {
-          const timeAdjustedChapters = chapters.map((chapter, i) => {
-            const fromSegmentId = chapters[chapterIdStart].segments.findIndex(
-              ({ startTime }) => startTime >= timeStartRecording
-            )
-            if (
-              i === chapterIdStart ||
-              (i > chapterIdStart && i <= chapterIdEnd)
-            )
-              return {
-                ...chapter,
-                segments: chapter.segments.map((segment, i) => ({
-                  ...segment,
-                  startTime:
-                    segment.startTime +
-                    (i >= fromSegmentId ? appendedTimeCurrent : 0),
-                  endTime:
-                    segment.endTime +
-                    (i >= fromSegmentId ? appendedTimeCurrent : 0)
-                }))
-              }
-            if (i > chapterIdEnd)
-              return {
-                ...chapter,
-                segments: chapter.segments.map((segment) => ({
-                  ...segment,
-                  startTime: segment.startTime + appendedTime,
-                  endTime: segment.endTime + appendedTime
-                }))
-              }
-            return chapter
-          })
-
-          this.setState(
-            {
-              chapters: timeAdjustedChapters,
-              recordedAudio,
-              recording: false,
-              timeStartRecording: this.getChapterEndTimeAdjusted(
-                chapters.length - 1
-              ),
-              initialKeyword: chapters[chapters.length - 1].keyword,
-              isMedicalAssistantTriggered: false
-            },
-            resolve
-          )
-        },
-        timeStartRecording,
-        offset,
-        offsetEnd
-      )
-    })
+    this.audioContext.suspend()
+    this.setState({ recording: false })
+    return 
+    // return new Promise(async (resolve) => {
+    //   const {
+    //     chapters,
+    //     chaptersBeforeRecording,
+    //     initialKeyword,
+    //     timeStartRecording
+    //   } = this.state
+    //   await this.audioContext.suspend()
+    //   const chapterIndex = chapters.findIndex(
+    //     (chapter) => chapter.keyword === initialKeyword
+    //   )
+    //   console.log('chapterIndex', chapterIndex)
+    //   const chapterIdStart = chapterIndex > 0 ? chapterIndex : 0
+    //   console.log('chapterIdStart', chapterIdStart)
+    //   const chapterIdEnd =
+    //     chapterIdStart + chapters.length - chaptersBeforeRecording.length
+    //   console.log('chapterIdEnd', chapterIdEnd)
+    //   return recorder.stop(
+    //     (recordedAudio, appendedTime, appendedTimeCurrent) => {
+    //       const timeAdjustedChapters = chapters.map((chapter, i) => {
+    //         const fromSegmentId = chapters[chapterIdStart].segments.findIndex(
+    //           ({ startTime }) => startTime >= timeStartRecording
+    //         )
+    //         if (
+    //           i === chapterIdStart ||
+    //           (i > chapterIdStart && i <= chapterIdEnd)
+    //         )
+    //           return {
+    //             ...chapter,
+    //             segments: chapter.segments.map((segment, i) => ({
+    //               ...segment,
+    //               startTime:
+    //                 segment.startTime +
+    //                 (i >= fromSegmentId ? appendedTimeCurrent : 0),
+    //               endTime:
+    //                 segment.endTime +
+    //                 (i >= fromSegmentId ? appendedTimeCurrent : 0)
+    //             }))
+    //           }
+    //         if (i > chapterIdEnd)
+    //           return {
+    //             ...chapter,
+    //             segments: chapter.segments.map((segment) => ({
+    //               ...segment,
+    //               startTime: segment.startTime + appendedTime,
+    //               endTime: segment.endTime + appendedTime
+    //             }))
+    //           }
+    //         return chapter
+    //       })
+          
+    //       console.log('timeAdjustedChapters', timeAdjustedChapters)
+    //       this.setState(
+    //         {
+    //           chapters: timeAdjustedChapters,
+    //           recordedAudio,
+    //           recording: false,
+    //           timeStartRecording: this.getChapterEndTimeAdjusted(
+    //             chapters.length - 1
+    //           ),
+    //           initialKeyword: chapters[chapters.length - 1].keyword,
+    //           isMedicalAssistantTriggered: false
+    //         },
+    //         resolve
+    //       )
+    //     },
+    //     timeStartRecording,
+    //     offset,
+    //     offsetEnd
+    //   )
+    // })
   }
 
   updateRecordingChapter = async (keyword, clipFrom, offset, chunk) => {
@@ -334,6 +341,7 @@ export default class EditPage extends Component {
   parseAudioResponse = (chunks, keyword, initialTime) => {
     const { chaptersBeforeRecording, chapters } = this.state
     let currentChapter = this.state.currentChapter
+    console.log('currentChapter', currentChapter)
     const result = [...chunks].reduce((store, chunk, i, arr) => {
       const currentKeyword = this.getKeyword(chunk.word)
       const newKeyword =
@@ -550,7 +558,6 @@ export default class EditPage extends Component {
       initialKeyword,
       tagRequestCache
     } = this.state
-    console.log('message', message)
     const chunks = chaptersBeforeRecording.length===0 ? 
       [{ 'word': '', 'start': 0, 'end': 0 }] : 
       JSON.parse(message.toString('utf-8')).map((json) => ({
@@ -580,8 +587,6 @@ export default class EditPage extends Component {
       keyword,
       timeStartRecording
     )
-    console.log('chapters -------', chapters)
-    console.log('chunks -------', chunks)
     
     const capitalizedChapters = chapters.map((chapter, chapterIndex)=>{
       const updatedSegments = []

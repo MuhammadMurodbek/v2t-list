@@ -279,7 +279,19 @@ export default class Preference {
     localStorage.setItem('isMedicalAssistantActive', v)
     if(v===false) {
       this._continuousSupportStatus = v
-      localStorage.setItem('continuousSupportStatus', v)
+      this._medicalAssistantStatus = v
+      this._codingSupportStatus = v
+      this._decisionSupportStatus = v
+      localStorage.setItem('medicalAssistantStatus', 'false')
+      localStorage.setItem('decisionSupportStatus', 'false')
+      localStorage.setItem('codingSupportStatus', 'false')
+    } else {
+      this._codingSupportStatus = v
+      this._medicalAssistantStatus = false
+      this._decisionSupportStatus = false
+      localStorage.setItem('medicalAssistantStatus', 'false')
+      localStorage.setItem('decisionSupportStatus', 'false')
+      localStorage.setItem('codingSupportStatus', 'true')
     }
   }
 
@@ -301,9 +313,9 @@ export default class Preference {
     if (v === true) {
       this._decisionSupportStatus = false
       this._codingSupportStatus = false
-      localStorage.setItem('medicalAssistantStatus', 'true')
+      localStorage.setItem('medicalAssistantStatus', 'false')
       localStorage.setItem('decisionSupportStatus', 'false')
-      localStorage.setItem('codingSupportStatus', 'false')
+      localStorage.setItem('codingSupportStatus', 'true')
     } else if (
       v === false &&
       localStorage.getItem('decisionSupportStatus') === 'false' &&
@@ -417,6 +429,16 @@ export default class Preference {
     currentFontSize: '18px',
     externalMode: localStorage.getItem('externalMode') === 'true',
     editReadOnly: localStorage.getItem('editReadOnly') === 'true',
+    isMedicalAssistantActive:
+      localStorage.getItem('isMedicalAssistantActive') === 'true',
+    continuousSupportStatus:
+      localStorage.getItem('continuousSupportStatus') === 'true',
+    isSnomedMedicalAssistantActive: 
+      localStorage.getItem('isSnomedMedicalAssistantActive') === 'true',
+    decisionSupportStatus:
+      localStorage.getItem('decisionSupportStatus') === 'true',
+    codingSupportStatus: 
+      localStorage.getItem('codingSupportStatus') === 'true',
     fontSizeIteration: 0,
     keywordInit: true
   }
