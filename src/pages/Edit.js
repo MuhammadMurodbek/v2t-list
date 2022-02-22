@@ -341,7 +341,6 @@ export default class EditPage extends Component {
   parseAudioResponse = (chunks, keyword, initialTime) => {
     const { chaptersBeforeRecording, chapters } = this.state
     let currentChapter = this.state.currentChapter
-    console.log('currentChapter', currentChapter)
     const result = [...chunks].reduce((store, chunk, i, arr) => {
       const currentKeyword = this.getKeyword(chunk.word)
       const newKeyword =
@@ -352,8 +351,6 @@ export default class EditPage extends Component {
           (chapter) => chapter.keyword === currentKeyword
         )
       const chapterId = chapters.findIndex((c) => c.keyword === keyword)
-      const isLastChapter = chapterId === chapters.length - 1
-      const oldKeyword = keyword
       if (currentKeyword) {
         keyword = currentKeyword
       }
@@ -393,7 +390,7 @@ export default class EditPage extends Component {
       if (!store.includes(chapter)) {
         store.splice(chapterId + 1, 0, chapter)
       }
-      return store
+      return store.filter((ch) => !_.isEmpty(ch.segments))
     }, JSON.parse(JSON.stringify(chaptersBeforeRecording)))
     this.setState({ currentChapter })
     return result
