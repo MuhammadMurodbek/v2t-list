@@ -1054,13 +1054,9 @@ export default class EditPage extends Component {
     const transcripts = transcriptions.map((transcript, id) => {
       const keyword = transcript.keyword.length ? transcript.keyword : ''
       let segments = transcript.segments.map((chunk, i) => {
-        const sentenceCase =
-          i > 0
-            ? chunk.words
-            : `${chunk.words.charAt(0).toUpperCase()}${chunk.words.slice(1)}`
         const isLast = i >= transcript.segments.length - 1
-        const noSpaceSuffix = isLast || /^\s*$/.test(sentenceCase)
-        const words = noSpaceSuffix ? sentenceCase : `${sentenceCase} `
+        const noSpaceSuffix = isLast || /^\s*$/.test(chunk.words)
+        const words = noSpaceSuffix ? chunk.words : `${chunk.words} `
         return {
           ...chunk,
           words: words.replace(/ +$/, ' ')
