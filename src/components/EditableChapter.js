@@ -44,13 +44,16 @@ const EditableChapter = ({
     }
   }
 
-  const namePatterns = field
-    ? [field.name, ...(field.headerPatterns || [])]
-    : []
-  const escapedNamePatterns = namePatterns.map(escapeRegularExpression)
-  const regex = new RegExp(`^(${escapedNamePatterns.join(' |')} )?(.?)`, 'i')
-  const filteredSegments = segments.map((segment, i) => {
-    const words =
+  let filteredSegments = segments 
+
+  if (/live-diktering/.test(window.location.href)) {
+    const namePatterns = field
+      ? [field.name, ...(field.headerPatterns || [])]
+      : []
+    const escapedNamePatterns = namePatterns.map(escapeRegularExpression)
+    const regex = new RegExp(`^(${escapedNamePatterns.join(' |')} )?(.?)`, 'i')
+    filteredSegments = segments.map((segment, i) => {
+      const words =
       i === 0
         ? segment.words.replace(regex, (...match) => {
           const hideChars = match[1] ? match[1] : ''
@@ -59,8 +62,10 @@ const EditableChapter = ({
           )}${match[2].toUpperCase()}`
         })
         : segment.words
-    return { ...segment, words }
-  })
+      return { ...segment, words }
+    })
+  }
+
 
   const joinedSegments = segments.map((segment) => segment.words).join('')
   const selectedChoice = field
@@ -132,11 +137,9 @@ const EditableChapter = ({
     </EuiFormRow>
   )
 }
-
 const escapeRegularExpression = (string) => string
   .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   // $& means the whole matched string
-
 
 EditableChapter.propTypes = {
   recordingChapter: PropTypes.array,
@@ -155,3 +158,5 @@ EditableChapter.propTypes = {
 }
 
 export default EditableChapter
+
+
