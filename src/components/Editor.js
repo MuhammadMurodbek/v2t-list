@@ -110,7 +110,10 @@ export default class Editor extends Component {
     this.stashCursorAt(cursor)
     const container = this.getSelectedElement()
     const element = container.firstChild || container
-    element.parentElement.scrollIntoView(false)
+
+    if (element && element.parentElement) {
+      element.parentElement.scrollIntoView(false)
+    }
     this.updateCursor()
   }
 
