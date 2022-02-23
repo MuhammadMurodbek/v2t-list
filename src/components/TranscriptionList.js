@@ -27,7 +27,7 @@ export default class TranscriptionList extends Component {
       loading: false,
       isConfirmModalVisible: false,
       dictationToRemove: null,
-      sortField: 'createdTime',
+      sortField: 'updatedTime',
       isAutorefreshEnabled: localStorage
         .getItem('isAutorefreshEnabled')===null ? false : (
           localStorage.getItem('isAutorefreshEnabled') === 'true'

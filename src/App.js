@@ -113,8 +113,8 @@ class App extends Component {
     tag = undefined,
     pageIndex = 0,
     pageSize = 20,
-    sortField,
-    sortDirection
+    sortField = 'updatedTime',
+    sortDirection = 'desc'
   ) => {
     return new Promise((resolve, reject) => {
       const tokenFromStorage = localStorage.getItem('token')
