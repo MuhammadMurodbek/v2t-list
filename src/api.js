@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable no-restricted-globals */
 import axios from 'axios'
@@ -276,13 +277,15 @@ const getMedicalAssistantData = (
   queryText,
   language = 'swedish',
   interactive = false
-) =>
-  axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
-    // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
-    content: queryText,
-    language: language,
-    interactive
-  })
+) => {
+  return []
+}
+// axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
+//   // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
+//   content: queryText,
+//   language: language,
+//   interactive
+// })
 
 export default {
   approveTranscription,
