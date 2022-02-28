@@ -11,16 +11,16 @@ const convertToV1API = ({ id, schemaId, fields }) => {
     }
   }
   fields.forEach((schemaField) => {
-    if (schemaField.multiSelect) {
+    if (schemaField.type?.select?.multiple) {
       multiSelectMap[schemaField.id] = true
     } else {
       multiSelectMap[schemaField.id] = false
     }
   })
   fields.forEach((schemaField) => {
-    if (schemaField.choiceValues) {
-      if (schemaField.choiceValues.length > 0) {
-        if (schemaField.multiSelect) {
+    if (schemaField.type?.select?.options) {
+      if (schemaField.type?.select?.options.length > 0) {
+        if (schemaField.type?.select?.multiple) {
           singleSelectMap[schemaField.id] = false
         } else {
           singleSelectMap[schemaField.id] = true
@@ -78,7 +78,7 @@ const convertToV1API = ({ id, schemaId, fields }) => {
         
         const options = fields.filter(
           (f) => f.id === field.id
-        )[0].choiceValues
+        )[0].type?.select?.options
         // console.log('existing options', options)
         const sentence = field.values[0].value
         // console.log('sentence', sentence)

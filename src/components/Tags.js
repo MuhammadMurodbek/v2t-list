@@ -57,16 +57,17 @@ export default class Tags extends Component {
 
   loadOptions = async (searchTerm = '', namespace) => {
     const { tags } = this.props
-    this.loadOption(searchTerm, namespace, tags[namespace].choiceValues)
+    this.loadOption(searchTerm, namespace, 
+      tags[namespace].type?.select?.options)
   }
 
-  loadOption = async (searchTerm, namespace, choiceValues) => {
-    if (!choiceValues || !choiceValues.length)
+  loadOption = async (searchTerm, namespace, options) => {
+    if (!options || !options.length)
       this.fetchOptions(searchTerm, namespace)
     else
       this.setState(prevState => ({ options: {
         ...prevState.options,
-        [namespace]: choiceValues.map(code => ({ code, label: code }))
+        [namespace]: options.map(code => ({ code, label: code }))
       }}))
   }
 

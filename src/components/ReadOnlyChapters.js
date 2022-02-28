@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-console */
 import React, { Fragment, useContext } from 'react'
 import PropTypes from 'prop-types'
 import {
@@ -30,7 +28,7 @@ const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
       <EuiForm style={{ paddingTop: 16 }}>
         <EuiFlexGroup direction="column" gutterSize="m">
           {chapters.map(
-            ({ keyword, name, values, choiceValues, multiSelect }, key) => (
+            ({ keyword, name, values, type = {}}, key) => (
               <EuiFlexItem key={key}>
                 <EuiFlexGroup>
                   <EuiFlexItem>
@@ -46,8 +44,8 @@ const ReadOnlyChapters = ({ chapters, onCreate, onUpdate }) => {
                         <EditableFields
                           keyword={keyword}
                           values={values}
-                          choiceValues={choiceValues}
-                          multiSelect={multiSelect}
+                          options={type?.select?.options || []}
+                          isMultiSelect={type?.select?.multiple}
                           onUpdate={onUpdate}
                         />
                       )
@@ -96,8 +94,8 @@ ReadOnlyFields.propTypes = {
 const EditableFields = ({
   keyword,
   values,
-  choiceValues,
-  multiSelect,
+  options,
+  isMultiSelect,
   onUpdate
 }) => {
   const { languagesList, language } = useContext(LanguageContext)
@@ -126,15 +124,14 @@ const EditableFields = ({
     )
   }
 
-  console.log('choice', choiceValues)
-  if (choiceValues && choiceValues.length)
+  if (options.length)
     return (
       <Selector
         {...{
           keyword,
-          choiceValues,
+          options,
           values,
-          multiSelect,
+          isMultiSelect,
           onUpdate
         }}
       />
@@ -165,17 +162,17 @@ const EditableFields = ({
 EditableFields.propTypes = {
   keyword: PropTypes.string.isRequired,
   values: PropTypes.array.isRequired,
-  choiceValues: PropTypes.array,
-  multiSelect: PropTypes.bool.isRequired,
+  options: PropTypes.array,
+  isMultiSelect: PropTypes.bool.isRequired,
   onUpdate: PropTypes.func.isRequired
 }
 
-const Selector = ({ keyword, choiceValues, values, multiSelect, onUpdate }) => (
+const Selector = ({ keyword, options, values, isMultiSelect, onUpdate }) => (
   <EuiComboBox
     isClearable={false}
-    options={choiceValues.map((label) => ({ label }))}
+    options={options.map((label) => ({ label }))}
     selectedOptions={values.map(({ value }) => ({ label: value }))}
-    singleSelection={!multiSelect && { asPlainText: true }}
+    singleSelection={!isMultiSelect && { asPlainText: true }}
     onChange={(selectedOptions) => {
       const values = selectedOptions.map(({ label }) => ({ value: label }))
       onUpdate(keyword, values)
@@ -183,4 +180,12 @@ const Selector = ({ keyword, choiceValues, values, multiSelect, onUpdate }) => (
   />
 )
 
-export default ReadOnlyChapters
+Selector.propTypes = {
+  keyword: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  values: PropTypes.array.isRequired,
+  isMultiSelect: PropTypes.bool,
+  onUpdate: PropTypes.func.isRequired
+}
+
+export default React.memo(ReadOnlyChapters)

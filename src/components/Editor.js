@@ -412,7 +412,9 @@ export default class Editor extends Component {
       const nextField = schema.fields
         .filter(({ visible }) => visible)
         .find(({ id }) => !usedKeywords.includes(id))
-      if (nextField.choiceValues) {
+      if (nextField.type?.select?.options || 
+        (nextField.type?.date && nextSegment.words.length)
+        || (nextField.type?.number && isNaN(nextSegment.words))) {
         const nextChapter = {
           keyword: nextField ? nextField.id : '',
           segments: []
@@ -779,7 +781,8 @@ export default class Editor extends Component {
       singleSelectFieldOptions,
       updateComplicatedFields,
       deleteComplicatedField,
-      isMedicalAssistantEnabled
+      isMedicalAssistantEnabled,
+      updateTranscript
     } = this.props
     const { diff, error } = this.state
     const { preferences } = this.context
@@ -810,6 +813,7 @@ export default class Editor extends Component {
           highlightedContextForMedicalAssistant={
             this.props.highlightedContextForMedicalAssistant}
           isMedicalAssistantEnabled={isMedicalAssistantEnabled}
+          updateTranscript={updateTranscript}
         />
         {!noDiff && <FullDiff diff={diff} />}
       </>

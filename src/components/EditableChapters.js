@@ -42,4 +42,4 @@ EditableChapters.propTypes = {
   inputRef: PropTypes.any
 }
 
-export default EditableChapters
+export default React.memo(EditableChapters)

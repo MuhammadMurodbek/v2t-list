@@ -5,6 +5,8 @@ import SectionHeader from '../components/SectionHeader'
 import PropTypes from 'prop-types'
 import Chunks from '../components/Chunks'
 import ComplicatedField from './ComplicatedField'
+import NumberField from './NumberField'
+import DatePickerField from './DatePickerField'
 
 const EditableChapter = ({
   recordingChapter,
@@ -20,35 +22,30 @@ const EditableChapter = ({
   createNewSectionAfterThis,
   multiSelectOptionValues,
   chapters,
+  updateTranscript,
   ...chunkProps
 }) => {
-  const sectionHeaders = schema.fields
-    ? schema.fields.map(({ name }) => name)
+  const { fields } = schema
+  const sectionHeaders = fields
+    ? fields.map(({ name }) => name)
     : []
-  const field = schema.fields
-    ? schema.fields.find(({ id }) => id === keyword)
-    : null
-  const isVisible = field ? field.visible : true
-  const sectionHeader = field ? field.name : ''
-  const isMultiSelectEnabled = field ? field.multiSelect : false
-  let isSingleSelectEnabled = false
-  let isComplicatedSelect = false
-  if (field) {
-    if (field.choiceValues) {
-      if (field.choiceValues.length > 0) {
-        isComplicatedSelect = true
-        if (!isMultiSelectEnabled) {
-          isSingleSelectEnabled = true
-        }
-      }
-    }
-  }
+
+  const field = fields.find(({ id }) => id === keyword)
+    ?? { name: '', visible: true }
+
+  const { name, type = {}, visible, headerPatterns = []} = field
+  
+  const sectionHeader = name
+  const isMultiSelectEnabled = type.select?.multiple
+  const isSingleSelectEnabled = !type.select?.multiple && type.select?.options
+  const isComplicatedSelect = type.select?.multiple && type.select?.options
+  const isNumberField = type.number && true
+  const isDateField = type.date && true
 
   let filteredSegments = segments 
-
   if (/live-diktering/.test(window.location.href)) {
     const namePatterns = field
-      ? [field.name, ...(field.headerPatterns || [])]
+      ? [name, ...(headerPatterns || [])]
       : []
     const escapedNamePatterns = namePatterns.map(escapeRegularExpression)
     const regex = new RegExp(`^(${escapedNamePatterns.join(' |')} )?(.?)`, 'i')
@@ -65,17 +62,12 @@ const EditableChapter = ({
       return { ...segment, words }
     })
   }
-
-
   const joinedSegments = segments.map((segment) => segment.words).join('')
-  const selectedChoice = field
-    ? field.choiceValues
-      ? field.choiceValues.filter(
-        (ch) =>
-          ch.toLowerCase().trim() === joinedSegments.toLowerCase().trim()
-      )
-      : []
-    : []
+  const selectedChoice = (type.select?.options || []).filter(
+    (ch) =>
+      ch.toLowerCase().trim() === joinedSegments.toLowerCase().trim()
+  )
+
 
   const getComplicatedFieldProps = (props) => {
     return {
@@ -94,7 +86,7 @@ const EditableChapter = ({
     <EuiFormRow
       style={{
         maxWidth: '100%',
-        display: isVisible ? 'default' : 'none'
+        display: visible ? 'default' : 'none'
       }}
     >
       <>
@@ -115,7 +107,8 @@ const EditableChapter = ({
             />
           </>
         )}
-        {(isSingleSelectEnabled && singleSelectFieldOptions[sectionHeader]) && (
+        {(isSingleSelectEnabled &&
+            singleSelectFieldOptions[sectionHeader]) && (
           <>
             <ComplicatedField
               {...getComplicatedFieldProps({
@@ -125,7 +118,22 @@ const EditableChapter = ({
             />
           </>
         )}
-        {!isSingleSelectEnabled && !isMultiSelectEnabled && (
+        {isNumberField && 
+        <NumberField 
+          chapters={chapters}
+          chapterId={chapterId} 
+          segments={segments}
+          updateTranscript={updateTranscript}
+          createNewSectionAfterThis={createNewSectionAfterThis}
+        />}
+        {isDateField && <DatePickerField
+          chapters={chapters}
+          chapterId={chapterId} 
+          updateTranscript={updateTranscript}
+          createNewSectionAfterThis={createNewSectionAfterThis}
+        />}
+        {!isSingleSelectEnabled && !isMultiSelectEnabled 
+          && !isNumberField && !isDateField && (
           <Chunks
             recordingChapter={recordingChapter}
             chapterId={chapterId}
@@ -154,9 +162,8 @@ EditableChapter.propTypes = {
   createNewSectionAfterThis: PropTypes.func,
   deleteComplicatedField: PropTypes.func,
   multiSelectOptionValues: PropTypes.array,
-  chapters: PropTypes.array.isRequired
+  chapters: PropTypes.array.isRequired,
+  updateTranscript: PropTypes.func.isRequired
 }
 
-export default EditableChapter
-
-
+export default React.memo(EditableChapter)

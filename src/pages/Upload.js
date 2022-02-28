@@ -25,6 +25,7 @@ import {
   addWarningToast
 } from '../components/GlobalToastList'
 import { PreferenceContext } from '../components/PreferencesProvider'
+import { SchemaV2 } from '../api/index'
 
 export default class UploadPage extends Component {
 
@@ -215,7 +216,7 @@ export default class UploadPage extends Component {
 
   loadSchema = async (schemaId) => {
     this.setState({ schemaId, schemaFields: [], isLoadingSchema: true })
-    const { data: schema } = await api.getSchema(schemaId)
+    const schema = await SchemaV2.find(schemaId)
     const schemaFields = schema.fields ? schema.fields.filter(
       (({ editable, visible }) => !editable && visible)
     ) : []

@@ -65,6 +65,8 @@ import medicalAssistant from '../models/medicalAssistant'
 import ICDParams from '../components/medical-assistant/ICDParams'
 import AssistantResponse from '../components/medical-assistant/AssistantResponse'
 
+import { SchemaV2 } from '../api/index'
+
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
 const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED', 'ERROR']
 
@@ -747,8 +749,8 @@ export default class EditPage extends Component {
         departmentId: transcript.departmentId
       })
       const { data: { departments }} = await api.getDepartments()
-      const { data: originalSchema } =
-        (await api.getSchema(transcript.schemaId).catch(this.onError)) || {}
+      const originalSchema =
+        (await SchemaV2.find(transcript.schemaId).catch(this.onError)) || {}
       const schema = await this.extractHeaders(originalSchema)
       this.setState({
         departments,
@@ -783,23 +785,20 @@ export default class EditPage extends Component {
   }
 
   updateFieldsWithSelection = async (schema) => {
-    // console.log('schema', schema)
     const complicatedFields = {}
     const singleSelectFields = {}
-    schema.fields
-      .filter((f) => f.multiSelect)
-      .forEach((f) => {
-        complicatedFields[f.name] = f.choiceValues
-      })
-    schema.fields
-      .filter((f) => !f.multiSelect)
-      .filter((f) => f.choiceValues)
-      .forEach((f) => {
-        singleSelectFields[f.name] = f.choiceValues
-      })
-    // console.log('schema', schema.name)
-    // console.log('complicatedFields', complicatedFields)
-    // console.log('singleSelectFields', singleSelectFields)
+
+    schema.fields.forEach((field) => {
+      if (field.select) {
+        const { multiple, options } = field.select
+        if (multiple && !_.isUndefined(options)) {
+          complicatedFields[field.name] = options
+        } else if (!_.isUndefined(options)) {
+          singleSelectFields[field.name] = options
+        }
+      }
+    })
+
     this.setState({
       complicatedFieldOptions: complicatedFields,
       singleSelectFieldOptions: singleSelectFields
@@ -811,8 +810,8 @@ export default class EditPage extends Component {
     const { fields, media_content_type, schemaId, transcriptions } = transcript
     setTranscriptId(this.props.id)
 
-    const { data: originalSchema } =
-      (await api.getSchema(schemaId).catch(this.onError)) || {}
+    const originalSchema =
+      (await SchemaV2.find(schemaId).catch(this.onError)) || {}
     const schema = this.extractTagsAndSchema(selectedSchema, transcriptions)
     const defaultField =
       originalSchema && originalSchema.fields.find((field) => field.default)
@@ -837,8 +836,8 @@ export default class EditPage extends Component {
       schema,
       parsedChapters
     )
-    // console.log('parsedChapters', parsedChapters)
-    // console.log('updatedChapters', updatedChapters)
+    console.log('parsedChapters', parsedChapters)
+    console.log('updatedChapters', updatedChapters)
     const updatedState = {
       originalSchemaId: schemaId,
       allChapters: transcriptions,
@@ -875,7 +874,7 @@ export default class EditPage extends Component {
     // console.log('chapters', chapters)
     const complicatedFieldMap = {}
     schema.fields.forEach((schemaField) => {
-      if (schemaField.choiceValues) {
+      if (schemaField.type?.select?.options) {
         complicatedFieldMap[schemaField.name] = true
         // sometimes id is used as  keyword
         complicatedFieldMap[schemaField.id] = true
@@ -899,8 +898,8 @@ export default class EditPage extends Component {
         )
         const choices = []
         if (fieldWithOptions.length > 0) {
-          if (fieldWithOptions[0].choiceValues) {
-            fieldWithOptions[0].choiceValues.forEach((choice) => {
+          if (fieldWithOptions[0].type?.select?.options) {
+            fieldWithOptions[0].type?.select?.options.forEach((choice) => {
               choices.push(choice)
             })
           }
@@ -940,7 +939,7 @@ export default class EditPage extends Component {
             ).filter(Boolean)
           // console.log('currentFieldOfSchema', currentFieldOfSchema)
           if(currentFieldOfSchema.length){
-            if(currentFieldOfSchema[0].multiSelect) { isSingleSelect = false }
+            if(currentFieldOfSchema[0].type?.select?.multiple) { isSingleSelect = false }
           }
           if(isSingleSelect) {
             stringToBeAttachedToTheNextChapter.push({
@@ -1008,10 +1007,8 @@ export default class EditPage extends Component {
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
       // console.log('schema?', JSON.parse(JSON.stringify(schema)))
-      const hasSelector = ({ id, choiceValues }) => TAG_NAMESPACES.includes(id)
-      // || (choiceValues && choiceValues.length)
+      const hasSelector = ({ id }) => TAG_NAMESPACES.includes(id)
       const selectors = schema.fields.filter(hasSelector)
-      // console.log('selectors', selectors)
       schema.fields = schema.fields.filter((...args) => !hasSelector(...args))
       const originalTags = selectors.reduce(
         (store, { id: namespace, visible }) => {
@@ -1095,11 +1092,11 @@ export default class EditPage extends Component {
 
     if (!transcriptions) return []
     const chapters = readOnlyHeaders.map((field) => {
-      const { id, name, choiceValues, multiSelect } = field
+      const { name, select } = field
       const chapter = transcriptions.find(
         ({ keyword }) => keyword === field.id
       ) || { values: [], keyword: field.id }
-      return { ...chapter, name: field.name, choiceValues, multiSelect  }
+      return { ...chapter, name, select }
     })
 
     let date
@@ -1707,7 +1704,7 @@ export default class EditPage extends Component {
       allChapters.filter(({ keyword }) => excludedKeywords.includes(keyword))
     )
 
-    const { data: fullSchema } = await api.getSchema(schema.id)
+    const fullSchema = await SchemaV2.find(schema.id)
     return fullSchema.fields.reduce((store, { id, name, required }) => {
       if (
         required &&
@@ -1765,8 +1762,8 @@ export default class EditPage extends Component {
   updateSchemaId = async (schemaId) => {
     const { allChapters, chapters } = this.state
     this.mergeArrays(allChapters, chapters)
-    const { data: originalSchema } =
-      (await api.getSchema(schemaId).catch(this.onError)) || {}
+    const originalSchema =
+      (await SchemaV2.find(schemaId).catch(this.onError)) || {}
     if (!originalSchema) return
     let schema = await this.extractHeaders(originalSchema)
     schema = this.extractTagsAndSchema(schema, allChapters)
@@ -1838,7 +1835,7 @@ export default class EditPage extends Component {
         const { fieldsWithRequirement, schema } = this.state
         const complicatedFieldMap = {}
         schema.fields.forEach((schemaField) => {
-          if (schemaField.choiceValues) {
+          if (schemaField.type?.select?.options) {
             complicatedFieldMap[schemaField.name] = true
             // sometimes id is used as  keyword
             complicatedFieldMap[schemaField.id] = true
@@ -2417,17 +2414,17 @@ export default class EditPage extends Component {
                   {noMappingFields.map((field, key) => (
                     <EuiFlexItem grow={false} key={key}>
                       <EuiFormRow label={field.name}>
-                        {field.choiceValues ? (
+                        {(field.select && field.type?.select?.options) ? (
                           <EuiComboBox
                             isClearable={false}
-                            options={field.choiceValues.map((label) => ({
+                            options={field.type?.select?.options.map((label) => ({
                               label
                             }))}
                             selectedOptions={field.values.map(({ value }) => ({
                               label: value
                             }))}
                             singleSelection={
-                              !field.multiSelect && { asPlainText: true }
+                              (field.select && !field.select.multiple) && { asPlainText: true }
                             }
                             onChange={(selectedOptions) => {
                               this.setState((prevState) => {

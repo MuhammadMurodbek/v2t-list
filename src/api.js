@@ -234,7 +234,7 @@ const getSchemas = (payload) => axios.post(URLS.schemaSearch, {
   ...payload
 })
 
-const getSchema = (id) => axios.get(`${URLS.schemaById}/${id}`)
+
 export { URLS }
 
 
@@ -304,7 +304,6 @@ export default {
   // getChartData,
   // getListOfAllJobs,
   getSchemas,
-  getSchema,
   createLiveSession,
   updateTranscriptionV2,
   getBlobFile,
