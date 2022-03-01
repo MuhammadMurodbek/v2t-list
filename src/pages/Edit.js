@@ -1613,21 +1613,19 @@ export default class EditPage extends Component {
       })
 
       let chapterBeforeSubmission = chapters
-      if(force) {
-        // approving, remove the non-zero width joiner 
-        // (journal system is not unicode)
-        chapterBeforeSubmission = chapters.map((chapter) => {
-          const updatedSegments = []
-          chapter.segments.forEach((segment) => {
-            let updatedWords
-            if (segment.words) {
-              updatedWords = segment.words.replace('\u200c', '')
-            }
-            updatedSegments.push({ ...segment, words: updatedWords })
-          })
-          return { ...chapter, segments: updatedSegments }
+      // approving, remove the non-zero width joiner 
+      // (journal system is not unicode)
+      chapterBeforeSubmission = chapters.map((chapter) => {
+        const updatedSegments = []
+        chapter.segments.forEach((segment) => {
+          let updatedWords
+          if (segment.words) {
+            updatedWords = segment.words.replaceAll(String.raw`\u200c`, '')
+          }
+          updatedSegments.push({ ...segment, words: updatedWords })
         })
-      } 
+        return { ...chapter, segments: updatedSegments }
+      })
       const fields = convertToV2API(
         unfiltredSchema,
         chapterBeforeSubmission,
