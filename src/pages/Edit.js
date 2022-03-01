@@ -115,7 +115,8 @@ const INITIAL_STATE = {
   metricsStartTime: 0,
   editSeconds: 0,
   outgoingChannel: '',
-  isLiveDicModalOpen: true
+  isLiveDicModalOpen: true,
+  showTooltip: true
 }
 
 export default class EditPage extends Component {
@@ -2520,7 +2521,7 @@ export default class EditPage extends Component {
                   {([press, toSave]) => (
                     <EuiToolTip
                       position="top"
-                      content={`${press} 'ctrl + s' ${toSave}`}
+                      content={this.state.showTooltip ? `${press} 'ctrl + s' ${toSave}` : ''}
                     >
                       <EuiButton
                         size="s"
@@ -2528,6 +2529,8 @@ export default class EditPage extends Component {
                         isLoading={isUploadingMedia}
                         onClick={this.onSave}
                         id="save_changes"
+                        onMouseOver={() => this.setState({ showTooltip: true })}
+                        onMouseOut={() => this.setState({ showTooltip: false })}
                       >
                         <EuiI18n token="save" default="Save" />
                       </EuiButton>
