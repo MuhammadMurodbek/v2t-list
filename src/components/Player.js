@@ -3,7 +3,8 @@ import React, { Component, Fragment } from 'react'
 import {
   EuiGlobalToastList,
   EuiToolTip,
-  EuiFieldSearch
+  EuiFieldSearch,
+  EuiSelect
 } from '@elastic/eui'
 import '../styles/player.css'
 import Seek from './Seek'
@@ -13,14 +14,6 @@ import { EuiI18n } from '@elastic/eui'
 import Mic from '../components/Mic'
 import { EVENTS } from '../components/EventHandler'
 import EventEmitter from '../models/events'
-
-const isChrome = navigator.userAgent.indexOf('Chrome') != -1
-let micName = ''
-navigator.mediaDevices.enumerateDevices()
-  .then(function(devices) {
-    devices = devices.filter((d) => d.kind === 'audioinput')
-    micName = devices[0].label
-  })
 
 class Player extends Component {
   static contextType = PreferenceContext
@@ -39,7 +32,9 @@ class Player extends Component {
     mediaSkipDuration: 2,
     volume: 0.6,
     playbackRate: 1.0,
-    toasts: []
+    toasts: [],
+    options: [],
+    micValue: ''
   }
  
   componentDidMount = () => {
@@ -53,6 +48,10 @@ class Player extends Component {
     EventEmitter.subscribe(EVENTS.STOP_AUDIO, this.stopAudio)
     EventEmitter.subscribe(EVENTS.BACKWARD_AUDIO, this.backwardAudio)
     EventEmitter.subscribe(EVENTS.FORWARD_AUDIO, this.forwardAudio)
+    navigator.mediaDevices.enumerateDevices()
+      .then(this.gotDevices)
+      .then(this.startMic)
+      .catch(this.handleError)
   }
 
   componentWillUnmount = () => {
@@ -68,11 +67,50 @@ class Player extends Component {
     EventEmitter.unsubscribe(EVENTS.FORWARD_AUDIO, this.forwardAudio)
   }
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = (prevProps, prevState) => {
     const { cursorTime } = this.props
     const { isPlaying } = this.state
-    if (!isPlaying && prevProps.cursorTime !== cursorTime)
+    const { micValue } = this.state
+    if (!isPlaying && prevProps.cursorTime !== cursorTime) {
       this.myRef.current.currentTime = cursorTime
+    }
+    if(prevState.micValue !== micValue) {
+      this.startMic()
+    }
+  }
+
+  gotDevices = (deviceInfos) => {
+    const { options } = this.state
+    for (let i = 0; i < deviceInfos.length; i++) {
+      const deviceInfo = deviceInfos[i]
+      const option = {
+        value: deviceInfo.deviceId
+      }
+      if (deviceInfo.kind === 'audioinput') {
+        option.text = deviceInfo.label || 
+        `microphone ${options.length + 1}`
+        options.push(option)
+        this.setState({ micValue: options[0].value })
+      }
+    }
+  }
+
+  startMic = () => {
+    const { micValue } = this.state
+    if (window.stream) {
+      window.stream.getAudioTracks()[0].stop()
+    }
+    const audioSource = micValue
+    const constraints = {
+      audio: { deviceId: audioSource ? { exact: audioSource } : undefined } 
+    }
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then((stream) => window.stream = stream).catch(this.handleError)
+  }
+
+  handleError = (error) => {
+    // eslint-disable-next-line no-console
+    console.log(error.message)
   }
 
   onChangeSeek = (e) => {
@@ -333,7 +371,9 @@ class Player extends Component {
       startTimes,
       seekPosition,
       toasts,
-      playbackRate
+      playbackRate,
+      options,
+      micValue
     } = this.state
     const {
       audioTranscript,
@@ -548,21 +588,15 @@ class Player extends Component {
           dismissToast={this.removeToast}
           toastLifeTimeMs={2000}
         />
-        {recording && isChrome &&
-        <div style={{ marginTop: '20px', 
-          fontSize: '12px', display: 'flex' }}>
-          {micName ? 
-            <EuiI18n
-              token="micName"
-              default="You are using {micName}"
-              values={{ micName: micName }}
-            /> : 
-            <EuiI18n
-              token="noMicName"
-              default="Microphone for recording not found"
-            />}
-        </div>
-        }
+        {mic ? 
+          <div style={{ marginTop: '20px' }}>
+            <EuiSelect
+              options={options}
+              value={micValue}
+              onChange={(e) => this.setState({ micValue: e.target.value })}
+            />
+          </div>
+          : null}
       </Fragment>
     )
   }
