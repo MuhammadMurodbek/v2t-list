@@ -1000,22 +1000,29 @@ export default class EditPage extends Component {
 
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
-      // console.log('schema?', JSON.parse(JSON.stringify(schema)))
-      const hasSelector = ({ id }) => TAG_NAMESPACES.includes(id)
-      const selectors = schema.fields.filter(hasSelector)
-      schema.fields = schema.fields.filter((...args) => !hasSelector(...args))
+      const selectors = schema.fields.filter(
+        (field) => field.type?.select?.dictionary
+      )
+      schema.fields = schema.fields.filter(
+        (field) => !field.type?.select?.dictionary
+      )
       const originalTags = selectors.reduce(
-        (store, { id: namespace, visible }) => {
+        (store, { id, name, visible, type }) => {
           const tagTranscript = transcriptions.find(
-            ({ keyword }) => keyword === namespace
+            ({ keyword }) => keyword === id
           )
           if (tagTranscript && tagTranscript.values) {
-            store[namespace] = {
+            store[name] = {
               ...tagTranscript,
-              visible
+              visible,
+              dictionary: type?.select?.dictionary
             }
           } else {
-            store[namespace] = { values: [], visible }
+            store[name] = {
+              values: [],
+              visible,
+              dictionary: type?.select?.dictionary
+            }
           }
           return store
         },

@@ -50,20 +50,24 @@ export default class Tags extends Component {
   loadTagsFromTranscript = () => {
     const { tags } = this.props
 
-    Object.keys(tags).forEach(namespace => {
-      this.loadOptions('', namespace)
+    Object.keys(tags).forEach(([namespace, { dictionary }]) => {
+      this.loadOptions('', namespace, undefined, dictionary)
     })
   }
 
-  loadOptions = async (searchTerm = '', namespace) => {
+  loadOptions = async (searchTerm = '', namespace, dictionaryValue) => {
     const { tags } = this.props
-    this.loadOption(searchTerm, namespace, 
-      tags[namespace].type?.select?.options)
+    this.loadOption(
+      searchTerm,
+      dictionaryValue,
+      tags[namespace].type?.select?.options,
+      namespace
+    )
   }
 
-  loadOption = async (searchTerm, namespace, options) => {
+  loadOption = async (searchTerm, dictionaryValue, options, namespace) => {
     if (!options || !options.length)
-      this.fetchOptions(searchTerm, namespace)
+      this.fetchOptions(searchTerm, namespace, dictionaryValue)
     else
       this.setState(prevState => ({ options: {
         ...prevState.options,
@@ -71,10 +75,10 @@ export default class Tags extends Component {
       }}))
   }
 
-  fetchOptions = async (searchTerm, namespace) => {
+  fetchOptions = async (searchTerm, namespace, dictionaryValue) => {
     const { tags } = this.props
     try {
-      const codeData = await api.keywordsSearch(searchTerm, namespace)
+      const codeData = await api.keywordsSearch(searchTerm, dictionaryValue)
 
       // Purpose of doing this is to use free text search
       if (codeData.data) {
@@ -95,7 +99,7 @@ export default class Tags extends Component {
         this.setState(prevState => ({
           options: {
             ...prevState.options,
-            [namespace]: options
+            [dictionaryValue]: options
           }
         }))
       }
@@ -113,11 +117,11 @@ export default class Tags extends Component {
     }})
   }
 
-  addCode = (namespace) => {
+  addCode = (namespace, dictionary) => {
     const { tags } = this.props
     const { selectedOptions } = this.state
-    if (selectedOptions[namespace].length > 0) {
-      const data = selectedOptions[namespace][0]
+    if (selectedOptions[dictionary].length > 0) {
+      const data = selectedOptions[dictionary][0]
       const [value, description] = data.label.split(': ')
       let values
       if (tags[namespace].values) {
@@ -153,25 +157,25 @@ export default class Tags extends Component {
     })
   }
 
-  onChange = (namespace, selectedOption) => {
+  onChange = (namespace, dictionary, selectedOption) => {
     this.setState(prevState => (
       {
         selectedOptions: {
           ...prevState.selectedOptions,
-          [namespace]: selectedOption
+          [dictionary]: selectedOption
         }
       }
     ),
-    () => this.addCode(namespace))
+    () => this.addCode(namespace, dictionary))
   }
 
-  onSearchChange = async (namespace, searchValue) => {
+  onSearchChange = async (namespace, dictionaryValue, searchValue) => {
     this.setState({
       isLoading: true
     })
 
 
-    await this.loadOptions(searchValue, namespace)
+    await this.loadOptions(searchValue, namespace, dictionaryValue)
     this.setState({
       isLoading: false
     })
@@ -223,7 +227,8 @@ export default class Tags extends Component {
       <EuiI18n tokens={['lookFor']} defaults={['Look for']}>
         {([lookFor]) => (
           <EuiFlexGroup direction="column">
-            {Object.entries(tags).map(([namespace, { values, visible }]) =>
+            {Object.entries(tags).map(([namespace, 
+              { values, visible, dictionary }]) =>
               values ? (
                 <EuiFlexItem
                   key={namespace}
@@ -233,19 +238,27 @@ export default class Tags extends Component {
                 >
                   <EuiFlexGroup direction="column">
                     <EuiFlexItem grow={false}>
-                      <EuiFormRow label={this.getLabel(namespace)}>
+                      <EuiFormRow label={namespace}>
                         <EuiComboBox
-                          placeholder={`${lookFor} ${this.getLabel(namespace)}`}
+                          placeholder={`${lookFor} ${namespace}`}
                           async
-                          options={options[namespace] || []}
-                          selectedOptions={selectedOptions[namespace]}
+                          options={options[dictionary] || []}
+                          selectedOptions={selectedOptions[dictionary]}
                           singleSelection
                           isLoading={isLoading}
                           onChange={(selectedOptions) =>
-                            this.onChange(namespace, selectedOptions)
+                            this.onChange(
+                              namespace,
+                              dictionary,
+                              selectedOptions
+                            )
                           }
                           onSearchChange={(searchValue) =>
-                            this.onSearchChange(namespace, searchValue)
+                            this.onSearchChange(
+                              namespace,
+                              dictionary,
+                              searchValue
+                            )
                           }
                         />
                       </EuiFormRow>
@@ -287,7 +300,11 @@ export default class Tags extends Component {
                                     >
                                       <strong>{value}</strong> {description}
                                     </EuiFlexItem>
-                                    <EuiFlexItem grow={false}>
+                                    <EuiFlexItem
+                                      style={{
+                                        alignItems: 'end'
+                                      }}
+                                    >
                                       <EuiButtonIcon
                                         iconSize="l"
                                         color="danger"

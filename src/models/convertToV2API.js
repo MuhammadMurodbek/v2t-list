@@ -2,10 +2,10 @@ import { TAG_NAMESPACES } from '../components/Tags'
 
 const convertToV2API = (schema, chapters, tags = {}) => {
   const tagFields = Object.entries(tags).reduce((store, [namespace, tags]) => {
-    const id = namespace
+    const field = schema.originalFields.find(field => field.name === namespace)
     return store.concat({
-      id,
-      namespace: id,
+      id: field ? field.id : tags.dictionary,
+      namespace: tags.dictionary,
       values: tags.values
     })
   }, [])
