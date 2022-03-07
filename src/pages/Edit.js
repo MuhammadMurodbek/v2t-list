@@ -768,7 +768,8 @@ export default class EditPage extends Component {
     const updates = complicatedFieldMultiSelectOptions
     if(fields) {
       for (const field of fields) {
-        if (!TAG_NAMESPACES.includes(field.id)
+        field.namespace && TAG_NAMESPACES.push(field.namespace)
+        if (!TAG_NAMESPACES.includes(field.namespace)
           && Object.prototype.hasOwnProperty.call(field, 'namespace')
           && Object.prototype.hasOwnProperty.call(field, 'values')) {
           updates[field.id] = field
@@ -1000,12 +1001,12 @@ export default class EditPage extends Component {
 
   extractTagsAndSchema = (schema, transcriptions) => {
     if (schema.fields) {
-      const selectors = schema.fields.filter(
+      schema.fields.filter(
         (field) => field.type?.select?.dictionary
-      )
-      schema.fields = schema.fields.filter(
-        (field) => !field.type?.select?.dictionary
-      )
+      ).map((field) => TAG_NAMESPACES.push(field.id))
+      const hasSelector = ({ type }) => TAG_NAMESPACES.includes(type?.select?.dictionary)
+      const selectors = schema.fields.filter(hasSelector)
+      schema.fields = schema.fields.filter((...args) => !hasSelector(...args))
       const originalTags = selectors.reduce(
         (store, { id, name, visible, type }) => {
           const tagTranscript = transcriptions.find(
