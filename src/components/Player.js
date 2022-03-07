@@ -38,6 +38,7 @@ class Player extends Component {
   }
  
   componentDidMount = () => {
+    const { mic } = this.props
     EventEmitter.subscribe(EVENTS.TOGGLE_PLAY, this.togglePlay)
     EventEmitter.subscribe(EVENTS.PLAY_AUDIO, this.playAudio)
     EventEmitter.subscribe(EVENTS.PAUSE_AUDIO, this.pauseAudio)
@@ -48,10 +49,12 @@ class Player extends Component {
     EventEmitter.subscribe(EVENTS.STOP_AUDIO, this.stopAudio)
     EventEmitter.subscribe(EVENTS.BACKWARD_AUDIO, this.backwardAudio)
     EventEmitter.subscribe(EVENTS.FORWARD_AUDIO, this.forwardAudio)
-    navigator.mediaDevices.enumerateDevices()
-      .then(this.gotDevices)
-      .then(this.startMic)
-      .catch(this.handleError)
+    if (mic) {
+      navigator.mediaDevices.enumerateDevices()
+        .then(this.gotDevices)
+        .then(this.startMic)
+        .catch(this.handleError)
+    }
   }
 
   componentWillUnmount = () => {
@@ -68,13 +71,13 @@ class Player extends Component {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-    const { cursorTime } = this.props
+    const { cursorTime, mic } = this.props
     const { isPlaying } = this.state
     const { micValue } = this.state
     if (!isPlaying && prevProps.cursorTime !== cursorTime) {
       this.myRef.current.currentTime = cursorTime
     }
-    if(prevState.micValue !== micValue) {
+    if(prevState.micValue !== micValue && mic) {
       this.startMic()
     }
   }
