@@ -273,19 +273,30 @@ const getDepartments = (payload) => axios.post(URLS.searchDepartments, {
 const getActiveLiveSession = () =>
   axios.get('/api/transcription/v2/live/session/active')
 
+// const getMedicalAssistantData = (
+//   queryText,
+//   language = 'swedish',
+//   interactive = false
+// ) => {
+//   return []
+// }
+// // axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
+// //   // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
+// //   content: queryText,
+// //   language: language,
+// //   interactive
+// // })
+
 const getMedicalAssistantData = (
   queryText,
   language = 'swedish',
   interactive = false
-) => {
-  return []
-}
-// axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
-//   // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
-//   content: queryText,
-//   language: language,
-//   interactive
-// })
+) => axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
+  // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
+  content: queryText,
+  language: language,
+  interactive
+})
 
 export default {
   approveTranscription,
