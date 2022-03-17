@@ -1621,7 +1621,7 @@ export default class EditPage extends Component {
         chapter.segments.forEach((segment) => {
           let updatedWords
           if (segment.words) {
-            updatedWords = segment.words.replaceAll(String.raw`\u200c`, '')
+            updatedWords = segment.words.replaceAll('\u200c', '')
           }
           updatedSegments.push({ ...segment, words: updatedWords })
         })
