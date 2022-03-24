@@ -28,13 +28,15 @@ export async function renderTranscriptionState(id) {
 
     switch(state) {
     case 'ERROR':
-      return addErrorToast(state, error, 20000)
+      addErrorToast(state, error, 20000)
+      break
     case 'PENDING':
-      return renderTranscriptionState(id)
+      renderTranscriptionState(id)
+      break
     case 'EXPORTED':
     case 'APPROVED':
       _.delay(() => window.location.href = '/', 1000)
-      return
+      break
     default:
       throw new Error(`Unsupported state type ${state}`)
     }
