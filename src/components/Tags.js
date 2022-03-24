@@ -60,7 +60,7 @@ export default class Tags extends Component {
     this.loadOption(
       searchTerm,
       dictionaryValue,
-      tags[namespace].type?.select?.options,
+      tags[namespace]?.type?.select?.options,
       namespace
     )
   }

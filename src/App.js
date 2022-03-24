@@ -232,14 +232,14 @@ class App extends Component {
                     forceOpen: true,
                     name: <EuiI18n token="department" default="Department" />
                   },
-                  {
-                    id: 'Conversations',
-                    href: '/#/transcriptor',
-                    name: <EuiI18n token="samtal" default="Transcriptor" />,
-                    onClick: () => {
-                      this.selectItem('Conversations')
-                    }
-                  },
+                  // {
+                  //   id: 'Conversations',
+                  //   href: '/#/transcriptor',
+                  //   name: <EuiI18n token="samtal" default="Transcriptor" />,
+                  //   onClick: () => {
+                  //     this.selectItem('Conversations')
+                  //   }
+                  // },
                   {
                     href: '/#/upload',
                     id: 'Upload',

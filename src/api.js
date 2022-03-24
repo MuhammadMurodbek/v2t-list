@@ -186,48 +186,6 @@ const updateTranscription = (transcriptionId, schemaId, fields) =>
     fields
   })
 
-const updateTranscriptionV2 = (
-  transcriptionId,
-  doktorsNamn,
-  patientsNamn,
-  patientsPersonnummer,
-  departmentId,
-  convertedTranscript,
-  schemaId
-) => {
-  const fields = [
-    {
-      id: 'doctor_full_name',
-      values: [{
-        value: doktorsNamn
-      }]
-    },
-    {
-      id: 'patient_full_name',
-      values: [{
-        value: patientsNamn
-      }]
-    },
-    {
-      id: 'patient_id',
-      values: [{
-        value: patientsPersonnummer
-      }]
-    },
-    {
-      id: 'department_id',
-      values: [{
-        value: departmentId
-      }]
-    }]
-  convertedTranscript.forEach(chapter => fields.push(chapter))
-
-  return axios.put(`/api/transcription/v2/${transcriptionId}`, {
-    schemaId,
-    fields
-  })
-}
-
 const getSchemas = (payload) => axios.post(URLS.schemaSearch, {
   start: 0,
   size: 1000,
@@ -273,30 +231,21 @@ const getDepartments = (payload) => axios.post(URLS.searchDepartments, {
 const getActiveLiveSession = () =>
   axios.get('/api/transcription/v2/live/session/active')
 
-// const getMedicalAssistantData = (
-//   queryText,
-//   language = 'swedish',
-//   interactive = false
-// ) => {
-//   return []
-// }
-// // axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
-// //   // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
-// //   content: queryText,
-// //   language: language,
-// //   interactive
-// // })
-
 const getMedicalAssistantData = (
   queryText,
   language = 'swedish',
   interactive = false
-) => axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
-  // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
-  content: queryText,
-  language: language,
-  interactive
-})
+) => {
+  return []
+}
+// axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
+//   // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {
+//   content: queryText,
+//   language: language,
+//   interactive
+// })
+
+
 
 export default {
   approveTranscription,
@@ -316,7 +265,6 @@ export default {
   // getListOfAllJobs,
   getSchemas,
   createLiveSession,
-  updateTranscriptionV2,
   getBlobFile,
   completeLiveTranscript,
   getDepartments,

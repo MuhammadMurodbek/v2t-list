@@ -163,7 +163,7 @@ EditableFields.propTypes = {
   keyword: PropTypes.string.isRequired,
   values: PropTypes.array.isRequired,
   options: PropTypes.array,
-  isMultiSelect: PropTypes.bool.isRequired,
+  isMultiSelect: PropTypes.bool,
   onUpdate: PropTypes.func.isRequired
 }
 

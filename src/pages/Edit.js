@@ -114,7 +114,7 @@ const INITIAL_STATE = {
   assistanceData: [],
   metricsStartTime: 0,
   editSeconds: 0,
-  outgoingChannel: '',
+  outgoingChannel: {},
   isLiveDicModalOpen: true,
   showTooltip: true
 }
@@ -831,8 +831,6 @@ export default class EditPage extends Component {
       schema,
       parsedChapters
     )
-    console.log('parsedChapters', parsedChapters)
-    console.log('updatedChapters', updatedChapters)
     const updatedState = {
       originalSchemaId: schemaId,
       allChapters: transcriptions,

@@ -111,7 +111,7 @@ const Player = forwardRef(({
       <RecordButton isRecording={isRecording} />
     </div>
   )
-})
+}, React.createRef())
 
 Player.propTypes = {
   trackId: PropTypes.string.isRequired,

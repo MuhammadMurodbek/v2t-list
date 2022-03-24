@@ -122,5 +122,5 @@ J4Login.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   transcriptionId: PropTypes.string.isRequired,
   editSeconds: PropTypes.number.isRequired,
-  outgoingChannel: PropTypes.number.isRequired
+  outgoingChannel: PropTypes.object.isRequired
 }
