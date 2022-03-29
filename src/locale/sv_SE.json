@@ -178,5 +178,8 @@
   "hideEditor": "Dölj redaktör",
   "schemaEmptyFields": "{name} schema kan inte redigeras",
   "micName": "Du använder {micName}",
-  "noMicName": "Mikrofon för inspelning hittades inte"
+  "noMicName": "Mikrofon för inspelning hittades inte",
+  "emailReport": "Skicka e-post  till service-desk",
+  "toSendEmailReport": "för att skicka e-postrapport",
+  "emailSubject": "Transcription issue"
 }

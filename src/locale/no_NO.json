@@ -178,5 +178,8 @@
   "hideEditor": "Skjul redaktør",
   "schemaEmptyFields": "{name} skjemaet kan ikke redigeres",
   "micName": "Du bruker {micName}",
-  "noMicName": "Finner ikke mikrofon for opptak"
+  "noMicName": "Finner ikke mikrofon for opptak",
+  "emailReport": "Send email  til service-desk",
+  "toSendEmailReport": "for å sende e-postrapport",
+  "emailSubject": "Transcription issue"
 }

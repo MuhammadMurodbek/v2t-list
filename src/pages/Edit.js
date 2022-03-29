@@ -54,7 +54,7 @@ import ListOfHeaders from '../components/ListOfHeaders'
 import EventEmitter from '../models/events'
 import J4Login from '../components/J4Login'
 import _ from 'lodash'
-import { renderTranscriptionState } from '../utils'
+import { renderTranscriptionState, sendMail } from '../utils'
 import { interpret } from 'xstate'
 import { timeMachine } from '../config/timeMachine'
 import '../styles/simple-player.css'
@@ -64,6 +64,7 @@ import MedicalAssistantContext from '../context/MedicalAssistantContext'
 import medicalAssistant from '../models/medicalAssistant'
 import ICDParams from '../components/medical-assistant/ICDParams'
 import AssistantResponse from '../components/medical-assistant/AssistantResponse'
+import packageInformation from '../../package.json'
 
 import { SchemaV2 } from '../api/index'
 
@@ -158,6 +159,7 @@ export default class EditPage extends Component {
     EventEmitter.subscribe(EVENTS.CANCEL, this.cancel)
     EventEmitter.subscribe(EVENTS.SEND, this.onSave)
     EventEmitter.subscribe(EVENTS.APPROVE_CHANGE, this.onApprovedChange)
+    EventEmitter.subscribe(EVENTS.SEND_EMAIL, this.sendEmailReport)
     await this.checkTranscriptStateAndLoad()
     if (mic) {
       const token = localStorage.getItem('token')
@@ -181,6 +183,7 @@ export default class EditPage extends Component {
     EventEmitter.unsubscribe(EVENTS.CANCEL)
     EventEmitter.unsubscribe(EVENTS.SEND)
     EventEmitter.unsubscribe(EVENTS.APPROVE_CHANGE)
+    EventEmitter.unsubscribe(EVENTS.SEND_EMAIL)
     this.service.stop()
   }
 
@@ -2240,6 +2243,33 @@ export default class EditPage extends Component {
     })
   }
 
+  sendEmailReport = (subject) => {
+    const { 
+      props: { id: transcriptId }, 
+      state: { departments, departmentId, schema: { id: schemaId, name: schemaName }}
+    } = this
+
+    if ([departmentId, schemaId, transcriptId].some(id => id == undefined)) {
+      addErrorToast('Please wait until fully loaded')
+      return
+    }
+
+    const departmentName = departments
+      .find(department => department.id === departmentId).name||''
+    const encoded = encodeURIComponent(
+      `\n\n\n\n-----------------------------------------\
+      \n-----------------------------------------\
+      \nTranscription information:\
+      \nDepartment: ${departmentName}\
+      \nSchema: ${schemaName}\
+      \nTranscript Id: ${transcriptId}\
+      \nUI Version: ${packageInformation.version}\
+      \n-----------------------------------------\
+      \n-----------------------------------------`
+    )
+    sendMail(subject, encoded)
+  }
+
   render() {
     const { id, mic, token } = this.props
     const {
@@ -2462,6 +2492,29 @@ export default class EditPage extends Component {
             </EuiFlexGroup>
             <EuiHorizontalRule />
             <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
+              <EuiFlexItem grow={true}>
+                <EuiI18n
+                  tokens={['press', 'toSendEmailReport', 'emailSubject']}
+                  defaults={['Press', 'to send email report', 'Transctiption details']}
+                >
+                  {([press, toSendEmailReport, emailSubject]) => (
+                    <EuiToolTip
+                      position="top"
+                      content={`${press} 'alt + shift + enter' ${toSendEmailReport}`}
+                    >
+                      <EuiButton
+                        fill
+                        size="s"
+                        color="warning"
+                        id="emailReport"
+                        onClick={() => this.sendEmailReport(emailSubject)}
+                      >
+                        <EuiI18n token="emailReport" default="Send Email to the Service Desk" />
+                      </EuiButton>
+                    </EuiToolTip>
+                  )}
+                </EuiI18n>
+              </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 {/* id is used by Conscriptor */}
                 <EuiI18n tokens={['press']} defaults={['Press']}>

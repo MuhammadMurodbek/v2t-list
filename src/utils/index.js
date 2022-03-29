@@ -51,3 +51,10 @@ export async function renderTranscriptionState(id) {
   }
 }
 
+
+export const sendMail = (subject, body) => {
+  window.open(
+    `mailto:v2t-support@inoviagroup.se
+    ?subject=${subject}&body=${body}`
+  )
+}

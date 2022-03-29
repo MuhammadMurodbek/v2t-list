@@ -16,7 +16,8 @@ const EVENTS = {
   FORWARD_AUDIO: 'forwardAudio',
   BACKWARD_AUDIO: 'backwardAudio',
   UNDO: 'undo',
-  REDO: 'redo'
+  REDO: 'redo',
+  SEND_EMAIL: 'sendEmail'
 }
 
 const KEY_CODE = {
@@ -33,7 +34,8 @@ const KEY_CODE = {
   SPACE: 32,
   ESC: 27,
   LEFT_ARROW: 37,
-  RIGHT_ARROW: 39
+  RIGHT_ARROW: 39,
+  ENTER: 13
 }
 
 const EventHandler = () => {
@@ -138,6 +140,13 @@ const EventHandler = () => {
       if (event.ctrlKey) {
         event.preventDefault()
         EventEmitter.dispatch(EVENTS.REDO)
+      }
+      break
+    }
+    case KEY_CODE.ENTER : {
+      if (event.shiftKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.SEND_EMAIL)
       }
       break
     }

@@ -176,5 +176,8 @@
     "hideEditor": "Skjul editor",
     "schemaEmptyFields": "{name} skemaet kan ikke redigeres",
     "micName": "Du bruger {micName}",
-    "noMicName": "Mikrofon til optagelse blev ikke fundet"
+    "noMicName": "Mikrofon til optagelse blev ikke fundet",
+    "emailReport": "Sende email  til service-desk",
+    "toSendEmailReport": "for at sende e-mail-rapport",
+    "emailSubject": "Transcription issue"
 }
