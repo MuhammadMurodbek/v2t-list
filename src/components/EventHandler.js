@@ -144,7 +144,7 @@ const EventHandler = () => {
       break
     }
     case KEY_CODE.ENTER : {
-      if (event.shiftKey) {
+      if (event.shiftKey && event.altKey) {
         event.preventDefault()
         EventEmitter.dispatch(EVENTS.SEND_EMAIL)
       }
