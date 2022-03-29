@@ -1623,6 +1623,8 @@ export default class EditPage extends Component {
           let updatedWords
           if (segment.words) {
             updatedWords = segment.words.replaceAll('\u200c', '')
+          } else {
+            updatedWords=''
           }
           updatedSegments.push({ ...segment, words: updatedWords })
         })
