@@ -14,6 +14,7 @@ import { EuiI18n } from '@elastic/eui'
 import Mic from '../components/Mic'
 import { EVENTS } from '../components/EventHandler'
 import EventEmitter from '../models/events'
+import { sleep } from '../utils'
 
 class Player extends Component {
   static contextType = PreferenceContext
@@ -21,6 +22,7 @@ class Player extends Component {
   constructor(props) {
     super(props)
     this.myRef = React.createRef()
+    this.isRewinding = false
   }
 
   state = {
@@ -49,6 +51,9 @@ class Player extends Component {
     EventEmitter.subscribe(EVENTS.STOP_AUDIO, this.stopAudio)
     EventEmitter.subscribe(EVENTS.BACKWARD_AUDIO, this.backwardAudio)
     EventEmitter.subscribe(EVENTS.FORWARD_AUDIO, this.forwardAudio)
+    EventEmitter.subscribe(EVENTS.FAST_FORWARD_AUDIO, this.fastForwardAudio)
+    EventEmitter.subscribe(EVENTS.REWIND_AUDIO, this.rewindAudio)
+
     if (mic) {
       navigator.mediaDevices.enumerateDevices()
         .then(this.gotDevices)
@@ -68,6 +73,8 @@ class Player extends Component {
     EventEmitter.unsubscribe(EVENTS.STOP_AUDIO, this.stopAudio)
     EventEmitter.unsubscribe(EVENTS.BACKWARD_AUDIO, this.backwardAudio)
     EventEmitter.unsubscribe(EVENTS.FORWARD_AUDIO, this.forwardAudio)
+    EventEmitter.unsubscribe(EVENTS.FAST_FORWARD_AUDIO, this.fastForwardAudio)
+    EventEmitter.unsubscribe(EVENTS.REWIND_AUDIO, this.rewindAudio)
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -127,6 +134,7 @@ class Player extends Component {
   }
  
   togglePlay = () => {
+    if (this.isRewinding) this.isRewinding = false
     const { isPlaying } = this.state
     if (isPlaying)
       this.pauseAudio()
@@ -173,6 +181,26 @@ class Player extends Component {
     const { mediaSkipDuration } = this.state
     if (this.myRef && this.myRef.current) {
       this.myRef.current.currentTime += mediaSkipDuration
+    }
+  }
+
+  // `alt + s` or `option + S` in mac
+  fastForwardAudio = () => {
+    if (!this.state.isPlaying) this.playAudio()
+    this.isRewinding = false
+    if (this.myRef && this.myRef.current) {
+      this.increasePlaybackRate(true, 5)
+    }
+  }
+
+  // `alt + r` or `option + R` in mac
+  rewindAudio = async () => {
+    if (this.myRef && this.myRef.current) {
+      this.isRewinding = true
+      while (this.isRewinding && this.myRef.current.currentTime > 0.5) {
+        this.myRef.current.currentTime -= 1
+        await sleep(100)
+      }
     }
   }
 
@@ -345,12 +373,12 @@ class Player extends Component {
 
   volumeDown = () => { this.alterVolume(-0.2) }
 
-  increasePlaybackRate = (shouldIncreasePlaybackRate) => {
-    const change = shouldIncreasePlaybackRate ? 0.2 : -0.2
+  increasePlaybackRate = (shouldIncreasePlaybackRate, rate = 0.2) => {
+    const change = shouldIncreasePlaybackRate ? rate : -1 * rate
     const { playbackRate } = this.state
     const title = () => 'Uppspelningshastighet'
     const text = (v) => `${v * 100}%`
-    this.updateMedia('playbackRate', title, text, 0.2, 2, playbackRate, change)
+    this.updateMedia('playbackRate', title, text, 0.2, 5, playbackRate, change)
   }
 
   playbackSpeedUp = () => {

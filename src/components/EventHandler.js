@@ -15,6 +15,8 @@ const EVENTS = {
   STOP_AUDIO: 'stopAudio',
   FORWARD_AUDIO: 'forwardAudio',
   BACKWARD_AUDIO: 'backwardAudio',
+  FAST_FORWARD_AUDIO: 'fastForward',
+  REWIND_AUDIO: 'rewindAudio',
   UNDO: 'undo',
   REDO: 'redo',
   SEND_EMAIL: 'sendEmail'
@@ -45,6 +47,10 @@ const EventHandler = () => {
       if (event.ctrlKey) {
         event.preventDefault()
         EventEmitter.dispatch(EVENTS.SEND)
+      }
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.FAST_FORWARD_AUDIO)
       }
       break
     }
@@ -140,6 +146,10 @@ const EventHandler = () => {
       if (event.ctrlKey) {
         event.preventDefault()
         EventEmitter.dispatch(EVENTS.REDO)
+      }
+      if (event.altKey) {
+        event.preventDefault()
+        EventEmitter.dispatch(EVENTS.REWIND_AUDIO)
       }
       break
     }
