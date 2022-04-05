@@ -143,6 +143,11 @@ class Player extends Component {
   }
 
   playAudio = () => {
+    const { playbackRate } = this.state
+    if (playbackRate!==1) {
+      this.myRef.current.playbackRate = 1
+      this.setState({ playbackRate: 1 })
+    }
     if (!this.myRef || !this.myRef.current) return
     this.myRef.current.play().catch(e => {
       console.error(e)
@@ -199,6 +204,9 @@ class Player extends Component {
       this.isRewinding = true
       while (this.isRewinding && this.myRef.current.currentTime > 0.5) {
         this.myRef.current.currentTime -= 1
+        if (this.myRef.current.currentTime <= 0){ // pause when it hits 0
+          this.pauseAudio()
+        }
         await sleep(100)
       }
     }
