@@ -191,7 +191,12 @@ class Player extends Component {
 
   // `alt + s` or `option + S` in mac
   fastForwardAudio = () => {
-    if (!this.state.isPlaying) this.playAudio()
+    if (this.state.isPlaying && this.state.playbackRate!==1) {
+      this.pauseAudio()
+      return
+    } else {
+      this.playAudio()
+    }
     this.isRewinding = false
     if (this.myRef && this.myRef.current) {
       this.increasePlaybackRate(true, 5)
