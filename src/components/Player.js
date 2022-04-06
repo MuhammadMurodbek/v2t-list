@@ -144,7 +144,6 @@ class Player extends Component {
 
   playAudio = () => {
     const { playbackRate, volume } = this.state
-    console.log('volume', volume)
     if (this.myRef && this.myRef.current) {
       if(volume===0 && playbackRate!==1) {
         this.myRef.current['volume'] = 1
