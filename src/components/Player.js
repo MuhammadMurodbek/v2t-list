@@ -143,7 +143,11 @@ class Player extends Component {
   }
 
   playAudio = () => {
-    const { playbackRate } = this.state
+    const { playbackRate, volume } = this.state
+    console.log('volume', volume)
+    if(volume===0 && playbackRate!==1) {
+      this.myRef.current['volume'] = 1
+    }
     if (playbackRate!==1) {
       this.myRef.current.playbackRate = 1
       this.setState({ playbackRate: 1 })
@@ -193,8 +197,16 @@ class Player extends Component {
   fastForwardAudio = () => {
     if (this.state.isPlaying && this.state.playbackRate!==1) {
       this.pauseAudio()
+      if (this.myRef) {
+        this.myRef.current['volume'] = 1
+        this.setState({ volume: 1 })
+      }
       return
     } else {
+      if (this.myRef) {
+        this.myRef.current['volume'] = 0
+        this.setState({ volume: 0 })
+      }
       this.playAudio()
     }
     this.isRewinding = false
