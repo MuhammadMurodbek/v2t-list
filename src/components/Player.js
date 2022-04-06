@@ -145,18 +145,20 @@ class Player extends Component {
   playAudio = () => {
     const { playbackRate, volume } = this.state
     console.log('volume', volume)
-    if(volume===0 && playbackRate!==1) {
-      this.myRef.current['volume'] = 1
+    if (this.myRef && this.myRef.current) {
+      if(volume===0 && playbackRate!==1) {
+        this.myRef.current['volume'] = 1
+      }
+      if (playbackRate!==1) {
+        this.myRef.current.playbackRate = 1
+        this.setState({ playbackRate: 1 })
+      }
+      if (!this.myRef || !this.myRef.current) return
+      this.myRef.current.play().catch(e => {
+        console.error(e)
+      })
+      this.setState({ isPlaying: true })
     }
-    if (playbackRate!==1) {
-      this.myRef.current.playbackRate = 1
-      this.setState({ playbackRate: 1 })
-    }
-    if (!this.myRef || !this.myRef.current) return
-    this.myRef.current.play().catch(e => {
-      console.error(e)
-    })
-    this.setState({ isPlaying: true })
   }
 
   pauseAudio = () => {
@@ -195,29 +197,38 @@ class Player extends Component {
 
   // `alt + s` or `option + S` in mac
   fastForwardAudio = () => {
-    if (this.state.isPlaying && this.state.playbackRate!==1) {
-      this.pauseAudio()
-      if (this.myRef) {
-        this.myRef.current['volume'] = 1
-        this.setState({ volume: 1 })
-      }
-      return
-    } else {
-      if (this.myRef) {
-        this.myRef.current['volume'] = 0
-        this.setState({ volume: 0 })
-      }
-      this.playAudio()
-    }
-    this.isRewinding = false
     if (this.myRef && this.myRef.current) {
-      this.increasePlaybackRate(true, 5)
+      if (this.state.isPlaying && this.state.playbackRate!==1) {
+        this.pauseAudio()
+        if (this.myRef) {
+          this.myRef.current['volume'] = 1
+          this.setState({ volume: 1 })
+        }
+        return
+      } else {
+        if (this.myRef) {
+          this.myRef.current['volume'] = 0
+          this.setState({ volume: 0 })
+        }
+        this.playAudio()
+      }
+      this.isRewinding = false
+      if (this.myRef && this.myRef.current) {
+        this.increasePlaybackRate(true, 5)
+      }
     }
   }
 
   // `alt + r` or `option + R` in mac
   rewindAudio = async () => {
     if (this.myRef && this.myRef.current) {
+      if (this.isRewinding) {
+        this.isRewinding = false
+        this.pauseAudio()
+        this.myRef.current.playbackRate = 1
+        this.setState({ playbackRate: 1 })
+        return
+      }
       this.isRewinding = true
       while (this.isRewinding && this.myRef.current.currentTime > 0.5) {
         this.myRef.current.currentTime -= 1
