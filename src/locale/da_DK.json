@@ -179,5 +179,6 @@
     "noMicName": "Mikrofon til optagelse blev ikke fundet",
     "emailReport": "Sende email  til service-desk",
     "toSendEmailReport": "for at sende e-mail-rapport",
-    "emailSubject": "Transcription issue"
+    "emailSubject": "Transcription issue",
+    "invalidComplicatedFields": "Kompliceret felt indeholder ugyldigt valg"
 }

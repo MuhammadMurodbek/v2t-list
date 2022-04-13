@@ -1501,6 +1501,47 @@ export default class EditPage extends Component {
     await api.uploadMediaLive(id, file, schema.id)
   }
 
+  hasInvalidComplicatedField = () => {
+    const { schema, chapters } = this.state
+    const headers = chapters.map((chapter) => chapter.keyword)
+    const invalidFields = []
+    // Create an object with all the fields and options
+    const complicatedFields = schema.fields
+      .filter((field) => field.select?.options)
+      // discarding multi select for now
+      .filter((field) => !field.select?.multiple)
+      .map(complicatedField=>{
+        return {
+          id: complicatedField.id,
+          name: complicatedField.name,
+          options: complicatedField.select.options
+        }
+      })
+    complicatedFields.forEach((complicatedField)=>{
+      if (headers.includes(complicatedField.name)) {
+        const selectedComplicatedValues = chapters
+          .filter(chapter => chapter.keyword === complicatedField.name)[0]
+          .segments?.map(segment => segment.words)
+        selectedComplicatedValues.map((selectedComplicatedValue) => {
+          if (!complicatedField.options.includes(selectedComplicatedValue)) {
+            invalidFields.push(complicatedField.name)
+          }
+        })
+      } else if (headers.includes(complicatedField.id)){
+        const selectedComplicatedValues = chapters
+          .filter(chapter=>chapter.keyword===complicatedField.id)[0]
+          .segments?.map(segment=>segment.words)
+        // check if the value is valid
+        selectedComplicatedValues.map((selectedComplicatedValue)=>{
+          if (!complicatedField.options.includes(selectedComplicatedValue)) {
+            invalidFields.push(complicatedField.name)
+          }
+        })
+      }
+    })
+    return invalidFields.length>0 // has invalid complicated fields
+  }
+
   save = async (force = false) => {
     const { id, mic, redirectOnSave } = this.props
     const {
@@ -1554,6 +1595,21 @@ export default class EditPage extends Component {
         <EuiI18n
           token="keywordsError"
           default="All keywords must be set and may only appear once"
+        />
+      )
+      this.setState({ isUploadingMedia: false })
+      return false
+    }
+
+    if(this.hasInvalidComplicatedField()) {
+      addWarningToast(
+        <EuiI18n
+          token="unableToSaveDictation"
+          default="Unable to save the dictation"
+        />,
+        <EuiI18n
+          token="invalidComplicatedFields"
+          default="Complicated fields have invalid options"
         />
       )
       this.setState({ isUploadingMedia: false })
@@ -2214,20 +2270,6 @@ export default class EditPage extends Component {
     this.onUpdateTranscript(updatedChapters, true)
       .then(this.refreshDiff)
   }
-
-  // deleteComplicatedField = (chapterId) => {
-  //   const { chapters } = this.state
-  //   const updatedChapters =
-  //     chapters.filter((chapter) => chapter.id !== chapterId)
-  //   this.setState({ chapters: updatedChapters })
-  // }
-
-  // deleteComplicatedField = (chapterId) => {
-  //   const { chapters } = this.state
-  //   const updatedChapters = [...chapters]
-  //   updatedChapters.splice(chapterId, 1)
-  //   this.setState({ chapters: updatedChapters })
-  // }
 
   deleteComplicatedField = (chapterId) => {
     const { chapters, complicatedFieldMultiSelectOptions } = this.state

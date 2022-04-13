@@ -181,5 +181,6 @@
   "noMicName": "Finner ikke mikrofon for opptak",
   "emailReport": "Send email  til service-desk",
   "toSendEmailReport": "for å sende e-postrapport",
-  "emailSubject": "Transcription issue"
+  "emailSubject": "Transcription issue",
+  "invalidComplicatedFields": "Komplisert felt inneholder ugyldig valg"
 }
