@@ -164,9 +164,6 @@ class Player extends Component {
     if (!this.myRef || !this.myRef.current) return
     this.myRef.current.pause()
     this.setState({ isPlaying: false })
-    this.props.onPause(
-      this.myRef && this.myRef.current && this.myRef.current.currentTime
-    )
   }
 
   stopAudio = () => {

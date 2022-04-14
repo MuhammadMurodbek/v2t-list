@@ -2028,12 +2028,6 @@ export default class EditPage extends Component {
     })
   }
 
-  onPause = (playerCurrentTime) => {
-    const { currentTime } = this.state
-    const initialCursor = playerCurrentTime || currentTime
-    this.setState({ initialCursor })
-  }
-
   onApprovedChange = () => {
     this.setState({ approved: !this.state.approved })
   }
@@ -2394,7 +2388,6 @@ export default class EditPage extends Component {
                   isContentAudio={isMediaAudio}
                   ref={this.playerRef}
                   searchBoxVisible
-                  onPause={this.onPause}
                   token={token}
                   mic={mic}
                   recording={recording}
