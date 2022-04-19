@@ -20,6 +20,7 @@ const EditableChapter = ({
   updateComplicatedFields,
   deleteComplicatedField,
   createNewSectionAfterThis,
+  // eslint-disable-next-line react/prop-types
   multiSelectOptionValues,
   chapters,
   updateTranscript,
@@ -161,7 +162,7 @@ EditableChapter.propTypes = {
   updateComplicatedFields: PropTypes.func,
   createNewSectionAfterThis: PropTypes.func,
   deleteComplicatedField: PropTypes.func,
-  multiSelectOptionValues: PropTypes.array,
+  // multiSelectOptionValues: PropTypes.array,
   chapters: PropTypes.array.isRequired,
   updateTranscript: PropTypes.func.isRequired
 }

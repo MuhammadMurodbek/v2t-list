@@ -328,11 +328,30 @@ export default class Editor extends Component {
     if (e.keyCode === KEYCODE_BACKSPACE && selection.toString()) {
       this.removeSelection(e, chapterId, selection)
     }
-    this.handleChapterChange(e, chapterId, segmentId)
+    if (e.keyCode == KEYCODE_BACKSPACE) {
+      this.handleEmptyFieldRemove(e, chapterId, segmentId)
+    }
+    else {
+      this.handleChapterChange(e, chapterId, segmentId)
+    }
+  }
+
+  handleEmptyFieldRemove(e, chapterId, segmentId) {
+    const { chapters, updateTranscript } = this.props
+    if (
+      chapters[chapterId]. segments[segmentId].words.length == 1 
+      || e.metaKey
+    ) {
+      const newChapters = [...chapters]
+      newChapters[chapterId].segments[segmentId].words = ''
+      newChapters[chapterId].values = ''
+      updateTranscript(newChapters, true).then(this.refreshDiff)
+    }
   }
 
   removeSelection = (e, chapterId, selection) => {
     const { chapters, updateTranscript } = this.props
+    // console.log('chapters', chapters)
     const firstSegmentId = Number(
       selection.anchorNode.parentNode.dataset.segment || 0
     )
@@ -340,17 +359,17 @@ export default class Editor extends Component {
       selection.focusNode.parentNode.dataset.segment || 0
     )
     const { segments } = chapters[chapterId]
+    const { startOffset, endOffset } = window.getSelection().getRangeAt(0)
+    const charArray = segments[lastSegmentId].words.split('')
     // Workaround when browser adds <br> element
     // https://gitlab.com/inoviaab/v2t/ui/v2t-list/-/issues/248
+    
+    e.preventDefault()
     if (
       lastSegmentId === firstSegmentId &&
       lastSegmentId === segments.length - 1 &&
       segments[lastSegmentId].words.includes('\n')
     ) {
-      e.preventDefault()
-      const { startOffset, endOffset } = window.getSelection().getRangeAt(0)
-
-      const charArray = segments[lastSegmentId].words.split('')
       if (charArray[startOffset - 1] === '\n') {
         charArray[startOffset - 1] = ''
         this.stashCursor(-1)
@@ -361,7 +380,76 @@ export default class Editor extends Component {
 
       segments[lastSegmentId].words = charArray.join('')
       chapters[chapterId].segments = segments
+      const updatedValues =
+        segments.map(updatedSegment => updatedSegment.words).join('')
+      chapters[chapterId].values = updatedValues        
       updateTranscript(chapters, true).then(this.refreshDiff)
+    } else {
+      this.stashCursor(0)
+      charArray.splice(startOffset, endOffset - startOffset)
+      const updatedSegments = []
+      const biggerSegmentId =
+        lastSegmentId > firstSegmentId ? lastSegmentId : firstSegmentId
+      const smallerSegmentId =
+        lastSegmentId > firstSegmentId ? firstSegmentId : lastSegmentId
+      chapters[chapterId].segments.forEach((segment, i) => {
+        if (i < smallerSegmentId || i > biggerSegmentId) {
+          updatedSegments.push(segment)
+        } else if (i === biggerSegmentId || i === smallerSegmentId) {
+          let updatedSegmentWords
+          if (biggerSegmentId===smallerSegmentId) {
+            updatedSegmentWords = charArray.join('')
+          } else if (i === biggerSegmentId) {
+            updatedSegmentWords = segment.words.slice(endOffset)
+          } else if (i === smallerSegmentId){
+            updatedSegmentWords = 
+              segment.words.slice(0, startOffset)
+          }
+          if (startOffset !== 0) {
+            updatedSegments.push({
+              ...segment, words: updatedSegmentWords, shouldMergeSegment: true
+            })
+          }
+        }
+      })
+      const updatedSegmentsNeededTobeMerged = updatedSegments
+        .filter(segment => segment.shouldMergeSegment)
+      const updatedSegmentsWithMergedSegments = []
+      if (updatedSegmentsNeededTobeMerged.length > 0) {
+        const mergedUpdatedSegment = {
+          words:
+            updatedSegmentsNeededTobeMerged
+              .map(segment => segment.words).join(''),
+          startTime:
+            updatedSegmentsNeededTobeMerged[0].startTime,
+          endTime: updatedSegmentsNeededTobeMerged[
+            updatedSegmentsNeededTobeMerged.length - 1
+          ].endTime
+        }
+        updatedSegments.map((segment, indexOfUpdatedSegment) => {
+          if (!segment.shouldMergeSegment) {
+            updatedSegmentsWithMergedSegments.push(segment)
+          } else if (indexOfUpdatedSegment === smallerSegmentId) {
+            updatedSegmentsWithMergedSegments.push(mergedUpdatedSegment)
+          }
+        })
+      } else {
+        updatedSegmentsWithMergedSegments.push(...updatedSegments) 
+      }
+      const updatedValues =
+        updatedSegmentsWithMergedSegments
+          .map(updatedSegment => updatedSegment.words).join('')
+      const updatedChapters = chapters.map((chapter, j) => {
+        if (j === chapterId) {
+          return {
+            ...chapter, segments: updatedSegmentsWithMergedSegments,
+            values: updatedValues
+          }
+        } else {
+          return chapter
+        }
+      })
+      updateTranscript(updatedChapters, true).then(this.refreshDiff)
     }
   }
 
@@ -501,6 +589,7 @@ export default class Editor extends Component {
 
   handleChapterChange = (e, chapterId, segmentId) => {
     const lastSegmentId = this.props.chapters[chapterId].segments.length - 1
+    // TODO: this `textContext` var not updating correcrtly
     const textContent = e.target.childNodes[segmentId].textContent
     const range = window.getSelection().getRangeAt(0)
     const isBeginningSelected =
