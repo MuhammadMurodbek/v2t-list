@@ -331,9 +331,7 @@ export default class Editor extends Component {
     if (e.keyCode == KEYCODE_BACKSPACE) {
       this.handleEmptyFieldRemove(e, chapterId, segmentId)
     }
-    else {
-      this.handleChapterChange(e, chapterId, segmentId)
-    }
+    this.handleChapterChange(e, chapterId, segmentId)
   }
 
   handleEmptyFieldRemove(e, chapterId, segmentId) {
