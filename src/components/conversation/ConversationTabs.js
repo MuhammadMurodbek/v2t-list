@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
 import { EuiText, EuiSpacer, EuiFieldText } from '@elastic/eui'

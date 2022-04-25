@@ -1,6 +1,4 @@
-/* eslint-disable no-console */
 /* eslint-disable react/prop-types */
-/* eslint-disable react/no-unused-prop-types */
 import React, { Component } from 'react'
 import Diff from 'text-diff'
 import PropTypes from 'prop-types'
@@ -45,7 +43,6 @@ export default class Editor extends Component {
     updateTranscript: PropTypes.func.isRequired,
     onCursorTimeChange: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
-    isDiffVisible: PropTypes.bool,
     service: PropTypes.object.isRequired
   }
 
