@@ -325,26 +325,34 @@ export default class Editor extends Component {
     if (e.keyCode === KEYCODE_ENTER && e.shiftKey) {
       this.insertNewline(e, chapterId, segmentId)
     }
-    if (e.keyCode === KEYCODE_BACKSPACE && selection.toString()) {
-      this.removeSelection(e, chapterId, selection)
-    }
-    if (e.keyCode == KEYCODE_BACKSPACE) {
-      this.handleEmptyFieldRemove(e, chapterId, segmentId)
+    if (e.keyCode === KEYCODE_BACKSPACE) {
+      if (selection.toString()) {
+        this.removeSelection(e, chapterId, selection)
+      }
+
+      const { chapters } = this.props
+      const { segments } = chapters[chapterId]
+
+      if ((segments.length==1 && segments[segmentId]?.words.length==1) 
+          || e.metaKey) {
+        this.handleEmptyFieldRemove({ chapters, chapterId, segmentId })
+      }
+      if (segments.length == 0) {
+        this.removeField({ e, chapterId })
+      }
     }
     this.handleChapterChange(e, chapterId, segmentId)
   }
 
-  handleEmptyFieldRemove(e, chapterId, segmentId) {
-    const { chapters, updateTranscript } = this.props
-    if (
-      chapters[chapterId]. segments[segmentId].words.length == 1 
-      || e.metaKey
-    ) {
-      const newChapters = [...chapters]
-      newChapters[chapterId].segments[segmentId].words = ''
-      newChapters[chapterId].values = ''
-      updateTranscript(newChapters, true).then(this.refreshDiff)
-    }
+  removeField = ({ e, chapterId }) => 
+    this.mergeChapter(e, chapterId, chapterId - 1, -1, 0)
+
+  handleEmptyFieldRemove({ chapters, chapterId }) {
+    const { updateTranscript } = this.props
+    const newChapters = [...chapters]
+    newChapters[chapterId].segments = []
+    newChapters[chapterId].values = ''
+    updateTranscript(newChapters, true).then(this.refreshDiff)
   }
 
   removeSelection = (e, chapterId, selection) => {
@@ -597,7 +605,7 @@ export default class Editor extends Component {
     if (e.keyCode === KEYCODE_ENTER && !e.shiftKey) {
       this.splitChapter(e, chapterId, segmentId)
     } else if (isBeginningSelected && e.keyCode === KEYCODE_BACKSPACE) {
-      this.mergeChapter(e, chapterId, chapterId - 1, -1, 0)
+      this.removeField({ e, chapterId })
     } else if (isEndingSelected && e.keyCode === KEYCODE_DELETE) {
       this.mergeChapter(e, chapterId + 1, chapterId)
     }
