@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 // @ts-nocheck
-import React, { Component, Fragment } from 'react'
+import React, { Component, Fragment, useState } from 'react'
 import {
   EuiButton,
   EuiFilePicker,
@@ -15,8 +15,11 @@ import {
   EuiI18n,
   EuiLoadingContent,
   EuiHorizontalRule,
+  EuiDatePicker,
+  EuiFieldNumber,
   EuiCallOut
 } from '@elastic/eui'
+import moment from 'moment'
 import jwtDecode from 'jwt-decode'
 import api from '../api'
 import Page from '../components/Page'
@@ -101,12 +104,12 @@ export default class UploadPage extends Component {
     try {
       const token = jwtDecode(localStorage.getItem('token'))
       return token.sub.split('@')[0]
-    } catch(e) {
+    } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e)
       addWarningToast(
         <EuiI18n token="warning" default="Warning" />,
-        <EuiI18n 
+        <EuiI18n
           token="unableToGetDoctorsName"
           default="Unable to get the name"
         />
@@ -126,7 +129,7 @@ export default class UploadPage extends Component {
         <EuiI18n token="unableToUpload" default="Unable to upload" />,
         <EuiI18n token="fileIsMissing" default="File is missing" />
       )
-    } else if(!schemaId) {
+    } else if (!schemaId) {
       addWarningToast(
         <EuiI18n token="unableToUpload" default="Unable to upload" />,
         <EuiI18n
@@ -196,7 +199,7 @@ export default class UploadPage extends Component {
     try {
       this.fileInputRef.current.fileInput.value = ''
       this.fileInputRef.current.state.promptText = null
-    } catch(e) {
+    } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e)
     }
@@ -249,12 +252,12 @@ export default class UploadPage extends Component {
     } = this.state
 
     return (
-      <EuiI18n token="upload" default="V2T :: Upload">{ title => {
+      <EuiI18n token="upload" default="V2T :: Upload">{title => {
         // set translated document title
         document.title = `Inovia AI :: ${title}`
         const selectedDepartment = departments
           .find(({ value }) => value === departmentId)
-        const selectedDepartments 
+        const selectedDepartments
           = selectedDepartment ? [selectedDepartment] : []
         const selectedSchema = schemas
           .find(({ value }) => value === schemaId)
@@ -358,29 +361,59 @@ export default class UploadPage extends Component {
   }
 }
 
-const SchemaInputs = ({ 
-  isLoadingSchema, schemaFields, transcriptionFields, onFieldChange 
+const SchemaInputs = ({
+  isLoadingSchema, schemaFields, transcriptionFields, onFieldChange
 }) => {
+  const [startDate, setStartDate] = useState(moment())
+  const [value, setValue] = useState(0)
   if (isLoadingSchema)
     return (
       <div style={{ maxWidth: '400px' }}>
         <EuiLoadingContent lines={6} />
       </div>
     )
-
-  return schemaFields.map(({ id, name }) => (
-    <Fragment key={id}>
-      <EuiI18n token={id} default={name}>
-        {(translation) => (
-          <EuiFormRow label={translation}>
-            <EuiFieldText
-              placeholder={translation}
-              value={transcriptionFields[id] || ''}
-              onChange={e => onFieldChange(id, e.target.value)}
-            />
-          </EuiFormRow>
-        )}
-      </EuiI18n>
-    </Fragment>
-  ))
+  return schemaFields.map(({ id, name, type }) => {
+    const isNumberField = type.number && true
+    const isDateField = type.date && true
+    if (isDateField) {
+      return (
+        <EuiFormRow label={name}>
+          <EuiDatePicker
+            selected={startDate}
+            onChange={e => {
+              onFieldChange(id, moment(e))
+              setStartDate(moment(e))
+            }}
+          />
+        </EuiFormRow>
+      )
+    } else if (isNumberField) {
+      return (
+        <EuiFormRow label={name}>
+          <EuiFieldNumber
+            value={value}
+            onChange={e => {
+              onFieldChange(id, e.target.value)
+              setValue(e.target.value)
+            }}
+          />
+        </EuiFormRow>)
+    } else {
+      return (
+        <Fragment key={id}>
+          <EuiI18n token={id} default={name}>
+            {(translation) => (
+              <EuiFormRow label={translation}>
+                <EuiFieldText
+                  placeholder={translation}
+                  value={transcriptionFields[id] || ''}
+                  onChange={e => onFieldChange(id, e.target.value)}
+                />
+              </EuiFormRow>
+            )}
+          </EuiI18n>
+        </Fragment>
+      )
+    }
+  })
 }
