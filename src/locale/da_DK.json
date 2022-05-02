@@ -153,6 +153,7 @@
     "unableToStartLiveTranscriptSession": "Start af diktat kunne ikke startes",
     "checkNetworkConnectionOrContactSupport": "Kontroller netværksforbindelsen eller kontakt it-support",
     "departmentId": "AfdelingId",
+    "transcriptionId": "TranskriptionId",
     "template": "Journalmall",
     "receivedTime": "Modtaget",
     "updatedTime": "Uppdaterad",
@@ -180,5 +181,8 @@
     "emailReport": "Sende email  til service-desk",
     "toSendEmailReport": "for at sende e-mail-rapport",
     "emailSubject": "Transcription issue",
-    "invalidComplicatedFields": "Kompliceret felt indeholder ugyldigt valg"
+    "invalidComplicatedFields": "Kompliceret felt indeholder ugyldigt valg",
+    "revoke": "Tilbagekald",
+    "transcriptionRevokedSuccessfully": "Transskriptionen blev tilbagekaldt",
+    "forbiddenRevoke": "Brugeren har ikke tilstrækkelige rettigheder til at tilbagekalde transskriptionen"
 }

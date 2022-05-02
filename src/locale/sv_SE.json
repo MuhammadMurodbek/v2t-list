@@ -154,6 +154,7 @@
   "unableToStartLiveTranscriptSession": "Det gick inte att starta livedikteringen",
   "checkNetworkConnectionOrContactSupport": "Kontrollera nätverksanslutningen eller kontakta IT-support",
   "departmentId": "Department Id",
+  "transcriptionID": "Transkriptionen ID",
   "template": "Journalmall",
   "receivedTime": "Mottaget",
   "updatedTime": "Uppdaterad",
@@ -182,5 +183,9 @@
   "emailReport": "Skicka e-post  till service-desk",
   "toSendEmailReport": "för att skicka e-postrapport",
   "emailSubject": "Transcription issue",
-  "invalidComplicatedFields": "Komplicerat fält innehåller ogiltigt val"
+  "invalidComplicatedFields": "Komplicerat fält innehåller ogiltigt val",
+  "revoke": "Återkalla",
+  "transcriptionRevokedSuccessfully": "Transkriptionen har återkallats",
+  "forbiddenRevoke": "Användaren har inte tillräckliga privilegier för att återkalla transkriptionen",
+  "conflictRevoke": ""
 }

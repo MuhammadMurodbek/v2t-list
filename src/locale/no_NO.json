@@ -155,6 +155,7 @@
   "unableToStartLiveTranscriptSession": "Kan ikke starte direkte transkripsjon",
   "checkNetworkConnectionOrContactSupport": "Vennligst sjekk nettverkstilkoblingen, eller kontakt IT support.",
   "departmentId": "Department Id",
+  "transcriptionID": "Transkripsjons-ID",
   "template": "Journalmall",
   "receivedTime": "Mottatt",
   "updatedTime": "Uppdaterad",
@@ -182,5 +183,8 @@
   "emailReport": "Send email  til service-desk",
   "toSendEmailReport": "for å sende e-postrapport",
   "emailSubject": "Transcription issue",
-  "invalidComplicatedFields": "Komplisert felt inneholder ugyldig valg"
+  "invalidComplicatedFields": "Komplisert felt inneholder ugyldig valg",
+  "revoke": "Oppheve",
+  "transcriptionRevokedSuccessfully": "Transkripsjonen er tilbakekalt",
+  "forbiddenRevoke": "Brukeren har ikke tilstrekkelige rettigheter til å tilbakekalle transkripsjonen"
 }

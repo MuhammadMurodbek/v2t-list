@@ -245,6 +245,17 @@ const getMedicalAssistantData = (
 //   interactive
 // })
 
+export const revokeTranscription = ({ id, rollback = false }) =>
+  axios.post(
+    `/api/transcription/v3/${id}/revoke${rollback ? '/rollback' : ''}`,
+    null,
+    {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }
+  )
 
 
 export default {
@@ -272,3 +283,5 @@ export default {
   getActiveLiveSession,
   getMedicalAssistantData
 }
+
+

@@ -38,6 +38,7 @@ import {
 import getQueryStringValue from './models/getQueryStringValue'
 import { EventHandler } from './components/EventHandler'
 import VersionBadge from './components/VersionBadge'
+import Revoke from './pages/Revoke'
 
 class App extends Component {
   state = {
@@ -62,7 +63,7 @@ class App extends Component {
         return response
       },
       (error) => {
-        if (error.response.status === 401 || error.response.status === 403) {
+        if (error.response.status === 401) {
           console.info('Here: Error 401')
           if(error.config.url !== URLS.login) {
             clearGlobalToastList()
@@ -245,6 +246,12 @@ class App extends Component {
                     id: 'Upload',
                     name: <EuiI18n token="upload" default="Upload" />,
                     onClick: () => this.selectItem('Upload')
+                  },
+                  {
+                    href: '/#/revoke',
+                    id: 'Revoke',
+                    name: <EuiI18n token="revoke" default="Revoke" />,
+                    onClick: () => this.selectItem('Revoke')
                   },
                   {
                     href: '/#/live-diktering',
@@ -482,6 +489,9 @@ class App extends Component {
                   )}
                 />
                 <Route path="/upload/" render={() => <UploadPage />} />
+                <Route 
+                  path="/revoke/" 
+                  render={(props) => <Revoke {...props}/>}/>
                 <Route
                   path="/live-diktering/:id"
                   render={(props) => {
