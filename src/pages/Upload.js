@@ -364,7 +364,7 @@ export default class UploadPage extends Component {
 const SchemaInputs = ({
   isLoadingSchema, schemaFields, transcriptionFields, onFieldChange
 }) => {
-  const [startDate, setStartDate] = useState(moment())
+  const [startDate, setStartDate] = useState(null)
   const [value, setValue] = useState(0)
   if (isLoadingSchema)
     return (
@@ -379,11 +379,16 @@ const SchemaInputs = ({
       return (
         <EuiFormRow label={name}>
           <EuiDatePicker
+            showTimeSelect
             selected={startDate}
+            dateFormat="YYYY-MM-DD HH:mm"
             onChange={e => {
               onFieldChange(id, moment(e))
               setStartDate(moment(e))
             }}
+            timeFormat="HH:mm"
+            placeholder={name}
+            locale="sv-se"
           />
         </EuiFormRow>
       )
