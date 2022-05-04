@@ -631,6 +631,8 @@ export default class EditPage extends Component {
     {language = 'danish'}
     else if (languageCode === '1')
     {language='english'}
+    else if (languageCode === '4')
+    {language='spanish'}
     api
       .getMedicalAssistantData(value, language, isInteractive)
       .then((result) => {
@@ -1282,6 +1284,7 @@ export default class EditPage extends Component {
       else if (languageCode === '2') { language = 'norwegian' }
       else if (languageCode === '3') { language = 'danish' }
       else if (languageCode ==='1') { language = 'english'}
+      else if (languageCode === '4') { language = 'spanish' }
 
       api
         .getMedicalAssistantData(fullText, language)
