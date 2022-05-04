@@ -194,5 +194,6 @@
     "selectDepartment": "Vælg afdeling",
     "confirmSchemaSelection": "Bekræft skema-valg",
     "startLiveDictation": "Start live diktat",
-    "pleaseWait": "Vent venligst"
+    "pleaseWait": "Vent venligst",
+    "noFieldFound": "Ingen felt fundet"
 }

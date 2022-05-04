@@ -196,5 +196,6 @@
   "selectDepartment": "Välj avdelning",
   "confirmSchemaSelection": "Bekräfta schemaval",
   "startLiveDictation": "Starta live diktering",
-  "pleaseWait": "Vänligen vänta"
+  "pleaseWait": "Vänligen vänta",
+  "noFieldFound": "Inga fält hittades"
 }

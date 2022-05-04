@@ -173,8 +173,17 @@ const Live = (props) => {
               size="s"
               fill
               onClick={async () => {
-                setSchemaSelectionStatus('complete')
-                await loadTranscriptId()
+                if(schema.fields){
+                  setSchemaSelectionStatus('complete')
+                  await loadTranscriptId()
+                } else {
+                  addErrorToast(
+                    <EuiI18n
+                      token="noFieldFound"
+                      default="No fields found in selected schema"
+                    />
+                  )
+                }
               }}
             >
               <EuiI18n

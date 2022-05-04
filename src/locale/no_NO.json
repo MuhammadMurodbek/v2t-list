@@ -196,5 +196,6 @@
   "selectDepartment": "Velg avdeling",
   "confirmSchemaSelection": "Bekreft skjema valg",
   "startLiveDictation": "Start live diktat",
-  "pleaseWait": "Vennligst vent"
+  "pleaseWait": "Vennligst vent",
+  "noFieldFound": "Ingen felt funnet"
 }

@@ -196,5 +196,6 @@
   "selectDepartment": "Seleccionar departamento",
   "confirmSchemaSelection": "Confirmar selección de horario",
   "startLiveDictation": "Iniciar dictado en vivo",
-  "pleaseWait": "Espere un momento"
+  "pleaseWait": "Espere un momento",
+  "noFieldFound": "No se encontró campo"
 }
