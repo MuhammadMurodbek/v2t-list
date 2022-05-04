@@ -123,7 +123,7 @@ const Live = (props) => {
               <p>
                 <EuiI18n
                   token="activeSessionFound"
-                  default="'Active session found'"
+                  default="Active session found"
                 />
               </p>
               <EuiButton
