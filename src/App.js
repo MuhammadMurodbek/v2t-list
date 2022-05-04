@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 // eslint-disable-next-line no-console
-import React, { Component, useState, useEffect } from 'react'
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom'
-import jwtDecode from 'jwt-decode'
+import React, { Component } from 'react'
+import { HashRouter, Route, Switch } from 'react-router-dom'
 import {
   EuiImage,
   EuiPage,
@@ -29,7 +28,6 @@ import { LanguageProvider } from './context'
 import { withProvider } from './hoc'
 import {
   GlobalToastListContainer,
-  addWarningToast,
   addErrorToast,
   clearGlobalToastList
 } from './components/GlobalToastList'
@@ -260,15 +258,6 @@ class App extends Component {
                     name: <EuiI18n token="live" default="Live Dictation" />,
                     onClick: () => this.selectItem('Live')
                   },
-                  // {
-                  //   href: '/#/live-diktering',
-                  //   id: 'Live Diktering',
-                  //   name: <EuiI18n token="live" default="Live Dictation" />,
-                  //   onClick: () => {
-                  //     this.selectItem('Live Diktering')
-                  //   }
-                  // }
-                  // ,
                   {
                     id: 'Collapse',
                     name: <EuiI18n token="collapse" default="Collapse" />,
@@ -516,12 +505,6 @@ class App extends Component {
                     )
                   }}
                 />
-                <Route
-                  path="/live-diktering/"
-                  render={(params) => (
-                    <NewLiveTranscription search={params.location.search} />
-                  )}
-                />
                 <Route render={() => <Invalid />} />
               </Switch>
             ) : (
@@ -534,91 +517,6 @@ class App extends Component {
       </HashRouter>
     )
   }
-}
-
-const NewLiveTranscription = ({ search }) => {
-  const [redirect, setRedirect] = useState(null)
-  console.log('starting new live transcript')
-
-  useEffect(() => {
-    startSession().catch((e) => {
-      console.error(e)
-      addWarningToast(
-        <EuiI18n
-          token="unableToStartLiveTranscriptSession"
-          default="Unable to start live trancript session."
-        />,
-        <EuiI18n
-          token="checkNetworkConnectionOrContactSupport"
-          default="Please check network connection, or contact support."
-        />
-      )
-      return null
-    })
-  }, [])
-
-  const getUsername = () => {
-    const token = jwtDecode(localStorage.getItem('token'))
-    return token.sub
-  }
-
-  const loadTranscriptId = async () => {
-    const username = getUsername()
-    let schemaId = null
-    const lastUsedSchemaId = localStorage.getItem('lastUsedSchema')
-    try {
-      if (lastUsedSchemaId) {
-        schemaId = lastUsedSchemaId
-      } else {
-        schemaId = await getFirstAvailableSchemaId()
-      }
-      const transcriptId = await api.createLiveSession(username, schemaId)
-      return transcriptId
-    } catch (error) {
-      if (error instanceof Error) {
-        addErrorToast(error.message)
-      }
-      console.error(error)
-    }
-  }
-
-  const getFirstAvailableSchemaId = async () => {
-    let schemaId = null
-    const { data: { departments }} = await api.getDepartments()
-    for (const department of departments) {
-      const { data: { schemas }} =
-            await api.getSchemas({ departmentId: department.id })
-
-      if (Array.isArray(schemas) && schemas.length) {
-        schemaId = schemas[0].id
-        break
-      }
-    }
-    return schemaId
-  }
-
-  const startSession = async () => {
-    let transcriptId = null
-    try {
-      const { data: { id: sessionId }} = await api.getActiveLiveSession()
-      console.log('sessionId', sessionId)
-      if (sessionId) {
-        transcriptId = sessionId
-      } else {
-        transcriptId = await loadTranscriptId()
-      }
-    } catch (error) {
-      if (error.response.data.status === 404) {
-        transcriptId = await loadTranscriptId()
-      }
-    } finally {
-      setRedirect(
-        <Redirect to={`/live-diktering/${transcriptId}${search}`} />
-      )
-    }
-  }
-
-  return redirect
 }
 
 const queryToken = getQueryStringValue.prototype.decodeToken('token')
