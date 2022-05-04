@@ -184,5 +184,15 @@
     "invalidComplicatedFields": "Kompliceret felt indeholder ugyldigt valg",
     "revoke": "Tilbagekald",
     "transcriptionRevokedSuccessfully": "Transskriptionen blev tilbagekaldt",
-    "forbiddenRevoke": "Brugeren har ikke tilstrækkelige rettigheder til at tilbagekalde transskriptionen"
+    "forbiddenRevoke": "Brugeren har ikke tilstrækkelige rettigheder til at tilbagekalde transskriptionen",
+    "conflictRevoke": "Brugeren har ikke tilstrækkelig privilegier til at tilbagekalde transskriptionen",
+    "checkExistingActiveLiveSession": "Eksisterende aktiv live-session",
+    "activeSessionFound": "Der er en aktiv session, vil du fortsætte?",
+    "closeActiveSession": "Luk aktiv session",
+    "noActiveSessionFound": "Ingen aktiv session fundet",
+    "selectDepartmentAndSchema": "Vælg afdeling og skema",
+    "selectDepartment": "Vælg afdeling",
+    "confirmSchemaSelection": "Bekræft skema-valg",
+    "startLiveDictation": "Start live diktat",
+    "pleaseWait": "Vent venligst"
 }

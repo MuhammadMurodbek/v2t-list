@@ -18,6 +18,7 @@ import StartPage from './pages/Start'
 import EditPage from './pages/Edit'
 import TranscriptionPage from './pages/Transcription'
 import UploadPage from './pages/Upload'
+import Live from './pages/Live'
 import LoginPage from './pages/Login'
 import Invalid from './pages/Invalid'
 import Preference from './models/Preference'
@@ -254,13 +255,20 @@ class App extends Component {
                     onClick: () => this.selectItem('Revoke')
                   },
                   {
-                    href: '/#/live-diktering',
-                    id: 'Live Diktering',
+                    href: '/#/live',
+                    id: 'Live',
                     name: <EuiI18n token="live" default="Live Dictation" />,
-                    onClick: () => {
-                      this.selectItem('Live Diktering')
-                    }
+                    onClick: () => this.selectItem('Live')
                   },
+                  // {
+                  //   href: '/#/live-diktering',
+                  //   id: 'Live Diktering',
+                  //   name: <EuiI18n token="live" default="Live Dictation" />,
+                  //   onClick: () => {
+                  //     this.selectItem('Live Diktering')
+                  //   }
+                  // }
+                  // ,
                   {
                     id: 'Collapse',
                     name: <EuiI18n token="collapse" default="Collapse" />,
@@ -492,6 +500,9 @@ class App extends Component {
                 <Route 
                   path="/revoke/" 
                   render={(props) => <Revoke {...props}/>}/>
+                <Route 
+                  path="/live/" 
+                  render={(props) => <Live {...props}/>}/>
                 <Route
                   path="/live-diktering/:id"
                   render={(props) => {

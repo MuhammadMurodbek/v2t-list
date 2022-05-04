@@ -186,5 +186,15 @@
   "invalidComplicatedFields": "Komplisert felt inneholder ugyldig valg",
   "revoke": "Oppheve",
   "transcriptionRevokedSuccessfully": "Transkripsjonen er tilbakekalt",
-  "forbiddenRevoke": "Brukeren har ikke tilstrekkelige rettigheter til å tilbakekalle transkripsjonen"
+  "forbiddenRevoke": "Brukeren har ikke tilstrekkelige rettigheter til å tilbakekalle transkripsjonen",
+  "conflictRevoke": "Brukeren har ikke tilstrekkelig rettigheter til å tilbakekalle transkripsjonen",
+  "checkExistingActiveLiveSession": "Eksisterende aktiv live økt",
+  "activeSessionFound": "Det finnes en aktiv økt",
+  "closeActiveSession": "Lukk aktiv økt",
+  "noActiveSessionFound": "Ingen aktiv økt funnet",
+  "selectDepartmentAndSchema": "Velg avdeling og skjema",
+  "selectDepartment": "Velg avdeling",
+  "confirmSchemaSelection": "Bekreft skjema valg",
+  "startLiveDictation": "Start live diktat",
+  "pleaseWait": "Vennligst vent"
 }

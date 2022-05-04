@@ -2637,28 +2637,6 @@ export default class EditPage extends Component {
               isOpen={openJ4LoginModal}
               outgoingChannel={outgoingChannel}
             />
-            <SelectDepartmentAndSchema 
-              content={
-                <EuiFlexGroup direction="column">
-                  <EuiFlexItem>
-                    <Departments
-                      departments={departments || []}
-                      departmentId={departmentId}
-                      onUpdate={this.updateDepartmentId}
-                    />
-                  </EuiFlexItem>
-                  <EuiFlexItem>
-                    <Schemas
-                      location={this.props.location}
-                      schemas={schemas || []}
-                      schemaId={schema.id}
-                      onUpdate={this.updateSchemaId}
-                    />
-                  </EuiFlexItem>
-                </EuiFlexGroup>}
-              close={() => this.setState({ isLiveDicModalOpen: false })}
-              isOpen={mic && this.state.isLiveDicModalOpen}
-            />
           </Page>
         )}
       </EuiI18n>
@@ -2705,52 +2683,6 @@ const MissingFieldModal = ({ fields, onClose }) => {
               <EuiButton
                 size="s"
                 onClick={() => onClose(true)} id="popup_save_button"
-              >
-                {save}
-              </EuiButton>
-            </EuiModalFooter>
-          </EuiModal>
-        </EuiOverlayMask>
-      }
-    </EuiI18n>
-  )
-}
-
-const SelectDepartmentAndSchema = ({ content, close, isOpen }) => {
-  if (!isOpen) return null
-
-  return (
-    <EuiI18n
-      tokens={[
-        'selectDepartmentAndSchemaTitle',
-        'save',
-        'cancel'
-      ]}
-      defaults={[
-        'Select department and schema',
-        'Save',
-        'Cancel'
-      ]}
-    >
-      {([title, save, cancel]) =>
-        <EuiOverlayMask>
-          <EuiModal onClose={close} style={{ width: 450, height: 400 }}>
-            <EuiModalHeader>
-              <EuiModalHeaderTitle>{title}</EuiModalHeaderTitle>
-            </EuiModalHeader>
-            <EuiModalBody style={{ overflowY: 'hidden' }}>
-              {content}
-            </EuiModalBody>
-            <EuiModalFooter>
-              <EuiButtonEmpty
-                size="s"
-                onClick={close}
-              >
-                {cancel}
-              </EuiButtonEmpty>
-              <EuiButton
-                size="s"
-                onClick={close}
               >
                 {save}
               </EuiButton>

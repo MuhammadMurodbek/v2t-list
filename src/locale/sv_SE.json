@@ -187,5 +187,14 @@
   "revoke": "Återkalla",
   "transcriptionRevokedSuccessfully": "Transkriptionen har återkallats",
   "forbiddenRevoke": "Användaren har inte tillräckliga privilegier för att återkalla transkriptionen",
-  "conflictRevoke": ""
+  "conflictRevoke": "Användaren har inte tillräckligt privilegier att återkalla transkriptionen",
+  "checkExistingActiveLiveSession": "Befintlig aktiv livesession",
+  "activeSessionFound": "En aktiv livesession hittades",
+  "closeActiveSession": "Stäng aktiv session",
+  "noActiveSessionFound": "Ingen aktiv livesession hittades! Nu kör vi!!",
+  "selectDepartmentAndSchema": "Välj avdelning och schema",
+  "selectDepartment": "Välj avdelning",
+  "confirmSchemaSelection": "Bekräfta schemaval",
+  "startLiveDictation": "Starta live diktering",
+  "pleaseWait": "Vänligen vänta"
 }
