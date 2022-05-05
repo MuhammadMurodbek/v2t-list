@@ -93,7 +93,9 @@ const login = (domain, username, password) => {
 
 const loadTags = () =>
   axios.post(URLS.activeTags, {
-    states: ['NEW', 'TRANSCRIBED', 'APPROVED', 'EXPORTED', 'ERROR']
+    states: [
+      'NEW', 'TRANSCRIBED', 'APPROVED', 'EXPORTED', 'ERROR', 'REVOKED'
+    ]
   })
 
 const loadTickets = (department, pageIndex, pageSize, orderBy) => {
@@ -104,7 +106,9 @@ const loadTickets = (department, pageIndex, pageSize, orderBy) => {
       orderBy: orderBy ? [orderBy] : [],
       start: pageIndex * pageSize,
       size: pageSize,
-      states: ['NEW', 'TRANSCRIBED', 'APPROVED', 'EXPORTED', 'ERROR']
+      states: [
+        'NEW', 'TRANSCRIBED', 'APPROVED', 'EXPORTED', 'ERROR', 'REVOKED'
+      ]
     }
   )
 }

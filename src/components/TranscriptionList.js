@@ -222,7 +222,8 @@ export default class TranscriptionList extends Component {
         render: (id, transcriptInfo) => {
           if(!transcriptInfo.status) {return (<></>)}
           return transcriptInfo.status === 'TRANSCRIBED'
-            ||  transcriptInfo.status === 'ERROR'? (
+            || transcriptInfo.status === 'ERROR'
+            || transcriptInfo.status === 'REVOKED' ? (
               <EuiButtonEmpty {...this.getTranscriptHref(id)}>
                 <EuiI18n token="open" default="Open" />
               </EuiButtonEmpty>

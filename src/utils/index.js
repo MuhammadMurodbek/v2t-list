@@ -27,6 +27,8 @@ export async function renderTranscriptionState(id) {
     failedTries = 0
 
     switch(state) {
+    case 'REVOKED':
+      break
     case 'ERROR':
       addErrorToast(state, error, 20000)
       break

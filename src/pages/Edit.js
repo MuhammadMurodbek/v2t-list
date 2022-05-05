@@ -69,7 +69,7 @@ import packageInformation from '../../package.json'
 import { SchemaV2 } from '../api/index'
 
 const EMPTY_TRANSCRIPTION = { keyword: '', segments: [], values: []}
-const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED', 'ERROR']
+const VALID_TRANSCRIPT_STATES = ['TRANSCRIBED', 'ERROR', 'REVOKED']
 
 const INITIAL_STATE = {
   isTranscriptAvailable: true,
@@ -117,6 +117,7 @@ const INITIAL_STATE = {
   editSeconds: 0,
   outgoingChannel: {},
   isLiveDicModalOpen: true,
+  isReadOnly: false,
   showTooltip: true
 }
 
@@ -732,6 +733,9 @@ export default class EditPage extends Component {
       ) {
         if (transcriptState.state==='ERROR') {
           _.delay(renderTranscriptionState, 500, id)
+        }
+        if (transcriptState.state === 'ERROR' || transcriptState.state === 'REVOKED') {
+          this.setState({ isReadOnly: true })
         }
         await this.initiate()
       } else {
@@ -2361,6 +2365,7 @@ export default class EditPage extends Component {
       highlightedContextForMedicalAssistant,
       shouldHighlightMedicalAssistant,
       editSeconds,
+      isReadOnly,
       outgoingChannel
     } = this.state
     const { preferences } = this.context
@@ -2563,104 +2568,107 @@ export default class EditPage extends Component {
               </EuiFlexItem>
             </EuiFlexGroup>
             <EuiHorizontalRule />
-            <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
-              <EuiFlexItem grow={true}>
-                <EuiI18n
-                  tokens={['press', 'toSendEmailReport', 'emailSubject']}
-                  defaults={['Press', 'to send email report', 'Transctiption details']}
-                >
-                  {([press, toSendEmailReport, emailSubject]) => (
-                    <EuiToolTip
-                      position="top"
-                      content={`${press} 'alt + shift + enter' ${toSendEmailReport}`}
-                    >
-                      <EuiButton
-                        fill
-                        size="s"
-                        color="warning"
-                        id="emailReport"
-                        onClick={() => this.sendEmailReport(emailSubject)}
+            {!isReadOnly && (
+              <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
+                <EuiFlexItem grow={true}>
+                  <EuiI18n
+                    tokens={['press', 'toSendEmailReport', 'emailSubject']}
+                    defaults={['Press', 'to send email report', 'Transctiption details']}
+                  >
+                    {([press, toSendEmailReport, emailSubject]) => (
+                      <EuiToolTip
+                        position="top"
+                        content={`${press} 'alt + shift + enter' ${toSendEmailReport}`}
                       >
-                        <EuiI18n token="emailReport" default="Send Email to the Service Desk" />
-                      </EuiButton>
-                    </EuiToolTip>
-                  )}
-                </EuiI18n>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                {/* id is used by Conscriptor */}
-                <EuiI18n tokens={['press']} defaults={['Press']}>
-                  {([press]) => (
-                    <EuiToolTip
-                      position="top"
-                      content={`${press} 'alt + shift + esc'`}
-                    >
-                      <EuiSwitch
-                        label={
-                          <EuiI18n
-                            token="sendToCoWorker"
-                            default="Approve and send"
-                          />
-                        }
-                        checked={approved}
-                        onChange={this.onApprovedChange}
-                        // disabled={mic}
-                        id="approved_checkbox"
-                      />
-                    </EuiToolTip>
-                  )}
-                </EuiI18n>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                {/* id is used by Conscriptor */}
-                <EuiI18n
-                  tokens={['press', 'toCancel']}
-                  defaults={['Press', 'to cancel editing']}
-                >
-                  {([press, toCancel]) => (
-                    <EuiToolTip
-                      position="top"
-                      content={`${press} 'alt + esc' ${toCancel}`}
-                    >
-                      <EuiButton
-                        size="s"
-                        color="text"
-                        onClick={this.cancel}
-                        id="cancel_button"
+                        <EuiButton
+                          fill
+                          size="s"
+                          color="warning"
+                          id="emailReport"
+                          onClick={() => this.sendEmailReport(emailSubject)}
+                        >
+                          <EuiI18n token="emailReport" default="Send Email to the Service Desk" />
+                        </EuiButton>
+                      </EuiToolTip>
+                    )}
+                  </EuiI18n>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  {/* id is used by Conscriptor */}
+                  <EuiI18n tokens={['press']} defaults={['Press']}>
+                    {([press]) => (
+                      <EuiToolTip
+                        position="top"
+                        content={`${press} 'alt + shift + esc'`}
                       >
-                        <EuiI18n token="cancel" default="Cancel" />
-                      </EuiButton>
-                    </EuiToolTip>
-                  )}
-                </EuiI18n>
-              </EuiFlexItem>
-              <EuiFlexItem grow={false}>
-                {/* id is used by Conscriptor */}
-                <EuiI18n
-                  tokens={['press', 'toSave']}
-                  defaults={['Press', 'to save']}
-                >
-                  {([press, toSave]) => (
-                    <EuiToolTip
-                      position="top"
-                      content={this.state.showTooltip ? `${press} 'ctrl + s' ${toSave}` : ''}
-                    >
-                      <EuiButton
-                        size="s"
-                        fill
-                        isLoading={isUploadingMedia}
-                        onClick={this.onSave}
-                        id="save_changes"
-                        onMouseOver={() => this.setState({ showTooltip: true })}
-                        onMouseOut={() => this.setState({ showTooltip: false })}
+                        <EuiSwitch
+                          label={
+                            <EuiI18n
+                              token="sendToCoWorker"
+                              default="Approve and send"
+                            />
+                          }
+                          checked={approved}
+                          onChange={this.onApprovedChange}
+                          // disabled={mic}
+                          id="approved_checkbox"
+                        />
+                      </EuiToolTip>
+                    )}
+                  </EuiI18n>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  {/* id is used by Conscriptor */}
+                  <EuiI18n
+                    tokens={['press', 'toCancel']}
+                    defaults={['Press', 'to cancel editing']}
+                  >
+                    {([press, toCancel]) => (
+                      <EuiToolTip
+                        position="top"
+                        content={`${press} 'alt + esc' ${toCancel}`}
                       >
-                        <EuiI18n token="save" default="Save" />
-                      </EuiButton>
-                    </EuiToolTip>
-                  )}
-                </EuiI18n>
-              </EuiFlexItem>
-            </EuiFlexGroup>
+                        <EuiButton
+                          size="s"
+                          color="text"
+                          onClick={this.cancel}
+                          id="cancel_button"
+                        >
+                          <EuiI18n token="cancel" default="Cancel" />
+                        </EuiButton>
+                      </EuiToolTip>
+                    )}
+                  </EuiI18n>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                  {/* id is used by Conscriptor */}
+                  <EuiI18n
+                    tokens={['press', 'toSave']}
+                    defaults={['Press', 'to save']}
+                  >
+                    {([press, toSave]) => (
+                      <EuiToolTip
+                        position="top"
+                        content={this.state.showTooltip ? `${press} 'ctrl + s' ${toSave}` : ''}
+                      >
+                        <EuiButton
+                          size="s"
+                          fill
+                          isLoading={isUploadingMedia}
+                          onClick={this.onSave}
+                          id="save_changes"
+                          onMouseOver={() => this.setState({ showTooltip: true })}
+                          onMouseOut={() => this.setState({ showTooltip: false })}
+                        >
+                          <EuiI18n token="save" default="Save" />
+                        </EuiButton>
+                      </EuiToolTip>
+                    )}
+                  </EuiI18n>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+
+            )}
             <MissingFieldModal
               fields={modalMissingFields}
               onClose={this.onCloseMissingFieldsModal}

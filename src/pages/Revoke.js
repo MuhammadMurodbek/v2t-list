@@ -13,7 +13,7 @@ import {
 import PropTypes from 'prop-types'
 import Page from '../components/Page'
 import { revokeTranscription } from '../api'
-import { addErrorToast } from '../components/GlobalToastList'
+import { addErrorToast, addSuccessToast } from '../components/GlobalToastList'
 
 const Revoke = ({ history }) => {
   const [value, setValue] = useState('')
@@ -26,7 +26,7 @@ const Revoke = ({ history }) => {
         id: value
       })
       if (response.status === 200) {
-        addErrorToast(
+        addSuccessToast(
           <EuiI18n
             token="transcriptionRevokedSuccessfully"
             default="Transcription revoked successfully"
