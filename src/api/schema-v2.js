@@ -5,7 +5,11 @@ const BASE_PATH = '/api/schema/v2'
 export const SchemaV2 = {
   find: async function (schemaId) {
     const response = await axios.get(`${BASE_PATH}/id/${schemaId}`)
-    return response.data
+    if (response.data.fields) {
+      return response.data
+    } else {
+      return { ...response.data, fields: []}
+    }
   },
   findByExternalId: async function (
     channelId,

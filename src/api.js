@@ -13,10 +13,8 @@ const URLS = {
   activeTags: '/api/transcription/search/v2/departments',
   searchTranscriptions: '/api/transcription/search/v2',
   keywordsV1: '/api/keywords/v1/',
-  transcriptionsV1: '/api/transcriptions/v1',
   trainingTranscript: '/api/training/v2/transcript',
   schemaSearch: '/api/schema/v1/search',
-  schemaById: '/api/schema/v1/id',
   searchDepartments: '/api/department/v1/search',
   transcriptionV2: '/api/transcription/v2'
 }
