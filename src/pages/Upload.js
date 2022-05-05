@@ -123,7 +123,6 @@ export default class UploadPage extends Component {
 
   onSubmit = () => {
     const { files, schemaId } = this.state
-
     if (files.length === 0) {
       addWarningToast(
         <EuiI18n token="unableToUpload" default="Unable to upload" />,
@@ -365,7 +364,7 @@ const SchemaInputs = ({
   isLoadingSchema, schemaFields, transcriptionFields, onFieldChange
 }) => {
   const [startDate, setStartDate] = useState(null)
-  const [value, setValue] = useState(0)
+  const [value, setValue] = useState('')
   if (isLoadingSchema)
     return (
       <div style={{ maxWidth: '400px' }}>
