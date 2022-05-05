@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import React, { Fragment } from 'react'
 import { EuiText, EuiPanel, EuiFormRow } from '@elastic/eui'
-import { EuiI18n } from '@elastic/eui'
 
-const ListOfHeaders = ({ headers }) => {
+const ListOfHeaders = ({ headers, schema }) => {
+  const schemaName = schema.name || ''
+  const schemaLabel = `Schema: ${schemaName}`
   const listItems = headers.map((header, i) => (
     <li
       key={i}
@@ -19,7 +20,7 @@ const ListOfHeaders = ({ headers }) => {
 
   return (
     <Fragment>
-      <EuiFormRow label={<EuiI18n token="searchWord" default="Search word" />}>
+      <EuiFormRow label={`${schemaLabel}`}>
         <EuiPanel>
           <ul>{listItems}</ul>
         </EuiPanel>

@@ -621,6 +621,7 @@ export default class EditPage extends Component {
   }
 
   checkParam = async (value, isInteractive=false) => {
+    const { tags } = this.state
     const languageCode = localStorage.getItem('language')
     let language
     if (languageCode === '0')
@@ -636,9 +637,21 @@ export default class EditPage extends Component {
     api
       .getMedicalAssistantData(value, language, isInteractive)
       .then((result) => {
-        this.setState({ 
-          assistanceData: medicalAssistant
-            .parseMedicalAssistantData(result.data, value, isInteractive) 
+        const parsedMedicalAssistantData = medicalAssistant
+          .parseMedicalAssistantData(result.data, value, isInteractive)
+        // console.log('parsedMedicalAssistantData', parsedMedicalAssistantData)
+        const icd10Codes = parsedMedicalAssistantData.map(disease => {
+          return disease.icdCodes.filter((icdCode) => icdCode.selectedStatus)
+        }).flat()
+        const additionalIcd10Codes = parsedMedicalAssistantData.map(disease => {
+          return disease.additionalIcdCodes.filter((additionalIcdCode) => additionalIcdCode.selectedStatus)
+        }).flat()
+        const listOfCodes = [...icd10Codes, ...additionalIcd10Codes]
+        // console.log('listOfCodes', listOfCodes)
+        const finalTags = this.getICDTags(listOfCodes, tags)
+        this.setState({
+          assistanceData: parsedMedicalAssistantData,
+          tags: finalTags
         })
       })
   }
@@ -1333,7 +1346,7 @@ export default class EditPage extends Component {
 
   updateValue = (updatedValue) => {
     // console.log('updated value...............->', updatedValue)
-    const { assistanceData, chapters } = this.state
+    const { assistanceData, chapters, tags } = this.state
     if (updatedValue[0].disease) {
       const updatedAssistanceData = []
       assistanceData.forEach((disease) => {
@@ -1357,19 +1370,7 @@ export default class EditPage extends Component {
         return disease.additionalIcdCodes.filter((additionalIcdCode) => additionalIcdCode.selectedStatus)
       }).flat()
       const listOfCodes = [...icd10Codes, ...additionalIcd10Codes]
-      const currentTags = this.state.tags
-      const newTags = listOfCodes.map((code) => {
-        return { value: code.value, description: code.description }
-      })
-      const existedTagsId = this.state.tags['icd-10'].values.map(val => val.value)
-      const finalTags = {
-        ...this.state.tags,
-        'icd-10': {
-          ...this.state.tags['icd-10'],
-          values: [...this.state.tags['icd-10'].values, ...newTags.filter(t => !existedTagsId.includes(t.value))]
-        }
-      }
-      // console.log('final tags:', finalTags)
+      const finalTags = this.getICDTags(listOfCodes, tags)
       this.setState({ tags: finalTags })
       this.setState({ assistanceData: updatedValue })
     }
@@ -1389,13 +1390,30 @@ export default class EditPage extends Component {
 
   onKeyPressed = e => e.ctrlKey && e.keyCode === 75 ? this.openMedicalAssistant(false) : {} // ctrl+k
 
+  getICDTags = (listOfCodes, tags) => {
+    const newTags = listOfCodes.map((code) => {
+      return { value: code.value, description: code.description }
+    })
+    const finalTags = { ...tags }
+    if (Object.keys(this.state.tags).length > 0) {
+      const diagnosKeyword = Object.keys(this.state.tags)[0]
+      const existedTagsId = this.state.tags[diagnosKeyword].values.map(val => val.value)
+      finalTags[diagnosKeyword] = {
+        ...this.state.tags[diagnosKeyword],
+        values: [
+          ...this.state.tags[diagnosKeyword].values,
+          ...newTags.filter(t => !existedTagsId.includes(t.value))]
+      }
+    }
+    return finalTags
+  }
 
   getExpandedObj = () => {
     const { chapters, assistanceData } = this.state
     
     const chapterInPlainText = medicalAssistant.getTranscriptInPlainText(chapters)
     const theLastSentence = chapterInPlainText.split('.').pop()
-    const pattern = /diagnoskod|code/ig
+    const pattern = /diagnoskod|code|código/ig
     const obj = {}
     if(assistanceData.length){
       if (!assistanceData[0].isInteractive){
@@ -2457,14 +2475,25 @@ export default class EditPage extends Component {
                       />
                     </MedicalAssistantContext.Provider>
                   </EuiFlexItem>
-                  <EuiFlexItem grow={false}>
+                  {!mic && <EuiFlexItem grow={false}>
                     <Schemas
                       location={this.props.location}
                       schemas={schemas}
                       schemaId={schema.id}
                       onUpdate={this.updateSchemaId}
-                    />
-                  </EuiFlexItem>
+                    /></EuiFlexItem>
+                  }
+                  {mic && (
+                    <EuiFlexItem
+                      grow={false}
+                      style={{ position: 'sticky', top: 5 }}
+                    >
+                      <ListOfHeaders
+                        headers={this.sectionHeaders()}
+                        schema={schema}
+                      />
+                    </EuiFlexItem>
+                  )}                  
                   <EuiFlexItem grow={false}>
                     <ReadOnlyChapters
                       chapters={this.parseReadOnlyTranscripts(allChapters)}
@@ -2524,7 +2553,10 @@ export default class EditPage extends Component {
                       grow={false}
                       style={{ position: 'sticky', top: 20 }}
                     >
-                      <ListOfHeaders headers={this.sectionHeaders()} />
+                      <ListOfHeaders
+                        headers={this.sectionHeaders()}
+                        schema={schema}
+                      />
                     </EuiFlexItem>
                   )}
                 </EuiFlexGroup>
