@@ -19,6 +19,9 @@ const URLS = {
   transcriptionV2: '/api/transcription/v2'
 }
 
+const states = [
+  'NEW', 'TRANSCRIBED', 'APPROVED', 'EXPORTED', 'ERROR', 'REVOKED'
+]
 const setToken = (token) => {
   if (token) {
     axios.defaults.headers.common.Authorization = `Bearer ${token}`
@@ -93,9 +96,7 @@ const login = (domain, username, password) => {
 
 const loadTags = () =>
   axios.post(URLS.activeTags, {
-    states: [
-      'NEW', 'TRANSCRIBED', 'APPROVED', 'EXPORTED', 'ERROR', 'REVOKED'
-    ]
+    states
   })
 
 const loadTickets = (department, pageIndex, pageSize, orderBy) => {
@@ -106,9 +107,7 @@ const loadTickets = (department, pageIndex, pageSize, orderBy) => {
       orderBy: orderBy ? [orderBy] : [],
       start: pageIndex * pageSize,
       size: pageSize,
-      states: [
-        'NEW', 'TRANSCRIBED', 'APPROVED', 'EXPORTED', 'ERROR', 'REVOKED'
-      ]
+      states
     }
   )
 }
