@@ -65,6 +65,7 @@ import medicalAssistant from '../models/medicalAssistant'
 import ICDParams from '../components/medical-assistant/ICDParams'
 import AssistantResponse from '../components/medical-assistant/AssistantResponse'
 import packageInformation from '../../package.json'
+import { revokeTranscription } from '../api'
 
 import { SchemaV2 } from '../api/index'
 
@@ -118,6 +119,7 @@ const INITIAL_STATE = {
   outgoingChannel: {},
   isLiveDicModalOpen: true,
   isReadOnly: false,
+  isTranscriptStateRevoked: false,
   showTooltip: true
 }
 
@@ -736,6 +738,9 @@ export default class EditPage extends Component {
         }
         if (transcriptState.state === 'ERROR' || transcriptState.state === 'REVOKED') {
           this.setState({ isReadOnly: true })
+        }
+        if (transcriptState.state === 'REVOKED') {
+          this.setState({ isTranscriptStateRevoked: true })
         }
         await this.initiate()
       } else {
@@ -2333,6 +2338,57 @@ export default class EditPage extends Component {
     sendMail(subject, encoded)
   }
 
+
+  revokeRollback = async() => {
+    const {
+      props: { id: transcriptId }
+    } = this
+    console.log('transcriptId', transcriptId)
+    try {
+      const response = await revokeTranscription({
+        id: transcriptId,
+        rollback: true
+      })
+      if (response.status === 200) {
+        addSuccessToast(
+          <EuiI18n
+            token="success"
+            default="Successfully revoked rollback"
+          />
+        )
+        this.setState({ isTranscriptStateRevoked: false })
+      }
+    } catch (error) {
+      const { status } = error.request
+      if (status === 403) {
+        addErrorToast(
+          <EuiI18n
+            token="forbiddenRevoke"
+            default="The user does not have sufficient
+                     privileges to revoke the transcription"
+          />
+        )
+      } else if (status === 409) {
+        addErrorToast(
+          <EuiI18n
+            token="conflictRevoke"
+            default="The user does not have sufficient
+                     privileges to revoke the transcription"
+          />
+        )
+      } else if (status === 400) {
+        addErrorToast(
+          <EuiI18n
+            token="theTranscriptNotAvailable"
+            default="The transcription is not available"
+          />
+        )
+      } else {
+        addErrorToast(<EuiI18n token="Error" default={error.message} />)
+      }
+    }
+  }
+
   render() {
     const { id, mic, token } = this.props
     const {
@@ -2366,6 +2422,7 @@ export default class EditPage extends Component {
       shouldHighlightMedicalAssistant,
       editSeconds,
       isReadOnly,
+      isTranscriptStateRevoked,
       outgoingChannel
     } = this.state
     const { preferences } = this.context
@@ -2568,6 +2625,21 @@ export default class EditPage extends Component {
               </EuiFlexItem>
             </EuiFlexGroup>
             <EuiHorizontalRule />
+            {isTranscriptStateRevoked && (
+              <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
+                <EuiFlexItem grow={false}>
+                  <EuiButton
+                    size="s"
+                    color="danger"
+                    fill
+                    onClick={this.revokeRollback}
+                    id="revoke_rollback_button"
+                  >
+                    <EuiI18n token="revokeRollback" default="Revoke Rollback" />
+                  </EuiButton>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            )}
             {!isReadOnly && (
               <EuiFlexGroup alignItems="baseline" justifyContent="flexEnd">
                 <EuiFlexItem grow={true}>

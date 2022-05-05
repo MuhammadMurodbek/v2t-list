@@ -195,5 +195,6 @@
     "confirmSchemaSelection": "Bekræft skema-valg",
     "startLiveDictation": "Start live diktat",
     "pleaseWait": "Vent venligst",
-    "noFieldFound": "Ingen felt fundet"
+    "noFieldFound": "Ingen felt fundet",
+    "revokeRollback": "Tilbagekald tilbage"
 }

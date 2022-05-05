@@ -197,5 +197,6 @@
   "confirmSchemaSelection": "Confirmar selección de horario",
   "startLiveDictation": "Iniciar dictado en vivo",
   "pleaseWait": "Espere un momento",
-  "noFieldFound": "No se encontró campo"
+  "noFieldFound": "No se encontró campo",
+  "revokeRollback": "Revocar y deshacer"
 }

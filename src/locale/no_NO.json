@@ -197,5 +197,6 @@
   "confirmSchemaSelection": "Bekreft skjema valg",
   "startLiveDictation": "Start live diktat",
   "pleaseWait": "Vennligst vent",
-  "noFieldFound": "Ingen felt funnet"
+  "noFieldFound": "Ingen felt funnet",
+  "revokeRollback": "Tilbakekall tilbake"
 }
