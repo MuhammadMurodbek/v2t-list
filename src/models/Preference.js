@@ -407,9 +407,7 @@ export default class Preference {
       (column) =>
         column.label !== 'Id'
     ),
-    columnsForTranscriptList: COLUMN_OPTIONS.filter(
-      (column) => column.label !== 'Id'
-    ),
+    columnsForTranscriptList: COLUMN_OPTIONS,
     fontSizeList: [
       {
         value: '15px',
