@@ -2357,6 +2357,7 @@ export default class EditPage extends Component {
           />
         )
         this.setState({ isTranscriptStateRevoked: false })
+        window.location.replace('/')
       }
     } catch (error) {
       const { status } = error.request

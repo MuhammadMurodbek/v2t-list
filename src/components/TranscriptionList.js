@@ -12,10 +12,12 @@ import {
   EuiCallOut
 } from '@elastic/eui'
 import { PreferenceContext } from './PreferencesProvider'
-import api from '../api'
+import api, { revokeTranscription } from '../api'
 
 import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@elastic/eui'
-import { addUnexpectedErrorToast, addSuccessToast } from './GlobalToastList'
+import {
+  addUnexpectedErrorToast, addSuccessToast, addErrorToast
+} from './GlobalToastList'
 
 export default class TranscriptionList extends Component {
   static contextType = PreferenceContext
@@ -212,6 +214,50 @@ export default class TranscriptionList extends Component {
       allowNeutralSort: true,
       enableAllColumns: true
     }
+
+    const revokeTranscript = async (id) => {
+      try {
+        const response =  await revokeTranscription({ id })
+        if (response.status === 200) {
+          addSuccessToast(
+            <EuiI18n
+              token="transcriptionRevokedSuccessfully"
+              default="Transcription revoked successfully"
+            />
+          )
+          window.location.replace(`#/edit/${id}/`)
+        }
+      } catch (error) {
+        const { status } = error.request
+        if (status === 403) {
+          addErrorToast(
+            <EuiI18n
+              token="forbiddenRevoke"
+              default="The user does not have sufficient 
+                     privileges to revoke the transcription"
+            />
+          )
+        } else if (status === 409) {
+          addErrorToast(
+            <EuiI18n
+              token="conflictRevoke"
+              default="The user does not have sufficient 
+                     privileges to revoke the transcription"
+            />
+          )
+        } else if (status === 400) {
+          addErrorToast(
+            <EuiI18n
+              token="theTranscriptNotAvailable"
+              default="The transcription is not available"
+            />
+          )
+        } else {
+          addErrorToast(<EuiI18n token="Error" default={error.message} />)
+        }
+      }
+    }
+
     const columns = [
       ...preferences.columnsForTranscriptList,
       {
@@ -227,7 +273,10 @@ export default class TranscriptionList extends Component {
               <EuiButtonEmpty {...this.getTranscriptHref(id)}>
                 <EuiI18n token="open" default="Open" />
               </EuiButtonEmpty>
-            ) : (<></>)
+          ) : transcriptInfo.status === 'APPROVED' ? (
+            <EuiButtonEmpty
+              onClick={()=> revokeTranscript(id)}
+            >Revoke</EuiButtonEmpty>):(<></>)
         },
         disabled: true
       },
