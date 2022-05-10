@@ -18,9 +18,10 @@ const ConversationTabs = ({ conversationData, transcriptId, currentTime }) => {
     )[0].color
   }
 
-  const bubbles = conversationData.map((conversation) => {
+  const bubbles = conversationData.map((conversation, key) => {
     return (
       <Bubble
+        key={key}
         getColor={getTheColor}
         speaker={conversation.speaker}
         currentTime={currentTime}

@@ -56,8 +56,7 @@ export async function renderTranscriptionState(id) {
 
 export const sendMail = (subject, body) => {
   window.open(
-    `mailto:v2t-support@inoviagroup.se
-    ?subject=${subject}&body=${body}`
+    `mailto:contact-project+inoviaab-v2t-v2t-service-desk-v2t@incoming.gitlab.com?subject=${subject}&body=${body}`
   )
 }
 
