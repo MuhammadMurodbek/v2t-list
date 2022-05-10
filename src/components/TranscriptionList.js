@@ -19,6 +19,49 @@ import {
   addUnexpectedErrorToast, addSuccessToast, addErrorToast
 } from './GlobalToastList'
 
+
+const revokeTranscript = async (id) => {
+  try {
+    const response = await revokeTranscription({ id })
+    if (response.status === 200) {
+      addSuccessToast(
+        <EuiI18n
+          token="transcriptionRevokedSuccessfully"
+          default="Transcription revoked successfully"
+        />
+      )
+      window.location.replace(`#/edit/${id}/`)
+    }
+  } catch (error) {
+    const { status } = error.request
+    if (status === 403) {
+      addErrorToast(
+        <EuiI18n
+          token="forbiddenRevoke"
+          default="The user does not have sufficient
+                     privileges to revoke the transcription"
+        />
+      )
+    } else if (status === 409) {
+      addErrorToast(
+        <EuiI18n
+          token="conflictRevoke"
+          default="The user does not have sufficient
+                     privileges to revoke the transcription"
+        />
+      )
+    } else if (status === 400) {
+      addErrorToast(
+        <EuiI18n
+          token="theTranscriptNotAvailable"
+          default="The transcription is not available"
+        />
+      )
+    } else {
+      addErrorToast(<EuiI18n token="Error" default={error.message} />)
+    }
+  }
+}
 export default class TranscriptionList extends Component {
   static contextType = PreferenceContext
 
@@ -215,48 +258,6 @@ export default class TranscriptionList extends Component {
       enableAllColumns: true
     }
 
-    const revokeTranscript = async (id) => {
-      try {
-        const response =  await revokeTranscription({ id })
-        if (response.status === 200) {
-          addSuccessToast(
-            <EuiI18n
-              token="transcriptionRevokedSuccessfully"
-              default="Transcription revoked successfully"
-            />
-          )
-          window.location.replace(`#/edit/${id}/`)
-        }
-      } catch (error) {
-        const { status } = error.request
-        if (status === 403) {
-          addErrorToast(
-            <EuiI18n
-              token="forbiddenRevoke"
-              default="The user does not have sufficient 
-                     privileges to revoke the transcription"
-            />
-          )
-        } else if (status === 409) {
-          addErrorToast(
-            <EuiI18n
-              token="conflictRevoke"
-              default="The user does not have sufficient 
-                     privileges to revoke the transcription"
-            />
-          )
-        } else if (status === 400) {
-          addErrorToast(
-            <EuiI18n
-              token="theTranscriptNotAvailable"
-              default="The transcription is not available"
-            />
-          )
-        } else {
-          addErrorToast(<EuiI18n token="Error" default={error.message} />)
-        }
-      }
-    }
 
     const columns = [
       ...preferences.columnsForTranscriptList,
