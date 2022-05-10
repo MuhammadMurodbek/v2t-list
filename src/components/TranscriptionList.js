@@ -277,7 +277,9 @@ export default class TranscriptionList extends Component {
           ) : transcriptInfo.status === 'APPROVED' ? (
             <EuiButtonEmpty
               onClick={()=> revokeTranscript(id)}
-            >Revoke</EuiButtonEmpty>):(<></>)
+            >
+              <EuiI18n token="revoke" default="Revoke" />
+            </EuiButtonEmpty>):(<></>)
         },
         disabled: true
       },
