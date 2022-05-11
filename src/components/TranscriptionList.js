@@ -274,7 +274,8 @@ export default class TranscriptionList extends Component {
               <EuiButtonEmpty {...this.getTranscriptHref(id)}>
                 <EuiI18n token="open" default="Open" />
               </EuiButtonEmpty>
-          ) : transcriptInfo.status === 'APPROVED' ? (
+          ) : transcriptInfo.status === 'EXPORTED'
+              || transcriptInfo.status === 'APPROVED' ? (
             <EuiButtonEmpty
               onClick={()=> revokeTranscript(id)}
             >
