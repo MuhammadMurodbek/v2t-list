@@ -792,11 +792,11 @@ export default class EditPage extends Component {
 
   updateMultiSelectOptionsOnLoad = (fields) => {
     const { complicatedFieldMultiSelectOptions } = this.state
-    const updates = complicatedFieldMultiSelectOptions
+    const updates = { ...complicatedFieldMultiSelectOptions }
     if(fields) {
       for (const field of fields) {
-        field.namespace && TAG_NAMESPACES.push(field.namespace)
-        if (!TAG_NAMESPACES.includes(field.namespace)
+        field.namespace && TAG_NAMESPACES.add(field.namespace)
+        if (!TAG_NAMESPACES.has(field.namespace)
           && Object.prototype.hasOwnProperty.call(field, 'namespace')
           && Object.prototype.hasOwnProperty.call(field, 'values')) {
           updates[field.id] = field
@@ -1028,8 +1028,9 @@ export default class EditPage extends Component {
     if (schema.fields) {
       schema.fields.filter(
         (field) => field.type?.select?.dictionary
-      ).map((field) => TAG_NAMESPACES.push(field.id))
-      const hasSelector = ({ type }) => TAG_NAMESPACES.includes(type?.select?.dictionary)
+      ).map((field) => TAG_NAMESPACES.add(field.id))
+
+      const hasSelector = ({ type }) => TAG_NAMESPACES.has(type?.select?.dictionary)
       const selectors = schema.fields.filter(hasSelector)
       schema.fields = schema.fields.filter((...args) => !hasSelector(...args))
       const originalTags = selectors.reduce(
@@ -1095,7 +1096,7 @@ export default class EditPage extends Component {
       }
     })
     const parsedTranscripts = transcripts
-      .filter(({ keyword }) => !TAG_NAMESPACES.includes(keyword))
+      .filter(({ keyword }) => !TAG_NAMESPACES.has(keyword))
       .filter(({ keyword }) => !excludedKeywords.includes(keyword))
       .sort(({ keyword }) => {
         if (defaultHeaderIds.includes(keyword)) {
@@ -1700,10 +1701,9 @@ export default class EditPage extends Component {
         }
       })
 
-      let chapterBeforeSubmission = chapters
       // approving, remove the non-zero width joiner 
       // (journal system is not unicode)
-      chapterBeforeSubmission = chapters.map((chapter) => {
+      const chapterBeforeSubmission = chapters.map((chapter) => {
         const updatedSegments = []
         chapter.segments.forEach((segment) => {
           let updatedWords
@@ -1716,11 +1716,13 @@ export default class EditPage extends Component {
         })
         return { ...chapter, segments: updatedSegments }
       })
+
       const fields = convertToV2API(
         unfiltredSchema,
         chapterBeforeSubmission,
         tags
       )
+
       const filteredFields = fields.filter(
         (field) => !~noMappingFields.findIndex(({ id }) => id === field.id)
       )
@@ -2202,61 +2204,32 @@ export default class EditPage extends Component {
   updateComplicatedFields = (
     updatedComplicatedFields, chapterId, isSingleSelectEnabled
   ) => {
-    const { chapters, complicatedFieldMultiSelectOptions } = this.state
-    if (!isSingleSelectEnabled) {
-      const updates = complicatedFieldMultiSelectOptions
-      const chapter = chapters[chapterId]
-      if (chapter) {
-        updates[chapter.keyword] = {
-          id: chapter.keyword,
-          namespace: chapter.keyword,
-          values:
-            updatedComplicatedFields.map(field => ({ value: field.label }))
-        }
-      }
-    }
+    const { chapters } = this.state
     const updatedChapters = chapters.map((ch, i) => {
       if (chapterId !== i) {
-        // console.log('ch22', ch)
         return ch
       } else {
-        let updatedSegments = []
-        // console.log('updatedcombo.length', updatedComplicatedFields.length)
-        // console.log('updatedcombo', updatedComplicatedFields.length)
-        // console.log(
-        //   'updatedcombo22',
-        //   updatedComplicatedFields
-        //     .map((updatedComplicatedField) => updatedComplicatedField.label)
-        //     .join(' ')
-        // )
-        // console.log('i', i)
-        // console.log('chapters', chapters)
+        const updatedChapter = { ...ch }
+
+        if (!isSingleSelectEnabled) {
+          updatedChapter.values = updatedComplicatedFields.map(field => ({ value: field.label }))
+          updatedChapter.multiselect = true 
+        }
+        
         if (updatedComplicatedFields.length > 0) {
           if (ch.segments.length > 0) {
-            // updatedSegments = ch.segments.map((segment) => {
-            //   return {
-            //     ...segment,
-            //     words: updatedComplicatedFields
-            //       .map(
-            //         (updatedComplicatedField) =>
-            // updatedComplicatedField.label
-            //       )
-            //       .join(' ')
-            //   }
-            // })
-            updatedSegments = [
+            updatedChapter.segments = [
               {
                 words: updatedComplicatedFields
                   .map(
                     (updatedComplicatedField) => updatedComplicatedField.label
-                  )
-                  .join(' '), 
+                  ).join(' '),
                 startTime: ch.segments[0].startTime, 
                 endTime: ch.segments[ch.segments.length-1].endTime
               }
             ]
           } else {
-            updatedSegments = [
+            updatedChapter.segments = [
               {
                 words: updatedComplicatedFields
                   .map(
@@ -2268,26 +2241,23 @@ export default class EditPage extends Component {
               }
             ]
           }
-          return { ...ch, segments: updatedSegments }
         } else {
-          let updatedSegments = []
           if (ch.segments) {
-            updatedSegments = ch.segments.map((segment) => {
+            updatedChapter.segments = ch.segments.map((segment) => {
               return {
                 ...segment,
                 words: ''
               }
             })
           } else {
-            updatedSegments = {
+            updatedChapter.segments = {
               words: '',
               startTime: 0,
               endTime: 0
             }
           }
-          // console.log('ch33', ch)
-          return { ...ch, segments: updatedSegments }
         }
+        return updatedChapter
       }
     })
     // console.log('updatedChapter', updatedChapters)
@@ -2298,7 +2268,7 @@ export default class EditPage extends Component {
   deleteComplicatedField = (chapterId) => {
     const { chapters, complicatedFieldMultiSelectOptions } = this.state
     const updatedChapters = [...chapters]
-    const updatedMultiSelectOptions = complicatedFieldMultiSelectOptions
+    const updatedMultiSelectOptions = { ...complicatedFieldMultiSelectOptions }
     const keyword = chapters[chapterId]
       ? chapters[chapterId].keyword : undefined
     if (keyword && updatedMultiSelectOptions[keyword]) {

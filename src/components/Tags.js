@@ -20,7 +20,8 @@ import '../styles/tags.css'
 import { EuiI18n } from '@elastic/eui'
 import { addUnexpectedErrorToast } from './GlobalToastList'
 
-export const TAG_NAMESPACES = ['icd-10', 'kva', 'icf']
+export const TAG_NAMESPACES = new Set(['icd-10', 'kva', 'icf'])
+
 
 export default class Tags extends Component {
   static propTypes = {

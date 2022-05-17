@@ -5,7 +5,6 @@ const CopyPlugin = require('copy-webpack-plugin')
 const { frontEndDevPort } = require('./server/config')
 
 const { NODE_ENV, CI } = process.env
-
 const isDevelopment = NODE_ENV === 'development' && CI == null
 
 function useCache(loaders) {
