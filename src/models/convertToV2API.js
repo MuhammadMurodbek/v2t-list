@@ -11,7 +11,7 @@ const convertToV2API = (schema, chapters, tags = {}) => {
   }, [])
   const updatedChapters = []
   chapters.forEach((chapter) => {
-    if (TAG_NAMESPACES.includes(chapter.keyword)) {
+    if (TAG_NAMESPACES.has(chapter.keyword)) {
       const field = schema.fields.find(field => field.name === chapter.keyword)
       const id = field ? field.id : chapter.keyword
       updatedChapters.push({
@@ -21,11 +21,21 @@ const convertToV2API = (schema, chapters, tags = {}) => {
       })
     } else {
       const field = schema.fields.find(field => field.name === chapter.keyword)
+
+      let values = []
+      if(!chapter.multiselect && chapter.segments.length) {
+        values = [{
+          value: `${chapter.segments.map(segment => segment.words).join(' ')}`
+        }]
+      }
+      if (chapter.multiselect) {
+        values = chapter.values
+      }
+
+
       updatedChapters.push({
         id: field ? field.id : chapter.keyword,
-        values: chapter.segments.length ? [{
-          value: `${chapter.segments.map(segment => segment.words).join(' ')}`
-        }] : chapter.values || [],
+        values,
         offsets: chapter.segments.map((segment, i) => {
           if (!segment.startTime && !segment.endTime) return null
           let previousWordsLength = 0
