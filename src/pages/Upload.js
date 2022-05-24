@@ -282,6 +282,7 @@ export default class UploadPage extends Component {
                     label={<EuiI18n token="department" default="Department" />}
                   >
                     <EuiComboBox
+                      sortMatchesBy="startsWith"
                       options={departments}
                       onChange={this.onDepartmentChange}
                       selectedOptions={selectedDepartments}
@@ -293,6 +294,7 @@ export default class UploadPage extends Component {
                     label={<EuiI18n token="schema" default="Schema" />}
                   >
                     <EuiComboBox
+                      sortMatchesBy="startsWith"
                       options={schemas}
                       onChange={this.onSchemaChange}
                       selectedOptions={selectedSchemas}

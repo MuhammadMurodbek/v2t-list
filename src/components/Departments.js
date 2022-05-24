@@ -27,6 +27,7 @@ const Departments = ({ departments, departmentId, onUpdate }) => {
           }
         >
           <EuiComboBox
+            sortMatchesBy="startsWith"
             options={options}
             selectedOptions={[department]}
             singleSelection={{ asPlainText: true }}

@@ -44,6 +44,7 @@ const ComplicatedField = ({
         >
           {(translation) => (
             <EuiComboBox
+              sortMatchesBy="startsWith"
               placeholder={translation}
               style={{ width: 300 }}
               singleSelection={isSingleSelectEnabled}

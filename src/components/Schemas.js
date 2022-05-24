@@ -49,6 +49,7 @@ const Schemas = ({ schemas, schemaId, onUpdate, location }) => {
           }
         >
           <EuiComboBox
+            sortMatchesBy="startsWith"
             options={options}
             selectedOptions={[selectedSchema]}
             singleSelection={{ asPlainText: true }}

@@ -115,6 +115,7 @@ const LoginPage = ({ history }) => {
               label={<EuiTextColor color="ghost">domain</EuiTextColor>}
             >
               <EuiComboBox
+                sortMatchesBy="startsWith"
                 singleSelection={{ asPlainText: true }}
                 options={options}
                 selectedOptions={domain ? [{ label: domain }] : []}

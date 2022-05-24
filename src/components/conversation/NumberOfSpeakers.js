@@ -29,6 +29,7 @@ const NumberOfSpeakers = ({ updateNumberOfSpeakers }) => {
         <h5>Number of Speakers &nbsp;&nbsp;</h5>
       </EuiText>
       <EuiComboBox
+        sortMatchesBy="startsWith"
         placeholder="Select number of speakers"
         options={options}
         selectedOptions={selectedOption}

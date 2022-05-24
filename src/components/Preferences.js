@@ -158,6 +158,7 @@ const Flyout = ({ visible, onClose }) => {
             {(translation) => (
               <EuiFormRow fullWidth={true}>
                 <EuiComboBox
+                  sortMatchesBy="startsWith"
                   placeholder={translation}
                   selectedOptions={preferences.columnsForCombo}
                   options={COLUMN_OPTIONS}

@@ -169,6 +169,7 @@ EditableFields.propTypes = {
 
 const Selector = ({ keyword, options, values, isMultiSelect, onUpdate }) => (
   <EuiComboBox
+    sortMatchesBy="startsWith"
     isClearable={false}
     options={options.map((label) => ({ label }))}
     selectedOptions={values.map(({ value }) => ({ label: value }))}

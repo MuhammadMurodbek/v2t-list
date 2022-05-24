@@ -2546,6 +2546,7 @@ export default class EditPage extends Component {
                       <EuiFormRow label={field.name}>
                         {(field.select && field.type?.select?.options) ? (
                           <EuiComboBox
+                            sortMatchesBy="startsWith"
                             isClearable={false}
                             options={field.type?.select?.options.map((label) => ({
                               label

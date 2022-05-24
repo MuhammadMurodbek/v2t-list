@@ -241,6 +241,7 @@ export default class Tags extends Component {
                     <EuiFlexItem grow={false}>
                       <EuiFormRow label={namespace}>
                         <EuiComboBox
+                          sortMatchesBy="startsWith"
                           placeholder={`${lookFor} ${namespace}`}
                           async
                           options={options[dictionary] || []}
