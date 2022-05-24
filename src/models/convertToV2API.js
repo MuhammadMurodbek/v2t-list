@@ -21,17 +21,14 @@ const convertToV2API = (schema, chapters, tags = {}) => {
       })
     } else {
       const field = schema.fields.find(field => field.name === chapter.keyword)
-
       let values = []
       if(!chapter.multiselect && chapter.segments.length) {
         values = [{
           value: `${chapter.segments.map(segment => segment.words).join(' ')}`
         }]
-      }
-      if (chapter.multiselect) {
+      } else {
         values = chapter.values
       }
-
 
       updatedChapters.push({
         id: field ? field.id : chapter.keyword,
