@@ -57,6 +57,7 @@ const SectionHeader = ({
           >
             {(translation) => (
               <EuiComboBox
+                sortMatchesBy="startsWith"
                 className={
                   isComplicatedSelect ? 'complicatedSelect' : 'sectionHeader'}
                 placeholder={translation}
