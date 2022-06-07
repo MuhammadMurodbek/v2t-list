@@ -2538,6 +2538,7 @@ export default class EditPage extends Component {
                       tags={tags}
                       schema={schema}
                       updateTags={this.onUpdateTags}
+                      isRevoked={isTranscriptStateRevoked}
                     />
                   </EuiFlexItem>
                   {noMappingFields.map((field, key) => (
@@ -2576,6 +2577,7 @@ export default class EditPage extends Component {
                               // console.log(value, schema) 
                               this.onNoMappingFieldValueChange(value, field.id)
                             }
+                            disabled={isTranscriptStateRevoked}
                           />
                         )}
                       </EuiFormRow>
