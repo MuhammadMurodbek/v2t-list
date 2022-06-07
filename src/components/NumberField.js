@@ -12,7 +12,8 @@ const NumberField = ({
   chapterId, 
   segments, 
   updateTranscript,
-  createNewSectionAfterThis
+  createNewSectionAfterThis,
+  isTranscriptStateRevoked
 }) => {
   const [value, setValue] = React.useState(segments.length > 0 ? 
     segments.map((segment) => segment.words).join(' ') : '')
@@ -58,6 +59,7 @@ const NumberField = ({
     <EuiFlexGroup style={{ alignItems: 'center', width: 400 }}>
       <EuiFlexItem>
         <EuiFieldNumber
+          disabled={isTranscriptStateRevoked}
           value={value}
           onChange={(e) => updateNumberField(e.target.value)}
         />
@@ -71,6 +73,7 @@ const NumberField = ({
             size="m"
             iconType="trash"
             onClick={() => deleteNumberField(chapterId)}
+            disabled={isTranscriptStateRevoked}
           />
         </EuiToolTip>
       </EuiFlexItem>
@@ -82,6 +85,7 @@ const NumberField = ({
             size="m"
             iconType="plusInCircle"
             onClick={() => createNewSectionAfterThis(chapterId)}
+            disabled={isTranscriptStateRevoked}
           />
         </EuiToolTip>
       </EuiFlexItem>
@@ -94,7 +98,8 @@ NumberField.propTypes = {
   chapterId: PropTypes.number,
   segments: PropTypes.array,
   updateTranscript: PropTypes.func.isRequired,
-  createNewSectionAfterThis: PropTypes.func.isRequired
+  createNewSectionAfterThis: PropTypes.func.isRequired,
+  isTranscriptStateRevoked: PropTypes.bool
 }
 
 

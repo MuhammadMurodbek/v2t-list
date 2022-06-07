@@ -28,7 +28,8 @@ const Chunks = ({
   onSelect,
   onCursorChange,
   highlightedContextForMedicalAssistant,
-  isMedicalAssistantEnabled
+  isMedicalAssistantEnabled,
+  isTranscriptStateRevoked
 }) => {
   const highligtedChapterIdByMedicalAssistant = highlightedContextForMedicalAssistant.map(ch => ch.chapterId)
   const highligtedSegmentIdByMedicalAssistant = highlightedContextForMedicalAssistant.map(ch => ch.segmentId)
@@ -73,7 +74,7 @@ const Chunks = ({
           onKeyUp={onCursorChange}
           onClick={onCursorChange}
           onSelect={onSelect}
-          contentEditable
+          contentEditable={!isTranscriptStateRevoked}
           suppressContentEditableWarning
           data-chapter={chapterId}
         >

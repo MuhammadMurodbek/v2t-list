@@ -12,6 +12,7 @@ const EditableChapters = ({
   singleSelectFieldOptions,
   updateComplicatedFields,
   deleteComplicatedField,
+  isTranscriptStateRevoked,
   ...editableChapterProps
 }) => {
   if (!inputRef) return null
@@ -30,6 +31,7 @@ const EditableChapters = ({
         updateComplicatedFields={updateComplicatedFields}
         deleteComplicatedField={deleteComplicatedField}
         chapters={chapters}
+        isTranscriptStateRevoked={isTranscriptStateRevoked}
         {...{ ...editableChapterProps }}
       />
     )

@@ -2471,6 +2471,7 @@ export default class EditPage extends Component {
                       highlightedContextForMedicalAssistant
                     }
                     isMedicalAssistantEnabled={shouldHighlightMedicalAssistant}
+                    isTranscriptStateRevoked={isTranscriptStateRevoked}
                   />
                 )}
               </EuiFlexItem>

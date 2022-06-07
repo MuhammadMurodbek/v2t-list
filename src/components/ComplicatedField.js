@@ -18,7 +18,8 @@ const ComplicatedField = ({
   sectionHeader,
   chapterId,
   createNewSectionAfterThis,
-  isSingleSelectEnabled
+  isSingleSelectEnabled,
+  isTranscriptStateRevoked
 }) => {
   const [selectedOption, setSelectedOption] = React.useState(
     isSingleSelectEnabled ? (
@@ -57,6 +58,7 @@ const ComplicatedField = ({
               }}
               isClearable={true}
               selectedOptions={selectedOption}
+              isDisabled={isTranscriptStateRevoked}
             />
           )}
         </EuiI18n>

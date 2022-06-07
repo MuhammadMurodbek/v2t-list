@@ -24,6 +24,7 @@ const EditableChapter = ({
   multiSelectOptionValues,
   chapters,
   updateTranscript,
+  isTranscriptStateRevoked,
   ...chunkProps
 }) => {
   const { fields } = schema
@@ -80,6 +81,7 @@ const EditableChapter = ({
       deleteComplicatedField,
       id: chunkProps.id,
       isSingleSelectEnabled,
+      isTranscriptStateRevoked,
       ...props
     }
   }
@@ -126,12 +128,14 @@ const EditableChapter = ({
           segments={segments}
           updateTranscript={updateTranscript}
           createNewSectionAfterThis={createNewSectionAfterThis}
+          isTranscriptStateRevoked={isTranscriptStateRevoked}
         />}
         {isDateField && <DatePickerField
           chapters={chapters}
           chapterId={chapterId} 
           updateTranscript={updateTranscript}
           createNewSectionAfterThis={createNewSectionAfterThis}
+          isTranscriptStateRevoked={isTranscriptStateRevoked}
         />}
         {!isSingleSelectEnabled && !isMultiSelectEnabled 
           && !isNumberField && !isDateField && (
@@ -139,6 +143,7 @@ const EditableChapter = ({
             recordingChapter={recordingChapter}
             chapterId={chapterId}
             segments={filteredSegments}
+            isTranscriptStateRevoked={isTranscriptStateRevoked}
             {...{ ...chunkProps }}
           />
         )}
@@ -164,7 +169,8 @@ EditableChapter.propTypes = {
   deleteComplicatedField: PropTypes.func,
   // multiSelectOptionValues: PropTypes.array,
   chapters: PropTypes.array.isRequired,
-  updateTranscript: PropTypes.func.isRequired
+  updateTranscript: PropTypes.func.isRequired,
+  isTranscriptStateRevoked: PropTypes.bool
 }
 
 export default React.memo(EditableChapter)

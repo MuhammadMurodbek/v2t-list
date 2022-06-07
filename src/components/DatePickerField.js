@@ -13,7 +13,8 @@ const DatePickerField = ({
   chapters, 
   chapterId, 
   updateTranscript,
-  createNewSectionAfterThis
+  createNewSectionAfterThis,
+  isTranscriptStateRevoked
 }) => {
   React.useEffect(() => {
     const updatedChapters = chapters.map((chapter, i) => {
@@ -85,7 +86,11 @@ const DatePickerField = ({
   return (
     <EuiFlexGroup style={{ alignItems: 'center', width: 400 }}>
       <EuiFlexItem>
-        <EuiDatePicker selected={startDate} onChange={handleChange} />
+        <EuiDatePicker
+          selected={startDate}
+          onChange={handleChange}
+          disabled={isTranscriptStateRevoked}
+        />
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiToolTip position="top" content="Remove this section">
@@ -96,6 +101,7 @@ const DatePickerField = ({
             size="m"
             iconType="trash"
             onClick={() => deleteDateField(chapterId)}
+            disabled={isTranscriptStateRevoked}
           />
         </EuiToolTip>
       </EuiFlexItem>
@@ -107,6 +113,7 @@ const DatePickerField = ({
             size="m"
             iconType="plusInCircle"
             onClick={() => createNewSectionAfterThis(chapterId)}
+            disabled={isTranscriptStateRevoked}
           />
         </EuiToolTip>
       </EuiFlexItem>
@@ -118,7 +125,8 @@ DatePickerField.propTypes = {
   chapters: PropTypes.array.isRequired,
   chapterId: PropTypes.number,
   updateTranscript: PropTypes.func.isRequired,
-  createNewSectionAfterThis: PropTypes.func.isRequired
+  createNewSectionAfterThis: PropTypes.func.isRequired,
+  isTranscriptStateRevoked: PropTypes.bool
 }
 
 export default DatePickerField

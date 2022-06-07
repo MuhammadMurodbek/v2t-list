@@ -874,7 +874,8 @@ export default class Editor extends Component {
       updateComplicatedFields,
       deleteComplicatedField,
       isMedicalAssistantEnabled,
-      updateTranscript
+      updateTranscript,
+      isTranscriptStateRevoked
     } = this.props
     const { diff, error } = this.state
     const { preferences } = this.context
@@ -906,6 +907,7 @@ export default class Editor extends Component {
             this.props.highlightedContextForMedicalAssistant}
           isMedicalAssistantEnabled={isMedicalAssistantEnabled}
           updateTranscript={updateTranscript}
+          isTranscriptStateRevoked={isTranscriptStateRevoked}
         />
         {!noDiff && <FullDiff diff={diff} />}
       </>
