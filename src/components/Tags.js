@@ -222,7 +222,8 @@ export default class Tags extends Component {
     } = this.state
     const {
       tags,
-      schema
+      schema,
+      isRevoked
     } = this.props
     if (!schema || !schema.originalFields) return null
     return (
@@ -242,7 +243,7 @@ export default class Tags extends Component {
                     <EuiFlexItem grow={false}>
                       <EuiFormRow label={namespace}>
                         <EuiComboBox
-                          isDisabled={this.props.isRevoked}
+                          isDisabled={isRevoked}
                           sortMatchesBy="startsWith"
                           placeholder={`${lookFor} ${namespace}`}
                           async
@@ -284,7 +285,7 @@ export default class Tags extends Component {
                               index={idx}
                               draggableId={value}
                               customDragHandle={true}
-                              isDragDisabled={this.props.isRevoked}
+                              isDragDisabled={isRevoked}
                             >
                               {(provided) => (
                                 <EuiPanel className="custom" paddingSize="m">
@@ -319,7 +320,7 @@ export default class Tags extends Component {
                                         iconType="trash"
                                         aria-label="Next"
                                         className="selectorBottons"
-                                        isDisabled={this.props.isRevoked}
+                                        isDisabled={isRevoked}
                                       />
                                     </EuiFlexItem>
                                   </EuiFlexGroup>
