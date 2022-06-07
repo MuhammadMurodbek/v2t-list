@@ -27,7 +27,8 @@ export default class Tags extends Component {
   static propTypes = {
     tags: PropTypes.object.isRequired,
     updateTags: PropTypes.func.isRequired,
-    schema: PropTypes.object
+    schema: PropTypes.object,
+    isRevoked: PropTypes.bool
   }
 
   state = {
