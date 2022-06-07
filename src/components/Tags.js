@@ -241,6 +241,7 @@ export default class Tags extends Component {
                     <EuiFlexItem grow={false}>
                       <EuiFormRow label={namespace}>
                         <EuiComboBox
+                          isDisabled={this.props.isRevoked}
                           sortMatchesBy="startsWith"
                           placeholder={`${lookFor} ${namespace}`}
                           async
@@ -282,6 +283,7 @@ export default class Tags extends Component {
                               index={idx}
                               draggableId={value}
                               customDragHandle={true}
+                              isDragDisabled={this.props.isRevoked}
                             >
                               {(provided) => (
                                 <EuiPanel className="custom" paddingSize="m">
@@ -316,6 +318,7 @@ export default class Tags extends Component {
                                         iconType="trash"
                                         aria-label="Next"
                                         className="selectorBottons"
+                                        isDisabled={this.props.isRevoked}
                                       />
                                     </EuiFlexItem>
                                   </EuiFlexGroup>
