@@ -71,6 +71,8 @@ const Flyout = ({ visible, onClose }) => {
     setPreferences({ editReadOnly })
   const setHideEditor = ({ target: { checked: hideEditor }}) =>
     setPreferences({ hideEditor })
+  const setHideSokord = ({ target: { checked: hideSokord }}) =>
+    setPreferences({ hideSokord })
   const setStopButtonVisibilityStatus = ({
     target: { checked: stopButtonVisibilityStatus }
   }) => setPreferences({ stopButtonVisibilityStatus })
@@ -92,7 +94,7 @@ const Flyout = ({ visible, onClose }) => {
   const [selectedTabId, setSelectedTabId] = useState('0')
   const [autoCorrectSelection, setAutoCorrectSelection] = useState([])
   const { language, setLanguage, languagesList } = useContext(LanguageContext)
-
+  
   const languageOptions = languagesList.map((lang) => ({
     value: lang.id,
     text: lang.name
@@ -101,8 +103,8 @@ const Flyout = ({ visible, onClose }) => {
   const onLanguageChange = (e) => {
     setLanguage(e.target.value)
   }
-
-
+ 
+ 
   const columns = [
     {
       name: <EuiI18n token="Replace" default="REPLACE" />,
@@ -212,6 +214,13 @@ const Flyout = ({ visible, onClose }) => {
               label={<EuiI18n token="hideEditor" default="Hide editor" />}
               checked={preferences.hideEditor}
               onChange={setHideEditor}
+            />
+          </EuiFormRow>
+          <EuiFormRow label="" fullWidth={true}>
+            <EuiSwitch
+              label={<EuiI18n token="hideSokord" default="Hide sökord" />}
+              checked={preferences.hideSokord}
+              onChange={setHideSokord}
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
