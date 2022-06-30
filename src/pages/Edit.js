@@ -738,8 +738,6 @@ export default class EditPage extends Component {
         }
         if (transcriptState.state === 'REVOKED') {
           this.setState({ isReadOnly: true })
-        }
-        if (transcriptState.state === 'REVOKED') {
           this.setState({ isTranscriptStateRevoked: true })
         }
         await this.initiate()
