@@ -736,7 +736,7 @@ export default class EditPage extends Component {
         if (transcriptState.state==='ERROR') {
           _.delay(renderTranscriptionState, 500, id)
         }
-        if (transcriptState.state === 'ERROR' || transcriptState.state === 'REVOKED') {
+        if (transcriptState.state === 'REVOKED') {
           this.setState({ isReadOnly: true })
         }
         if (transcriptState.state === 'REVOKED') {
