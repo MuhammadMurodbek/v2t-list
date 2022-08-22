@@ -13,6 +13,8 @@ import jwtDecode from 'jwt-decode'
 import {
     addErrorToast
 } from '../components/GlobalToastList'
+import getQueryStringValue from '../models/getQueryStringValue'
+import { isConstructorDeclaration } from 'typescript'
 
 const Live = (props) => {
     const [departments, setDepartments] = useState([])
@@ -82,17 +84,32 @@ const Live = (props) => {
         setSchemaId(sId)
     }
 
-    const getUsername = () => {
-        const token = jwtDecode(localStorage.getItem('token'))
-        return token.sub
+    const getTokenData = () => {
+        const tokenFromStorage = localStorage.getItem('token')
+        const tokenFromQuery = getQueryStringValue.prototype.decodeToken('token')
+        let token
+        let tokenStub = ''
+        if (tokenFromStorage) {
+            token = tokenFromStorage
+        }
+
+        if (tokenFromQuery) {
+            token = tokenFromQuery
+            tokenStub = `?token=${token}`
+        }
+        return {
+            token,
+            tokenStub
+        }
     }
 
     const loadTranscriptId = async () => {
-        const username = getUsername()
+        const { token, tokenStub} = getTokenData()
         try {
+            const userId = jwtDecode(token).sub
             const receivedTranscriptId = await api
-                .createLiveSession(username, schemaId)
-            window.location = `/#live-diktering/${receivedTranscriptId}`
+                .createLiveSession(userId, schemaId)
+            window.location = `/#live-diktering/${receivedTranscriptId}${tokenStub}`
         } catch (error) {
             if (error instanceof Error) {
                 addErrorToast(error.message)

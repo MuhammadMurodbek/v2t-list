@@ -22,7 +22,7 @@ const getTheDiff = (chapters, updatedValue) => {
 
 const parseMedicalAssistantData = (serverData, transcriptText, isInteractive) => {
   const diseases = []
-  serverData.diseases.forEach((disease) => {
+  serverData?.diseases.forEach((disease) => {
     const parameters = []
     const icdCodes = []
     const additionalIcdCodes = []
