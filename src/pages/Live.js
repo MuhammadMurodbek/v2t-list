@@ -14,7 +14,6 @@ import {
     addErrorToast
 } from '../components/GlobalToastList'
 import getQueryStringValue from '../models/getQueryStringValue'
-import { isConstructorDeclaration } from 'typescript'
 
 const Live = (props) => {
     const [departments, setDepartments] = useState([])
