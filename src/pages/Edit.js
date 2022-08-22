@@ -67,6 +67,7 @@ import AssistantResponse from '../components/medical-assistant/AssistantResponse
 import packageInformation from '../../package.json'
 import { revokeTranscription } from '../api'
 import getQueryStringValue from '../models/getQueryStringValue'
+import getTokenData from '../utils/getTokenData'
 
 import { SchemaV2 } from '../api/index'
 
@@ -166,17 +167,7 @@ export default class EditPage extends Component {
     EventEmitter.subscribe(EVENTS.SEND_EMAIL, this.sendEmailReport)
     await this.checkTranscriptStateAndLoad()
     if (mic) {
-      const tokenFromStorage = localStorage.getItem('token')
-      const tokenFromQuery = getQueryStringValue.prototype.decodeToken('token')
-      let token
-      if (tokenFromStorage) {
-        token = tokenFromStorage
-      }
-
-      if (tokenFromQuery) {
-        token = tokenFromQuery
-      }
-
+      let {token} = getTokenData()
       const username = jwtDecode(token).sub
       this.client = connect(this.getMQTTUrl(), { username, password: token })
       this.client.on('connect', this.onMQTTConnect)
@@ -532,17 +523,7 @@ export default class EditPage extends Component {
   }
 
   initiateMQTT = () => {
-    const tokenFromStorage = localStorage.getItem('token')
-    const tokenFromQuery = getQueryStringValue.prototype.decodeToken('token')
-    let token
-    if (tokenFromStorage) {
-      token = tokenFromStorage
-    }
-
-    if (tokenFromQuery) {
-      token = tokenFromQuery
-    }
-
+    const {token} = getTokenData()
     const username = jwtDecode(token).sub
     this.mediaTopic = `audio/${username}`
     this.speechTopic = `output/${username}`

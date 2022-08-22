@@ -14,6 +14,7 @@ import {
     addErrorToast
 } from '../components/GlobalToastList'
 import getQueryStringValue from '../models/getQueryStringValue'
+import getTokenData from '../utils/getTokenData'
 
 const Live = (props) => {
     const [departments, setDepartments] = useState([])
@@ -81,25 +82,6 @@ const Live = (props) => {
 
     const updateSchemaId = (sId) => {
         setSchemaId(sId)
-    }
-
-    const getTokenData = () => {
-        const tokenFromStorage = localStorage.getItem('token')
-        const tokenFromQuery = getQueryStringValue.prototype.decodeToken('token')
-        let token
-        let tokenStub = ''
-        if (tokenFromStorage) {
-            token = tokenFromStorage
-        }
-
-        if (tokenFromQuery) {
-            token = tokenFromQuery
-            tokenStub = `?token=${token}`
-        }
-        return {
-            token,
-            tokenStub
-        }
     }
 
     const loadTranscriptId = async () => {
