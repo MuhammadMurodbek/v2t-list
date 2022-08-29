@@ -18,6 +18,8 @@ import { EuiI18n, EuiConfirmModal, EuiOverlayMask } from '@elastic/eui'
 import {
   addUnexpectedErrorToast, addSuccessToast, addErrorToast
 } from './GlobalToastList'
+import getTokenData from "../utils/getTokenData";
+import jwtDecode from "jwt-decode";
 
 
 const revokeTranscript = async (id) => {
@@ -258,6 +260,8 @@ export default class TranscriptionList extends Component {
       enableAllColumns: true
     }
 
+    let {token} = getTokenData()
+    const isPermission = jwtDecode(token)?.adm
 
     const columns = [
       ...preferences.columnsForTranscriptList,
@@ -275,7 +279,9 @@ export default class TranscriptionList extends Component {
                 <EuiI18n token="open" default="Open" />
               </EuiButtonEmpty>
           ) : transcriptInfo.status === 'EXPORTED'
-              || transcriptInfo.status === 'APPROVED' ? (
+              || transcriptInfo.status === 'APPROVED'
+              || isPermission
+            ? (
             <EuiButtonEmpty
               onClick={()=> revokeTranscript(id)}
             >
