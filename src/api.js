@@ -205,8 +205,8 @@ const completeLiveTranscript = async (transcriptionId) => {
 
 const createLiveSession = async (userId, schemaId, fields = []) => {
   const outcome = await axios.post('/api/transcription/v2/live/session', {
-    schemaId,
     userId,
+    schemaId,
     fields
   })
   return outcome.data.id
@@ -237,7 +237,7 @@ const getMedicalAssistantData = (
   language = 'swedish',
   interactive = false
 ) => {
-  return []
+  return Promise.resolve([])
 }
 // axios.post('https://ilxgpu1000.inoviaai.se/api/v1/assistant/process', {
 //   // axios.post(`http://10.75.0.30:6600/api/v1/assistant/process`, {

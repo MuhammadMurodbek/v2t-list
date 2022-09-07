@@ -194,7 +194,7 @@ deploy-to-dev:
     - kubectl config get-contexts
     - kubectl config use-context inoviaab/v2t/v2t-env:v2t-dev
   script:
-    - kubectl rollout restart deployment/ui --namespace=v2t-dev
+    - kubectl rollout restart deployment/ui-editor --namespace=v2t-dev
   variables:
     GIT_STRATEGY: none
   only:

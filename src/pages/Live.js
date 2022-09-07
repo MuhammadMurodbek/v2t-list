@@ -13,6 +13,8 @@ import jwtDecode from 'jwt-decode'
 import {
     addErrorToast
 } from '../components/GlobalToastList'
+import getQueryStringValue from '../models/getQueryStringValue'
+import getTokenData from '../utils/getTokenData'
 
 const Live = (props) => {
     const [departments, setDepartments] = useState([])
@@ -82,17 +84,13 @@ const Live = (props) => {
         setSchemaId(sId)
     }
 
-    const getUsername = () => {
-        const token = jwtDecode(localStorage.getItem('token'))
-        return token.sub
-    }
-
     const loadTranscriptId = async () => {
-        const username = getUsername()
+        const { token, tokenStub} = getTokenData()
         try {
+            const userId = jwtDecode(token).sub
             const receivedTranscriptId = await api
-                .createLiveSession(username, schemaId)
-            window.location = `/#live-diktering/${receivedTranscriptId}`
+                .createLiveSession(userId, schemaId)
+            window.location = `/#live-diktering/${receivedTranscriptId}${tokenStub}`
         } catch (error) {
             if (error instanceof Error) {
                 addErrorToast(error.message)
