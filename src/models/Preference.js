@@ -270,6 +270,15 @@ export default class Preference {
     localStorage.setItem('autoCorrect', JSON.stringify(v))
   }
 
+  get hideKeyword() {
+    return this._hideKeyword
+  }
+
+  set hideKeyword(v) {
+    this._hideKeyword = v
+    localStorage.setItem('hideKeyword', JSON.stringify(v))
+  }
+
   get isMedicalAssistantActive() {
     return this._isMedicalAssistantActive
   }
@@ -437,6 +446,8 @@ export default class Preference {
       localStorage.getItem('decisionSupportStatus') === 'true',
     codingSupportStatus: 
       localStorage.getItem('codingSupportStatus') === 'true',
+    hideKeyword:
+      localStorage.getItem('hideKeyword') === 'true',
     fontSizeIteration: 0,
     keywordInit: true
   }

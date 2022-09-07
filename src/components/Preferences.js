@@ -71,8 +71,8 @@ const Flyout = ({ visible, onClose }) => {
     setPreferences({ editReadOnly })
   const setHideEditor = ({ target: { checked: hideEditor }}) =>
     setPreferences({ hideEditor })
-  const setHideSokord = ({ target: { checked: hideSokord }}) =>
-    setPreferences({ hideSokord })
+  const setHideKeyword = ({ target: { checked: hideKeyword }}) =>
+    setPreferences({ hideKeyword })
   const setStopButtonVisibilityStatus = ({
     target: { checked: stopButtonVisibilityStatus }
   }) => setPreferences({ stopButtonVisibilityStatus })
@@ -218,9 +218,9 @@ const Flyout = ({ visible, onClose }) => {
           </EuiFormRow>
           <EuiFormRow label="" fullWidth={true}>
             <EuiSwitch
-              label={<EuiI18n token="hideSokord" default="Hide sökord" />}
-              checked={preferences.hideSokord}
-              onChange={setHideSokord}
+              label={<EuiI18n token="hideKeyword" default="Hide sökord" />}
+              checked={preferences.hideKeyword}
+              onChange={setHideKeyword}
             />
           </EuiFormRow>
           <EuiSpacer size="l" />
