@@ -384,8 +384,10 @@ const SchemaInputs = ({
             selected={startDate}
             dateFormat="YYYY-MM-DD HH:mm"
             onChange={e => {
-              onFieldChange(id, moment(e))
-              setStartDate(moment(e))
+              if (e){
+                onFieldChange(id, moment(e))
+                setStartDate(moment(e))
+              }
             }}
             timeFormat="HH:mm"
             placeholder={name}
