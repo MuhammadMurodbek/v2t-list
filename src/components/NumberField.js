@@ -15,9 +15,14 @@ const NumberField = ({
   createNewSectionAfterThis,
   isTranscriptStateRevoked
 }) => {
-  const [value, setValue] = React.useState(segments.length > 0 ? 
-    segments.map((segment) => segment.words).join(' ') : '')
-
+  const [value, setValue] = React.useState(
+    segments.length > 0 ?
+      segments.map((segment) => segment.words)
+      .join(' ')
+      .replace(',','.') // Handle comma as a decimal
+      .trim()
+    : ''
+  )
   const updateNumberField = (letter) => {
     const updatedChapters = chapters.map((chapter, i) => {
       if (chapterId !== i) {
